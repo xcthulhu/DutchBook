@@ -2,7 +2,7 @@ section \<open>The Implicational Fragment of Intuitionistic Logic\<close>
   
 theory ImplicationalIntuitionistic
   imports "../Formula" 
-          "../../Functional/SKCombinator"
+          "../../Functional/Combinators"
 begin
 
 text \<open>This theory presents the implicational fragment of intuitionistic logic.\<close>
@@ -35,26 +35,25 @@ text \<open>While there are a number of formulations of the \emph{Curry Howard C
       the formulation presented here relates the implicational fragment of intuitionistic logic
       with the simply typed @{term S} and @{term K} combinators.\<close>
   
-text \<open>The (polymorphic) typing for a combinator @{term c} is given by the 
-      relation @{term "c \<Colon> \<phi>"}, which is defined in @{theory SKCombinator}.\<close>
-
-text \<open>In practice, only the subsequent elimination lemma is of particular use.\<close>
+text \<open>The (polymorphic) typing for a combinator @{term X} is given by the 
+      relation @{term "X \<Colon> \<phi>"}, which is defined in @{theory Combinators}.\<close>
   
-lemma curry_howard_elimination: "c \<Colon> \<phi> \<Longrightarrow> \<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi>"
+lemma Curry_Howard_proof_introduction: "X \<Colon> \<phi> \<Longrightarrow> \<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi>"
 proof (induct rule: Simply_Typed_SKCombinator.induct)
   case S_type thus ?case using iil_proof.S_axiom by blast
   next case K_type thus ?case using iil_proof.K_axiom by blast
-  next case application thus ?case by (simp add: iil_proof.modus_ponens)
+  next case Application_type thus ?case by (simp add: iil_proof.modus_ponens)
 qed
-
-lemma  curry_howard_combinator_exists: "\<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi> \<Longrightarrow> \<exists> c. c \<Colon> \<phi>" 
-proof (induct rule: iil_proof.induct)
-  case S_axiom thus ?case using S_type by blast
-  next case K_axiom thus ?case using K_type by blast     
-  next case modus_ponens thus ?case using application by blast
-qed  
   
-theorem curry_howard_correspondence: "(\<exists> c. c \<Colon> \<phi>) \<equiv> \<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi>"
-  by (smt curry_howard_combinator_exists curry_howard_elimination)
+theorem curry_howard_correspondence: "(\<exists> X. X \<Colon> \<phi>) \<equiv> \<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi>"
+proof -
+  have "\<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi> \<Longrightarrow> \<exists> c. c \<Colon> \<phi>" 
+    proof (induct rule: iil_proof.induct)
+      case S_axiom thus ?case using S_type by blast
+      next case K_axiom thus ?case using K_type by blast     
+      next case modus_ponens thus ?case using Application_type by blast
+    qed
+  thus "(\<exists> c. c \<Colon> \<phi>) \<equiv> \<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi>" by (smt Curry_Howard_proof_introduction)
+qed
 
 end
