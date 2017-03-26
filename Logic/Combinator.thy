@@ -56,29 +56,38 @@ fun Turner_Abstraction :: "'x \<Rightarrow> 'x SKCombinator \<Rightarrow> 'x SKC
 
 subsection \<open>Common Combinators\<close>
 
-text \<open>Using \<lambda>-abstraction, various common combinators can be expressed.  
+text \<open>This section presents various common combinators.  Some combinators are simple enough to
+      express in using $\mathbf{S}$ and $\mathbf{K}$, however others are more easily expressed
+      using \<lambda>-abstraction.  
       TODO: Cite Haskell Curry's PhD thesis.\<close>  
 
-text \<open>Automated deduction machinary for \<lambda>-abstraction functions more efficiently when making
+text \<open>Automated deduction machinery for \<lambda>-abstraction functions more efficiently when making
       use of the following convenience type:\<close>
   
 datatype Named_Variable =
     XVariable  ("\<^bold>x")
   | YVariable  ("\<^bold>y")
   | FVariable  ("\<^bold>f")
-
+  | GVariable  ("\<^bold>g")
+    
 text \<open>A useful lemma is the type of the \emph{identity} combinator, designated by $\mathbf{I}$
       in the literature.\<close>     
     
 lemma Identity_type: "\<^bold>S \<^bold>\<cdot> \<^bold>K \<^bold>\<cdot> \<^bold>K \<^bold>\<Colon> \<phi> \<^bold>\<Rightarrow> \<phi>"
   using K_type S_type Application_type by blast 
 
-text \<open>Another significant combinator is the $\mathbf{C}$ combinator, which is referred to as
+text \<open>Another significant combinator is the $\mathbf{C}$ combinator, which corresponds to
       \texttt{flip} in Haskell.\<close>    
 
 lemma C_type: "\<^bold>\<lambda> \<^bold>f. \<^bold>\<lambda> \<^bold>x. \<^bold>\<lambda> \<^bold>y. (\<^bold>\<langle>\<^bold>f\<^bold>\<rangle> \<^bold>\<cdot> \<^bold>\<langle>\<^bold>y\<^bold>\<rangle> \<^bold>\<cdot> \<^bold>\<langle>\<^bold>x\<^bold>\<rangle>) \<^bold>\<Colon> (\<phi> \<^bold>\<Rightarrow> \<psi> \<^bold>\<Rightarrow> \<chi>) \<^bold>\<Rightarrow> \<psi> \<^bold>\<Rightarrow> \<phi> \<^bold>\<Rightarrow> \<chi>"
   by (simp, meson Identity_type Simply_Typed_SKCombinator.simps)
 
+text \<open>Haskell also has a function \texttt{(.)}, which is referred to as the $\mathbf{B}$ 
+      combinator.\<close>
+
+lemma B_type: "\<^bold>S \<^bold>\<cdot> (\<^bold>K \<^bold>\<cdot> \<^bold>S) \<^bold>\<cdot> \<^bold>K \<^bold>\<Colon> (\<psi> \<^bold>\<Rightarrow> \<chi>) \<^bold>\<Rightarrow> (\<phi> \<^bold>\<Rightarrow> \<psi>) \<^bold>\<Rightarrow> \<phi> \<^bold>\<Rightarrow> \<chi>"
+  by (meson Simply_Typed_SKCombinator.simps)
+    
 text \<open>The final combinator given is the $\mathbf{W}$ combinator.\<close>    
 
 lemma W_type: "\<^bold>\<lambda> \<^bold>f. \<^bold>\<lambda> \<^bold>x. (\<^bold>\<langle>\<^bold>f\<^bold>\<rangle> \<^bold>\<cdot> \<^bold>\<langle>\<^bold>x\<^bold>\<rangle> \<^bold>\<cdot> \<^bold>\<langle>\<^bold>x\<^bold>\<rangle>) \<^bold>\<Colon> (\<phi> \<^bold>\<Rightarrow> \<phi> \<^bold>\<Rightarrow> \<chi>) \<^bold>\<Rightarrow> \<phi> \<^bold>\<Rightarrow> \<chi>"
