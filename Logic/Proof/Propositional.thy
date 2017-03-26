@@ -1,5 +1,5 @@
 theory Propositional
-  imports Main  "../Formula" ImplicationalIntuitionistic "~~/src/HOL/Library/Permutation"
+  imports Main  "../Formula" Minimal "~~/src/HOL/Library/Permutation"
 begin
         
 inductive classical_proof :: "'a Formula \<Rightarrow> bool" ("\<turnstile>\<^sub>C\<^sub>L _" [60] 55)
@@ -10,12 +10,12 @@ inductive classical_proof :: "'a Formula \<Rightarrow> bool" ("\<turnstile>\<^su
   | modus_ponens   : "\<turnstile>\<^sub>C\<^sub>L \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>C\<^sub>L \<phi> \<Longrightarrow> \<turnstile>\<^sub>C\<^sub>L \<psi>"
     
 lemma intuitionistic_subsystem: "\<turnstile>\<^sub>I\<^sub>I\<^sub>L \<phi> \<Longrightarrow> \<turnstile>\<^sub>C\<^sub>L \<phi>"
-proof (induct rule: iil_proof.induct)
-  case S_axiom thus ?case by (simp add: classical_proof.S_axiom)
+proof (induct rule: free_minimal_logic_proof.induct)
+  case Axiom_1 thus ?case by (simp add: classical_proof.S_axiom)
 next 
-  case K_axiom thus ?case by (simp add: classical_proof.K_axiom)
+  case Axiom_2 thus ?case by (simp add: classical_proof.K_axiom)
 next 
-  case modus_ponens thus ?case by (simp add: classical_proof.modus_ponens)
+  case Modus_Ponens thus ?case by (simp add: classical_proof.modus_ponens)
 qed
 
 lemma permutation_lemma: "\<Phi> <~~> \<Psi> \<Longrightarrow> \<turnstile>\<^sub>C\<^sub>L \<Phi> \<mapsto> \<phi> \<equiv> \<turnstile>\<^sub>C\<^sub>L \<Psi> \<mapsto> \<phi>"
