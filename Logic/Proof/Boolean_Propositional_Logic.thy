@@ -1,10 +1,12 @@
 section {* Boolean Propositional Logic *}
+
+(* TODO: Change to classical propositional logic *)
   
 theory Boolean_Propositional_Logic
   imports Minimal_Logic
 begin
 
-text {* This theory presents \emph{boolean propositional logic}, which is 
+text {* This theory presents \emph{Boolean propositional logic}, which is 
         a classical logic without quantifiers. *}
 
 subsection {* Axiomatization *}

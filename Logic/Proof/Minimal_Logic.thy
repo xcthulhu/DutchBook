@@ -95,7 +95,7 @@ lemma (in Minimal_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longright
 
 text {* In the case of the empty list, the converse may be established. *}
 
-lemma (in Minimal_Logic) list_deduction_base_theory: "\<turnstile> \<phi> \<equiv> [] :\<turnstile> \<phi>"
+lemma (in Minimal_Logic) list_deduction_base_theory: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   unfolding list_deduction_def
   by simp
 
@@ -349,7 +349,7 @@ lemma (in Minimal_Logic) set_deduction_weaken: "\<turnstile> \<phi> \<Longrighta
 
 text {* In the case of the empty set, the converse may be established. *}
 
-lemma (in Minimal_Logic) set_deduction_base_theory: "\<turnstile> \<phi> \<equiv> {} \<tturnstile> \<phi>"
+lemma (in Minimal_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
 text {* Next, a form of \emph{modus ponens} is provided for @{term "op \<tturnstile>"}. *}

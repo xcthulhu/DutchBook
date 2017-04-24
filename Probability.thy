@@ -1,7 +1,9 @@
 theory Probability
-  imports "Logic/Proof/Boolean_Propositional_Connectives" "Real"
+  imports "Logic/Proof/Boolean_Propositional_Connectives" Real
 begin
 
+(* TODO: Change to Weak_Probability *)
+  
 class Probability = Boolean_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
@@ -26,6 +28,9 @@ lemma (in Probability) falsum_zero_probability:
             conjunction_right_elimination 
             negation_def)
 
+lemma (in Probability) consistency: "\<not> \<turnstile> \<bottom>"
+  using Unity falsum_zero_probability by auto          
+          
 lemma (in Probability) falsum_implication_zero_probability:
   "\<turnstile> \<phi> \<rightarrow> \<bottom> \<Longrightarrow> Pr \<phi> = 0"
   by (smt Alternate_Additivity Unity bivalence negation_def negation_elimination)
@@ -46,50 +51,7 @@ lemma (in Probability) monotonicity:
           flip_hypothetical_syllogism 
           negation_def 
           unity_upper_bound)
-
-theorem Probabilistic_Boolean_Propositional_Calculus_Inquality_Completeness:
-  "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr. class.Probability (\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>) (op \<^bold>\<rightarrow>) \<^bold>\<bottom> Pr \<longrightarrow>  Pr \<phi> \<le> Pr \<psi>"
-proof -
-  {
-    fix Pr :: "'a Boolean_Propositional_Formula \<Rightarrow> real"
-    assume "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<rightarrow> \<psi>"
-    hence "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi>" by simp 
-    moreover assume "class.Probability (\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>) (op \<^bold>\<rightarrow>) \<^bold>\<bottom> Pr"
-    ultimately have "Pr \<phi> \<le> Pr \<psi>"
-      using Probability.Probability.monotonicity
-      by smt
-  }
-  moreover
-  {
-    assume "\<not> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<rightarrow> \<psi>"
-    from this obtain \<MM> where \<MM>: "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>" "\<not> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p  \<psi>"
-      using Boolean_Propositional_Calculus_Soundness_And_Completeness by fastforce
-    let ?Pr = "\<lambda> \<chi>. if (\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<chi>) then (1 :: real) else 0 "
-    have "\<not> (?Pr \<phi> \<le> ?Pr \<psi>)" using \<MM> by simp
-    moreover
-    interpret Boolean_Propositional_Logic "(\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>)" "(op \<^bold>\<rightarrow>)" "\<^bold>\<bottom>"
-      by (standard, simp add: Boolean_Propositional_Calculus.Axiom_1,
-                    simp add: Boolean_Propositional_Calculus.Axiom_2,
-                    simp add: Boolean_Propositional_Calculus.Modus_Ponens,
-                    simp add: Boolean_Propositional_Calculus.Double_Negation)
-    have  "class.Probability (\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>) (op \<^bold>\<rightarrow>) \<^bold>\<bottom> ?Pr"
-    by (standard, simp add: Boolean_Propositional_Calculus.Axiom_1,
-                  simp add: Boolean_Propositional_Calculus.Axiom_2,
-                  simp add: Boolean_Propositional_Calculus.Modus_Ponens,
-                  simp add: Boolean_Propositional_Calculus.Double_Negation,
-                  simp,
-                  simp add: Boolean_Propositional_Calculus_Soundness,
-                  simp add: negation_def conjunction_def disjunction_def 
-                            Boolean_Propositional_Calculus_Soundness_And_Completeness)
-   ultimately have 
-      "\<exists> Pr. class.Probability (\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>) (op \<^bold>\<rightarrow>) \<^bold>\<bottom> Pr \<and> \<not> (Pr \<phi> \<le> Pr \<psi>)"
-      by blast
-  }
-  ultimately show   
-    "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr. class.Probability (\<lambda> \<phi>. \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>) (op \<^bold>\<rightarrow>) \<^bold>\<bottom> Pr \<longrightarrow> Pr \<phi> \<le> Pr \<psi>"
-    by smt
-qed        
-        
+           
 lemma (in Probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
   by (meson eq_iff 
@@ -148,4 +110,40 @@ proof -
     by simp
 qed
 
+lemma (in Probability) subtraction_identity:
+  "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
+proof -
+  have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
+  proof -
+    have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
+      unfolding Boolean_Propositional_Logic_class.subtraction_def
+                Minimal_Logic_With_Falsum_class.negation_def
+                Boolean_Propositional_Logic_class.biconditional_def 
+                Boolean_Propositional_Logic_class.conjunction_def
+                Boolean_Propositional_Logic_class.disjunction_def
+      by (simp, blast)
+    hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+      using propositional_semantics by blast
+    thus ?thesis by simp
+  qed
+  hence "Pr \<phi>  = Pr ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
+    using biconditional_equivalence
+    by simp
+  moreover have "\<turnstile> \<sim>((\<phi> \<setminus> \<psi>) \<sqinter> (\<phi> \<sqinter> \<psi>))"
+  proof -
+    have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
+      unfolding Boolean_Propositional_Logic_class.subtraction_def
+                Minimal_Logic_With_Falsum_class.negation_def 
+                Boolean_Propositional_Logic_class.conjunction_def
+                Boolean_Propositional_Logic_class.disjunction_def
+      by simp
+    hence "\<turnstile> \<^bold>\<lparr> \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+      using propositional_semantics by blast
+    thus ?thesis by simp
+  qed
+  ultimately show ?thesis
+    using Additivity
+    by smt
+qed
+  
 end
