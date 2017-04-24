@@ -1,7 +1,7 @@
 section {* Classical Propositional Connectives *}
 
 theory Classical_Propositional_Connectives
-  imports Classical_Propositional_Soundness_And_Completeness
+  imports Classical_Propositional_Calculus
           "../../List_Utilities"
 begin
 

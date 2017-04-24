@@ -1,4 +1,4 @@
-theory Extended_Classical_Propositional_Soundness_And_Completeness
+theory Extended_Classical_Propositional_Calculus
   imports Intuitionistic_Logic
 begin
 
