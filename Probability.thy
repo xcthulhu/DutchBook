@@ -1,10 +1,10 @@
 theory Probability
-  imports "Logic/Proof/Boolean_Propositional_Connectives" Real
+  imports "Logic/Proof/Classical_Propositional_Connectives" Real
 begin
 
 (* TODO: Change to Weak_Probability *)
   
-class Probability = Boolean_Propositional_Logic +
+class Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
@@ -66,11 +66,11 @@ proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Boolean_Propositional_Logic_class.subtraction_def
+      unfolding Classical_Propositional_Logic_class.subtraction_def
                 Minimal_Logic_With_Falsum_class.negation_def
-                Boolean_Propositional_Logic_class.biconditional_def 
-                Boolean_Propositional_Logic_class.conjunction_def
-                Boolean_Propositional_Logic_class.disjunction_def
+                Classical_Propositional_Logic_class.biconditional_def 
+                Classical_Propositional_Logic_class.conjunction_def
+                Classical_Propositional_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -78,11 +78,11 @@ proof -
   moreover have "\<turnstile> \<phi> \<rightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) \<rightarrow> \<bottom>"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom>"
-      unfolding Boolean_Propositional_Logic_class.subtraction_def
+      unfolding Classical_Propositional_Logic_class.subtraction_def
                 Minimal_Logic_With_Falsum_class.negation_def
-                Boolean_Propositional_Logic_class.biconditional_def 
-                Boolean_Propositional_Logic_class.conjunction_def
-                Boolean_Propositional_Logic_class.disjunction_def
+                Classical_Propositional_Logic_class.biconditional_def 
+                Classical_Propositional_Logic_class.conjunction_def
+                Classical_Propositional_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -92,11 +92,11 @@ proof -
   moreover have "\<turnstile> \<psi> \<leftrightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Boolean_Propositional_Logic_class.subtraction_def
+      unfolding Classical_Propositional_Logic_class.subtraction_def
                 Minimal_Logic_With_Falsum_class.negation_def
-                Boolean_Propositional_Logic_class.biconditional_def 
-                Boolean_Propositional_Logic_class.conjunction_def
-                Boolean_Propositional_Logic_class.disjunction_def
+                Classical_Propositional_Logic_class.biconditional_def 
+                Classical_Propositional_Logic_class.conjunction_def
+                Classical_Propositional_Logic_class.disjunction_def
       by auto
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -116,11 +116,11 @@ proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Boolean_Propositional_Logic_class.subtraction_def
+      unfolding Classical_Propositional_Logic_class.subtraction_def
                 Minimal_Logic_With_Falsum_class.negation_def
-                Boolean_Propositional_Logic_class.biconditional_def 
-                Boolean_Propositional_Logic_class.conjunction_def
-                Boolean_Propositional_Logic_class.disjunction_def
+                Classical_Propositional_Logic_class.biconditional_def 
+                Classical_Propositional_Logic_class.conjunction_def
+                Classical_Propositional_Logic_class.disjunction_def
       by (simp, blast)
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast
@@ -132,10 +132,10 @@ proof -
   moreover have "\<turnstile> \<sim>((\<phi> \<setminus> \<psi>) \<sqinter> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Boolean_Propositional_Logic_class.subtraction_def
+      unfolding Classical_Propositional_Logic_class.subtraction_def
                 Minimal_Logic_With_Falsum_class.negation_def 
-                Boolean_Propositional_Logic_class.conjunction_def
-                Boolean_Propositional_Logic_class.disjunction_def
+                Classical_Propositional_Logic_class.conjunction_def
+                Classical_Propositional_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast

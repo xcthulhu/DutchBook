@@ -2,11 +2,11 @@ theory Elementary_Probability_Completeness
   imports Probability
 begin
 
-definition (in Boolean_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
+definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities = 
          {Pr. class.Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}" 
 
-lemma (in Boolean_Propositional_Logic) MCS_Binary_Probability:
+lemma (in Classical_Propositional_Logic) MCS_Binary_Probability:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
       (is "?Pr \<in> Binary_Probabilities")
@@ -33,7 +33,7 @@ proof -
     by simp
 qed
 
-lemma (in Boolean_Propositional_Logic) arbitrary_disjunction_exclusion_MCS:
+lemma (in Classical_Propositional_Logic) arbitrary_disjunction_exclusion_MCS:
   assumes "MCS \<Omega>"
   shows "\<Squnion> \<Psi> \<notin> \<Omega> \<equiv> \<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
 proof (induct \<Psi>)
@@ -70,7 +70,7 @@ lemma (in Probability) implication_list_summation_inequality:
   using assms arbitrary_disjunction_list_summation_inequality monotonicity order_trans 
   by blast
     
-theorem (in Boolean_Propositional_Logic) List_Summation_Completeness:
+theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
   "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
 proof -
   {
@@ -124,7 +124,7 @@ lemma (in Probability) implication_set_summation_inequality:
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans 
   by blast
 
-theorem (in Boolean_Propositional_Logic) Set_Summation_Completeness:
+theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
   "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>)"
   by (smt List_Summation_Completeness 
           Modus_Ponens 
@@ -212,7 +212,7 @@ lemma count_remove_all_sum_list:
   shows "real (count_list xs x) * f x + (\<Sum>x'\<leftarrow>(removeAll x xs). f x') = (\<Sum>x\<leftarrow>xs. f x)"
     by (induct xs, simp, simp, smt semiring_normalization_rules(3))
 
-theorem (in Boolean_Propositional_Logic) Exclusive_Implication_Completeness:
+theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
   "\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
 proof -
   {
@@ -323,7 +323,7 @@ proof -
 qed
     
 (* TODO: Weaken to Weak Probabilities *)    
-theorem (in Boolean_Propositional_Logic) Inquality_Completeness:
+theorem (in Classical_Propositional_Logic) Inquality_Completeness:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>"
 proof -
   have "\<turnstile> exclusive [\<phi>]"
@@ -341,7 +341,7 @@ proof -
     by auto
 qed
 
-theorem (in Boolean_Propositional_Logic) Exclusive_List_Summation_Completeness:
+theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
   "\<turnstile> exclusive \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof -
   have "\<turnstile> exclusive \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> exclusive \<Phi>"
@@ -354,7 +354,7 @@ proof -
     by smt
 qed
 
-theorem (in Boolean_Propositional_Logic) Exclusive_Set_Summation_Completeness:
+theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
   "\<turnstile> exclusive (remdups \<Phi>) \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (smt eq_iff 
           Exclusive_List_Summation_Completeness 

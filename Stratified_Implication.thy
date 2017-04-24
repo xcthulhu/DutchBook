@@ -4,12 +4,12 @@ theory Stratified_Implication
           "~~/src/HOL/Library/Permutation"
 begin      
         
-definition (in Boolean_Propositional_Logic) 
+definition (in Classical_Propositional_Logic) 
   stratified :: "nat \<Rightarrow> 'a \<Rightarrow> 'a list \<Rightarrow> 'a list list \<Rightarrow> bool" 
   where
     "stratified n \<phi> \<Phi> \<L> \<equiv> length \<L> = n \<and> concat \<L> <~~> \<Phi> \<and> (\<forall> \<Psi> \<in> set \<L>. \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>)"
     
-lemma (in Boolean_Propositional_Logic) implicational_concatenation:
+lemma (in Classical_Propositional_Logic) implicational_concatenation:
   assumes "set \<L> \<noteq> {}"
   and     "\<forall> \<Psi> \<in> set \<L>. \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows   "\<turnstile> \<phi> \<rightarrow> \<Squnion> (concat \<L>)"
@@ -67,7 +67,7 @@ next
   qed
 qed
   
-lemma (in Boolean_Propositional_Logic) stratified_\<Phi>_implication:
+lemma (in Classical_Propositional_Logic) stratified_\<Phi>_implication:
   assumes "stratified n \<phi> \<Phi> \<L>"
   and     "set \<Phi> \<noteq> {}"
   shows   "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Phi>"
@@ -78,7 +78,7 @@ lemma (in Boolean_Propositional_Logic) stratified_\<Phi>_implication:
   unfolding stratified_def
   by fastforce
     
-lemma (in Boolean_Propositional_Logic) stratified_listSubtraction:
+lemma (in Classical_Propositional_Logic) stratified_listSubtraction:
   assumes "stratified n \<phi> \<Phi> \<L>"
       and "\<Psi> \<in> set \<L>"
     shows "stratified (n-1) \<phi> (\<Phi> \<ominus> \<Psi>) (\<L> \<ominus> [\<Psi>])"
@@ -193,7 +193,7 @@ lemma (in Minimal_Logic) Logical_Extensions_deduction_introduction:
   unfolding Logical_Extensions_def
   by simp
 
-lemma (in Boolean_Propositional_Logic) Binary_Probabilities_alt_def:
+lemma (in Classical_Propositional_Logic) Binary_Probabilities_alt_def:
   "Binary_Probabilities = 
    {Pr. \<exists>\<L> \<in> Extensions\<^sub>\<turnstile>. class.Probability \<L> (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
   using Logical_Extensions_reflection

@@ -1,27 +1,27 @@
-section {* Boolean Propositional Logic *}
+section {* Classical Propositional Logic *}
 
 (* TODO: Change to classical propositional logic *)
   
-theory Boolean_Propositional_Logic
+theory Classical_Propositional_Logic
   imports Minimal_Logic
 begin
 
-text {* This theory presents \emph{Boolean propositional logic}, which is 
+text {* This theory presents \emph{Classical propositional logic}, which is 
         a classical logic without quantifiers. *}
 
 subsection {* Axiomatization *}
 
 text {* Minimal logic is given by the following Hilbert-style axiom system: *}
   
-class Boolean_Propositional_Logic = Minimal_Logic_With_Falsum +
+class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
 
 subsection {* Common Rules *}
 
-lemma (in Boolean_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
+lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism by blast
 
-lemma (in Boolean_Propositional_Logic) Contraposition:
+lemma (in Classical_Propositional_Logic) Contraposition:
   "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)) \<rightarrow> \<psi> \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<bottom>"
@@ -37,13 +37,13 @@ proof -
     using list_deduction_base_theory list_deduction_theorem by blast
 qed
 
-lemma (in Boolean_Propositional_Logic) Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
+lemma (in Classical_Propositional_Logic) Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson Axiom_1 Modus_Ponens flip_implication)
   
-lemma (in Boolean_Propositional_Logic) The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
+lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
     
-lemma (in Boolean_Propositional_Logic) Peirces_law: "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
+lemma (in Classical_Propositional_Logic) Peirces_law: "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
     using The_Principle_of_Pseudo_Scotus list_deduction_theorem list_deduction_weaken by blast
@@ -64,7 +64,7 @@ proof -
     by auto
 qed
 
-lemma (in Boolean_Propositional_Logic) excluded_middle_elimination:
+lemma (in Classical_Propositional_Logic) excluded_middle_elimination:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) \<rightarrow> \<psi>"
 proof -
   let ?\<Gamma> = "[\<psi> \<rightarrow> \<bottom>, \<phi> \<rightarrow> \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>]"
@@ -210,15 +210,15 @@ proof -
     by smt
 qed
   
-definition (in Boolean_Propositional_Logic) 
+definition (in Classical_Propositional_Logic) 
   Consistent :: "'a set \<Rightarrow> bool" where 
     [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-Consistent \<Gamma>"  
   
-definition (in Boolean_Propositional_Logic) 
+definition (in Classical_Propositional_Logic) 
   Maximally_Consistent_Set :: "'a set \<Rightarrow> bool" ("MCS") where
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
-lemma (in Boolean_Propositional_Logic) Formula_Maximal_Consistent_Set_negation:
+lemma (in Classical_Propositional_Logic) Formula_Maximal_Consistent_Set_negation:
   "\<phi>-MCS \<Gamma> \<Longrightarrow> \<phi> \<rightarrow> \<bottom> \<in> \<Gamma>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
@@ -245,7 +245,7 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Boolean_Propositional_Logic) Formula_Maximal_Consistency:
+lemma (in Classical_Propositional_Logic) Formula_Maximal_Consistency:
   "\<exists>\<phi>. \<phi>-MCS \<Gamma> \<equiv> MCS \<Gamma>"
 proof -
   {
@@ -317,7 +317,7 @@ theorem (in Minimal_Logic) Formula_Maximally_Consistent_Set_implication_eliminat
         set_deduction_modus_ponens 
   by blast  
   
-lemma (in Boolean_Propositional_Logic) Formula_Maximally_Consistent_Set_implication:
+lemma (in Classical_Propositional_Logic) Formula_Maximally_Consistent_Set_implication:
   assumes "\<phi>-MCS \<Gamma>"
   shows "\<psi> \<rightarrow> \<chi> \<in> \<Gamma> \<equiv> (\<psi> \<in> \<Gamma> \<longrightarrow> \<chi> \<in> \<Gamma>)"
 proof -

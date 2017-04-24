@@ -1,17 +1,17 @@
-section {* Boolean Propositional Connectives *}
+section {* Classical Propositional Connectives *}
 
-theory Boolean_Propositional_Connectives
-  imports Boolean_Propositional_Soundness_And_Completeness
+theory Classical_Propositional_Connectives
+  imports Classical_Propositional_Soundness_And_Completeness
           "../../List_Utilities"
 begin
 
 subsection {* Conjunction *}
 
-definition (in Boolean_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)
+definition (in Classical_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)
   where
     "\<phi> \<sqinter> \<psi> = (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
 
-lemma (in Boolean_Propositional_Logic) conjunction_introduction:
+lemma (in Classical_Propositional_Logic) conjunction_introduction:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis Modus_Ponens 
             conjunction_def 
@@ -19,7 +19,7 @@ lemma (in Boolean_Propositional_Logic) conjunction_introduction:
             list_implication.simps(1) 
             list_implication.simps(2))
 
-lemma (in Boolean_Propositional_Logic) conjunction_left_elimination:
+lemma (in Classical_Propositional_Logic) conjunction_left_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<phi>"
   by (metis (full_types) Peirces_law 
                          The_Principle_of_Pseudo_Scotus 
@@ -29,7 +29,7 @@ lemma (in Boolean_Propositional_Logic) conjunction_left_elimination:
                          list_deduction_theorem 
                          list_deduction_weaken)  
 
-lemma (in Boolean_Propositional_Logic) conjunction_right_elimination:
+lemma (in Classical_Propositional_Logic) conjunction_right_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<psi>"
   by (metis (full_types) Axiom_1 
                          Contraposition 
@@ -38,9 +38,9 @@ lemma (in Boolean_Propositional_Logic) conjunction_right_elimination:
                          flip_hypothetical_syllogism 
                          flip_implication)
 
-lemma (in Boolean_Propositional_Logic) conjunction_embedding [simp]:
+lemma (in Classical_Propositional_Logic) conjunction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<sqinter> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<sqinter> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding conjunction_def Boolean_Propositional_Logic_class.conjunction_def
+  unfolding conjunction_def Classical_Propositional_Logic_class.conjunction_def
   by simp
 
 lemma conjunction_semantics [simp]:
@@ -49,25 +49,25 @@ lemma conjunction_semantics [simp]:
     
 subsection {* Biconditional *}
 
-definition (in Boolean_Propositional_Logic) biconditional :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<leftrightarrow>" 75)
+definition (in Classical_Propositional_Logic) biconditional :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<leftrightarrow>" 75)
   where 
     "\<phi> \<leftrightarrow> \<psi> = (\<phi> \<rightarrow> \<psi>) \<sqinter> (\<psi> \<rightarrow> \<phi>)"
 
-lemma (in Boolean_Propositional_Logic) biconditional_introduction:
+lemma (in Classical_Propositional_Logic) biconditional_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<leftrightarrow> \<psi>)"
   by (simp add: biconditional_def conjunction_introduction)
 
-lemma (in Boolean_Propositional_Logic) biconditional_left_elimination:
+lemma (in Classical_Propositional_Logic) biconditional_left_elimination:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   by (simp add: biconditional_def conjunction_left_elimination)
 
-lemma (in Boolean_Propositional_Logic) biconditional_right_elimination:
+lemma (in Classical_Propositional_Logic) biconditional_right_elimination:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
   by (simp add: biconditional_def conjunction_right_elimination)
 
-lemma (in Boolean_Propositional_Logic) biconditional_embedding [simp]:
+lemma (in Classical_Propositional_Logic) biconditional_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<leftrightarrow> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<leftrightarrow> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding biconditional_def Boolean_Propositional_Logic_class.biconditional_def
+  unfolding biconditional_def Classical_Propositional_Logic_class.biconditional_def
   by simp
 
 lemma biconditional_semantics [simp]:
@@ -91,7 +91,7 @@ lemma (in Minimal_Logic_With_Falsum) negation_elimination:
   unfolding negation_def
   by (metis Axiom_1 Modus_Ponens implication_absorption)  
 
-lemma (in Boolean_Propositional_Logic) negation_embedding [simp]:
+lemma (in Classical_Propositional_Logic) negation_embedding [simp]:
   "\<^bold>\<lparr> \<sim> \<phi> \<^bold>\<rparr> = \<sim> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   unfolding negation_def Minimal_Logic_With_Falsum_class.negation_def
   by simp
@@ -103,16 +103,16 @@ lemma negation_semantics [simp]:
     
 subsection {* Disjunction *}
     
-definition (in Boolean_Propositional_Logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<squnion>" 67)
+definition (in Classical_Propositional_Logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<squnion>" 67)
   where
     "\<phi> \<squnion> \<psi> = (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>"
 
-primrec (in Boolean_Propositional_Logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
+primrec (in Classical_Propositional_Logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
   where
      "\<Squnion> [] = \<bottom>"
   |  "\<Squnion> (\<phi> # \<Phi>) = \<phi> \<squnion> \<Squnion> \<Phi>"    
     
-lemma (in Boolean_Propositional_Logic) disjunction_elimination:
+lemma (in Classical_Propositional_Logic) disjunction_elimination:
   "\<turnstile> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>"
 proof -
   let ?\<Gamma> = "[\<phi> \<rightarrow> \<chi>, \<psi> \<rightarrow> \<chi>, \<phi> \<squnion> \<psi>]"
@@ -136,22 +136,22 @@ proof -
     by simp
 qed
     
-lemma (in Boolean_Propositional_Logic) disjunction_left_introduction:
+lemma (in Classical_Propositional_Logic) disjunction_left_introduction:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
   by (metis Modus_Ponens 
             The_Principle_of_Pseudo_Scotus 
             flip_implication)
 
-lemma (in Boolean_Propositional_Logic) disjunction_right_introduction:
+lemma (in Classical_Propositional_Logic) disjunction_right_introduction:
   "\<turnstile> \<psi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
   using Axiom_1
   by simp
 
-lemma (in Boolean_Propositional_Logic) disjunction_embedding [simp]:
+lemma (in Classical_Propositional_Logic) disjunction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<squnion> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<squnion> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding disjunction_def Boolean_Propositional_Logic_class.disjunction_def
+  unfolding disjunction_def Classical_Propositional_Logic_class.disjunction_def
   by simp
 
 lemma disjunction_semantics [simp]:
@@ -170,31 +170,31 @@ lemma (in Minimal_Logic_With_Falsum) verum_tautology: "\<turnstile> \<top>"
 
 subsection {* Mutual Exclusion *}
 
-primrec (in Boolean_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a"
+primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a"
   where
       "exclusive [] = \<top>"
     | "exclusive (\<phi> # \<Phi>) = \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>) \<sqinter> exclusive \<Phi>"
           
 subsection {* Subtraction *}    
     
-definition (in Boolean_Propositional_Logic) subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixl "\<setminus>" 69)
+definition (in Classical_Propositional_Logic) subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixl "\<setminus>" 69)
   where
     "\<phi> \<setminus> \<psi> = \<phi> \<sqinter> \<sim> \<psi>"
 
-lemma (in Boolean_Propositional_Logic) subtraction_embedding [simp]:
+lemma (in Classical_Propositional_Logic) subtraction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<setminus> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<setminus> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding subtraction_def Boolean_Propositional_Logic_class.subtraction_def
+  unfolding subtraction_def Classical_Propositional_Logic_class.subtraction_def
   by simp
     
 subsection {* Common Rules *}
 
 subsubsection {* Biconditional Equivalence Relation *}
 
-lemma (in Boolean_Propositional_Logic) biconditional_reflection:
+lemma (in Classical_Propositional_Logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
   by (meson Axiom_1 Modus_Ponens biconditional_introduction implication_absorption)
 
-lemma (in Boolean_Propositional_Logic) biconditional_symmetry:
+lemma (in Classical_Propositional_Logic) biconditional_symmetry:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<leftrightarrow> (\<psi> \<leftrightarrow> \<phi>)"
   by (metis (full_types) Modus_Ponens 
                          biconditional_def 
@@ -202,7 +202,7 @@ lemma (in Boolean_Propositional_Logic) biconditional_symmetry:
                          flip_hypothetical_syllogism 
                          flip_implication)
 
-lemma (in Boolean_Propositional_Logic) biconditional_transitivity:
+lemma (in Classical_Propositional_Logic) biconditional_transitivity:
     "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> (\<psi> \<leftrightarrow> \<chi>) \<rightarrow> (\<phi> \<leftrightarrow> \<chi>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
@@ -212,7 +212,7 @@ proof -
  thus ?thesis by simp
 qed
 
-lemma (in Boolean_Propositional_Logic) biconditional_weaken:
+lemma (in Classical_Propositional_Logic) biconditional_weaken:
   assumes "\<Gamma> \<tturnstile> \<phi> \<leftrightarrow> \<psi>"
   shows "\<Gamma> \<tturnstile> \<phi> \<equiv> \<Gamma> \<tturnstile> \<psi>"
   by (smt assms 
@@ -223,7 +223,7 @@ lemma (in Boolean_Propositional_Logic) biconditional_weaken:
 
 subsubsection {* Conjunction Identities *}
 
-lemma (in Boolean_Propositional_Logic) conjunction_negation_identity:
+lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
   "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>)"
   by (metis Contraposition 
             Double_Negation_converse 
@@ -232,18 +232,18 @@ lemma (in Boolean_Propositional_Logic) conjunction_negation_identity:
             conjunction_def 
             negation_def)
 
-lemma (in Boolean_Propositional_Logic) conjunction_deduction_equivalence [simp]:
+lemma (in Classical_Propositional_Logic) conjunction_deduction_equivalence [simp]:
   "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> \<equiv> \<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>"
   using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
         set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
   by (smt conjunction_introduction conjunction_left_elimination conjunction_right_elimination)
 
-lemma (in Boolean_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
+lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
   "\<turnstile> \<phi> \<sqinter> \<psi> \<equiv> \<turnstile> \<phi> \<and> \<turnstile> \<psi>"
   by (smt conjunction_deduction_equivalence set_deduction_base_theory)
 
     
-lemma (in Boolean_Propositional_Logic) conjunction_commutativity:
+lemma (in Classical_Propositional_Logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis (full_types) Modus_Ponens 
                          biconditional_introduction 
@@ -251,7 +251,7 @@ lemma (in Boolean_Propositional_Logic) conjunction_commutativity:
                          flip_hypothetical_syllogism 
                          flip_implication)
 
-lemma (in Boolean_Propositional_Logic) conjunction_associativity:
+lemma (in Classical_Propositional_Logic) conjunction_associativity:
   "\<turnstile> ((\<phi> \<sqinter> \<psi>) \<sqinter> \<chi>) \<leftrightarrow> (\<phi> \<sqinter> (\<psi> \<sqinter> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -263,11 +263,11 @@ qed
 
 subsubsection {* Disjunction Identities *}
 
-lemma (in Boolean_Propositional_Logic) bivalence:
+lemma (in Classical_Propositional_Logic) bivalence:
   "\<turnstile> \<sim> \<phi> \<squnion> \<phi>"
   by (simp add: Double_Negation disjunction_def negation_def)
 
-lemma (in Boolean_Propositional_Logic) implication_equivalence:
+lemma (in Classical_Propositional_Logic) implication_equivalence:
   "\<turnstile> (\<sim> \<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi>)"
   by (metis Double_Negation_converse 
             Modus_Ponens 
@@ -277,7 +277,7 @@ lemma (in Boolean_Propositional_Logic) implication_equivalence:
             flip_hypothetical_syllogism 
             negation_def)
   
-lemma (in Boolean_Propositional_Logic) disjunction_commutativity:
+lemma (in Classical_Propositional_Logic) disjunction_commutativity:
   "\<turnstile> (\<psi> \<squnion> \<phi>) \<leftrightarrow> (\<phi> \<squnion> \<psi>)"
   by (meson Modus_Ponens 
             biconditional_introduction 
@@ -285,7 +285,7 @@ lemma (in Boolean_Propositional_Logic) disjunction_commutativity:
             disjunction_left_introduction 
             disjunction_right_introduction)  
   
-lemma (in Boolean_Propositional_Logic) disjunction_associativity:
+lemma (in Classical_Propositional_Logic) disjunction_associativity:
   "\<turnstile> ((\<phi> \<squnion> \<psi>) \<squnion> \<chi>) \<leftrightarrow> (\<phi> \<squnion> (\<psi> \<squnion> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -295,7 +295,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Boolean_Propositional_Logic) arbitrary_disjunction_monotone:
+lemma (in Classical_Propositional_Logic) arbitrary_disjunction_monotone:
   "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   have "\<forall> \<Phi>. set \<Phi> \<subseteq> set \<Psi> \<longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -394,34 +394,34 @@ proof -
   thus "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>" by blast
 qed
 
-lemma (in Boolean_Propositional_Logic) arbitrary_disjunction_remdups:
+lemma (in Classical_Propositional_Logic) arbitrary_disjunction_remdups:
   "\<turnstile> (\<Squnion> \<Phi>) \<leftrightarrow> \<Squnion> (remdups \<Phi>)"
   by (simp add: arbitrary_disjunction_monotone biconditional_def)
   
 subsubsection {* Negation *}
 
-lemma (in Boolean_Propositional_Logic) double_negation_biconditional:
+lemma (in Classical_Propositional_Logic) double_negation_biconditional:
   "\<turnstile> \<sim> (\<sim> \<phi>) \<leftrightarrow> \<phi>"
   unfolding biconditional_def negation_def
   by (simp add: Double_Negation Double_Negation_converse)
   
-lemma (in Boolean_Propositional_Logic) double_negation_elimination [simp]:
+lemma (in Classical_Propositional_Logic) double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) \<equiv> \<Gamma> \<tturnstile> \<phi>"
   using set_deduction_weaken biconditional_weaken double_negation_biconditional
   by smt
 
-lemma (in Boolean_Propositional_Logic) alt_double_negation_elimination [simp]:
+lemma (in Classical_Propositional_Logic) alt_double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<Gamma> \<tturnstile> \<phi>"
   using double_negation_elimination 
   unfolding negation_def
   by auto
     
-lemma (in Boolean_Propositional_Logic) base_double_negation_elimination [simp]:    
+lemma (in Classical_Propositional_Logic) base_double_negation_elimination [simp]:    
   "\<turnstile> \<sim> (\<sim> \<phi>) \<equiv> \<turnstile> \<phi>"
   by (smt double_negation_elimination set_deduction_base_theory)
   
 
-lemma (in Boolean_Propositional_Logic) alt_base_double_negation_elimination [simp]:
+lemma (in Classical_Propositional_Logic) alt_base_double_negation_elimination [simp]:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<turnstile> \<phi>"
   using base_double_negation_elimination
   unfolding negation_def
@@ -429,7 +429,7 @@ lemma (in Boolean_Propositional_Logic) alt_base_double_negation_elimination [sim
     
 subsection {* Mutual Exclusion Identities *}
 
-lemma (in Boolean_Propositional_Logic) exclusion_contrapositive_equivalence:
+lemma (in Classical_Propositional_Logic) exclusion_contrapositive_equivalence:
   "\<turnstile> (\<phi> \<rightarrow> \<gamma>) \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<sim> \<gamma>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>) \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<sim> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>)"
@@ -439,7 +439,7 @@ proof -
   thus ?thesis by simp
 qed
   
-lemma (in Boolean_Propositional_Logic) disjuction_exclusion_equivalence:
+lemma (in Classical_Propositional_Logic) disjuction_exclusion_equivalence:
   "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>) \<equiv> \<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)"
 proof (induct \<Phi>)
   case Nil
@@ -469,7 +469,7 @@ next
     by simp
 qed  
   
-lemma (in Boolean_Propositional_Logic) exclusive_elimination1:
+lemma (in Classical_Propositional_Logic) exclusive_elimination1:
   assumes "\<Gamma> \<tturnstile> exclusive \<Phi>"
   shows "\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   using assms
@@ -500,7 +500,7 @@ next
     by simp
 qed
   
-lemma (in Boolean_Propositional_Logic) exclusive_elimination2:
+lemma (in Classical_Propositional_Logic) exclusive_elimination2:
   assumes "\<Gamma> \<tturnstile> exclusive \<Phi>"
   shows "\<forall> \<phi> \<in> duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>"
   using assms
@@ -552,7 +552,7 @@ next
   qed
 qed
 
-lemma (in Boolean_Propositional_Logic) exclusive_equivalence:
+lemma (in Classical_Propositional_Logic) exclusive_equivalence:
    "\<Gamma> \<tturnstile> exclusive \<Phi> \<equiv> 
     (\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
 proof -
