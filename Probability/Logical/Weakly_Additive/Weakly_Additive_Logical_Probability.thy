@@ -1,16 +1,17 @@
-theory Probability
-  imports "Logic/Proof/Classical/Classical_Propositional_Connectives" Real
+theory Weakly_Additive_Logical_Probability
+  imports "../../../Logic/Proof/Classical/Classical_Propositional_Connectives" 
+          Real
 begin
 
-(* TODO: Change to Weak_Probability *)
+(* TODO: Change to Weak_Weakly_Additive_Logical_Probability *)
   
-class Probability = Classical_Propositional_Logic +
+class Weakly_Additive_Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes Additivity: "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
     
-lemma (in Probability) Alternate_Additivity:
+lemma (in Weakly_Additive_Logical_Probability) Alternate_Additivity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   by (metis Additivity 
             Double_Negation_converse 
@@ -18,7 +19,7 @@ lemma (in Probability) Alternate_Additivity:
             conjunction_def 
             negation_def)
     
-lemma (in Probability) falsum_zero_probability:
+lemma (in Weakly_Additive_Logical_Probability) falsum_zero_probability:
   "Pr \<bottom> = 0"
   by (metis add_cancel_left_right 
             Additivity 
@@ -28,22 +29,22 @@ lemma (in Probability) falsum_zero_probability:
             conjunction_right_elimination 
             negation_def)
 
-lemma (in Probability) consistency: "\<not> \<turnstile> \<bottom>"
+lemma (in Weakly_Additive_Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
   using Unity falsum_zero_probability by auto          
           
-lemma (in Probability) falsum_implication_zero_probability:
+lemma (in Weakly_Additive_Logical_Probability) falsum_implication_zero_probability:
   "\<turnstile> \<phi> \<rightarrow> \<bottom> \<Longrightarrow> Pr \<phi> = 0"
   by (smt Alternate_Additivity Unity bivalence negation_def negation_elimination)
   
-lemma (in Probability) complementation:
+lemma (in Weakly_Additive_Logical_Probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (smt Alternate_Additivity Unity bivalence negation_elimination)
 
-lemma (in Probability) unity_upper_bound:
+lemma (in Weakly_Additive_Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (smt Non_Negative complementation)
     
-lemma (in Probability) monotonicity:
+lemma (in Weakly_Additive_Logical_Probability) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
   by (smt Alternate_Additivity 
           Modus_Ponens 
@@ -52,7 +53,7 @@ lemma (in Probability) monotonicity:
           negation_def 
           unity_upper_bound)
            
-lemma (in Probability) biconditional_equivalence:
+lemma (in Weakly_Additive_Logical_Probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
   by (meson eq_iff 
             Modus_Ponens 
@@ -60,7 +61,7 @@ lemma (in Probability) biconditional_equivalence:
             biconditional_right_elimination 
             monotonicity)
           
-lemma (in Probability) sum_rule:
+lemma (in Weakly_Additive_Logical_Probability) sum_rule:
   "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
 proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
@@ -110,7 +111,7 @@ proof -
     by simp
 qed
 
-lemma (in Probability) subtraction_identity:
+lemma (in Weakly_Additive_Logical_Probability) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
 proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"

@@ -1,6 +1,5 @@
 theory Stratified_Implication
   imports Elementary_Probability_Completeness
-          List_Utilities
           "~~/src/HOL/Library/Permutation"
 begin      
         

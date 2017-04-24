@@ -1,17 +1,17 @@
-theory Elementary_Probability_Completeness
-  imports Probability
+theory Logical_Probability_Elementary_Completeness
+  imports "../Weakly_Additive/Weakly_Additive_Logical_Probability"
 begin
 
 definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities = 
-         {Pr. class.Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}" 
+         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}" 
 
-lemma (in Classical_Propositional_Logic) MCS_Binary_Probability:
+lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Probability:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
       (is "?Pr \<in> Binary_Probabilities")
 proof -
-  have "class.Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> ?Pr"
+  have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> ?Pr"
       by (standard,
           simp,
           meson assms
@@ -58,13 +58,13 @@ next
   thus ?case using Cons.hyps by simp
 qed  
   
-lemma (in Probability) arbitrary_disjunction_list_summation_inequality:
+lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
   by (induct \<Phi>, 
       simp, smt falsum_zero_probability, 
       simp, smt Non_Negative sum_rule sum_list.Cons)
   
-lemma (in Probability) implication_list_summation_inequality:
+lemma (in Weakly_Additive_Logical_Probability) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_list_summation_inequality monotonicity order_trans 
@@ -76,7 +76,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> Binary_Probabilities"
-    from this interpret Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
       unfolding Binary_Probabilities_def
       by auto
     assume "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -104,21 +104,21 @@ proof -
       by (simp add: \<Omega>(2))
     hence
       "\<exists> Pr \<in> Binary_Probabilities. \<not> (Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
-      using \<Omega>(1) MCS_Binary_Probability by auto
+      using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability by auto
   }
   ultimately show 
     "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
     by smt
 qed
     
-lemma (in Probability) arbitrary_disjunction_set_summation_inequality:
+lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (metis arbitrary_disjunction_list_summation_inequality 
             arbitrary_disjunction_remdups
             biconditional_equivalence 
             sum.set_conv_list) 
 
-lemma (in Probability) implication_set_summation_inequality:
+lemma (in Weakly_Additive_Logical_Probability) implication_set_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans 
@@ -134,7 +134,7 @@ theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
           hypothetical_syllogism 
           sum.set_conv_list)
   
-lemma (in Probability) exclusive_sum_list_identity:
+lemma (in Weakly_Additive_Logical_Probability) exclusive_sum_list_identity:
   assumes "\<turnstile> exclusive \<Phi>"
   shows "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
   using assms
@@ -218,7 +218,7 @@ proof -
   {
     fix Pr
     assume "Pr \<in> Binary_Probabilities"
-    from this interpret Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
       unfolding Binary_Probabilities_def
       by simp
     assume "\<turnstile> exclusive \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
@@ -259,7 +259,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 2" using sum_list_monotone by metis
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Binary_Probability
+        using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability
         by auto
     next
       assume "\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>"
@@ -290,7 +290,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Binary_Probability
+        using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability
         by auto
     qed
   }
@@ -314,7 +314,7 @@ proof -
       by (induct \<Phi>, simp, simp, smt sum_list_0 sum_list_mono)
     hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" using \<psi> by auto
     hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
-      using \<Omega>(1) MCS_Binary_Probability
+      using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability
       by auto
   }
   ultimately show 
@@ -363,7 +363,7 @@ theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
           set_remdups 
           sum.set_conv_list)
   
-lemma (in Probability) exclusive_list_set_inequality:
+lemma (in Weakly_Additive_Logical_Probability) exclusive_list_set_inequality:
   assumes "\<turnstile> exclusive \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>)"
   by (smt assms 
