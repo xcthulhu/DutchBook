@@ -1,7 +1,7 @@
 subsection \<open>Combinator Logic\<close>
 
 theory Combinators
-  imports "./Proof/Minimal_Logic"
+  imports "../Proof/Minimal_Logic"
 begin
 
 subsection \<open>Definition\<close>

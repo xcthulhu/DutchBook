@@ -1,5 +1,5 @@
 theory Extended_Classical_Propositional_Calculus
-  imports Intuitionistic_Logic
+  imports Extended_Classical_Propositional_Logic
 begin
 
 datatype 'a Extended_Classical_Propositional_Formula =
