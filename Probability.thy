@@ -1,5 +1,5 @@
 theory Probability
-  imports "Logic/Proof/Classical_Propositional_Connectives" Real
+  imports "Logic/Proof/Classical/Classical_Propositional_Connectives" Real
 begin
 
 (* TODO: Change to Weak_Probability *)

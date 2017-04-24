@@ -1,7 +1,7 @@
 subsection {* Intuitionistic Logic *}
   
 theory Intuitionistic_Logic
-  imports "../Classical_Propositional_Logic"
+  imports "../Classical/Classical_Propositional_Logic"
 begin
 
 text {* This theory presents extends minimal logic to \emph{intuitionistic logic}.

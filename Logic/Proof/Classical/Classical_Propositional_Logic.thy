@@ -1,9 +1,7 @@
 section {* Classical Propositional Logic *}
 
-(* TODO: Change to classical propositional logic *)
-  
 theory Classical_Propositional_Logic
-  imports Minimal_Logic
+  imports "../Intuitionistic/Minimal/Minimal_Logic"
 begin
 
 text {* This theory presents \emph{Classical propositional logic}, which is 

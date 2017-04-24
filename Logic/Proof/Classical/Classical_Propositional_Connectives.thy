@@ -2,7 +2,7 @@ section {* Classical Propositional Connectives *}
 
 theory Classical_Propositional_Connectives
   imports Classical_Propositional_Calculus
-          "../../List_Utilities"
+          "../../../Utilities/List_Utilities"
 begin
 
 subsection {* Conjunction *}
