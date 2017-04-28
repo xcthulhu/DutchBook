@@ -2,9 +2,10 @@ theory Logical_Probability_Elementary_Completeness
   imports "../Weakly_Additive/Weakly_Additive_Logical_Probability"
 begin
 
-definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
+definition (in Minimal_Logic_With_Falsum) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities = 
-         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}" 
+         {Pr. class.Weakly_Additive_Logical_Probability 
+              (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}" 
 
 lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Probability:
   assumes "MCS \<Omega>"

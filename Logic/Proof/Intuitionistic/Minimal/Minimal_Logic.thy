@@ -95,7 +95,7 @@ lemma (in Minimal_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longright
 
 text {* In the case of the empty list, the converse may be established. *}
 
-lemma (in Minimal_Logic) list_deduction_base_theory: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
+lemma (in Minimal_Logic) list_deduction_base_theory [simp]: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   unfolding list_deduction_def
   by simp
 
@@ -209,7 +209,10 @@ proof -
           hence "set ?\<Delta> \<subseteq> set \<Gamma>" using \<Sigma>_subset_relation by auto
           hence "\<turnstile> ?\<Delta> :\<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> \<Gamma> :\<rightarrow> (\<psi> \<rightarrow> \<phi>)" using inductive_hypothesis by auto
           hence "\<turnstile> ?\<Delta> :\<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<psi> # \<Gamma>) :\<rightarrow> \<phi>"
-            by (metis Modus_Ponens flip_implication list_flip_implication2 list_implication.simps(2))
+            by (metis Modus_Ponens 
+                      flip_implication 
+                      list_flip_implication2 
+                      list_implication.simps(2))
           moreover have "\<turnstile> \<Sigma> :\<rightarrow> \<phi> \<rightarrow> ?\<Delta> :\<rightarrow> (\<psi> \<rightarrow> \<phi>)"
             by (simp add: local.list_implication_removeAll)
           ultimately have ?thesis
