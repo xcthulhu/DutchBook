@@ -785,28 +785,31 @@ proof -
 qed
 
 definition 
-  list_extensions :: "'a list \<Rightarrow> 'a list \<Rightarrow> ('a list) set"
+  list_extensions :: "'a list \<Rightarrow> 'a list \<Rightarrow> ('a list) set"       (infix "\<bowtie>" 90)
   where
-    [simp]: "list_extensions \<Phi> \<Gamma> = { \<Psi>. mset \<Phi> \<subseteq># mset \<Psi> \<and> mset \<Psi> \<subseteq># mset \<Gamma>}"
+    [simp]: "(\<Phi> \<bowtie> \<Gamma>) = { \<Psi>. mset \<Phi> \<subseteq># mset \<Psi> \<and> mset \<Psi> \<subseteq># mset \<Gamma>}"
 
-definition (in Minimal_Logic) n_basic_core :: "nat \<Rightarrow> 'a \<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> ('a list) set"
-  where
-    [simp]: "n_basic_core n \<phi> \<Phi> \<Gamma> = 
-               {\<Psi>. mset \<Phi> \<subseteq># mset \<Psi> \<and> mset \<Psi> \<subseteq># mset \<Gamma> \<and> length \<Phi> = n \<and>  \<not> (\<Psi> :\<turnstile> \<phi>)}"
-
-definition (in Minimal_Logic) basic_core_length :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> nat"
-  where
-    [simp]: "basic_core_length \<phi> \<Phi> \<Gamma> = Max {n. {} \<noteq> n_basic_core n \<phi> \<Phi> \<Gamma>}"
-    
 definition (in Minimal_Logic) basic_core where
-  "basic_core \<phi> \<Phi> \<Gamma> = n_basic_core (basic_core_length \<phi> \<Phi> \<Gamma>) \<phi> \<Phi> \<Gamma>"
+  [simp]: "basic_core \<phi> \<Phi> \<Gamma> = 
+           {\<Omega>. \<Omega> \<in> (\<Phi> \<bowtie> \<Gamma>) \<and> \<not> (\<Omega> :\<turnstile> \<phi>) 
+               \<and> (\<forall>\<Psi> \<in> (\<Phi> \<bowtie> \<Gamma>). \<not> (\<Psi> :\<turnstile> \<phi>) \<longrightarrow> (length \<Psi> \<le> length \<Omega>))}"
 
 lemma mset_set_weaken:
   assumes "mset A \<subseteq># mset B"
   shows "set A \<subseteq> set B"
-  sorry
-    
-  
+proof -
+  have "\<forall>A. mset A \<subseteq># mset B \<longrightarrow> set A \<subseteq> set B"
+    by (induct B, 
+        simp, 
+        metis count_eq_zero_iff 
+              count_greater_zero_iff 
+              not_le 
+              set_mset_mset 
+              subsetI 
+              subseteq_mset_def) 
+  with assms show ?thesis by blast
+qed
+      
 lemma (in Minimal_Logic) basic_core_existance:
   "(\<exists> \<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>) = (mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> (\<Phi> :\<turnstile> \<phi>))"
 proof (rule iffI)
@@ -820,12 +823,60 @@ proof (rule iffI)
   thus "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
     using list_deduction_monotonic mset_set_weaken subset_mset.dual_order.trans by blast
 next
-  assume "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
-  hence "n_basic_core (length \<Phi>) \<phi> \<Phi> \<Gamma> \<noteq> {}"
-    by (simp, blast)
-  hence "basic_core_length \<phi> \<Phi> \<Gamma> \<ge> length \<Phi>"
-    
-      
+  have "\<forall>\<Phi> \<phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow> (\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>)"
+  proof (induct \<Gamma>)
+    case Nil
+    {
+      fix \<Phi>
+      fix \<phi>
+      assume hypothesis: "mset \<Phi> \<subseteq># mset []" "\<not> \<Phi> :\<turnstile> \<phi>"
+      hence "\<Phi> = []" by simp
+      with hypothesis have "basic_core \<phi> \<Phi> [] = {[]}" by fastforce
+    }
+    then show ?case by simp
+  next
+    case (Cons \<gamma> \<Gamma>)
+    {
+      fix \<Phi>
+      fix \<phi>
+      assume hypothesis: "mset \<Phi> \<subseteq># mset (\<gamma> # \<Gamma>)" "\<not> \<Phi> :\<turnstile> \<phi>"
+      hence "\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> (\<gamma> # \<Gamma>)"
+      proof cases
+        assume assumption: "count (mset \<Phi>) \<gamma> = count (mset (\<gamma> # \<Gamma>)) \<gamma>"
+        let ?\<Phi>' = "remove1 \<gamma> \<Phi>"
+        show ?thesis
+        proof cases
+          assume "\<forall> \<Omega> \<in> basic_core \<phi> ?\<Phi>' \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>"
+          show ?thesis sorry
+        next
+          assume "\<not> (\<forall> \<Omega> \<in> basic_core \<phi> ?\<Phi>' \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>)"
+          show ?thesis sorry
+      qed
+      next
+        assume assumption: "count (mset \<Phi>) \<gamma> \<noteq> count (mset (\<gamma> # \<Gamma>)) \<gamma>"
+        show ?thesis
+        proof cases
+          assume "\<forall> \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>"
+
+          then show ?thesis sorry
+        next
+          assume "\<not> (\<forall> \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>)"
+          then show ?thesis sorry
+        qed
+
+        hence "count (mset \<Phi>) \<gamma> \<le> count (mset \<Gamma>) \<gamma>"
+          by auto
+        hence "mset \<Phi> \<subseteq># mset \<Gamma>"
+          by (metis count_add_mset hypothesis(1) mset.simps(2) subseteq_mset_def)
+          
+        then show ?thesis sorry
+      qed
+    }
+    then show ?case by blast
+  qed
+  moreover assume "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
+  ultimately show "\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>" by blast
+qed
       
     
 lemma (in Minimal_Logic) list_deduction_maximal_core:
