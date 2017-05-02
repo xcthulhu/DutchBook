@@ -762,7 +762,7 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Classical_Propositional_Logic) stratified_deduction_collapse:
+lemma (in Classical_Propositional_Logic) Stratified_Deduction_Collapse:
   "(\<forall> n. \<Gamma> #\<turnstile> n \<phi>) = \<turnstile> \<phi>"
 proof -
   {
@@ -789,8 +789,8 @@ definition
   where
     [simp]: "(\<Phi> \<bowtie> \<Gamma>) = { \<Psi>. mset \<Phi> \<subseteq># mset \<Psi> \<and> mset \<Psi> \<subseteq># mset \<Gamma>}"
 
-definition (in Minimal_Logic) basic_core where
-  [simp]: "basic_core \<phi> \<Phi> \<Gamma> = 
+definition (in Minimal_Logic) unprovable_core where
+  [simp]: "unprovable_core \<phi> \<Phi> \<Gamma> = 
            {\<Omega>. \<Omega> \<in> (\<Phi> \<bowtie> \<Gamma>) \<and> \<not> (\<Omega> :\<turnstile> \<phi>) 
                \<and> (\<forall>\<Psi> \<in> (\<Phi> \<bowtie> \<Gamma>). \<not> (\<Psi> :\<turnstile> \<phi>) \<longrightarrow> (length \<Psi> \<le> length \<Omega>))}"
 
@@ -809,91 +809,102 @@ proof -
               subseteq_mset_def) 
   with assms show ?thesis by blast
 qed
-      
-lemma (in Minimal_Logic) basic_core_existance:
-  "(\<exists> \<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>) = (mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> (\<Phi> :\<turnstile> \<phi>))"
+
+lemma mset_length_weaken:
+  assumes "mset \<Psi> \<subseteq># mset \<Gamma>"
+  shows "length \<Psi> \<le> length \<Gamma>"
+  using assms size_mset_mono
+  by (induct \<Gamma>, simp, force)
+  
+lemma (in Minimal_Logic) unprovable_core_existance:
+  "(\<exists> \<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>) = (mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> (\<Phi> :\<turnstile> \<phi>))"
 proof (rule iffI)
-  assume "\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>"
+  assume "\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>"
   from this obtain \<Omega> where \<Omega>:
     "\<not> (\<Omega> :\<turnstile> \<phi>)"
     "mset \<Phi> \<subseteq># mset \<Omega>" 
     "mset \<Omega> \<subseteq># mset \<Gamma>"
-    unfolding basic_core_def
+    unfolding unprovable_core_def
     by auto
   thus "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
-    using list_deduction_monotonic mset_set_weaken subset_mset.dual_order.trans by blast
+    using list_deduction_monotonic mset_set_weaken subset_mset.dual_order.trans 
+    by blast
 next
-  have "\<forall>\<Phi> \<phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow> (\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>)"
-  proof (induct \<Gamma>)
-    case Nil
+  assume "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
+  show "\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>"
+  proof (rule ccontr)
+    assume "\<not>(\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>)"
     {
-      fix \<Phi>
-      fix \<phi>
-      assume hypothesis: "mset \<Phi> \<subseteq># mset []" "\<not> \<Phi> :\<turnstile> \<phi>"
-      hence "\<Phi> = []" by simp
-      with hypothesis have "basic_core \<phi> \<Phi> [] = {[]}" by fastforce
+      fix n
+      have "\<exists> \<Psi> \<in> (\<Phi> \<bowtie> \<Gamma>). \<not> \<Psi> :\<turnstile> \<phi> \<and> n \<le> length \<Psi>"
+        using \<open>mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>\<close>
+              \<open>\<not>(\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>)\<close>
+        by (induct n, simp, fastforce+)
     }
-    then show ?case by simp
+    thus "False"
+      using mset_length_weaken not_less_eq_eq by (simp, blast) 
+  qed
+qed
+
+theorem (in Classical_Propositional_Logic)
+  "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>) = (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof -
+  {
+    fix Pr :: "'a \<Rightarrow> real"
+    fix n
+    fix \<Gamma>
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+    hence "real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using stratified_deduction_implies_probability_inequality by blast
+  } note forward_implication = this
+  have "\<forall> \<Gamma>. \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>) = (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  proof (induct n)
+    case 0
+    then show ?case
+      using forward_implication stratified_deduction.simps(1) 
+      by fastforce  
   next
-    case (Cons \<gamma> \<Gamma>)
+    case (Suc n)
     {
-      fix \<Phi>
-      fix \<phi>
-      assume hypothesis: "mset \<Phi> \<subseteq># mset (\<gamma> # \<Gamma>)" "\<not> \<Phi> :\<turnstile> \<phi>"
-      hence "\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> (\<gamma> # \<Gamma>)"
+      fix \<Gamma>
+      have 
+        "\<^bold>\<sim> \<Gamma> #\<turnstile> (Suc n) (\<sim> \<phi>) = 
+         (\<forall>Pr\<in>Binary_Probabilities. real (Suc n) * Pr \<phi>  \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
       proof cases
-        assume assumption: "count (mset \<Phi>) \<gamma> = count (mset (\<gamma> # \<Gamma>)) \<gamma>"
-        let ?\<Phi>' = "remove1 \<gamma> \<Phi>"
-        show ?thesis
-        proof cases
-          assume "\<forall> \<Omega> \<in> basic_core \<phi> ?\<Phi>' \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>"
-          show ?thesis sorry
-        next
-          assume "\<not> (\<forall> \<Omega> \<in> basic_core \<phi> ?\<Phi>' \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>)"
-          show ?thesis sorry
-      qed
+        assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+        {
+          assume "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> (Suc n) (\<sim> \<phi>)"
+          have "\<exists> Pr \<in> Binary_Probabilities. real (Suc n) * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+            sorry
+        }
+        then show ?thesis
+          using forward_implication not_le by blast
       next
-        assume assumption: "count (mset \<Phi>) \<gamma> \<noteq> count (mset (\<gamma> # \<Gamma>)) \<gamma>"
-        show ?thesis
-        proof cases
-          assume "\<forall> \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>"
-
-          then show ?thesis sorry
-        next
-          assume "\<not> (\<forall> \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>. \<Omega> :\<turnstile> \<gamma> \<rightarrow> \<phi>)"
-          then show ?thesis sorry
-        qed
-
-        hence "count (mset \<Phi>) \<gamma> \<le> count (mset \<Gamma>) \<gamma>"
-          by auto
-        hence "mset \<Phi> \<subseteq># mset \<Gamma>"
-          by (metis count_add_mset hypothesis(1) mset.simps(2) subseteq_mset_def)
-          
-        then show ?thesis sorry
+        assume "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+        hence "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> (Suc n) (\<sim> \<phi>)"
+          by (meson le_Suc_eq stratified_deduction_numeric_weaken order_refl)
+        moreover have "\<not> (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))" 
+          using Suc.hyps \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close> by blast
+        hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. real (Suc n) * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+          by (smt list.simps(8) 
+                  Arbitrary_Disjunction.simps(1) 
+                  Ex_Falso_Quodlibet 
+                  Exclusive_Implication_Completeness 
+                  exclusive.simps(1) 
+                  verum_def 
+                  of_nat_Suc 
+                  semiring_normalization_rules(2) 
+                  sum_list.Nil)
+        ultimately show ?thesis by blast    
       qed
     }
     then show ?case by blast
   qed
-  moreover assume "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
-  ultimately show "\<exists>\<Omega>. \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>" by blast
-qed
-      
-    
-lemma (in Minimal_Logic) list_deduction_maximal_core:
-   "\<forall> \<Omega> \<in> basic_core \<phi> \<Phi> \<Gamma>.
-           \<not> (\<Omega> :\<turnstile> \<phi>) \<and> 
-           (\<forall> \<Psi> \<in> list_extensions \<Phi> \<Gamma>. \<not> (\<Psi> :\<turnstile> \<phi>) \<longrightarrow> length(\<Psi>) \<le> length(\<Omega>))"
-proof (induct \<Gamma>)
-  case Nil
-  then show ?case
-    unfolding basic_core_def
-    by simp
-next
-  case (Cons \<gamma> \<Gamma>)
-  then show ?case
-    unfolding basic_core_def
-    apply simp
-      
+  thus ?thesis by blast
 qed
   
 (* TODO: Use this stuff to prove Binary Probabilities are Kolmogorov 
