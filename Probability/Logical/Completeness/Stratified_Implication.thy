@@ -784,68 +784,6 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-definition 
-  list_extensions :: "'a list \<Rightarrow> 'a list \<Rightarrow> ('a list) set"       (infix "\<bowtie>" 90)
-  where
-    [simp]: "(\<Phi> \<bowtie> \<Gamma>) = { \<Psi>. mset \<Phi> \<subseteq># mset \<Psi> \<and> mset \<Psi> \<subseteq># mset \<Gamma>}"
-
-definition (in Minimal_Logic) unprovable_core where
-  [simp]: "unprovable_core \<phi> \<Phi> \<Gamma> = 
-           {\<Omega>. \<Omega> \<in> (\<Phi> \<bowtie> \<Gamma>) \<and> \<not> (\<Omega> :\<turnstile> \<phi>) 
-               \<and> (\<forall>\<Psi> \<in> (\<Phi> \<bowtie> \<Gamma>). \<not> (\<Psi> :\<turnstile> \<phi>) \<longrightarrow> (length \<Psi> \<le> length \<Omega>))}"
-
-lemma mset_set_weaken:
-  assumes "mset A \<subseteq># mset B"
-  shows "set A \<subseteq> set B"
-proof -
-  have "\<forall>A. mset A \<subseteq># mset B \<longrightarrow> set A \<subseteq> set B"
-    by (induct B, 
-        simp, 
-        metis count_eq_zero_iff 
-              count_greater_zero_iff 
-              not_le 
-              set_mset_mset 
-              subsetI 
-              subseteq_mset_def) 
-  with assms show ?thesis by blast
-qed
-
-lemma mset_length_weaken:
-  assumes "mset \<Psi> \<subseteq># mset \<Gamma>"
-  shows "length \<Psi> \<le> length \<Gamma>"
-  using assms size_mset_mono
-  by (induct \<Gamma>, simp, force)
-  
-lemma (in Minimal_Logic) unprovable_core_existance:
-  "(\<exists> \<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>) = (mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> (\<Phi> :\<turnstile> \<phi>))"
-proof (rule iffI)
-  assume "\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>"
-  from this obtain \<Omega> where \<Omega>:
-    "\<not> (\<Omega> :\<turnstile> \<phi>)"
-    "mset \<Phi> \<subseteq># mset \<Omega>" 
-    "mset \<Omega> \<subseteq># mset \<Gamma>"
-    unfolding unprovable_core_def
-    by auto
-  thus "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
-    using list_deduction_monotonic mset_set_weaken subset_mset.dual_order.trans 
-    by blast
-next
-  assume "mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>"
-  show "\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>"
-  proof (rule ccontr)
-    assume "\<not>(\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>)"
-    {
-      fix n
-      have "\<exists> \<Psi> \<in> (\<Phi> \<bowtie> \<Gamma>). \<not> \<Psi> :\<turnstile> \<phi> \<and> n \<le> length \<Psi>"
-        using \<open>mset \<Phi> \<subseteq># mset \<Gamma> \<and> \<not> \<Phi> :\<turnstile> \<phi>\<close>
-              \<open>\<not>(\<exists>\<Omega>. \<Omega> \<in> unprovable_core \<phi> \<Phi> \<Gamma>)\<close>
-        by (induct n, simp, fastforce+)
-    }
-    thus "False"
-      using mset_length_weaken not_less_eq_eq by (simp, blast) 
-  qed
-qed
-
 theorem (in Classical_Propositional_Logic)
   "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>) = (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof -
