@@ -2,8 +2,6 @@ theory Weakly_Additive_Logical_Probability
   imports "../../../Logic/Proof/Classical/Classical_Propositional_Connectives" 
           Real
 begin
-
-(* TODO: Change to Weak_Weakly_Additive_Logical_Probability *)
   
 class Weakly_Additive_Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
