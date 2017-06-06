@@ -322,9 +322,8 @@ proof -
     "\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
     by smt
 qed
-    
-(* TODO: Weaken to Weak Probabilities *)    
-theorem (in Classical_Propositional_Logic) Inquality_Completeness:
+
+theorem (in Classical_Propositional_Logic) Inequality_Completeness:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>"
 proof -
   have "\<turnstile> exclusive [\<phi>]"

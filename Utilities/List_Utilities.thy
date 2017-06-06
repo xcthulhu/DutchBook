@@ -90,7 +90,7 @@ qed
 
 subsection {* List Subtraction *}  
   
-primrec listSubtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infix "\<ominus>" 70)
+primrec listSubtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixl "\<ominus>" 70)
   where
       "xs \<ominus> [] = xs"
     | "xs \<ominus> (y # ys) = (remove1 y (xs \<ominus> ys))"

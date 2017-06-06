@@ -5,12 +5,26 @@ theory Classical_Propositional_Connectives
           "../../../Utilities/List_Utilities"
 begin
 
+subsection {* Verum *}    
+    
+definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
+  where
+    "\<top> = \<bottom> \<rightarrow> \<bottom>"
+
+lemma (in Minimal_Logic_With_Falsum) verum_tautology: "\<turnstile> \<top>"
+  by (metis list_implication.simps(1) list_implication_Axiom_1 verum_def)  
+  
 subsection {* Conjunction *}
 
 definition (in Classical_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)
   where
     "\<phi> \<sqinter> \<psi> = (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
 
+primrec (in Classical_Propositional_Logic) Arbitrary_Conjunction :: "'a list \<Rightarrow> 'a" ("\<Sqinter>")
+  where
+     "\<Sqinter> [] = \<top>"
+  |  "\<Sqinter> (\<phi> # \<Phi>) = \<phi> \<sqinter> \<Sqinter> \<Phi>"    
+    
 lemma (in Classical_Propositional_Logic) conjunction_introduction:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis Modus_Ponens 
@@ -110,7 +124,7 @@ definition (in Classical_Propositional_Logic) disjunction :: "'a \<Rightarrow> '
 primrec (in Classical_Propositional_Logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
   where
      "\<Squnion> [] = \<bottom>"
-  |  "\<Squnion> (\<phi> # \<Phi>) = \<phi> \<squnion> \<Squnion> \<Phi>"    
+  |  "\<Squnion> (\<phi> # \<Phi>) = \<phi> \<squnion> \<Squnion> \<Phi>"
     
 lemma (in Classical_Propositional_Logic) disjunction_elimination:
   "\<turnstile> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>"
@@ -159,15 +173,6 @@ lemma disjunction_semantics [simp]:
   unfolding disjunction_def
   by (simp, blast)
 
-subsection {* Verum *}    
-    
-definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
-  where
-    "\<top> = \<bottom> \<rightarrow> \<bottom>"
-
-lemma (in Minimal_Logic_With_Falsum) verum_tautology: "\<turnstile> \<top>"
-  by (metis list_implication.simps(1) list_implication_Axiom_1 verum_def)
-
 subsection {* Mutual Exclusion *}
 
 primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a"
@@ -201,17 +206,30 @@ lemma (in Classical_Propositional_Logic) biconditional_symmetry:
                          conjunction_def
                          flip_hypothetical_syllogism 
                          flip_implication)
-
+                       
+lemma (in Classical_Propositional_Logic) biconditional_symmetry_rule:
+  "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<phi>"
+  by (meson Modus_Ponens 
+            biconditional_introduction 
+            biconditional_left_elimination 
+            biconditional_right_elimination)
+                       
 lemma (in Classical_Propositional_Logic) biconditional_transitivity:
     "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> (\<psi> \<leftrightarrow> \<chi>) \<rightarrow> (\<phi> \<leftrightarrow> \<chi>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
     by simp
- hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<^bold>\<rparr>"
-   using propositional_semantics by blast
+  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<^bold>\<rparr>"
+    using propositional_semantics by blast
  thus ?thesis by simp
 qed
+  
+lemma (in Classical_Propositional_Logic) biconditional_transitivity_rule:
+  "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<chi> \<Longrightarrow> \<turnstile> \<phi> \<leftrightarrow> \<chi>"
+  using Modus_Ponens biconditional_transitivity by blast
 
+subsubsection {* Biconditional Weakening *}      
+    
 lemma (in Classical_Propositional_Logic) biconditional_weaken:
   assumes "\<Gamma> \<tturnstile> \<phi> \<leftrightarrow> \<psi>"
   shows "\<Gamma> \<tturnstile> \<phi> \<equiv> \<Gamma> \<tturnstile> \<psi>"
@@ -221,6 +239,23 @@ lemma (in Classical_Propositional_Logic) biconditional_weaken:
           set_deduction_modus_ponens 
           set_deduction_weaken)
 
+lemma (in Classical_Propositional_Logic) list_biconditional_weaken:
+  assumes "\<Gamma> :\<turnstile> \<phi> \<leftrightarrow> \<psi>"
+  shows "\<Gamma> :\<turnstile> \<phi> \<equiv> \<Gamma> :\<turnstile> \<psi>"
+  by (smt assms 
+          biconditional_left_elimination 
+          biconditional_right_elimination 
+          list_deduction_modus_ponens 
+          list_deduction_weaken)        
+
+lemma (in Classical_Propositional_Logic) weak_biconditional_weaken:
+  assumes "\<turnstile> \<phi> \<leftrightarrow> \<psi>"
+  shows "\<turnstile> \<phi> \<equiv> \<turnstile> \<psi>"
+  by (smt assms 
+          biconditional_left_elimination 
+          biconditional_right_elimination 
+          Modus_Ponens)        
+        
 subsubsection {* Conjunction Identities *}
 
 lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
@@ -261,6 +296,186 @@ proof -
   thus ?thesis by simp
 qed
 
+lemma (in Classical_Propositional_Logic) arbitrary_conjunction_antitone:
+  "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>"
+proof -
+  have "\<forall> \<Phi>. set \<Phi> \<subseteq> set \<Psi> \<longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>"
+  proof (induct \<Psi>)
+    case Nil
+    then show ?case
+      by (simp add: The_Principle_of_Pseudo_Scotus verum_def)
+  next
+    case (Cons \<psi> \<Psi>)
+    {
+      fix \<Phi>
+      assume "set \<Phi> \<subseteq> set (\<psi> # \<Psi>)"
+      have "\<turnstile> \<Sqinter> (\<psi> # \<Psi>) \<rightarrow> \<Sqinter> \<Phi>"
+      proof (cases "\<psi> \<in> set \<Phi>")
+        assume "\<psi> \<in> set \<Phi>"
+                have "\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<Sqinter> \<Phi> \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
+        proof (induct \<Phi>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<chi> \<Phi>)
+          {
+            fix \<phi>
+            assume "\<phi> \<in> set (\<chi> # \<Phi>)"
+            have "\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> (removeAll \<phi> (\<chi> # \<Phi>)))"
+            proof cases
+              assume "\<phi> \<in> set \<Phi>"
+              hence "\<turnstile> \<Sqinter> \<Phi> \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
+                using Cons.hyps \<open>\<phi> \<in> set \<Phi>\<close>
+                by auto
+              moreover
+              have "\<turnstile> (\<Sqinter> \<Phi> \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))) \<rightarrow>
+                      (\<chi> \<sqinter> \<Sqinter> \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
+              proof -
+                have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) \<rightarrow>
+                                     (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)"
+                    by auto
+                hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) \<rightarrow>
+                           (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>) \<^bold>\<rparr>"
+                  using propositional_semantics by blast
+                thus ?thesis by simp
+              qed
+              ultimately have "\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
+                using Modus_Ponens by auto
+              show ?thesis
+              proof cases
+                assume "\<phi> = \<chi>"
+                moreover
+                {
+                  fix \<phi>
+                  have "\<turnstile> (\<chi> \<sqinter> \<phi>) \<rightarrow> (\<chi> \<sqinter> \<chi> \<sqinter> \<phi>)"
+                    unfolding conjunction_def
+                    by (meson Axiom_2 
+                              Double_Negation 
+                              Modus_Ponens 
+                              flip_hypothetical_syllogism 
+                              flip_implication)
+                } note tautology = this
+                from \<open>\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))\<close>
+                     \<open>\<phi> = \<chi>\<close>
+                have "\<turnstile> (\<chi> \<sqinter> \<Sqinter> (removeAll \<chi> \<Phi>)) \<rightarrow> (\<chi> \<sqinter> \<Sqinter> \<Phi>)"
+                  unfolding biconditional_def
+                  apply simp
+                  using tautology hypothetical_syllogism Modus_Ponens
+                  by blast
+                moreover
+                from \<open>\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))\<close>
+                     \<open>\<phi> = \<chi>\<close>
+                have "\<turnstile> (\<chi> \<sqinter> \<Sqinter> \<Phi>) \<rightarrow> (\<chi> \<sqinter> \<Sqinter> (removeAll \<chi> \<Phi>))"
+                  unfolding biconditional_def
+                  apply simp
+                  using conjunction_def 
+                        conjunction_right_elimination 
+                        hypothetical_syllogism 
+                        Modus_Ponens
+                  by blast
+                ultimately show ?thesis 
+                  unfolding biconditional_def
+                  by simp
+              next
+                assume "\<phi> \<noteq> \<chi>"
+                then show ?thesis
+                  using \<open>\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))\<close>
+                  by simp
+              qed
+            next
+              assume "\<phi> \<notin> set \<Phi>"
+              hence "\<phi> = \<chi>" "\<chi> \<notin> set \<Phi>"
+                using \<open>\<phi> \<in> set (\<chi> # \<Phi>)\<close> by auto 
+              then show ?thesis
+                using biconditional_reflection
+                by simp
+            qed
+          }
+          thus ?case by blast
+        qed
+        hence "\<turnstile> (\<psi> \<sqinter> \<Sqinter> (removeAll \<psi> \<Phi>)) \<rightarrow> \<Sqinter> \<Phi>"
+          using Modus_Ponens biconditional_right_elimination \<open>\<psi> \<in> set \<Phi>\<close> 
+          by blast
+        moreover
+        from \<open>\<psi> \<in> set \<Phi>\<close> \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> Cons.hyps 
+        have "\<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> (removeAll \<psi> \<Phi>)"
+          by (simp add: subset_insert_iff insert_absorb)
+        hence "\<turnstile> \<Sqinter> (\<psi> # \<Psi>) \<rightarrow> (\<psi> \<sqinter> \<Sqinter> (removeAll \<psi> \<Phi>))"
+          apply simp
+          unfolding conjunction_def
+          using Modus_Ponens hypothetical_syllogism flip_hypothetical_syllogism
+          by meson
+        ultimately show ?thesis
+          apply simp
+          using Modus_Ponens hypothetical_syllogism 
+          by blast
+      next
+        assume "\<psi> \<notin> set \<Phi>"
+        hence "\<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>"
+          using Cons.hyps \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close>
+          by auto
+        then show ?thesis 
+          apply simp
+          unfolding conjunction_def
+          by (metis Modus_Ponens 
+                    conjunction_def 
+                    conjunction_right_elimination 
+                    hypothetical_syllogism)
+      qed
+    }
+    thus ?case by blast
+  qed
+  thus "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>" by blast
+qed
+
+lemma (in Classical_Propositional_Logic) arbitrary_conjunction_remdups:
+  "\<turnstile> (\<Sqinter> \<Phi>) \<leftrightarrow> \<Sqinter> (remdups \<Phi>)"
+  by (simp add: arbitrary_conjunction_antitone biconditional_def)
+
+lemma (in Classical_Propositional_Logic) curry_uncurry:
+  "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<leftrightarrow> ((\<phi> \<sqinter> \<psi>) \<rightarrow> \<chi>)"
+proof -
+  have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
+      by auto
+  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<^bold>\<rparr>"
+    using propositional_semantics by blast
+  thus ?thesis by simp
+qed
+
+lemma (in Classical_Propositional_Logic) list_curry_uncurry:
+  "\<turnstile> (\<Phi> :\<rightarrow> \<chi>) \<leftrightarrow> (\<Sqinter> \<Phi> \<rightarrow> \<chi>)"
+proof (induct \<Phi>)
+  case Nil
+  then show ?case
+    apply simp
+    unfolding biconditional_def 
+              conjunction_def
+              verum_def
+    by (metis Axiom_1 
+              Ex_Falso_Quodlibet 
+              Modus_Ponens 
+              conjunction_deduction_equivalence 
+              conjunction_def 
+              excluded_middle_elimination 
+              set_deduction_base_theory)
+next
+  case (Cons \<phi> \<Phi>)
+  have "\<turnstile> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<chi>))"
+    by (simp add: biconditional_reflection)
+  with Cons have "\<turnstile> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> \<Sqinter> \<Phi> \<rightarrow> \<chi>)"
+    by (metis Modus_Ponens 
+              biconditional_def 
+              hypothetical_syllogism 
+              list_implication.simps(2) 
+              weak_conjunction_deduction_equivalence)
+  with curry_uncurry [where ?\<phi>="\<phi>"
+                        and ?\<psi>="\<Sqinter> \<Phi>"
+                        and ?\<chi>="\<chi>"]
+  show ?case
+    unfolding biconditional_def
+    by (simp, metis Modus_Ponens hypothetical_syllogism)    
+qed
+  
 subsubsection {* Disjunction Identities *}
 
 lemma (in Classical_Propositional_Logic) bivalence:
@@ -387,7 +602,6 @@ proof -
           unfolding disjunction_def
           using Axiom_1 Modus_Ponens flip_implication by blast
       qed
-        
     }
     then show ?case by blast
   qed
@@ -397,7 +611,153 @@ qed
 lemma (in Classical_Propositional_Logic) arbitrary_disjunction_remdups:
   "\<turnstile> (\<Squnion> \<Phi>) \<leftrightarrow> \<Squnion> (remdups \<Phi>)"
   by (simp add: arbitrary_disjunction_monotone biconditional_def)
+
+subsubsection {* Distribution Identities *}
+
+lemma (in Classical_Propositional_Logic) conjunction_distribution:
+  "\<turnstile> ((\<psi> \<squnion> \<chi>) \<sqinter> \<phi>) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> (\<chi> \<sqinter> \<phi>))"
+proof -
+  have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
+      by auto
+  hence "\<turnstile> \<^bold>\<lparr> ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+    using propositional_semantics by blast
+  thus ?thesis by simp
+qed
+
+lemma (in Classical_Propositional_Logic) subtraction_distribution:
+  "\<turnstile> ((\<psi> \<squnion> \<chi>) \<setminus> \<phi>) \<leftrightarrow> ((\<psi> \<setminus> \<phi>) \<squnion> (\<chi> \<setminus> \<phi>))"
+  by (simp add: conjunction_distribution subtraction_def)
+
+lemma (in Classical_Propositional_Logic) conjunction_arbitrary_distribution:
+  "\<turnstile> (\<Squnion> \<Psi> \<sqinter> \<phi>) \<leftrightarrow> \<Squnion> [\<psi> \<sqinter> \<phi>. \<psi> \<leftarrow> \<Psi>]"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case
+    by (simp add: Ex_Falso_Quodlibet 
+                  biconditional_def 
+                  conjunction_left_elimination) 
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<turnstile> (\<Squnion> (\<psi> # \<Psi>) \<sqinter> \<phi>) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> ((\<Squnion> \<Psi>) \<sqinter> \<phi>))"
+    using conjunction_distribution by auto
+  moreover 
+  from Cons have "\<turnstile> ((\<psi> \<sqinter> \<phi>) \<squnion> ((\<Squnion> \<Psi>) \<sqinter> \<phi>)) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> (\<Squnion> [\<psi> \<sqinter> \<phi>. \<psi> \<leftarrow> \<Psi>]))"
+    unfolding disjunction_def biconditional_def
+    apply simp
+    using Modus_Ponens hypothetical_syllogism 
+    by blast
+  ultimately show ?case
+    by (simp, metis biconditional_transitivity_rule) 
+qed
+
+lemma (in Classical_Propositional_Logic) subtraction_arbitrary_distribution:
+  "\<turnstile> (\<Squnion> \<Psi> \<setminus> \<phi>) \<leftrightarrow> \<Squnion> [\<psi> \<setminus> \<phi>. \<psi> \<leftarrow> \<Psi>]"
+  by (simp add: conjunction_arbitrary_distribution subtraction_def)
+
+lemma (in Classical_Propositional_Logic) disjunction_distribution:
+  "\<turnstile> (\<phi> \<squnion> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<chi>))"
+proof -
+  have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
+      by auto
+  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+    using propositional_semantics by blast
+  thus ?thesis by simp
+qed
+
+lemma (in Classical_Propositional_Logic) implication_distribution:
+  "\<turnstile> (\<phi> \<rightarrow> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<phi> \<rightarrow> \<psi>) \<sqinter> (\<phi> \<rightarrow> \<chi>))"
+proof -
+  have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
+      by auto
+  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+    using propositional_semantics by blast
+  thus ?thesis by simp
+qed
+
+lemma (in Classical_Propositional_Logic) list_implication_distribution:
+  "\<turnstile> (\<Phi> :\<rightarrow> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<Phi> :\<rightarrow> \<psi>) \<sqinter> (\<Phi> :\<rightarrow> \<chi>))"
+proof (induct \<Phi>)
+  case Nil
+  then show ?case
+    by (simp add: biconditional_reflection) 
+next
+  case (Cons \<phi> \<Phi>)
+  hence " \<turnstile> (\<phi> # \<Phi>) :\<rightarrow> (\<psi> \<sqinter> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<chi>))"
+    unfolding biconditional_def
+    apply simp
+    using Modus_Ponens hypothetical_syllogism 
+    by blast
+  moreover have "\<turnstile> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<chi>)) \<leftrightarrow> (((\<phi> # \<Phi>) :\<rightarrow> \<psi>) \<sqinter> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>))"
+    using implication_distribution by auto
+  ultimately show ?case
+    by (simp, metis biconditional_transitivity_rule)
+qed
+
+lemma (in Classical_Propositional_Logic) biconditional_conjunction_weaken:
+  "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<rightarrow> ((\<gamma> \<sqinter> \<alpha>) \<leftrightarrow> (\<gamma> \<sqinter> \<beta>))"
+proof -
+  have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<beta>\<^bold>\<rangle>) \<rightarrow> ((\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<beta>\<^bold>\<rangle>))"
+      by auto
+  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<beta>\<^bold>\<rangle>) \<rightarrow> ((\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<beta>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+    using propositional_semantics by blast
+  thus ?thesis by simp
+qed  
+
+lemma (in Classical_Propositional_Logic) biconditional_conjunction_weaken_rule:
+  "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<Longrightarrow> \<turnstile> (\<gamma> \<sqinter> \<alpha>) \<leftrightarrow> (\<gamma> \<sqinter> \<beta>)"
+  using Modus_Ponens biconditional_conjunction_weaken by blast
   
+lemma (in Classical_Propositional_Logic) disjunction_arbitrary_distribution:
+  "\<turnstile> (\<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<phi> \<squnion> \<psi>. \<psi> \<leftarrow> \<Psi>]"  
+proof (induct \<Psi>)
+  case Nil
+  then show ?case
+    unfolding disjunction_def biconditional_def
+    apply simp
+    using Axiom_1 Modus_Ponens verum_tautology 
+    by blast
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<turnstile> (\<phi> \<squnion> \<Sqinter> (\<psi> # \<Psi>)) \<leftrightarrow> ((\<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<Sqinter> \<Psi>))"
+    by (simp add: disjunction_distribution)
+  moreover
+  from biconditional_conjunction_weaken_rule 
+       Cons 
+  have " \<turnstile> ((\<phi> \<squnion> \<psi>) \<sqinter> \<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> (map (op \<squnion> \<phi>) (\<psi> # \<Psi>))"
+    by simp
+  ultimately show ?case  
+    by (metis biconditional_transitivity_rule)
+qed
+
+lemma (in Classical_Propositional_Logic) list_implication_arbitrary_distribution:
+  "\<turnstile> (\<Phi> :\<rightarrow> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<Phi> :\<rightarrow> \<psi>. \<psi> \<leftarrow> \<Psi>]"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case 
+    by (simp add: biconditional_def,
+        meson Axiom_1 
+              Modus_Ponens 
+              list_implication_Axiom_1 
+              verum_tautology)
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<turnstile> \<Phi> :\<rightarrow> \<Sqinter> (\<psi> # \<Psi>) \<leftrightarrow> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<Sqinter> \<Psi>)"
+    using list_implication_distribution
+    by fastforce
+  moreover 
+  from biconditional_conjunction_weaken_rule 
+       Cons
+  have "\<turnstile> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<Phi> :\<rightarrow> \<psi>. \<psi> \<leftarrow> (\<psi> # \<Psi>)]"
+    by simp
+  ultimately show ?case 
+    by (metis biconditional_transitivity_rule)
+qed  
+
+lemma (in Classical_Propositional_Logic) implication_arbitrary_distribution:
+  "\<turnstile> (\<phi> \<rightarrow> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<phi> \<rightarrow> \<psi>. \<psi> \<leftarrow> \<Psi>]"
+  using list_implication_arbitrary_distribution [where ?\<Phi>="[\<phi>]"]
+  by simp
+
 subsubsection {* Negation *}
 
 lemma (in Classical_Propositional_Logic) double_negation_biconditional:

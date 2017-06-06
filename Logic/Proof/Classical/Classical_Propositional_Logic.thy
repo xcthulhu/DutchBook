@@ -15,7 +15,7 @@ class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
 
 subsection {* Common Rules *}
-
+  
 lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism by blast
 
