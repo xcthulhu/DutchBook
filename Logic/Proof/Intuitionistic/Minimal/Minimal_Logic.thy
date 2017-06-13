@@ -24,12 +24,14 @@ text {* A convenience class to have is @{class "Minimal_Logic"} extended with a 
 
 class Minimal_Logic_With_Falsum = Minimal_Logic +
   fixes falsum :: "'a"                      ("\<bottom>")
-
     
 subsection {* Common Rules *}
 
+lemma (in Minimal_Logic) trivial_implication: "\<turnstile> \<phi> \<rightarrow> \<phi>"
+  by (meson Axiom_1 Axiom_2 Modus_Ponens)
+  
 lemma (in Minimal_Logic) flip_implication: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> \<psi> \<rightarrow> \<phi> \<rightarrow> \<chi>"  
-  by (meson Axiom_1 Axiom_2 Modus_Ponens)  
+  by (meson Axiom_1 Axiom_2 Modus_Ponens)
   
 lemma (in Minimal_Logic) hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"  
   by (meson Axiom_1 Axiom_2 Modus_Ponens)
