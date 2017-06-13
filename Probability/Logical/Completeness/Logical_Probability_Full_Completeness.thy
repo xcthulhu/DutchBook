@@ -4098,6 +4098,81 @@ proof -
   qed
   thus ?thesis by simp
 qed
+
+lemma (in Classical_Propositional_Logic) recoverWitnesses_mset_equiv:
+  assumes "mset (map snd \<Delta>) \<subseteq># mset \<Gamma>"
+      and "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
+    shows "mset (\<Gamma> \<ominus> map snd \<Delta>) =
+           mset ((map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) 
+                 @ \<Gamma> \<ominus> map snd (recoverWitnessA \<Sigma> \<Delta>)) \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>))"
+proof -
+  have "mset (\<Gamma> \<ominus> map snd \<Delta>) = 
+        mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>) \<ominus> map snd (recoverWitnessA \<Sigma> \<Delta>))"
+    using assms(2) recoverWitnessA_mset_equiv
+    by (simp add: union_commute)
+  moreover have "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)
+                  \<longrightarrow> mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>)) = 
+                      mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) @ 
+                            \<Gamma> \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>))"
+    using assms(1)
+  proof (induct \<Delta>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<delta> \<Delta>)
+    from Cons.prems have "snd \<delta> \<in> set \<Gamma>"
+      using mset_subset_eqD by fastforce
+    from Cons.prems have \<heartsuit>: "mset (map snd \<Delta>) \<subseteq># mset \<Gamma>"
+      using subset_mset.dual_order.trans
+      by fastforce 
+    {
+      fix \<Sigma> :: "('a \<times> 'a) list"
+      assume \<star>: "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) (\<delta> # \<Delta>))"
+      have "mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> (\<delta> # \<Delta>))) =
+            mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> (\<delta> # \<Delta>)) @
+                  \<Gamma> \<ominus> map snd (recoverWitnessB \<Sigma> (\<delta> # \<Delta>)))"
+      proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
+        case True
+        hence "uncurry op \<squnion> \<delta> \<notin> set (map snd \<Sigma>)"
+        proof (induct \<Sigma>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<sigma> \<Sigma>)
+          then show ?case
+            by (cases "(uncurry op \<squnion>) \<delta> = snd \<sigma>", fastforce+)
+        qed
+        with \<star> have "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
+          by (smt diff_single_trivial 
+                  in_multiset_in_set 
+                  list.map(2) 
+                  mset.simps(1) 
+                  mset.simps(2) 
+                  mset_eq_perm 
+                  perm_append_single 
+                  subset_eq_diff_conv union_code)
+        with Cons.hyps \<heartsuit> have "mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>)) = 
+                               mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) @
+                                     \<Gamma> \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>))"
+          by simp
+        with True \<open>snd \<delta> \<in> set \<Gamma>\<close> show ?thesis apply simp 
+      next
+        case False
+        then show ?thesis sorry
+      qed
+    }
+    then show ?case sorry
+  qed
+    
+  ultimately 
+  show ?thesis 
+    using assms recoverWitnessA_mset_equiv
+    by (simp, 
+        smt Multiset.diff_add diff_union_cancelL 
+            listSubtract_mset_homomorphism 
+            recoverWitnessB_mset_equiv 
+            mset_append mset_map uncurry_def)
+qed
   
 lemma (in Classical_Propositional_Logic) segmented_deduction_generalized_witness:
   "\<Gamma> $\<turnstile> (\<Phi> @ \<Psi>) = (\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and> 
@@ -4191,15 +4266,14 @@ proof -
         let ?\<Xi> = "recoverWitnessB \<Sigma> \<Delta>"
         let ?\<Gamma>\<^sub>0 = "map (uncurry op \<rightarrow>) ?\<Omega> @ \<Gamma> \<ominus> map snd ?\<Omega>"
         let ?\<Gamma>\<^sub>1 = "map (uncurry op \<rightarrow>) ?\<Xi> @ ?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>"
-        have "mset (\<Gamma> \<ominus> map snd \<Delta>) = mset (?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>)" sorry
+        have "mset (\<Gamma> \<ominus> map snd \<Delta>) = mset (?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>)"
+          using \<Delta>(1) \<Sigma>(1) recoverWitnesses_mset_equiv by blast
         hence "(\<Gamma> \<ominus> map snd \<Delta>) \<preceq> (?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>)"
           by (simp add: msub_stronger_theory_intro)
-        hence "(map (uncurry op \<rightarrow>) \<Delta> @ \<Gamma> \<ominus> map snd \<Delta>) \<preceq> ?\<Gamma>\<^sub>1"
-          using stronger_theory_combine 
-                recoverWitnessB_right_stronger_theory
-          by blast
         hence "?\<Gamma>\<^sub>1 $\<turnstile> \<Psi>"
-          using \<Delta>(3) segmented_stronger_theory_left_monotonic 
+          using \<Delta>(3) segmented_stronger_theory_left_monotonic
+                stronger_theory_combine 
+                recoverWitnessB_right_stronger_theory 
           by blast 
         moreover
         have "mset (map snd ?\<Xi>) \<subseteq># mset ?\<Gamma>\<^sub>0" 
@@ -4209,11 +4283,9 @@ proof -
                     listSubtract_mset_homomorphism 
                     mset_map)
         moreover
-        have "(map (uncurry op \<rightarrow>) \<Sigma> @ (map (uncurry op \<squnion>) \<Delta>) \<ominus> map snd \<Sigma>) 
-            \<preceq> map (uncurry op \<squnion>) ?\<Xi>"
-          using \<Sigma>(1) recoverWitnessB_stronger_theory by blast
-        hence "map (uncurry op \<squnion>) ?\<Xi> $\<turnstile> \<Phi>"
-          using \<Sigma>(3) segmented_stronger_theory_left_monotonic by blast 
+        have "map (uncurry op \<squnion>) ?\<Xi> $\<turnstile> \<Phi>"
+          using \<Sigma>(1) recoverWitnessB_stronger_theory 
+                \<Sigma>(3) segmented_stronger_theory_left_monotonic by blast 
         ultimately have "?\<Gamma>\<^sub>0 $\<turnstile> (\<Phi> @ \<Psi>)"
           using Cons by fast
         moreover
