@@ -144,5 +144,62 @@ proof -
     using Additivity
     by smt
 qed
-  
+
+definition (in Minimal_Logic_With_Falsum) Binary_Probabilities :: "('a \<Rightarrow> real) set"
+  where "Binary_Probabilities = 
+         {Pr. class.Weakly_Additive_Logical_Probability 
+              (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
+
+lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Probability:
+  assumes "MCS \<Omega>"
+    shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
+      (is "?Pr \<in> Binary_Probabilities")
+proof -
+  have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> ?Pr"
+      by (standard,
+          simp,
+          meson assms
+                Formula_Maximally_Consistent_Set_reflection 
+                Maximally_Consistent_Set_def 
+                set_deduction_weaken,
+         smt assms
+             Formula_Consistent_def 
+             Formula_Maximally_Consistent_Set_def 
+             Formula_Maximally_Consistent_Set_implication 
+             Formula_Maximally_Consistent_Set_reflection 
+             Maximally_Consistent_Set_def 
+             conjunction_def 
+             disjunction_def 
+             negation_def 
+             set_deduction_weaken)
+  thus ?thesis
+    unfolding Binary_Probabilities_def
+    by simp
+qed
+
+lemma (in Classical_Propositional_Logic) arbitrary_disjunction_exclusion_MCS:
+  assumes "MCS \<Omega>"
+  shows "\<Squnion> \<Psi> \<notin> \<Omega> \<equiv> \<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case
+    using assms 
+          Formula_Consistent_def 
+          Formula_Maximally_Consistent_Set_def 
+          Maximally_Consistent_Set_def 
+          set_deduction_reflection 
+    by (simp, blast) 
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> \<equiv> \<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>"
+    by (simp add: disjunction_def, 
+        smt assms 
+            Formula_Consistent_def 
+            Formula_Maximally_Consistent_Set_def
+            Formula_Maximally_Consistent_Set_implication
+            Maximally_Consistent_Set_def 
+            set_deduction_reflection)
+  thus ?case using Cons.hyps by simp
+qed    
+    
 end

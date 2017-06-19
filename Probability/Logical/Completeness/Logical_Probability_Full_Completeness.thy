@@ -1500,7 +1500,7 @@ next
     using segmented_deduction.simps(2) by blast
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) Segmented_Deduction_Summation_Introduction:
+lemma (in Weakly_Additive_Logical_Probability) segmented_deduction_summation_introduction:
   assumes "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof -
@@ -4673,13 +4673,257 @@ proof -
   with forward_direction show ?thesis by auto
 qed
   
-lemma (in Classical_Propositional_Logic) segmented_biconditional_cancel:
+lemma (in Classical_Propositional_Logic) segmented_biconditional_cancel [simp]:
   assumes "\<turnstile> \<gamma> \<leftrightarrow> \<phi>"
-  shows "\<Gamma> $\<turnstile> \<Phi> = (\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>)"
-  sorry
-    
+  shows "(\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>) = \<Gamma> $\<turnstile> \<Phi>"
+proof -
+  from assms have "(\<gamma> # \<Phi>) \<preceq> (\<phi> # \<Phi>)" "(\<phi> # \<Phi>) \<preceq> (\<gamma> # \<Phi>)"
+    unfolding biconditional_def
+    by (simp add: stronger_theory_left_right_cons)+
+  hence "(\<gamma> # \<Phi>) $\<turnstile> (\<phi> # \<Phi>)" 
+        "(\<phi> # \<Phi>) $\<turnstile> (\<gamma> # \<Phi>)"
+    using segmented_stronger_theory_intro by blast+
+  moreover 
+  have "\<Gamma> $\<turnstile> \<Phi> = (\<gamma> # \<Gamma>) $\<turnstile> (\<gamma> # \<Phi>)"
+    by (metis append_Cons append_Nil segmented_cancel)+
+  ultimately 
+  have "\<Gamma> $\<turnstile> \<Phi> \<Longrightarrow> \<gamma> # \<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
+       "\<gamma> # \<Gamma> $\<turnstile> (\<phi> # \<Phi>) \<Longrightarrow> \<Gamma> $\<turnstile> \<Phi>"
+    using segmented_transitive by blast+
+  thus ?thesis by blast
+qed
   
-(*
+lemma (in Classical_Propositional_Logic) segmented_exchange:
+  "(\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>) = (\<phi> \<rightarrow> \<gamma> # \<Gamma>) $\<turnstile> (\<gamma> \<rightarrow> \<phi> # \<Phi>)"
+proof -
+  have "(\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>) 
+      = (\<phi> \<squnion> \<gamma> # \<phi> \<rightarrow> \<gamma> # \<Gamma>) $\<turnstile> (\<gamma> \<squnion> \<phi> # \<gamma> \<rightarrow> \<phi> # \<Phi>)"
+    using segmented_formula_left_split
+          segmented_formula_right_split
+    by blast+
+  thus ?thesis 
+    using segmented_biconditional_cancel
+          disjunction_commutativity 
+    by blast
+qed
+
+lemma (in Classical_Propositional_Logic) segmented_negation_swap:
+  "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> # \<Phi>)"
+proof -
+  have "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<bottom> # \<Gamma>) $\<turnstile> (\<bottom> # \<phi> # \<Phi>)"
+    by (metis append_Cons append_Nil segmented_cancel)
+  also have "... = (\<bottom> # \<Gamma>) $\<turnstile> (\<phi> # \<bottom> # \<Phi>)"
+    using segmented_cons_cons_right_permute by blast
+  also have "... = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> \<rightarrow> \<phi> # \<bottom> # \<Phi>)"
+    unfolding negation_def
+    using segmented_exchange
+    by blast
+  also have "... = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> # \<Phi>)"
+    using Ex_Falso_Quodlibet 
+          segmented_tautology_right_cancel 
+    by blast
+  finally show ?thesis .
+qed
+
+lemma (in Classical_Propositional_Logic) segmented_stratified_falsum_equiv:
+  "\<Gamma> $\<turnstile> \<Phi> = (\<^bold>\<sim> \<Phi> @ \<Gamma>) #\<turnstile> (length \<Phi>) \<bottom>"
+proof -
+  have "\<forall> \<Gamma> \<Psi>. \<Gamma> $\<turnstile> (\<Phi> @ \<Psi>) = (\<^bold>\<sim> \<Phi> @ \<Gamma>) $\<turnstile> (replicate (length \<Phi>) \<bottom> @ \<Psi>)"
+  proof (induct \<Phi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<phi> \<Phi>)
+    {
+      fix \<Gamma> \<Psi>
+      have "\<Gamma> $\<turnstile> ((\<phi> # \<Phi>) @ \<Psi>) = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> # \<Phi> @ \<Psi>)"
+        using segmented_negation_swap by auto
+      moreover have "mset (\<Phi> @ (\<bottom> # \<Psi>)) = mset (\<bottom> # \<Phi> @ \<Psi>)"
+        by simp
+      ultimately have "\<Gamma> $\<turnstile> ((\<phi> # \<Phi>) @ \<Psi>) = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<Phi> @ (\<bottom> # \<Psi>))"
+        by (metis segmented_msub_weaken subset_mset.order_refl)
+      hence "\<Gamma> $\<turnstile> ((\<phi> # \<Phi>) @ \<Psi>) = (\<^bold>\<sim> \<Phi> @ (\<sim> \<phi> # \<Gamma>)) $\<turnstile> (replicate (length \<Phi>) \<bottom> @ (\<bottom> # \<Psi>))"
+        using Cons
+        by blast
+      moreover have "mset (\<^bold>\<sim> \<Phi> @ (\<sim> \<phi> # \<Gamma>)) = mset (\<^bold>\<sim> (\<phi> # \<Phi>) @ \<Gamma>)"
+                    "mset (replicate (length \<Phi>) \<bottom> @ (\<bottom> # \<Psi>)) 
+                   = mset (replicate (length (\<phi> # \<Phi>)) \<bottom> @ \<Psi>)"
+        by simp+
+      ultimately have 
+        "\<Gamma> $\<turnstile> ((\<phi> # \<Phi>) @ \<Psi>) = \<^bold>\<sim> (\<phi> # \<Phi>) @ \<Gamma> $\<turnstile> (replicate (length (\<phi> # \<Phi>)) \<bottom> @ \<Psi>)"
+        by (metis append.assoc 
+                  append_Cons 
+                  append_Nil 
+                  length_Cons
+                  replicate_append_same
+                  listSubtract.simps(1)
+                  map_ident replicate_Suc
+                  segmented_msub_left_monotonic
+                  map_listSubtract_mset_containment)
+    }
+    then show ?case by blast
+  qed
+  thus ?thesis
+    by (metis append_Nil2 stratified_segmented_deduction_replicate)
+qed
+
+definition (in Minimal_Logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<CC>")
+  where
+    "\<CC> \<Gamma> \<phi> = {\<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> 
+                  \<and> \<not> \<Phi> :\<turnstile> \<phi> 
+                  \<and> (\<forall> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<longrightarrow> \<not> \<Psi> :\<turnstile> \<phi> \<longrightarrow> length \<Psi> \<le> length \<Phi>)}"
+
+lemma (in Minimal_Logic) unproving_core_existance:
+  assumes "\<not> \<turnstile> \<phi>"
+    shows "\<exists> \<Sigma>. \<Sigma> \<in> \<CC> \<Gamma> \<phi>"
+proof (rule ccontr)
+  assume "\<nexists>\<Sigma>. \<Sigma> \<in> \<CC> \<Gamma> \<phi>"
+  hence \<diamondsuit>: "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow>
+                  \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow>
+                  (\<exists>\<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > length \<Phi>)"
+    unfolding unproving_core_def
+    by fastforce
+  {
+    fix n
+    have "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > n"
+      using \<diamondsuit>
+      by (induct n, 
+          metis assms list_deduction_base_theory mset.simps(1) neq0_conv subset_mset.bot.extremum,
+          fastforce)          
+  }
+  hence "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> length \<Psi> > length \<Gamma>"
+    by auto
+  thus "False"
+    using size_mset_mono by fastforce
+qed    
+    
+lemma (in Classical_Propositional_Logic) stratified_deduction_implication:
+  assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
+     and "\<Gamma> #\<turnstile> n \<phi>"
+   shows "\<Gamma> #\<turnstile> n \<psi>"
+proof -
+  have "replicate n \<psi> \<preceq> replicate n \<phi>"
+    using stronger_theory_left_right_cons assms(1)
+    by (induct n, auto)
+  thus ?thesis
+    using assms(2)
+          segmented_stronger_theory_right_antitonic
+          stratified_segmented_deduction_replicate
+    by blast 
+qed
+
+lemma (in Classical_Propositional_Logic) stratified_deduction_tautology_weaken:
+  assumes "\<turnstile> \<phi>"
+  shows "\<Gamma> #\<turnstile> n \<phi>"
+proof (induct n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
+    using assms
+          stratified_segmented_deduction_replicate
+          segmented_tautology_right_cancel 
+    by blast
+  hence "\<Gamma> $\<turnstile> replicate (Suc n) \<phi>"
+    by simp
+  then show ?case  
+    using stratified_segmented_deduction_replicate
+    by blast
+qed
+  
+theorem (in Classical_Propositional_Logic) stratified_deduction_completeness:
+  "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>) = (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof -
+  {
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+    moreover have "replicate n (\<sim> \<phi>) = \<^bold>\<sim> (replicate n \<phi>)" 
+      by (induct n, auto)
+    ultimately have "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> (replicate n \<phi>)"
+      using stratified_segmented_deduction_replicate by smt
+    hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<phi>). Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using segmented_deduction_summation_introduction 
+      by blast
+    moreover have "(\<Sum>\<phi>\<leftarrow>(replicate n \<phi>). Pr \<phi>) = real n * Pr \<phi>"
+      by (induct n, simp, simp add: semiring_normalization_rules(3))
+    ultimately have "real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      by simp
+  }
+  moreover
+  {
+    assume "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+    have "\<exists> Pr \<in> Binary_Probabilities. real n * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    proof -
+      have "\<exists>\<Phi>. \<Phi> \<in> \<CC> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
+        using \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close>
+              unproving_core_existance
+              stratified_deduction_tautology_weaken
+        by blast
+      from this obtain \<Phi> where \<Phi>: "(\<^bold>\<sim> \<Phi>) \<in> \<CC> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" "mset \<Phi> \<subseteq># mset \<Gamma>"
+        by (metis (mono_tags, lifting) unproving_core_def 
+                                       mem_Collect_eq 
+                                       mset_sub_map_list_exists)
+      show ?thesis sorry
+    qed
+  }
+  ultimately show ?thesis by fastforce 
+qed
+  
+theorem (in Classical_Propositional_Logic) segmented_deduction_completeness:
+  "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi> = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof -
+  {
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using segmented_deduction_summation_introduction 
+      by blast
+  }
+  moreover
+  {
+    assume "\<not> \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+    have "\<exists> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    proof -
+      from \<open>\<not> \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>\<close> have "\<not> \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length (\<^bold>\<sim> \<Phi>)) \<bottom>"
+        using segmented_stratified_falsum_equiv by blast
+      moreover 
+      have "\<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length (\<^bold>\<sim> \<Phi>)) \<bottom> = \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length \<Phi>) \<bottom>"
+        by (induct \<Phi>, auto)
+      moreover have "\<turnstile> \<sim> \<top> \<rightarrow> \<bottom>"
+        by (simp add: negation_def verum_tautology)
+      ultimately have "\<not> \<^bold>\<sim> (\<^bold>\<sim> \<Phi> @ \<Gamma>) #\<turnstile> (length \<Phi>) (\<sim> \<top>)"
+        using stratified_deduction_implication by fastforce 
+      from this obtain Pr where Pr:
+        "Pr \<in> Binary_Probabilities" 
+        "real (length \<Phi>) * Pr \<top> > (\<Sum>\<gamma>\<leftarrow> (\<^bold>\<sim> \<Phi> @ \<Gamma>). Pr \<gamma>)"
+        using stratified_deduction_completeness
+        by fastforce
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      from Pr(2) have "real (length \<Phi>) > (\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) + (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
+        by (simp add: Unity verum_tautology)
+      moreover have "(\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) = real (length \<Phi>) - (\<Sum>\<gamma>\<leftarrow> \<Phi>. Pr \<gamma>)"
+        using complementation 
+        by (induct \<Phi>, auto)
+      ultimately show ?thesis
+        using Pr(1) by auto 
+    qed
+  }
+  ultimately show ?thesis by fastforce
+qed
+    
+
+(*                                                                                                                                                                       
 lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:
   "(\<phi> \<sqinter> \<psi>) # \<Phi> :\<turnstile> \<chi> = \<phi> # \<psi> # \<Phi> :\<turnstile> \<chi>"
   sorry
