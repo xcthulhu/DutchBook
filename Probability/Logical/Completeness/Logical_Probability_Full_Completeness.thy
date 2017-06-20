@@ -4796,7 +4796,88 @@ proof (rule ccontr)
   thus "False"
     using size_mset_mono by fastforce
 qed    
-    
+
+lemma (in Minimal_Logic) unproving_listSubtract_length_equiv:
+  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+      and "\<Psi> \<in> \<CC> \<Gamma> \<phi>"
+    shows "length (\<Gamma> \<ominus> \<Phi>) = length (\<Gamma> \<ominus> \<Psi>)"
+proof -
+  from assms have "length \<Phi> = length \<Psi>"
+    by (simp add: dual_order.antisym unproving_core_def)
+  moreover
+  have "mset \<Phi> \<subseteq># mset \<Gamma>"
+       "mset \<Psi> \<subseteq># mset \<Gamma>"
+    using assms unproving_core_def by blast+
+  hence "length (\<Gamma> \<ominus> \<Phi>) = length \<Gamma> - length \<Phi>"
+        "length (\<Gamma> \<ominus> \<Psi>) = length \<Gamma> - length \<Psi>"
+    by (metis listSubtract_mset_homomorphism size_Diff_submset size_mset)+
+  ultimately show ?thesis by smt
+qed
+
+lemma (in Classical_Propositional_Logic) unproving_core_max_stratified_deduction:
+  "\<Gamma> #\<turnstile> n \<phi> = (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>))"
+proof -
+  {
+    assume "n = 0"
+    hence ?thesis by simp
+  }
+  moreover
+  {
+    assume "n = 1"
+    hence ?thesis
+      using stratified_one_deduction 
+            unproving_core_max_list_deduction 
+      by blast
+  }
+  moreover
+  {
+    assume "\<turnstile> \<phi>"
+    hence "\<Gamma> #\<turnstile> n \<phi>" "\<CC> \<Gamma> \<phi> = {}"
+      unfolding unproving_core_def
+      by (simp add: stratified_deduction_weaken list_deduction_weaken)+
+    hence ?thesis by blast
+  }
+  moreover
+  {
+    assume "n > 1" "\<not> \<turnstile> \<phi>"
+    have "\<forall> \<Gamma>. (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>)) \<longrightarrow> \<Gamma> #\<turnstile> n \<phi>"
+    proof (induct n)
+      case 0
+      then show ?case by simp
+    next
+      case (Suc n)
+      {
+        fix \<Gamma>
+        assume "\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. Suc n \<le> length (\<Gamma> \<ominus> \<Phi>)"
+        with \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Sigma> where \<Sigma>: "\<Sigma> \<in> \<CC> \<Gamma> \<phi>" "Suc n \<le> length (\<Gamma> \<ominus> \<Sigma>)"
+          using unproving_core_existance by blast
+        have "\<Gamma> #\<turnstile> (Suc n) \<phi>"
+        proof (rule ccontr)
+          assume "\<not> \<Gamma> #\<turnstile> (Suc n) \<phi>"
+          hence "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> \<Phi> :\<turnstile> \<phi> \<longrightarrow> 
+                      (\<exists> \<Psi> \<in> \<CC> (\<Gamma> \<ominus> \<Phi>) \<phi>. n > length ((\<Gamma> \<ominus> \<Phi>) \<ominus> \<Psi>))"
+            by (meson Suc.hyps local.stratified_deduction.simps(2) not_less)
+          hence "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> \<Phi> :\<turnstile> \<phi> \<longrightarrow> 
+                      (\<exists> \<Psi> \<in> \<CC> (\<Gamma> \<ominus> \<Phi>) \<phi>. length \<Psi> + n > length (\<Gamma> \<ominus> \<Phi>))"
+            by (metis (no_types, lifting) add.commute 
+                                          add_less_mono1 
+                                          listSubtract_msub_eq 
+                                          local.unproving_core_def 
+                                          mem_Collect_eq)
+            
+          show "False" sorry
+        qed
+      }
+      then show ?case by blast
+    qed
+    hence ?thesis
+      using unproving_core_stratified_deduction_lower_bound 
+      by blast
+  }
+  ultimately show ?thesis
+    by (meson less_one linorder_neqE_nat)
+qed
+  
 lemma (in Classical_Propositional_Logic) stratified_deduction_implication:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
      and "\<Gamma> #\<turnstile> n \<phi>"
@@ -4831,7 +4912,11 @@ next
     using stratified_segmented_deduction_replicate
     by blast
 qed
-  
+
+lemma (in Weakly_Additive_Logical_Probability) list_probability_upper_bound:
+  "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) \<le> real (length \<Gamma>)"
+  by (induct \<Gamma>, simp, simp, smt unity_upper_bound)    
+    
 theorem (in Classical_Propositional_Logic) stratified_deduction_completeness:
   "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>) = (\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof -
@@ -4865,10 +4950,63 @@ proof -
               stratified_deduction_tautology_weaken
         by blast
       from this obtain \<Phi> where \<Phi>: "(\<^bold>\<sim> \<Phi>) \<in> \<CC> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" "mset \<Phi> \<subseteq># mset \<Gamma>"
-        by (metis (mono_tags, lifting) unproving_core_def 
-                                       mem_Collect_eq 
-                                       mset_sub_map_list_exists)
-      show ?thesis sorry
+        by (metis (mono_tags, lifting) 
+                  unproving_core_def 
+                  mem_Collect_eq 
+                  mset_sub_map_list_exists)
+      hence "\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Phi>"
+        using biconditional_weaken 
+              list_deduction_def 
+              map_negation_list_implication 
+              set_deduction_base_theory 
+              unproving_core_def 
+        by blast
+      from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Phi> \<notin> \<Omega>"
+        by (meson insert_subset 
+                  Formula_Consistent_def 
+                  Formula_Maximal_Consistency 
+                  Formula_Maximally_Consistent_Extension 
+                  Formula_Maximally_Consistent_Set_def 
+                  set_deduction_base_theory 
+                  set_deduction_reflection 
+                  set_deduction_theorem)
+      let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
+      from \<Omega> have "?Pr \<in> Binary_Probabilities"
+        using MCS_Binary_Weakly_Additive_Logical_Probability by blast
+      moreover
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "?Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      have "\<forall> \<phi> \<in> set \<Phi>. ?Pr \<phi> = 0"
+        using \<Phi>(1) \<Omega>(1) \<Omega>(3) arbitrary_disjunction_exclusion_MCS by auto 
+      with \<Phi>(2) have "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr \<gamma>) = (\<Sum>\<gamma>\<leftarrow>(\<Gamma> \<ominus> \<Phi>). ?Pr \<gamma>)"
+        by (induct \<Phi>, simp, simp,
+            smt add_mset_remove_trivial 
+                diff_subset_eq_self 
+                remove1_idem 
+                subset_mset.dual_order.trans 
+                sum_list_map_remove1)
+      hence "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr \<gamma>) \<le> real (length (\<Gamma> \<ominus> \<Phi>))"
+        using list_probability_upper_bound 
+        by auto
+            moreover
+      have "length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>) < n"
+        by (metis not_le \<Phi>(1) \<open>\<not> (\<^bold>\<sim> \<Gamma>) #\<turnstile> n (\<sim> \<phi>)\<close>
+                  unproving_core_max_stratified_deduction 
+                  unproving_listSubtract_length_equiv)
+      hence "real (length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)) < real n"
+        by simp
+      with \<Omega>(2) have "real (length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)) < real n * ?Pr \<phi>"
+        by simp
+      moreover
+      have "(\<^bold>\<sim> (\<Gamma> \<ominus> \<Phi>)) <~~> (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
+        by (metis \<Phi>(2) map_listSubtract_mset_equivalence mset_eq_perm)
+      with perm_length have "length (\<Gamma> \<ominus> \<Phi>) = length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
+        by fastforce
+      hence "real (length (\<Gamma> \<ominus> \<Phi>)) = real (length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>))"
+        by simp
+      ultimately show ?thesis
+        by force
     qed
   }
   ultimately show ?thesis by fastforce 
