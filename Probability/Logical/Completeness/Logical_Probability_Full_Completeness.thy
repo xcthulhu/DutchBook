@@ -27,6 +27,54 @@ next
   case (Cons \<omega> \<Psi>)
   then show ?case by (cases "P \<omega>", fastforce+)
 qed
+
+lemma listSubtract_mset_homomorphism [simp]:
+  "mset (A \<ominus> B) = mset A - mset B"
+  by (induct B, simp, simp)  
+  
+lemma listSubtract_msub_eq:
+  assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
+      and "length (\<Gamma> \<ominus> \<Phi>) = m"
+    shows "length \<Gamma> = m + length \<Phi>"
+  using assms
+proof - 
+  have "\<forall> \<Gamma>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> length (\<Gamma> \<ominus> \<Phi>) = m \<longrightarrow> length \<Gamma> = m + length \<Phi>"
+  proof (induct \<Phi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<phi> \<Phi>)
+    {
+      fix \<Gamma> :: "'a list"
+      assume "mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>"
+             "length (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = m"
+      moreover from this have "mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)"
+                              "mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset ((remove1 \<phi> \<Gamma>) \<ominus> \<Phi>)"
+        by (metis append_Cons mset_le_perm_append perm_remove_perm remove_hd, simp)
+      ultimately have "length (remove1 \<phi> \<Gamma>) = m + length \<Phi>"
+        using Cons.hyps
+        by (metis mset_eq_length)
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = m + length (\<phi> # \<Phi>)"
+        by simp
+      moreover have "\<phi> \<in> set \<Gamma>"
+        by (metis \<open>mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset (remove1 \<phi> \<Gamma> \<ominus> \<Phi>)\<close> 
+                  \<open>mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>\<close> 
+                  \<open>mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)\<close> 
+                  add_diff_cancel_left' 
+                  add_right_cancel 
+                  eq_iff 
+                  impossible_Cons 
+                  listSubtract_mset_homomorphism 
+                  mset_subset_eq_exists_conv 
+                  remove1_idem size_mset)
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = length \<Gamma>"
+        by (metis One_nat_def Suc_pred length_Cons length_pos_if_in_set length_remove1)
+      ultimately have "length \<Gamma> = m + length (\<phi> # \<Phi>)" by simp
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed  
   
 definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
   where [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
@@ -131,10 +179,63 @@ proof -
   qed
   thus ?thesis using assms by blast
 qed
-        
-lemma listSubtract_mset_homomorphism [simp]:
-  "mset (A \<ominus> B) = mset A - mset B"
-  by (induct B, simp, simp)
+
+lemma length_sub_mset:
+  assumes "mset \<Psi> \<subseteq># mset \<Gamma>"
+      and "length \<Psi> >= length \<Gamma>"
+    shows "mset \<Psi> = mset \<Gamma>"
+  using assms
+proof -
+  have "\<forall> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<longrightarrow> length \<Psi> >= length \<Gamma> \<longrightarrow> mset \<Psi> = mset \<Gamma>"
+  proof (induct \<Gamma>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<gamma> \<Gamma>)
+    {
+      fix \<Psi>
+      assume "mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)" "length \<Psi> >= length (\<gamma> # \<Gamma>)"
+      have "\<gamma> \<in> set \<Psi>"
+      proof (rule ccontr)
+        assume "\<gamma> \<notin> set \<Psi>"
+        hence \<diamondsuit>: "remove1 \<gamma> \<Psi> = \<Psi>"
+          by (simp add: remove1_idem)
+        have "mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)"
+          using \<open>mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)\<close> by auto       
+        hence "mset \<Psi> \<subseteq># mset (remove1 \<gamma> (\<gamma> # \<Gamma>))"
+          by (metis \<diamondsuit> mset_le_perm_append perm_remove_perm remove1_append)
+        hence "mset \<Psi> \<subseteq># mset \<Gamma>"
+          by simp
+        hence "mset \<Psi> = mset \<Gamma>"
+          using \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close> size_mset_mono by fastforce 
+        hence "length \<Psi> = length \<Gamma>"
+          by (metis size_mset)
+        hence "length \<Gamma> \<ge> length (\<gamma> # \<Gamma>)"
+          using \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close> by auto 
+        thus "False" by simp
+      qed
+      hence \<heartsuit>: "mset \<Psi> = mset (\<gamma> # (remove1 \<gamma> \<Psi>))"
+        by simp
+      hence "length (remove1 \<gamma> \<Psi>) >= length \<Gamma>"
+        by (metis \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close> 
+                  drop_Suc_Cons 
+                  drop_eq_Nil 
+                  length_Cons 
+                  mset_eq_length)
+      moreover have "mset (remove1 \<gamma> \<Psi>) \<subseteq># mset \<Gamma>"
+        by (simp,
+            metis \<heartsuit> 
+                  \<open>mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)\<close>
+                  mset.simps(2) 
+                  mset_remove1 
+                  mset_subset_eq_add_mset_cancel)
+      ultimately have "mset (remove1 \<gamma> \<Psi>) = mset \<Gamma>" using Cons by blast
+      with \<heartsuit> have "mset \<Psi> = mset (\<gamma> # \<Gamma>)" by simp
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
 
 lemma map_perm:
   assumes "A <~~> B"
@@ -898,7 +999,7 @@ proof -
   with assms show ?thesis by simp
 qed
     
-lemma (in Classical_Propositional_Logic) segmented_deduction_one_collapse [simp]:
+lemma (in Classical_Propositional_Logic) segmented_deduction_one_collapse:
   "\<Gamma> $\<turnstile> [\<phi>] = \<Gamma> :\<turnstile> \<phi>"
 proof (rule iffI)
   assume "\<Gamma> $\<turnstile> [\<phi>]"
@@ -1092,7 +1193,7 @@ proof -
   thus ?thesis using assms by blast
 qed
     
-lemma (in Classical_Propositional_Logic) segmented_empty_deduction [simp]:
+lemma (in Classical_Propositional_Logic) segmented_empty_deduction:
   "[] $\<turnstile> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<phi>)"
   by (induct \<Phi>, simp, rule iffI, fastforce+)
     
@@ -3426,7 +3527,7 @@ proof -
   thus ?thesis using assms by blast
 qed
   
-lemma (in Classical_Propositional_Logic) segmented_witness_right_split [simp]:
+lemma (in Classical_Propositional_Logic) segmented_witness_right_split:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Phi>"
   shows "\<Gamma> $\<turnstile> (map (uncurry (op \<squnion>)) \<Psi> @ map (uncurry (op \<rightarrow>)) \<Psi> @ \<Phi> \<ominus> (map snd \<Psi>)) = \<Gamma> $\<turnstile> \<Phi>"
 proof -
@@ -4488,7 +4589,7 @@ proof -
   with assms show ?thesis by blast
 qed
 
-lemma (in Classical_Propositional_Logic) segmented_tautology_right_cancel [simp]:
+lemma (in Classical_Propositional_Logic) segmented_tautology_right_cancel:
   assumes "\<turnstile> \<phi>"
   shows "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = \<Gamma> $\<turnstile> \<Phi>"
 proof (rule iffI)
@@ -4673,7 +4774,7 @@ proof -
   with forward_direction show ?thesis by auto
 qed
   
-lemma (in Classical_Propositional_Logic) segmented_biconditional_cancel [simp]:
+lemma (in Classical_Propositional_Logic) segmented_biconditional_cancel:
   assumes "\<turnstile> \<gamma> \<leftrightarrow> \<phi>"
   shows "(\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>) = \<Gamma> $\<turnstile> \<Phi>"
 proof -
@@ -4814,6 +4915,296 @@ proof -
   ultimately show ?thesis by smt
 qed
 
+lemma (in Minimal_Logic) unproving_core_max_list_deduction:
+  "\<Gamma> :\<turnstile> \<phi> = (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. 1 \<le> length (\<Gamma> \<ominus> \<Phi>))"
+proof cases
+  assume "\<turnstile> \<phi>"
+  hence "\<Gamma> :\<turnstile> \<phi>" "\<CC> \<Gamma> \<phi> = {}"
+    unfolding unproving_core_def
+    by (simp add: list_deduction_weaken)+
+  then show ?thesis by blast
+next
+  assume "\<not> \<turnstile> \<phi>"
+  from this obtain \<Omega> where \<Omega>: "\<Omega> \<in> \<CC> \<Gamma> \<phi>"
+    using unproving_core_existance by blast
+  from this have "mset \<Omega> \<subseteq># mset \<Gamma>"
+    unfolding unproving_core_def by blast
+  hence \<diamondsuit>: "length (\<Gamma> \<ominus> \<Omega>) = length \<Gamma> - length \<Omega>"
+    by (metis listSubtract_mset_homomorphism 
+              size_Diff_submset 
+              size_mset)
+  show ?thesis
+  proof (cases "\<Gamma> :\<turnstile> \<phi>")
+    assume "\<Gamma> :\<turnstile> \<phi>"
+    from \<Omega> have "mset \<Omega> \<subset># mset \<Gamma>"
+      by (metis (no_types, lifting) 
+                Diff_cancel 
+                Diff_eq_empty_iff 
+                \<open>\<Gamma> :\<turnstile> \<phi>\<close> 
+                list_deduction_monotonic 
+                unproving_core_def 
+                mem_Collect_eq 
+                mset_eq_setD 
+                subset_mset.dual_order.not_eq_order_implies_strict)
+    hence "length \<Omega> < length \<Gamma>"
+      using mset_subset_size by fastforce
+    hence "1 \<le> length \<Gamma> - length \<Omega>"
+      by (simp add: Suc_leI)
+    with \<diamondsuit> have "1 \<le> length (\<Gamma> \<ominus> \<Omega>)"
+      by simp
+    with \<open>\<Gamma> :\<turnstile> \<phi>\<close> \<Omega> show ?thesis
+      by (metis unproving_listSubtract_length_equiv) 
+  next
+    assume "\<not> \<Gamma> :\<turnstile> \<phi>"
+    moreover have "mset \<Gamma> \<subseteq># mset \<Gamma>"
+      by simp
+    moreover have "length \<Omega> \<le> length \<Gamma>"
+      using \<open>mset \<Omega> \<subseteq># mset \<Gamma>\<close> length_sub_mset mset_eq_length 
+      by fastforce  
+    ultimately have "length \<Omega> = length \<Gamma>"
+      using \<Omega>
+      unfolding unproving_core_def
+      by (simp add: dual_order.antisym)
+    hence "1 > length (\<Gamma> \<ominus> \<Omega>)"
+      using \<diamondsuit>
+      by simp
+    with \<open>\<not> \<Gamma> :\<turnstile> \<phi>\<close> \<Omega> show ?thesis
+      by fastforce
+  qed
+qed
+
+lemma (in Classical_Propositional_Logic) stratified_deduction_tautology_weaken:
+  assumes "\<turnstile> \<phi>"
+  shows "\<Gamma> #\<turnstile> n \<phi>"
+proof (induct n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
+    using assms
+          stratified_segmented_deduction_replicate
+          segmented_tautology_right_cancel 
+    by blast
+  hence "\<Gamma> $\<turnstile> replicate (Suc n) \<phi>"
+    by simp
+  then show ?case  
+    using stratified_segmented_deduction_replicate
+    by blast
+qed  
+
+definition (in Minimal_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> int" ("\<bar> _ \<bar>\<^sub>_" [45])
+  where
+    "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<CC> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<CC> \<Gamma> \<phi> })"  
+  
+definition (in Minimal_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> int" ("\<parallel> _ \<parallel>\<^sub>_" [45])
+  where
+    "(\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) = length \<Gamma> - \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
+
+lemma (in Minimal_Logic) unproving_core_finite:
+  "finite (\<CC> \<Gamma> \<phi>)"
+proof -
+  {
+    fix \<Phi>
+    assume "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+    hence "set \<Phi> \<subseteq> set \<Gamma>"
+          "length \<Phi> \<le> length \<Gamma>"
+      unfolding unproving_core_def
+      using mset_subset_eqD 
+            length_sub_mset 
+            mset_eq_length 
+      by fastforce+
+  }
+  hence "\<CC> \<Gamma> \<phi> \<subseteq> {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
+    by auto
+  moreover 
+  have "finite {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
+    using finite_lists_length_le by blast
+  ultimately show ?thesis using rev_finite_subset by auto
+qed
+    
+lemma (in Minimal_Logic) core_size_intro:
+  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+  shows "length \<Phi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
+proof -
+  have "\<forall> n \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }. n \<le> length \<Phi>"
+       "length \<Phi> \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }"
+    using assms unproving_core_def
+    by auto
+  moreover 
+  have "finite { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }"
+    using finite_imageI unproving_core_finite
+    by simp
+  ultimately have "Max { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> } = length \<Phi>"
+    using Max_eqI
+    by blast
+  thus ?thesis
+    using assms core_size_def
+    by auto
+qed
+        
+lemma (in Minimal_Logic) complement_core_size_intro:
+  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+  shows "length (\<Gamma> \<ominus> \<Phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+proof -
+  have "mset \<Phi> \<subseteq># mset \<Gamma>"
+    using assms
+    unfolding unproving_core_def
+    by auto
+  moreover from this have "length (\<Gamma> \<ominus> \<Phi>) = length \<Gamma> - length \<Phi>"
+    by (metis listSubtract_mset_homomorphism size_Diff_submset size_mset)
+  ultimately show ?thesis
+    unfolding complement_core_size_def
+    by (metis assms 
+              core_size_intro
+              length_sub_mset 
+              nat_le_linear 
+              of_nat_diff 
+              size_mset)
+qed
+
+lemma (in Minimal_Logic) length_core_decomposition:
+  "length \<Gamma> = (\<bar> \<Gamma> \<bar>\<^sub>\<phi>) + \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+proof (cases "\<CC> \<Gamma> \<phi> = {}")
+  case True
+  then show ?thesis
+    unfolding core_size_def
+              complement_core_size_def
+    by simp
+next
+  case False
+  from this obtain \<Phi> where "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+    by fast
+  hence "mset \<Phi> \<subseteq># mset \<Gamma>"
+    unfolding unproving_core_def
+    by auto
+  hence "length (\<Gamma> \<ominus> \<Phi>) = length \<Gamma> - length \<Phi>"
+    by (metis listSubtract_mset_homomorphism size_Diff_submset size_mset)
+  thus ?thesis
+    unfolding complement_core_size_def
+    by simp
+qed
+  
+lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
+  assumes "\<Gamma> :\<turnstile> \<phi>"
+      and "0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+    shows "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
+                map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
+                1 + (\<parallel>map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>\<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+ sorry 
+lemma (in Classical_Propositional_Logic) unproving_core_stratified_deduction_lower_bound:
+  assumes "\<Gamma> #\<turnstile> n \<phi>"
+      and "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+    shows "n \<le> length (\<Gamma> \<ominus> \<Phi>)"
+proof cases
+  assume "\<turnstile> \<phi>"
+  hence "\<Gamma> #\<turnstile> n \<phi>" "\<CC> \<Gamma> \<phi> = {}"
+    unfolding unproving_core_def
+    by (simp add: stratified_deduction_tautology_weaken list_deduction_weaken)+
+  then show ?thesis using assms by blast
+next
+  assume "\<not> \<turnstile> \<phi>"
+  have "\<forall> \<Gamma>. \<Gamma> #\<turnstile> n \<phi> \<longrightarrow> (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>))"
+  proof (induct n)
+    case 0
+    then show ?case by simp
+  next
+    case (Suc n)
+    {
+      fix \<Gamma>
+      assume "\<Gamma> #\<turnstile> (Suc n) \<phi>"
+      from this obtain \<Psi> where \<Psi>: 
+          "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>" 
+          "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>" 
+          "map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) #\<turnstile> n \<phi>"
+          using stratified_deduction.simps(2)
+          by blast
+      from \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Sigma> where \<Sigma>: "\<Sigma> \<in> \<CC> \<Gamma> \<phi>"
+        using unproving_core_existance by blast
+      from this have "mset \<Sigma> \<subseteq># mset \<Gamma>"
+        unfolding unproving_core_def by blast
+      hence \<diamondsuit>: "length (\<Gamma> \<ominus> \<Sigma>) = length \<Gamma> - length \<Sigma>"
+        by (metis listSubtract_mset_homomorphism 
+                  size_Diff_submset 
+                  size_mset)
+      from \<Sigma> \<Psi>(2) have "\<not> (mset \<Psi> \<subseteq># mset \<Sigma>)"
+        using stratified_deduction_monotonic 
+              stratified_one_deduction 
+              unproving_core_def 
+        by blast
+      from this obtain \<psi> where "\<psi> \<in># mset \<Psi>" "\<psi> \<in># mset (\<Psi> \<ominus> \<Sigma>)"
+        by (simp, metis Diff_eq_empty_iff_mset 
+                        last_in_set 
+                        listSubtract_mset_homomorphism 
+                        listSubtract_set_trivial_upper_bound 
+                        mset.simps(1) 
+                        set_mset_mset 
+                        subset_iff)
+      with \<Psi>(1) have "\<psi> \<in># mset (\<Gamma> \<ominus> \<Sigma>)"
+        by (meson listSubtract_monotonic mset_subset_eqD)
+      hence "\<psi> \<in> set (\<Gamma> \<ominus> \<Sigma>)"
+        using set_mset_mset by fastforce
+      hence "\<psi> \<notin> set \<Sigma>"
+        using \<Sigma> by auto
+      hence "\<psi> \<notin># mset \<Sigma>"
+        by simp
+      moreover 
+      from \<Sigma> have "\<not> (\<Sigma> \<ominus> \<Psi>) :\<turnstile> \<phi>"
+                  "mset (\<Sigma> \<ominus> \<Psi>) \<subseteq># mset (\<Gamma> \<ominus> \<Psi>)"
+        apply (metis (no_types, lifting) 
+                     listSubtract_set_trivial_upper_bound 
+                     list_deduction_monotonic 
+                     unproving_core_def 
+                     mem_Collect_eq)
+        using \<Sigma> listSubtract_monotonic local.unproving_core_def 
+        by blast          
+      with \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Omega> where \<Omega>: "\<Omega> \<in> \<CC> (\<Gamma> \<ominus> \<Psi>) \<phi>" "length (\<Sigma> \<ominus> \<Psi>) \<le> length \<Omega>"
+        by (metis (no_types, lifting) 
+                  unproving_core_def 
+                  unproving_core_existance
+                  mem_Collect_eq)
+      hence "n \<le> length ((\<Gamma> \<ominus> \<Psi>) \<ominus> \<Omega>)"
+        using Suc.hyps \<Psi>(3) by blast
+      hence "n \<le> length (\<Gamma> \<ominus> \<Psi>) - length \<Omega>"
+        by (metis (no_types, lifting) 
+                  \<Omega>(1) 
+                  listSubtract_mset_homomorphism 
+                  unproving_core_def 
+                  mem_Collect_eq 
+                  size_Diff_submset size_mset)
+      hence "n \<le> length (\<Gamma> \<ominus> \<Psi>) - length (\<Sigma> \<ominus> \<Psi>)"
+        using \<Omega>(2) diff_le_mono2 order_trans by blast
+      hence "n \<le> length ((\<Gamma> \<ominus> \<Psi>) \<ominus> (\<Sigma> \<ominus> \<Psi>))"
+        by (metis \<open>mset (\<Sigma> \<ominus> \<Psi>) \<subseteq># mset (\<Gamma> \<ominus> \<Psi>)\<close> 
+                  listSubtract_mset_homomorphism 
+                  size_Diff_submset size_mset)
+      hence "n \<le> length ((\<Gamma> \<ominus> \<Psi>) \<ominus> (\<Sigma> \<ominus> \<Psi>))"
+        using \<Omega>(2) msubset_listSubtract_length_antitonic [where \<Gamma>="\<Gamma> \<ominus> \<Psi>"
+                                                            and \<Psi>="\<Omega>"
+                                                            and \<Phi>="\<Sigma> \<ominus> \<Psi>"]
+        by linarith
+      moreover
+      have "mset \<Sigma> \<subseteq># mset \<Gamma>" 
+        using \<Sigma>(1) local.unproving_core_def by blast
+      hence "length ((\<Gamma> \<ominus> \<Psi>) \<ominus> (\<Sigma> \<ominus> \<Psi>)) < length (\<Gamma> \<ominus> \<Sigma>)"
+        by (metis \<Psi>(1) 
+                  \<open>\<psi> \<in># mset \<Psi>\<close> 
+                  \<open>\<psi> \<notin># mset \<Sigma>\<close> 
+                  listSubtract_cancel_strong_upper_bound 
+                  length_sub_mset 
+                  not_le_imp_less 
+                  subset_mset.less_imp_le 
+                  subset_mset.less_imp_neq)
+      ultimately have "Suc n \<le> length (\<Gamma> \<ominus> \<Sigma>)"
+        by linarith
+      hence "\<forall>\<Phi>\<in>\<CC> \<Gamma> \<phi>. Suc n \<le> length (\<Gamma> \<ominus> \<Phi>)" using \<Sigma>(1)
+        by (metis local.unproving_listSubtract_length_equiv)
+    }
+    then show ?case by blast
+  qed
+  with assms show ?thesis by blast
+qed  
+  
 lemma (in Classical_Propositional_Logic) unproving_core_max_stratified_deduction:
   "\<Gamma> #\<turnstile> n \<phi> = (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>))"
 proof -
@@ -4825,17 +5216,32 @@ proof -
   {
     assume "n = 1"
     hence ?thesis
-      using stratified_one_deduction 
-            unproving_core_max_list_deduction 
-      by blast
+      using stratified_segmented_deduction_replicate 
+            segmented_deduction_one_collapse
+            unproving_core_max_list_deduction
+      by fastforce
   }
   moreover
   {
     assume "\<turnstile> \<phi>"
-    hence "\<Gamma> #\<turnstile> n \<phi>" "\<CC> \<Gamma> \<phi> = {}"
+    moreover from this have "\<CC> \<Gamma> \<phi> = {}"
       unfolding unproving_core_def
-      by (simp add: stratified_deduction_weaken list_deduction_weaken)+
-    hence ?thesis by blast
+      by (simp add: list_deduction_weaken)
+    moreover have "\<Gamma> #\<turnstile> n \<phi>"
+    proof (induct n)
+      case 0
+      then show ?case by simp
+    next
+      case (Suc n)
+      hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
+        using \<open>\<turnstile> \<phi>\<close> stratified_segmented_deduction_replicate
+              segmented_tautology_right_cancel 
+        by blast
+      then show ?case
+        using stratified_segmented_deduction_replicate
+        by simp
+    qed
+    ultimately have ?thesis by blast
   }
   moreover
   {
@@ -4845,6 +5251,7 @@ proof -
       case 0
       then show ?case by simp
     next
+      let ?\<ff> = "\<lambda> \<Gamma> \<Sigma>. map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>"
       case (Suc n)
       {
         fix \<Gamma>
@@ -4854,17 +5261,27 @@ proof -
         have "\<Gamma> #\<turnstile> (Suc n) \<phi>"
         proof (rule ccontr)
           assume "\<not> \<Gamma> #\<turnstile> (Suc n) \<phi>"
-          hence "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> \<Phi> :\<turnstile> \<phi> \<longrightarrow> 
-                      (\<exists> \<Psi> \<in> \<CC> (\<Gamma> \<ominus> \<Phi>) \<phi>. n > length ((\<Gamma> \<ominus> \<Phi>) \<ominus> \<Psi>))"
-            by (meson Suc.hyps local.stratified_deduction.simps(2) not_less)
-          hence "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> \<Phi> :\<turnstile> \<phi> \<longrightarrow> 
-                      (\<exists> \<Psi> \<in> \<CC> (\<Gamma> \<ominus> \<Phi>) \<phi>. length \<Psi> + n > length (\<Gamma> \<ominus> \<Phi>))"
-            by (metis (no_types, lifting) add.commute 
-                                          add_less_mono1 
-                                          listSubtract_msub_eq 
-                                          local.unproving_core_def 
+          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> 
+                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> 
+                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. n > length ((?\<ff> \<Gamma> \<Sigma>) \<ominus> \<Psi>))"
+            by (meson Suc.hyps stratified_deduction.simps(2) not_less)
+          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>
+                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>
+                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. length \<Psi> + n > length (?\<ff> \<Gamma> \<Sigma>))"
+            by (metis (no_types, lifting) add.commute
+                                          add_less_mono1
+                                          listSubtract_msub_eq
+                                          unproving_core_def 
                                           mem_Collect_eq)
-            
+          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>
+                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>
+                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. length \<Psi> + length \<Sigma> + n > length (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma>))"
+            using listSubtract_msub_eq
+            by (simp, 
+                smt add.commute 
+                    length_map 
+                    listSubtract_msub_eq 
+                    mset_map)
           show "False" sorry
         qed
       }
@@ -4891,26 +5308,6 @@ proof -
           segmented_stronger_theory_right_antitonic
           stratified_segmented_deduction_replicate
     by blast 
-qed
-
-lemma (in Classical_Propositional_Logic) stratified_deduction_tautology_weaken:
-  assumes "\<turnstile> \<phi>"
-  shows "\<Gamma> #\<turnstile> n \<phi>"
-proof (induct n)
-  case 0
-  then show ?case by simp
-next
-  case (Suc n)
-  hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
-    using assms
-          stratified_segmented_deduction_replicate
-          segmented_tautology_right_cancel 
-    by blast
-  hence "\<Gamma> $\<turnstile> replicate (Suc n) \<phi>"
-    by simp
-  then show ?case  
-    using stratified_segmented_deduction_replicate
-    by blast
 qed
 
 lemma (in Weakly_Additive_Logical_Probability) list_probability_upper_bound:
