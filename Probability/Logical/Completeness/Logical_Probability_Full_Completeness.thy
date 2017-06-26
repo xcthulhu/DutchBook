@@ -4,6 +4,22 @@ begin
 
 (* TODO: Move utility stuff *)
 
+definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
+  where [simp]: "uncurry f = (\<lambda> (x, y). f x y)"  
+
+lemma listSubtract_set_difference_lower_bound:
+  "set \<Gamma> - set \<Phi> \<subseteq> set (\<Gamma> \<ominus> \<Phi>)"
+  using subset_Diff_insert 
+  by (induct \<Phi>, simp, fastforce)          
+
+lemma listSubtract_set_trivial_upper_bound:
+  "set (\<Gamma> \<ominus> \<Phi>) \<subseteq> set \<Gamma>"
+      by (induct \<Phi>, 
+          simp, 
+          simp, 
+          meson dual_order.trans 
+                set_remove1_subset)
+    
 lemma find_Some_predicate:
   assumes "find P \<Psi> = Some \<psi>"
   shows "P \<psi>"
@@ -28,57 +44,151 @@ next
   then show ?case by (cases "P \<omega>", fastforce+)
 qed
 
-lemma listSubtract_mset_homomorphism [simp]:
-  "mset (A \<ominus> B) = mset A - mset B"
-  by (induct B, simp, simp)  
+(********)
   
-lemma listSubtract_msub_eq:
-  assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
-      and "length (\<Gamma> \<ominus> \<Phi>) = m"
-    shows "length \<Gamma> = m + length \<Phi>"
-  using assms
-proof - 
-  have "\<forall> \<Gamma>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> length (\<Gamma> \<ominus> \<Phi>) = m \<longrightarrow> length \<Gamma> = m + length \<Phi>"
-  proof (induct \<Phi>)
-    case Nil
-    then show ?case by simp
+lemma remove1_pairs_list_projections_fst:
+  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
+  shows "mset (map fst (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map fst \<Phi>) - {# \<gamma> #}"
+using assms
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<phi> \<Phi>)
+  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
+  show ?case
+  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
+    assume "\<phi> = (\<gamma>, \<sigma>)"
+    then show ?thesis by simp 
   next
-    case (Cons \<phi> \<Phi>)
-    {
-      fix \<Gamma> :: "'a list"
-      assume "mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>"
-             "length (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = m"
-      moreover from this have "mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)"
-                              "mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset ((remove1 \<phi> \<Gamma>) \<ominus> \<Phi>)"
-        by (metis append_Cons mset_le_perm_append perm_remove_perm remove_hd, simp)
-      ultimately have "length (remove1 \<phi> \<Gamma>) = m + length \<Phi>"
-        using Cons.hyps
-        by (metis mset_eq_length)
-      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = m + length (\<phi> # \<Phi>)"
-        by simp
-      moreover have "\<phi> \<in> set \<Gamma>"
-        by (metis \<open>mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset (remove1 \<phi> \<Gamma> \<ominus> \<Phi>)\<close> 
-                  \<open>mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>\<close> 
-                  \<open>mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)\<close> 
-                  add_diff_cancel_left' 
-                  add_right_cancel 
-                  eq_iff 
-                  impossible_Cons 
-                  listSubtract_mset_homomorphism 
-                  mset_subset_eq_exists_conv 
-                  remove1_idem size_mset)
-      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = length \<Gamma>"
-        by (metis One_nat_def Suc_pred length_Cons length_pos_if_in_set length_remove1)
-      ultimately have "length \<Gamma> = m + length (\<phi> # \<Phi>)" by simp
-    }
-    thus ?case by blast
+    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
+    then show ?thesis
+    by (simp, smt Cons.prems
+              add_mset_remove_trivial 
+              diff_union_swap 
+              fst_conv
+              image_mset_add_mset 
+              insert_DiffM 
+              mset.simps(2)) 
   qed
-  thus ?thesis using assms by blast
+qed
+
+lemma remove1_pairs_list_projections_snd:
+  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
+  shows "mset (map snd (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map snd \<Phi>) - {# \<sigma> #}"
+using assms
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<phi> \<Phi>)
+  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
+  show ?case
+  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
+    assume "\<phi> = (\<gamma>, \<sigma>)"
+    then show ?thesis by simp 
+  next
+    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
+    then show ?thesis
+    by (simp, smt Cons.prems
+              add_mset_remove_trivial 
+              diff_union_swap 
+              snd_conv
+              image_mset_add_mset 
+              insert_DiffM 
+              mset.simps(2)) 
+  qed
 qed  
   
-definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
-  where [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
-
+lemma triple_list_exists:
+  assumes "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
+      and "mset \<Sigma> \<subseteq># mset (map snd \<Delta>)"
+    shows "\<exists> \<Omega>. map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi> \<and> 
+                mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
+  using assms(1)
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by fastforce
+next
+  case (Cons \<psi> \<Psi>)
+  from Cons obtain \<Omega> where \<Omega>: 
+    "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi>"
+    "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
+    by (metis (no_types, lifting) 
+              diff_subset_eq_self 
+              list.set_intros(1) 
+              remove1_pairs_list_projections_snd
+              remove_hd 
+              set_mset_mset 
+              subset_mset.dual_order.trans 
+              surjective_pairing)
+  let ?\<Delta>\<^sub>\<Omega> = "map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>"
+  let ?\<psi> = "fst \<psi>"
+  let ?\<sigma> = "snd \<psi>"
+  have "?\<sigma> \<in># mset \<Sigma> - mset (map snd \<Psi>)"
+    using Cons.prems
+    by (simp, smt cancel_ab_semigroup_add_class.diff_right_commute 
+                  diff_single_trivial 
+                  insert_subset_eq_iff 
+                  mset_subset_eq_insertD 
+                  multi_drop_mem_not_eq 
+                  subset_mset.diff_add 
+                  subset_mset_def)
+  hence "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd \<Psi>)"
+    using assms(2)
+    by (smt Cons.prems 
+            insert_DiffM 
+            list.simps(9) 
+            mset.simps(2) 
+            mset_subset_eq_insertD 
+            subset_eq_diff_conv 
+            subset_mset.diff_add 
+            subset_mset.dual_order.order_iff_strict 
+            subset_mset.dual_order.trans)
+  moreover have "snd \<circ> (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) = snd \<circ> (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>))" by auto
+  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd (map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega>)"
+    by fastforce
+  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd \<Psi>"
+    using \<Omega>(1) by simp
+  ultimately have "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd ?\<Delta>\<^sub>\<Omega>)"
+    by simp
+  hence "?\<sigma> \<in># image_mset snd (mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>)"
+    using \<Omega>(2) by (smt image_mset_Diff mset_map)
+  from this obtain \<gamma> where \<gamma>: 
+    "(\<gamma>, ?\<sigma>) \<in># mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>"
+    by (smt imageE in_image_mset prod.collapse)
+  let ?\<Omega> = "(?\<psi>, ?\<sigma>, \<gamma>) # \<Omega>"
+  have "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) ?\<Omega> = \<psi> # \<Psi>"
+    using \<Omega>(1) by simp
+  moreover have "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) ?\<Omega>) \<subseteq># mset \<Delta>"
+    using \<Omega>(2) \<gamma>
+    by (smt add_diff_cancel_left' 
+            add_mset_remove_trivial 
+            case_prod_conv 
+            list.set_intros(1) 
+            list.simps(9) 
+            mset.simps(2) 
+            set_mset_mset 
+            single_subset_iff 
+            subset_mset.add_le_cancel_left 
+            subset_mset.diff_add 
+            subset_mset.le_iff_add) 
+  ultimately show ?case by smt
+qed
+(******)  
+  
+lemma concat_set_membership_mset_containment:
+  assumes "concat \<Gamma> <~~> \<Lambda>"
+  and     "\<Phi> \<in> set \<Gamma>"
+  shows   "mset \<Phi> \<subseteq># mset \<Lambda>"
+  using assms
+  by (induct \<Gamma>, simp, meson concat_remove1 mset_le_perm_append perm.trans perm_sym)  
+  
+lemma map_monotonic:
+  assumes "mset A \<subseteq># mset B"
+  shows "mset (map f A) \<subseteq># mset (map f B)"
+  by (simp add: assms image_mset_subseteq_mono) 
+  
 lemma perm_map_perm_list_exists:
   assumes "A <~~> map f B"
   shows "\<exists> B'. A = map f B' \<and> B' <~~> B"
@@ -115,7 +225,7 @@ proof -
   qed  
   with assms show ?thesis by blast
 qed
-  
+    
 lemma mset_sub_map_list_exists:
   assumes "mset \<Phi> \<subseteq># mset (map f \<Gamma>)"
   shows "\<exists> \<Phi>'. mset \<Phi>' \<subseteq># mset \<Gamma> \<and> \<Phi> = (map f \<Phi>')"
@@ -240,7 +350,55 @@ qed
 lemma map_perm:
   assumes "A <~~> B"
   shows "map f A <~~> map f B"
-  by (metis assms mset_eq_perm mset_map)
+  by (metis assms mset_eq_perm mset_map)  
+  
+lemma listSubtract_mset_homomorphism [simp]:
+  "mset (A \<ominus> B) = mset A - mset B"
+  by (induct B, simp, simp)  
+  
+lemma listSubtract_msub_eq:
+  assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
+      and "length (\<Gamma> \<ominus> \<Phi>) = m"
+    shows "length \<Gamma> = m + length \<Phi>"
+  using assms
+proof - 
+  have "\<forall> \<Gamma>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow> length (\<Gamma> \<ominus> \<Phi>) = m \<longrightarrow> length \<Gamma> = m + length \<Phi>"
+  proof (induct \<Phi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<phi> \<Phi>)
+    {
+      fix \<Gamma> :: "'a list"
+      assume "mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>"
+             "length (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = m"
+      moreover from this have "mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)"
+                              "mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset ((remove1 \<phi> \<Gamma>) \<ominus> \<Phi>)"
+        by (metis append_Cons mset_le_perm_append perm_remove_perm remove_hd, simp)
+      ultimately have "length (remove1 \<phi> \<Gamma>) = m + length \<Phi>"
+        using Cons.hyps
+        by (metis mset_eq_length)
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = m + length (\<phi> # \<Phi>)"
+        by simp
+      moreover have "\<phi> \<in> set \<Gamma>"
+        by (metis \<open>mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset (remove1 \<phi> \<Gamma> \<ominus> \<Phi>)\<close> 
+                  \<open>mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>\<close> 
+                  \<open>mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)\<close> 
+                  add_diff_cancel_left' 
+                  add_right_cancel 
+                  eq_iff 
+                  impossible_Cons 
+                  listSubtract_mset_homomorphism 
+                  mset_subset_eq_exists_conv 
+                  remove1_idem size_mset)
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = length \<Gamma>"
+        by (metis One_nat_def Suc_pred length_Cons length_pos_if_in_set length_remove1)
+      ultimately have "length \<Gamma> = m + length (\<phi> # \<Phi>)" by simp
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
 
 lemma listSubtract_not_member:
   assumes "b \<notin> set A"
@@ -260,11 +418,6 @@ lemma listSubtract_monotonic:
   assumes "mset A \<subseteq># mset B"
   shows "mset (A \<ominus> C) \<subseteq># mset (B \<ominus> C)"
   by (simp, meson assms subset_eq_diff_conv subset_mset.dual_order.refl subset_mset.order_trans)
-
-lemma map_monotonic:
-  assumes "mset A \<subseteq># mset B"
-  shows "mset (map f A) \<subseteq># mset (map f B)"
-  by (simp add: assms image_mset_subseteq_mono)
     
 lemma map_listSubtract_mset_containment:
   "mset ((map f A) \<ominus> (map f B)) \<subseteq># mset (map f (A \<ominus> B))"
@@ -281,68 +434,7 @@ lemma map_listSubtract_mset_equivalence:
   assumes "mset B \<subseteq># mset A"
   shows "mset ((map f A) \<ominus> (map f B)) = mset (map f (A \<ominus> B))"
   using assms
-  by (induct B, simp, simp add: image_mset_Diff) 
-
-lemma concat_set_membership_mset_containment:
-  assumes "concat \<Gamma> <~~> \<Lambda>"
-  and     "\<Phi> \<in> set \<Gamma>"
-  shows   "mset \<Phi> \<subseteq># mset \<Lambda>"
-  using assms
-  by (induct \<Gamma>, simp, meson concat_remove1 mset_le_perm_append perm.trans perm_sym)
-
-lemma remove1_pairs_list_projections_fst:
-  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
-  shows "mset (map fst (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map fst \<Phi>) - {# \<gamma> #}"
-using assms
-proof (induct \<Phi>)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons \<phi> \<Phi>)
-  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
-  show ?case
-  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
-    assume "\<phi> = (\<gamma>, \<sigma>)"
-    then show ?thesis by simp 
-  next
-    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
-    then show ?thesis
-    by (simp, smt Cons.prems
-              add_mset_remove_trivial 
-              diff_union_swap 
-              fst_conv
-              image_mset_add_mset 
-              insert_DiffM 
-              mset.simps(2)) 
-  qed
-qed
-
-lemma remove1_pairs_list_projections_snd:
-  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
-  shows "mset (map snd (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map snd \<Phi>) - {# \<sigma> #}"
-using assms
-proof (induct \<Phi>)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons \<phi> \<Phi>)
-  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
-  show ?case
-  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
-    assume "\<phi> = (\<gamma>, \<sigma>)"
-    then show ?thesis by simp 
-  next
-    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
-    then show ?thesis
-    by (simp, smt Cons.prems
-              add_mset_remove_trivial 
-              diff_union_swap 
-              snd_conv
-              image_mset_add_mset 
-              insert_DiffM 
-              mset.simps(2)) 
-  qed
-qed  
+  by (induct B, simp, simp add: image_mset_Diff)
   
 (***************************************)
 
@@ -376,30 +468,14 @@ next
 qed    
     
 (***************************************)    
-    
-primrec (in Classical_Propositional_Logic) 
-  stratified_deduction :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> bool" ("_ #\<turnstile> _ _" [60,100,59] 60)
-  where
-    "\<Gamma> #\<turnstile> 0 \<phi> = True"
-  | "\<Gamma> #\<turnstile> (Suc n) \<phi> = (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<and> 
-                             map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi> \<and> 
-                             map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) #\<turnstile> n \<phi>)"
-    
+        
 primrec (in Classical_Propositional_Logic) 
   segmented_deduction :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" ("_ $\<turnstile> _" [60,100] 60)
   where
     "\<Gamma> $\<turnstile> [] = True"
   | "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<and> 
-                           map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi> \<and> 
-                           map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
-
-lemma (in Classical_Propositional_Logic) stratified_segmented_deduction_replicate:
-  "\<Gamma> #\<turnstile> n \<phi> = \<Gamma> $\<turnstile> (replicate n \<phi>)"
-proof -
-  have "\<forall> \<Gamma>. \<Gamma> #\<turnstile> n \<phi> = \<Gamma> $\<turnstile> (replicate n \<phi>)"
-    by (induct n, simp+)
-  thus ?thesis by blast
-qed
+                           map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi> \<and> 
+                           map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
 
 definition (in Minimal_Logic) 
   stronger_theory_relation :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<preceq>" 100)
@@ -743,123 +819,6 @@ proof -
     unfolding stronger_theory_relation_def
     by smt
 qed
-  
-lemma (in Minimal_Logic) stronger_theory_deduction_monotonic:
-  assumes "\<Sigma> \<preceq> \<Gamma>"
-      and "\<Sigma> :\<turnstile> \<phi>"
-    shows "\<Gamma> :\<turnstile> \<phi>"
-using assms
-proof -
-  have "\<forall> \<phi>. \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Sigma> :\<turnstile> \<phi> \<longrightarrow> \<Gamma> :\<turnstile> \<phi>"
-  proof (induct \<Sigma>)
-    case Nil
-    then show ?case
-      by (simp add: list_deduction_weaken)
-  next
-    case (Cons \<sigma> \<Sigma>)
-    {
-      fix \<phi>
-      assume "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>" "(\<sigma> # \<Sigma>) :\<turnstile> \<phi>"
-      hence "\<Sigma> :\<turnstile> \<sigma> \<rightarrow> \<phi>" "\<Sigma> \<preceq> \<Gamma>"
-        using list_deduction_theorem
-              stronger_theory_left_cons
-        by (blast, smt)
-      with Cons have "\<Gamma> :\<turnstile> \<sigma> \<rightarrow> \<phi>" by blast
-      moreover 
-      have "\<sigma> \<in> set (\<sigma> # \<Sigma>)" by auto
-      with \<open>(\<sigma> # \<Sigma>) \<preceq> \<Gamma>\<close> obtain \<gamma> where \<gamma>: "\<gamma> \<in> set \<Gamma>" "\<turnstile> \<gamma> \<rightarrow> \<sigma>"
-        using stronger_theory_witness by blast
-      hence "\<Gamma> :\<turnstile> \<sigma>"
-        using list_deduction_modus_ponens 
-              list_deduction_reflection 
-              list_deduction_weaken 
-        by blast
-      ultimately have "\<Gamma> :\<turnstile> \<phi>"
-        using list_deduction_modus_ponens by blast 
-    }
-    then show ?case by blast
-  qed
-  with assms show ?thesis by blast
-qed
-  
-lemma (in Classical_Propositional_Logic) segmented_msub_left_monotonic:
-  assumes "mset \<Sigma> \<subseteq># mset \<Gamma>"
-      and "\<Sigma> $\<turnstile> \<Phi>"
-    shows "\<Gamma> $\<turnstile> \<Phi>"
-proof -
-  have "\<forall> \<Sigma> \<Gamma>. mset \<Sigma> \<subseteq># mset \<Gamma> \<longrightarrow> \<Sigma> $\<turnstile> \<Phi> \<longrightarrow> \<Gamma> $\<turnstile> \<Phi>"
-  proof (induct \<Phi>)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons \<phi> \<Phi>)
-    {
-      fix \<Sigma> \<Gamma>
-      assume "mset \<Sigma> \<subseteq># mset \<Gamma>" "\<Sigma> $\<turnstile> (\<phi> # \<Phi>)"
-      from this obtain \<Psi> where \<Psi>:
-        "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
-        "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi>"
-        "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>"
-        using segmented_deduction.simps(2) by blast
-      let ?\<Psi> = "map snd \<Psi>"
-      let ?\<Psi>' = "map (uncurry (op \<rightarrow>)) \<Psi>"
-      let ?\<Sigma>' = "?\<Psi>' @ (\<Sigma> \<ominus> ?\<Psi>)"
-      let ?\<Gamma>' = "?\<Psi>' @ (\<Gamma> \<ominus> ?\<Psi>)"
-      from \<Psi> have "mset ?\<Psi> \<subseteq># mset \<Gamma>"
-        using \<open>mset \<Sigma> \<subseteq># mset \<Gamma>\<close> subset_mset.order.trans by blast
-      moreover have "mset (\<Sigma> \<ominus> ?\<Psi>) \<subseteq># mset (\<Gamma> \<ominus> ?\<Psi>)"
-        by (metis \<open>mset \<Sigma> \<subseteq># mset \<Gamma>\<close> listSubtract_monotonic)
-      hence "mset ?\<Sigma>' \<subseteq># mset ?\<Gamma>'"
-        by simp
-      with Cons.hyps \<Psi>(3) have "?\<Gamma>' $\<turnstile> \<Phi>" by blast        
-      ultimately have "\<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
-        using \<Psi>(2) by fastforce
-    }
-    then show ?case 
-      by simp
-  qed
-  thus ?thesis using assms by blast
-qed
-  
-lemma (in Classical_Propositional_Logic) segmented_stronger_theory_intro:
-  assumes "\<Sigma> \<preceq> \<Gamma>"
-  shows "\<Gamma> $\<turnstile> \<Sigma>"
-proof -
-  have "\<forall> \<Gamma>. \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Gamma> $\<turnstile> \<Sigma>"
-  proof (induct \<Sigma>)
-    case Nil
-    then show ?case by fastforce
-  next
-    case (Cons \<sigma> \<Sigma>)
-    {
-      fix \<Gamma>
-      assume "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>"
-      from this obtain \<gamma> where \<gamma>: "\<gamma> \<in> set \<Gamma>" "\<turnstile> \<gamma> \<rightarrow> \<sigma>" "\<Sigma> \<preceq> (remove1 \<gamma> \<Gamma>)"
-        using stronger_theory_cons_witness by blast
-      let ?\<Phi> = "[(\<gamma>,\<gamma>)]"
-      from \<gamma> Cons have "(remove1 \<gamma> \<Gamma>) $\<turnstile> \<Sigma>" by blast
-      moreover have "mset (remove1 \<gamma> \<Gamma>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) ?\<Phi> @ \<Gamma> \<ominus> (map snd ?\<Phi>))"
-        by simp
-      ultimately have "map (uncurry (op \<rightarrow>)) ?\<Phi> @ \<Gamma> \<ominus> (map snd ?\<Phi>) $\<turnstile> \<Sigma>"
-        using segmented_msub_left_monotonic by blast
-      moreover have "map (uncurry (op \<squnion>)) ?\<Phi> :\<turnstile> \<sigma>"
-        by (simp, metis \<gamma>(2) 
-                        Peirces_law
-                        disjunction_def 
-                        list_deduction_def 
-                        list_deduction_modus_ponens 
-                        list_deduction_weaken 
-                        list_implication.simps(1) 
-                        list_implication.simps(2))
-      moreover from \<gamma>(1) have "mset (map snd ?\<Phi>) \<subseteq># mset \<Gamma>" by simp
-      ultimately have "\<Gamma> $\<turnstile> (\<sigma> # \<Sigma>)"
-        using segmented_deduction.simps(2) by blast
-    }
-    then show ?case by blast
-  qed
-  thus ?thesis using assms by blast
-qed
-
 
 lemma (in Minimal_Logic) stronger_theory_relation_alt_def:
   "\<Sigma> \<preceq> \<Gamma> = (\<exists>\<Phi>. mset (map snd \<Phi>) = mset \<Sigma> \<and> 
@@ -963,12 +922,128 @@ proof -
   qed
   thus ?thesis by auto
 qed
+  
+lemma (in Minimal_Logic) stronger_theory_deduction_monotonic:
+  assumes "\<Sigma> \<preceq> \<Gamma>"
+      and "\<Sigma> :\<turnstile> \<phi>"
+    shows "\<Gamma> :\<turnstile> \<phi>"
+using assms
+proof -
+  have "\<forall> \<phi>. \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Sigma> :\<turnstile> \<phi> \<longrightarrow> \<Gamma> :\<turnstile> \<phi>"
+  proof (induct \<Sigma>)
+    case Nil
+    then show ?case
+      by (simp add: list_deduction_weaken)
+  next
+    case (Cons \<sigma> \<Sigma>)
+    {
+      fix \<phi>
+      assume "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>" "(\<sigma> # \<Sigma>) :\<turnstile> \<phi>"
+      hence "\<Sigma> :\<turnstile> \<sigma> \<rightarrow> \<phi>" "\<Sigma> \<preceq> \<Gamma>"
+        using list_deduction_theorem
+              stronger_theory_left_cons
+        by (blast, smt)
+      with Cons have "\<Gamma> :\<turnstile> \<sigma> \<rightarrow> \<phi>" by blast
+      moreover 
+      have "\<sigma> \<in> set (\<sigma> # \<Sigma>)" by auto
+      with \<open>(\<sigma> # \<Sigma>) \<preceq> \<Gamma>\<close> obtain \<gamma> where \<gamma>: "\<gamma> \<in> set \<Gamma>" "\<turnstile> \<gamma> \<rightarrow> \<sigma>"
+        using stronger_theory_witness by blast
+      hence "\<Gamma> :\<turnstile> \<sigma>"
+        using list_deduction_modus_ponens 
+              list_deduction_reflection 
+              list_deduction_weaken 
+        by blast
+      ultimately have "\<Gamma> :\<turnstile> \<phi>"
+        using list_deduction_modus_ponens by blast 
+    }
+    then show ?case by blast
+  qed
+  with assms show ?thesis by blast
+qed
+  
+lemma (in Classical_Propositional_Logic) segmented_msub_left_monotonic:
+  assumes "mset \<Sigma> \<subseteq># mset \<Gamma>"
+      and "\<Sigma> $\<turnstile> \<Phi>"
+    shows "\<Gamma> $\<turnstile> \<Phi>"
+proof -
+  have "\<forall> \<Sigma> \<Gamma>. mset \<Sigma> \<subseteq># mset \<Gamma> \<longrightarrow> \<Sigma> $\<turnstile> \<Phi> \<longrightarrow> \<Gamma> $\<turnstile> \<Phi>"
+  proof (induct \<Phi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<phi> \<Phi>)
+    {
+      fix \<Sigma> \<Gamma>
+      assume "mset \<Sigma> \<subseteq># mset \<Gamma>" "\<Sigma> $\<turnstile> (\<phi> # \<Phi>)"
+      from this obtain \<Psi> where \<Psi>:
+        "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
+        "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>"
+        "map (uncurry op \<rightarrow>) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>"
+        using segmented_deduction.simps(2) by blast
+      let ?\<Psi> = "map snd \<Psi>"
+      let ?\<Psi>' = "map (uncurry op \<rightarrow>) \<Psi>"
+      let ?\<Sigma>' = "?\<Psi>' @ (\<Sigma> \<ominus> ?\<Psi>)"
+      let ?\<Gamma>' = "?\<Psi>' @ (\<Gamma> \<ominus> ?\<Psi>)"
+      from \<Psi> have "mset ?\<Psi> \<subseteq># mset \<Gamma>"
+        using \<open>mset \<Sigma> \<subseteq># mset \<Gamma>\<close> subset_mset.order.trans by blast
+      moreover have "mset (\<Sigma> \<ominus> ?\<Psi>) \<subseteq># mset (\<Gamma> \<ominus> ?\<Psi>)"
+        by (metis \<open>mset \<Sigma> \<subseteq># mset \<Gamma>\<close> listSubtract_monotonic)
+      hence "mset ?\<Sigma>' \<subseteq># mset ?\<Gamma>'"
+        by simp
+      with Cons.hyps \<Psi>(3) have "?\<Gamma>' $\<turnstile> \<Phi>" by blast        
+      ultimately have "\<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
+        using \<Psi>(2) by fastforce
+    }
+    then show ?case 
+      by simp
+  qed
+  thus ?thesis using assms by blast
+qed
+  
+lemma (in Classical_Propositional_Logic) segmented_stronger_theory_intro:
+  assumes "\<Sigma> \<preceq> \<Gamma>"
+  shows "\<Gamma> $\<turnstile> \<Sigma>"
+proof -
+  have "\<forall> \<Gamma>. \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Gamma> $\<turnstile> \<Sigma>"
+  proof (induct \<Sigma>)
+    case Nil
+    then show ?case by fastforce
+  next
+    case (Cons \<sigma> \<Sigma>)
+    {
+      fix \<Gamma>
+      assume "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>"
+      from this obtain \<gamma> where \<gamma>: "\<gamma> \<in> set \<Gamma>" "\<turnstile> \<gamma> \<rightarrow> \<sigma>" "\<Sigma> \<preceq> (remove1 \<gamma> \<Gamma>)"
+        using stronger_theory_cons_witness by blast
+      let ?\<Phi> = "[(\<gamma>,\<gamma>)]"
+      from \<gamma> Cons have "(remove1 \<gamma> \<Gamma>) $\<turnstile> \<Sigma>" by blast
+      moreover have "mset (remove1 \<gamma> \<Gamma>) \<subseteq># mset (map (uncurry op \<rightarrow>) ?\<Phi> @ \<Gamma> \<ominus> (map snd ?\<Phi>))"
+        by simp
+      ultimately have "map (uncurry op \<rightarrow>) ?\<Phi> @ \<Gamma> \<ominus> (map snd ?\<Phi>) $\<turnstile> \<Sigma>"
+        using segmented_msub_left_monotonic by blast
+      moreover have "map (uncurry op \<squnion>) ?\<Phi> :\<turnstile> \<sigma>"
+        by (simp, metis \<gamma>(2) 
+                        Peirces_law
+                        disjunction_def 
+                        list_deduction_def 
+                        list_deduction_modus_ponens 
+                        list_deduction_weaken 
+                        list_implication.simps(1) 
+                        list_implication.simps(2))
+      moreover from \<gamma>(1) have "mset (map snd ?\<Phi>) \<subseteq># mset \<Gamma>" by simp
+      ultimately have "\<Gamma> $\<turnstile> (\<sigma> # \<Sigma>)"
+        using segmented_deduction.simps(2) by blast
+    }
+    then show ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
 
 lemma (in Classical_Propositional_Logic) witness_weaker_theory:
   assumes "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
-  shows "map (uncurry (op \<squnion>)) \<Sigma> \<preceq> \<Gamma>"
+  shows "map (uncurry op \<squnion>) \<Sigma> \<preceq> \<Gamma>"
 proof -
-  have "\<forall> \<Gamma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<longrightarrow> map (uncurry (op \<squnion>)) \<Sigma> \<preceq> \<Gamma>"
+  have "\<forall> \<Gamma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> \<preceq> \<Gamma>"
   proof (induct \<Sigma>)
     case Nil
     then show ?case by simp
@@ -979,7 +1054,7 @@ proof -
       assume "mset (map snd (\<sigma> # \<Sigma>)) \<subseteq># mset \<Gamma>"
       hence "mset (map snd \<Sigma>) \<subseteq># mset (remove1 (snd \<sigma>) \<Gamma>)"
         by (simp add: insert_subset_eq_iff)
-      with Cons have "map (uncurry (op \<squnion>)) \<Sigma> \<preceq> remove1 (snd \<sigma>) \<Gamma>" by blast
+      with Cons have "map (uncurry op \<squnion>) \<Sigma> \<preceq> remove1 (snd \<sigma>) \<Gamma>" by blast
       moreover have "uncurry (op \<squnion>) = (\<lambda> \<sigma>. fst \<sigma> \<squnion> snd \<sigma>)" by fastforce
       hence "uncurry (op \<squnion>) \<sigma> = fst \<sigma> \<squnion> snd \<sigma>" by simp
       moreover have "\<turnstile> snd \<sigma> \<rightarrow> (fst \<sigma> \<squnion> snd \<sigma>)"
@@ -1005,16 +1080,16 @@ proof (rule iffI)
   assume "\<Gamma> $\<turnstile> [\<phi>]"
   from this obtain \<Sigma> where 
     \<Sigma>: "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
-       "map (uncurry (op \<squnion>)) \<Sigma> :\<turnstile> \<phi>"
+       "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
     by auto
-  hence "map (uncurry (op \<squnion>)) \<Sigma> \<preceq> \<Gamma>"
+  hence "map (uncurry op \<squnion>) \<Sigma> \<preceq> \<Gamma>"
     using witness_weaker_theory by blast 
   thus "\<Gamma> :\<turnstile> \<phi>" using \<Sigma>(2)
     using stronger_theory_deduction_monotonic by blast 
 next
   assume "\<Gamma> :\<turnstile> \<phi>"
   let ?\<Sigma> = "map (\<lambda> \<gamma>. (\<bottom>, \<gamma>)) \<Gamma>"
-  have "\<Gamma> \<preceq> map (uncurry (op \<squnion>)) ?\<Sigma>"
+  have "\<Gamma> \<preceq> map (uncurry op \<squnion>) ?\<Sigma>"
   proof (induct \<Gamma>)
     case Nil
     then show ?case by simp
@@ -1027,83 +1102,13 @@ next
     then show ?case using Cons
       by (simp add: stronger_theory_left_right_cons) 
   qed
-  hence "map (uncurry (op \<squnion>)) ?\<Sigma> :\<turnstile> \<phi>"
+  hence "map (uncurry op \<squnion>) ?\<Sigma> :\<turnstile> \<phi>"
     using \<open>\<Gamma> :\<turnstile> \<phi>\<close> stronger_theory_deduction_monotonic by blast
   moreover have "mset (map snd ?\<Sigma>) \<subseteq># mset \<Gamma>" by (induct \<Gamma>, simp+)
   ultimately show "\<Gamma> $\<turnstile> [\<phi>]"
     using segmented_deduction.simps(1) 
           segmented_deduction.simps(2) 
     by blast 
-qed  
-  
-lemma triple_list_exists:
-  assumes "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
-      and "mset \<Sigma> \<subseteq># mset (map snd \<Delta>)"
-    shows "\<exists> \<Omega>. map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi> \<and> 
-                mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
-  using assms(1)
-proof (induct \<Psi>)
-  case Nil
-  then show ?case by fastforce
-next
-  case (Cons \<psi> \<Psi>)
-  from Cons obtain \<Omega> where \<Omega>: 
-    "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi>"
-    "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
-    by (metis (no_types, lifting) 
-              diff_subset_eq_self 
-              list.set_intros(1) 
-              remove1_pairs_list_projections_snd
-              remove_hd 
-              set_mset_mset 
-              subset_mset.dual_order.trans 
-              surjective_pairing)
-  let ?\<Delta>\<^sub>\<Omega> = "map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>"
-  let ?\<psi> = "fst \<psi>"
-  let ?\<sigma> = "snd \<psi>"
-  have "?\<sigma> \<in># mset \<Sigma> - mset (map snd \<Psi>)"
-    using Cons.prems
-    by (simp, smt cancel_ab_semigroup_add_class.diff_right_commute 
-                  diff_single_trivial 
-                  insert_subset_eq_iff 
-                  mset_subset_eq_insertD 
-                  multi_drop_mem_not_eq 
-                  subset_mset.diff_add 
-                  subset_mset_def)
-  hence "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd \<Psi>)"
-    using assms(2)
-    by (metis listSubtract_monotonic 
-              listSubtract_mset_homomorphism 
-              mset_subset_eqD)
-  moreover have "snd \<circ> (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) = snd \<circ> (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>))" by auto
-  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd (map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega>)"
-    by fastforce
-  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd \<Psi>"
-    using \<Omega>(1) by simp
-  ultimately have "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd ?\<Delta>\<^sub>\<Omega>)"
-    by simp
-  hence "?\<sigma> \<in># image_mset snd (mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>)"
-    using \<Omega>(2) by (smt image_mset_Diff mset_map)
-  from this obtain \<gamma> where \<gamma>: 
-    "(\<gamma>, ?\<sigma>) \<in># mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>"
-    by (smt imageE in_image_mset prod.collapse)
-  let ?\<Omega> = "(?\<psi>, ?\<sigma>, \<gamma>) # \<Omega>"
-  have "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) ?\<Omega> = \<psi> # \<Psi>"
-    using \<Omega>(1) by simp
-  moreover have "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) ?\<Omega>) \<subseteq># mset \<Delta>"
-    using \<Omega>(2) \<gamma>
-    by (smt add_diff_cancel_left' 
-            add_mset_remove_trivial 
-            case_prod_conv 
-            list.set_intros(1) 
-            list.simps(9) 
-            mset.simps(2) 
-            set_mset_mset 
-            single_subset_iff 
-            subset_mset.add_le_cancel_left 
-            subset_mset.diff_add 
-            subset_mset.le_iff_add) 
-  ultimately show ?case by smt
 qed
 
 lemma (in Minimal_Logic) stronger_theory_combine:
@@ -1192,7 +1197,7 @@ proof -
   qed
   thus ?thesis using assms by blast
 qed
-    
+      
 lemma (in Classical_Propositional_Logic) segmented_empty_deduction:
   "[] $\<turnstile> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<phi>)"
   by (induct \<Phi>, simp, rule iffI, fastforce+)
@@ -1213,8 +1218,8 @@ proof -
       assume "\<Sigma> $\<turnstile> (\<phi> # \<Phi>)" "\<Sigma> \<preceq> \<Gamma>"
       from this obtain \<Psi> \<Delta> where 
         \<Psi>: "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
-           "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi>"
-           "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>"
+           "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>"
+           "map (uncurry op \<rightarrow>) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>"
         and 
         \<Delta>: "map snd \<Delta> = \<Sigma>"
            "mset (map fst \<Delta>) \<subseteq># mset \<Gamma>" 
@@ -1233,14 +1238,14 @@ proof -
       hence "mset (map snd ?\<Theta>) \<subseteq># mset \<Gamma>"
         using \<Omega>(2) \<Delta>(2) map_monotonic subset_mset.order.trans
         by smt
-      moreover have "map (uncurry (op \<squnion>)) \<Psi> \<preceq> map (uncurry (op \<squnion>)) ?\<Theta>"
+      moreover have "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) ?\<Theta>"
       proof -
         let ?\<Phi> = "map (\<lambda> (\<psi>, \<sigma>, \<gamma>). (\<psi> \<squnion> \<gamma>, \<psi> \<squnion> \<sigma>)) \<Omega>"
-        have "map snd ?\<Phi> = map (uncurry (op \<squnion>)) \<Psi>"
+        have "map snd ?\<Phi> = map (uncurry op \<squnion>) \<Psi>"
           using \<Omega>(1) by fastforce
-        moreover have "map fst ?\<Phi> = map (uncurry (op \<squnion>)) ?\<Theta>"
+        moreover have "map fst ?\<Phi> = map (uncurry op \<squnion>) ?\<Theta>"
           by fastforce
-        hence "mset (map fst ?\<Phi>) \<subseteq># mset (map (uncurry (op \<squnion>)) ?\<Theta>)"
+        hence "mset (map fst ?\<Phi>) \<subseteq># mset (map (uncurry op \<squnion>) ?\<Theta>)"
           by (smt subset_mset.dual_order.refl)
         moreover
         have "mset (map (\<lambda>(\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega>) \<subseteq># mset \<Psi>"
@@ -1282,20 +1287,20 @@ proof -
           unfolding stronger_theory_relation_def
           by blast
       qed
-      with \<Psi>(2) have "map (uncurry (op \<squnion>)) ?\<Theta> :\<turnstile> \<phi>"
+      with \<Psi>(2) have "map (uncurry op \<squnion>) ?\<Theta> :\<turnstile> \<phi>"
         by (smt stronger_theory_deduction_monotonic)
       moreover have
-        "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>)) \<preceq> 
-         (map (uncurry (op \<rightarrow>)) ?\<Theta> @ \<Gamma> \<ominus> (map snd ?\<Theta>))"
+        "(map (uncurry op \<rightarrow>) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>)) \<preceq> 
+         (map (uncurry op \<rightarrow>) ?\<Theta> @ \<Gamma> \<ominus> (map snd ?\<Theta>))"
       proof -
-        have "map (uncurry (op \<rightarrow>)) \<Psi> \<preceq> map (uncurry (op \<rightarrow>)) ?\<Theta>"
+        have "map (uncurry op \<rightarrow>) \<Psi> \<preceq> map (uncurry op \<rightarrow>) ?\<Theta>"
         proof -
           let ?\<Phi> = "map (\<lambda> (\<psi>, \<sigma>, \<gamma>). (\<psi> \<rightarrow> \<gamma>, \<psi> \<rightarrow> \<sigma>)) \<Omega>"
-          have "map snd ?\<Phi> = map (uncurry (op \<rightarrow>)) \<Psi>"
+          have "map snd ?\<Phi> = map (uncurry op \<rightarrow>) \<Psi>"
             using \<Omega>(1) by fastforce
-          moreover have "map fst ?\<Phi> = map (uncurry (op \<rightarrow>)) ?\<Theta>"
+          moreover have "map fst ?\<Phi> = map (uncurry op \<rightarrow>) ?\<Theta>"
             by fastforce
-          hence "mset (map fst ?\<Phi>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) ?\<Theta>)"
+          hence "mset (map fst ?\<Phi>) \<subseteq># mset (map (uncurry op \<rightarrow>) ?\<Theta>)"
             by (smt subset_mset.dual_order.refl)
           moreover
           have "mset (map (\<lambda>(\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega>) \<subseteq># mset \<Psi>"
@@ -1363,7 +1368,7 @@ proof -
         qed
         ultimately show ?thesis using stronger_theory_combine by blast
       qed
-      hence "map (uncurry (op \<rightarrow>)) ?\<Theta> @ \<Gamma> \<ominus> (map snd ?\<Theta>) $\<turnstile> \<Phi>"
+      hence "map (uncurry op \<rightarrow>) ?\<Theta> @ \<Gamma> \<ominus> (map snd ?\<Theta>) $\<turnstile> \<Phi>"
         using \<Psi>(3) Cons by smt
       ultimately have "\<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
         by (smt segmented_deduction.simps(2))
@@ -1381,8 +1386,8 @@ proof (rule iffI)
   assume "\<^bold>\<sim> \<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
   from this obtain \<Psi> where \<Psi>:
     "mset (map snd \<Psi>) \<subseteq># mset (\<^bold>\<sim> \<Gamma>)"
-    "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi>"
-    "map (uncurry (op \<rightarrow>)) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi> $\<turnstile> \<Phi>"
+    "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>"
+    "map (uncurry op \<rightarrow>) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi> $\<turnstile> \<Phi>"
     using segmented_deduction.simps(2)
     by metis
   from this obtain \<Delta> where \<Delta>:
@@ -1396,7 +1401,7 @@ proof (rule iffI)
   with \<Delta>(1) have "mset (map fst ?\<Psi>) \<subseteq># mset \<Gamma>"
     by simp
   moreover have "\<forall> \<Delta>. map snd \<Psi> = \<^bold>\<sim> \<Delta> \<longrightarrow>
-                      map (uncurry (op \<squnion>)) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<setminus>)) (zip \<Delta> (map fst \<Psi>)))"
+                      map (uncurry op \<squnion>) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<setminus>)) (zip \<Delta> (map fst \<Psi>)))"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -1409,7 +1414,7 @@ proof (rule iffI)
       from this obtain \<gamma> where \<gamma>: "\<sim> \<gamma> = snd \<psi>" "\<gamma> = hd \<Delta>" by auto
       from \<open>map snd (\<psi> # \<Psi>) = \<^bold>\<sim> \<Delta>\<close> have "map snd \<Psi> = \<^bold>\<sim> (tl \<Delta>)" by auto
       with Cons.hyps have 
-        "map (uncurry (op \<squnion>)) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<setminus>)) (zip (tl \<Delta>) (map fst \<Psi>)))"
+        "map (uncurry op \<squnion>) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<setminus>)) (zip (tl \<Delta>) (map fst \<Psi>)))"
         by auto
       moreover
       {
@@ -1423,9 +1428,9 @@ proof (rule iffI)
                     flip_implication 
                     hypothetical_syllogism)
       } note tautology = this
-      have "(uncurry (op \<squnion>)) = (\<lambda> \<psi>. (fst \<psi>) \<squnion> (snd \<psi>))"
+      have "(uncurry op \<squnion>) = (\<lambda> \<psi>. (fst \<psi>) \<squnion> (snd \<psi>))"
         by fastforce
-      with \<gamma> have "(uncurry (op \<squnion>)) \<psi> = ?\<psi> \<squnion> \<sim> \<gamma>"
+      with \<gamma> have "(uncurry op \<squnion>) \<psi> = ?\<psi> \<squnion> \<sim> \<gamma>"
         by simp
       with tautology have "\<turnstile> \<sim>(\<gamma> \<setminus> ?\<psi>) \<rightarrow> (uncurry op \<squnion>) \<psi>"
         by simp
@@ -1442,7 +1447,7 @@ proof (rule iffI)
   with \<Psi>(2) \<Delta>(2) have "\<^bold>\<sim> (map (uncurry (op \<setminus>)) ?\<Psi>) :\<turnstile> \<phi>"
     using stronger_theory_deduction_monotonic by blast
   moreover
-  have "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi>) \<preceq> 
+  have "(map (uncurry op \<rightarrow>) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi>) \<preceq> 
         \<^bold>\<sim> (map (uncurry (op \<sqinter>)) ?\<Psi> @ \<Gamma> \<ominus> (map fst ?\<Psi>))"
   proof -
     from \<Delta>(1) have "mset (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Delta>) = mset (\<^bold>\<sim> (\<Gamma> \<ominus> \<Delta>))"
@@ -1452,7 +1457,7 @@ proof (rule iffI)
     hence "(\<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi>) \<preceq> \<^bold>\<sim> (\<Gamma> \<ominus> map fst ?\<Psi>)"
       by (simp add: msub_stronger_theory_intro)
     moreover have "\<forall> \<Delta>. map snd \<Psi> = \<^bold>\<sim> \<Delta> \<longrightarrow>
-                         map (uncurry (op \<rightarrow>)) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<sqinter>)) (zip \<Delta> (map fst \<Psi>)))"
+                         map (uncurry op \<rightarrow>) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<sqinter>)) (zip \<Delta> (map fst \<Psi>)))"
     proof (induct \<Psi>)
       case Nil
       then show ?case by simp
@@ -1465,7 +1470,7 @@ proof (rule iffI)
         from this obtain \<gamma> where \<gamma>: "\<sim> \<gamma> = snd \<psi>" "\<gamma> = hd \<Delta>" by auto
         from \<open>map snd (\<psi> # \<Psi>) = \<^bold>\<sim> \<Delta>\<close> have "map snd \<Psi> = \<^bold>\<sim> (tl \<Delta>)" by auto
         with Cons.hyps have 
-          "map (uncurry (op \<rightarrow>)) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<sqinter>)) (zip (tl \<Delta>) (map fst \<Psi>)))"
+          "map (uncurry op \<rightarrow>) \<Psi> \<preceq> \<^bold>\<sim> (map (uncurry (op \<sqinter>)) (zip (tl \<Delta>) (map fst \<Psi>)))"
           by simp
         moreover
         {
@@ -1478,9 +1483,9 @@ proof (rule iffI)
                       flip_implication 
                       hypothetical_syllogism)
         } note tautology = this
-        have "(uncurry (op \<rightarrow>)) = (\<lambda> \<psi>. (fst \<psi>) \<rightarrow> (snd \<psi>))"
+        have "(uncurry op \<rightarrow>) = (\<lambda> \<psi>. (fst \<psi>) \<rightarrow> (snd \<psi>))"
           by fastforce
-        with \<gamma> have "(uncurry (op \<rightarrow>)) \<psi> = ?\<psi> \<rightarrow> \<sim> \<gamma>"
+        with \<gamma> have "(uncurry op \<rightarrow>) \<psi> = ?\<psi> \<rightarrow> \<sim> \<gamma>"
           by simp
         with tautology have "\<turnstile> \<sim>(\<gamma> \<sqinter> ?\<psi>) \<rightarrow> (uncurry op \<rightarrow>) \<psi>"
           by simp
@@ -1494,7 +1499,7 @@ proof (rule iffI)
       }
       then show ?case by blast
     qed
-    ultimately have "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi>) \<preceq>
+    ultimately have "(map (uncurry op \<rightarrow>) \<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd \<Psi>) \<preceq>
                      (\<^bold>\<sim> (map (uncurry (op \<sqinter>)) ?\<Psi>) @ \<^bold>\<sim> (\<Gamma> \<ominus> (map fst ?\<Psi>)))"
       using stronger_theory_combine \<Delta>(2)
       by smt
@@ -1519,7 +1524,7 @@ next
   let ?\<Psi> = "zip (map snd \<Psi>) (\<^bold>\<sim> (map fst \<Psi>))"
   from \<Psi>(1) have "mset (map snd ?\<Psi>) \<subseteq># mset (\<^bold>\<sim> \<Gamma>)"
     by (simp, metis image_mset_subseteq_mono multiset.map_comp)
-  moreover have "\<^bold>\<sim> (map (uncurry op \<setminus>) \<Psi>) \<preceq> map (uncurry (op \<squnion>)) ?\<Psi>"
+  moreover have "\<^bold>\<sim> (map (uncurry op \<setminus>) \<Psi>) \<preceq> map (uncurry op \<squnion>) ?\<Psi>"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -1549,12 +1554,12 @@ next
       using stronger_theory_left_right_cons by blast
     thus ?case by simp
   qed
-  with \<Psi>(2) have "map (uncurry (op \<squnion>)) ?\<Psi> :\<turnstile> \<phi>"
+  with \<Psi>(2) have "map (uncurry op \<squnion>) ?\<Psi> :\<turnstile> \<phi>"
     using stronger_theory_deduction_monotonic by blast
   moreover have "\<^bold>\<sim> (map (uncurry op \<sqinter>) \<Psi> @ \<Gamma> \<ominus> map fst \<Psi>) \<preceq> 
-                 (map (uncurry (op \<rightarrow>)) ?\<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd ?\<Psi>)"
+                 (map (uncurry op \<rightarrow>) ?\<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd ?\<Psi>)"
   proof -
-    have "\<^bold>\<sim> (map (uncurry op \<sqinter>) \<Psi>) \<preceq> map (uncurry (op \<rightarrow>)) ?\<Psi>"
+    have "\<^bold>\<sim> (map (uncurry op \<sqinter>) \<Psi>) \<preceq> map (uncurry op \<rightarrow>) ?\<Psi>"
     proof (induct \<Psi>)
       case Nil
       then show ?case by simp 
@@ -1595,7 +1600,7 @@ next
       using stronger_theory_combine
       by simp
   qed
-  hence "map (uncurry (op \<rightarrow>)) ?\<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd ?\<Psi> $\<turnstile> \<Phi>"
+  hence "map (uncurry op \<rightarrow>) ?\<Psi> @ \<^bold>\<sim> \<Gamma> \<ominus> map snd ?\<Psi> $\<turnstile> \<Phi>"
     using \<Psi>(3) segmented_stronger_theory_left_monotonic by blast
   ultimately show "\<^bold>\<sim> \<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
     using segmented_deduction.simps(2) by blast
@@ -1691,28 +1696,27 @@ proof -
 qed
 
 primrec (in Minimal_Logic) 
-  firstComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  firstComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<AA>")
   where
-    "firstComponent \<Psi> [] = []"
-  | "firstComponent \<Psi> (\<delta> # \<Delta>) =
+    "\<AA> \<Psi> [] = []"
+  | "\<AA> \<Psi> (\<delta> # \<Delta>) =
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> firstComponent \<Psi> \<Delta> 
-           | Some \<psi> \<Rightarrow> \<psi> # (firstComponent (remove1 \<psi> \<Psi>) \<Delta>))"
+             None \<Rightarrow> \<AA> \<Psi> \<Delta> 
+           | Some \<psi> \<Rightarrow> \<psi> # (\<AA> (remove1 \<psi> \<Psi>) \<Delta>))"
   
 primrec (in Minimal_Logic) 
-  secondComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  secondComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<BB>")
   where
-    "secondComponent \<Psi> [] = []"
-  | "secondComponent \<Psi> (\<delta> # \<Delta>) = 
+    "\<BB> \<Psi> [] = []"
+  | "\<BB> \<Psi> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> secondComponent \<Psi> \<Delta>
-           | Some \<psi> \<Rightarrow> \<delta> # (secondComponent (remove1 \<psi> \<Psi>) \<Delta>))"
+             None \<Rightarrow> \<BB> \<Psi> \<Delta>
+           | Some \<psi> \<Rightarrow> \<delta> # (\<BB> (remove1 \<psi> \<Psi>) \<Delta>))"
 
 lemma (in Minimal_Logic) firstComponent_secondComponent_mset_connection:
-  "mset (map (uncurry op \<rightarrow>) (firstComponent \<Psi> \<Delta>)) = mset (map snd (secondComponent \<Psi> \<Delta>))"
+  "mset (map (uncurry op \<rightarrow>) (\<AA> \<Psi> \<Delta>)) = mset (map snd (\<BB> \<Psi> \<Delta>))"
 proof - 
-  have "\<forall> \<Psi>. mset (map (uncurry op \<rightarrow>) (firstComponent \<Psi> \<Delta>))
-           = mset (map snd (secondComponent \<Psi> \<Delta>))"
+  have "\<forall> \<Psi>. mset (map (uncurry op \<rightarrow>) (\<AA> \<Psi> \<Delta>)) = mset (map snd (\<BB> \<Psi> \<Delta>))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1720,8 +1724,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map (uncurry op \<rightarrow>) (firstComponent \<Psi> (\<delta> # \<Delta>))) =
-            mset (map snd (secondComponent \<Psi> (\<delta> # \<Delta>)))"
+      have "mset (map (uncurry op \<rightarrow>) (\<AA> \<Psi> (\<delta> # \<Delta>))) =
+            mset (map snd (\<BB> \<Psi> (\<delta> # \<Delta>)))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis using Cons by simp
@@ -1741,13 +1745,13 @@ proof -
 qed
     
 lemma (in Minimal_Logic) secondComponent_right_empty [simp]:
-  "secondComponent [] \<Delta> = []" 
+  "\<BB> [] \<Delta> = []" 
   by (induct \<Delta>, simp+)    
 
 lemma (in Minimal_Logic) firstComponent_msub:
-  "mset (firstComponent \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
+  "mset (\<AA> \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
 proof -
-  have "\<forall> \<Psi>. mset (firstComponent \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
+  have "\<forall> \<Psi>. mset (\<AA> \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
   proof(induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1755,7 +1759,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (firstComponent \<Psi> (\<delta> # \<Delta>)) \<subseteq># mset \<Psi>"
+      have "mset (\<AA> \<Psi> (\<delta> # \<Delta>)) \<subseteq># mset \<Psi>"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis using Cons by simp
@@ -1766,7 +1770,7 @@ proof -
              "\<psi> \<in> set \<Psi>"
           using find_Some_set_membership
           by fastforce
-        have "mset (firstComponent (remove1 \<psi> \<Psi>) \<Delta>) \<subseteq># mset (remove1 \<psi> \<Psi>)"
+        have "mset (\<AA> (remove1 \<psi> \<Psi>) \<Delta>) \<subseteq># mset (remove1 \<psi> \<Psi>)"
           using Cons by smt
         thus ?thesis using \<psi> by (simp add: insert_subset_eq_iff)
       qed
@@ -1777,9 +1781,9 @@ proof -
 qed    
     
 lemma (in Minimal_Logic) secondComponent_msub:
-  "mset (secondComponent \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
+  "mset (\<BB> \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
 proof -
-  have "\<forall>\<Psi>. mset (secondComponent \<Psi> \<Delta>) \<subseteq># mset \<Delta>"  
+  have "\<forall>\<Psi>. mset (\<BB> \<Psi> \<Delta>) \<subseteq># mset \<Delta>"  
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1787,7 +1791,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (secondComponent \<Psi> (\<delta> # \<Delta>)) \<subseteq># mset (\<delta> # \<Delta>)"
+      have "mset (\<BB> \<Psi> (\<delta> # \<Delta>)) \<subseteq># mset (\<delta> # \<Delta>)"
       using Cons
       by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None", 
            simp, 
@@ -1802,9 +1806,9 @@ proof -
 qed
 
 lemma (in Minimal_Logic) secondComponent_snd_projection_msub:
-  "mset (map snd (secondComponent \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"
+  "mset (map snd (\<BB> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"
 proof -
-  have "\<forall>\<Psi>. mset (map snd (secondComponent \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"  
+  have "\<forall>\<Psi>. mset (map snd (\<BB> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"  
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1812,7 +1816,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"
+      have "mset (map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis
@@ -1822,14 +1826,14 @@ proof -
         from this obtain \<psi> where \<psi>: 
           "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = Some \<psi>" 
           by auto
-        hence "secondComponent \<Psi> (\<delta> # \<Delta>) = \<delta> # (secondComponent (remove1 \<psi> \<Psi>) \<Delta>)"
+        hence "\<BB> \<Psi> (\<delta> # \<Delta>) = \<delta> # (\<BB> (remove1 \<psi> \<Psi>) \<Delta>)"
           using \<psi> by fastforce
-        with Cons have "mset (map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) \<subseteq>#
+        with Cons have "mset (map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<subseteq>#
                         mset ((snd \<delta>) # map (uncurry op \<rightarrow>) (remove1 \<psi> \<Psi>))"
           by (simp, metis mset_map mset_remove1)
         moreover from \<psi> have "snd \<delta> = (uncurry op \<rightarrow>) \<psi>"
           using find_Some_predicate by fastforce
-        ultimately have "mset (map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) \<subseteq>#
+        ultimately have "mset (map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<subseteq>#
                          mset (map (uncurry op \<rightarrow>) (\<psi> # (remove1 \<psi> \<Psi>)))"
           by simp
         thus ?thesis
@@ -1843,10 +1847,10 @@ qed
 
 lemma (in Minimal_Logic) secondComponent_diff_msub:
   assumes "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
-  shows "mset (map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
+  shows "mset (map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
 proof -
   have "\<forall> \<Psi> \<Gamma>. mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<longrightarrow> 
-               mset (map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
+               mset (map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1855,7 +1859,7 @@ proof -
     {
       fix \<Psi> \<Gamma>
       assume \<diamondsuit>: "mset (map snd (\<delta> # \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> map snd \<Psi>)"
-      have "mset (map snd ((\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> map snd \<Psi>)"
+      have "mset (map snd ((\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> map snd \<Psi>)"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         hence "snd \<delta> \<notin> set (map (uncurry op \<rightarrow>) \<Psi>)"
@@ -1877,7 +1881,7 @@ proof -
                   mset_eq_perm mset_remove1 
                   remove1_append 
                   union_code)
-        hence "mset (map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) \<subseteq># 
+        hence "mset (map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) \<subseteq># 
                mset ((remove1 (snd \<delta>) \<Gamma>) \<ominus> (map snd \<Psi>))"
           using Cons by blast
         moreover have "snd \<delta> \<in> set \<Gamma>"  
@@ -1892,7 +1896,7 @@ proof -
                   subset_mset.add_diff_inverse 
                   union_code 
                   union_iff) 
-        moreover have "secondComponent \<Psi> \<Delta> = secondComponent \<Psi> (\<delta> # \<Delta>)"
+        moreover have "\<BB> \<Psi> \<Delta> = \<BB> \<Psi> (\<delta> # \<Delta>)"
           using \<open>find (\<lambda>\<psi>. uncurry op \<rightarrow> \<psi> = snd \<delta>) \<Psi> = None\<close>
           by simp
         ultimately show ?thesis
@@ -1921,8 +1925,8 @@ proof -
         let ?\<Gamma>' = "remove1 (snd \<psi>) \<Gamma>"
         have "snd \<delta> = uncurry op \<rightarrow> \<psi>" 
              "\<psi> \<in> set \<Psi>"
-             "mset ((\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> (\<delta> # \<Delta>)) = 
-              mset (\<Delta> \<ominus> secondComponent ?\<Psi>' \<Delta>)"
+             "mset ((\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> (\<delta> # \<Delta>)) = 
+              mset (\<Delta> \<ominus> \<BB> ?\<Psi>' \<Delta>)"
           using \<psi> find_Some_predicate find_Some_set_membership 
           by fastforce+
         moreover 
@@ -1954,24 +1958,22 @@ proof -
 qed
   
 primrec (in Classical_Propositional_Logic) 
-  mergeWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  mergeWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<JJ>")
   where
-    "mergeWitness \<Psi> [] = \<Psi>"
-  | "mergeWitness \<Psi> (\<delta> # \<Delta>) = 
+    "\<JJ> \<Psi> [] = \<Psi>"
+  | "\<JJ> \<Psi> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> \<delta> # mergeWitness \<Psi> \<Delta>
-           | Some \<psi> \<Rightarrow> (fst \<delta> \<sqinter> fst \<psi>, snd \<psi>) # (mergeWitness (remove1 \<psi> \<Psi>) \<Delta>))"
+             None \<Rightarrow> \<delta> # \<JJ> \<Psi> \<Delta>
+           | Some \<psi> \<Rightarrow> (fst \<delta> \<sqinter> fst \<psi>, snd \<psi>) # (\<JJ> (remove1 \<psi> \<Psi>) \<Delta>))"
     
 lemma (in Classical_Propositional_Logic) mergeWitness_right_empty [simp]:
-  "mergeWitness [] \<Delta> = \<Delta>" 
+  "\<JJ> [] \<Delta> = \<Delta>" 
   by (induct \<Delta>, simp+)
 
 lemma (in Classical_Propositional_Logic) secondComponent_mergeWitness_snd_projection:
-  "mset (map snd \<Psi> @ map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) =
-   mset (map snd (mergeWitness \<Psi> \<Delta>))"
+  "mset (map snd \<Psi> @ map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) = mset (map snd (\<JJ> \<Psi> \<Delta>))"
 proof -
-  have "\<forall> \<Psi>. mset (map snd \<Psi> @ map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) =
-             mset (map snd (mergeWitness \<Psi> \<Delta>))"
+  have "\<forall> \<Psi>. mset (map snd \<Psi> @ map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) = mset (map snd (\<JJ> \<Psi> \<Delta>))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -1979,8 +1981,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map snd \<Psi> @ map snd ((\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> (\<delta> # \<Delta>))) = 
-            mset (map snd (mergeWitness \<Psi> (\<delta> # \<Delta>)))"
+      have "mset (map snd \<Psi> @ map snd ((\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> (\<delta> # \<Delta>))) = 
+            mset (map snd (\<JJ> \<Psi> (\<delta> # \<Delta>)))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis 
@@ -2002,8 +2004,8 @@ proof -
         moreover
         let ?\<Psi>' = "remove1 \<psi> \<Psi>"
         from Cons have
-          "mset (map snd ?\<Psi>' @ map snd (\<Delta> \<ominus> secondComponent ?\<Psi>' \<Delta>)) = 
-            mset (map snd (mergeWitness ?\<Psi>' \<Delta>))"
+          "mset (map snd ?\<Psi>' @ map snd (\<Delta> \<ominus> \<BB> ?\<Psi>' \<Delta>)) = 
+            mset (map snd (\<JJ> ?\<Psi>' \<Delta>))"
           by blast
         ultimately show ?thesis
           by (simp, 
@@ -2020,12 +2022,12 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) secondComponent_mergeWitness_stronger_theory:
-  "(map (uncurry op \<rightarrow>) \<Delta> @ map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> \<Delta>)) \<preceq> 
-    map (uncurry op \<rightarrow>) (mergeWitness \<Psi> \<Delta>)"
+  "(map (uncurry op \<rightarrow>) \<Delta> @ map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> \<Delta>)) \<preceq> 
+    map (uncurry op \<rightarrow>) (\<JJ> \<Psi> \<Delta>)"
 proof -
   have "\<forall> \<Psi>. (map (uncurry op \<rightarrow>) \<Delta> @ 
-              map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> \<Delta>)) \<preceq>
-              map (uncurry op \<rightarrow>) (mergeWitness \<Psi> \<Delta>)"
+              map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> \<Delta>)) \<preceq>
+              map (uncurry op \<rightarrow>) (\<JJ> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case 
@@ -2038,8 +2040,8 @@ proof -
         using Axiom_1 Modus_Ponens implication_absorption by blast
       have 
         "(map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @
-          map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) \<preceq>
-          map (uncurry op \<rightarrow>) (mergeWitness \<Psi> (\<delta> # \<Delta>))"
+          map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<preceq>
+          map (uncurry op \<rightarrow>) (\<JJ> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         thus ?thesis
@@ -2054,21 +2056,21 @@ proof -
           using find_Some_predicate by fastforce
         from \<psi> \<open>snd \<delta> = uncurry op \<rightarrow> \<psi>\<close> have 
           "mset (map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @
-                   map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) = 
+                   map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) = 
            mset (map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @
                    map (uncurry op \<rightarrow>) (remove1 \<psi> \<Psi>) \<ominus> 
-                   map snd (secondComponent (remove1 \<psi> \<Psi>) \<Delta>))"
+                   map snd (\<BB> (remove1 \<psi> \<Psi>) \<Delta>))"
           by (simp add: find_Some_set_membership image_mset_Diff) 
         hence 
           "(map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @
-              map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> (\<delta> # \<Delta>))) \<preceq>
+              map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<preceq>
            (map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @
-              map (uncurry op \<rightarrow>) (remove1 \<psi> \<Psi>) \<ominus> map snd (secondComponent (remove1 \<psi> \<Psi>) \<Delta>))"
+              map (uncurry op \<rightarrow>) (remove1 \<psi> \<Psi>) \<ominus> map snd (\<BB> (remove1 \<psi> \<Psi>) \<Delta>))"
           by (simp add: msub_stronger_theory_intro)
         with Cons \<open>\<turnstile> (uncurry op \<rightarrow>) \<delta> \<rightarrow> (uncurry op \<rightarrow>) \<delta>\<close> have
           "(map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) @ 
-            map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (secondComponent \<Psi> (\<delta> # \<Delta>)))
-            \<preceq> ((uncurry op \<rightarrow>) \<delta> # map (uncurry op \<rightarrow>) (mergeWitness (remove1 \<psi> \<Psi>) \<Delta>))"
+            map (uncurry op \<rightarrow>) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>)))
+            \<preceq> ((uncurry op \<rightarrow>) \<delta> # map (uncurry op \<rightarrow>) (\<JJ> (remove1 \<psi> \<Psi>) \<Delta>))"
           apply simp
           using stronger_theory_left_right_cons 
                 stronger_theory_transitive
@@ -2083,8 +2085,8 @@ proof -
         hence "\<turnstile> ((?\<alpha> \<sqinter> ?\<beta>) \<rightarrow> ?\<gamma>) \<rightarrow> (uncurry op \<rightarrow>) \<delta>"
           using biconditional_def curry_uncurry by auto
         with \<psi> have
-          "((uncurry op \<rightarrow>) \<delta> # map (uncurry op \<rightarrow>) (mergeWitness (remove1 \<psi> \<Psi>) \<Delta>)) \<preceq>
-           map (uncurry op \<rightarrow>) (mergeWitness \<Psi> (\<delta> # \<Delta>))"
+          "((uncurry op \<rightarrow>) \<delta> # map (uncurry op \<rightarrow>) (\<JJ> (remove1 \<psi> \<Psi>) \<Delta>)) \<preceq>
+           map (uncurry op \<rightarrow>) (\<JJ> \<Psi> (\<delta> # \<Delta>))"
           using stronger_theory_left_right_cons by auto
         ultimately show ?thesis
           using stronger_theory_transitive
@@ -2098,12 +2100,12 @@ qed
     
 lemma (in Classical_Propositional_Logic) mergeWitness_msub_intro:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
-    shows "mset (map snd (mergeWitness \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
+      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
+    shows "mset (map snd (\<JJ> \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
 proof -
   have "\<forall>\<Psi> \<Gamma>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<longrightarrow>
-               mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<longrightarrow> 
-               mset (map snd (mergeWitness \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
+               mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<longrightarrow> 
+               mset (map snd (\<JJ> \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2113,11 +2115,11 @@ proof -
       fix \<Psi> :: "('a \<times> 'a) list"
       fix \<Gamma> :: "'a list"
       assume \<diamondsuit>: "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-                "mset (map snd (\<delta> # \<Delta>)) \<subseteq># mset (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
-      have "mset (map snd (mergeWitness \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset \<Gamma>"
+                "mset (map snd (\<delta> # \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
+      have "mset (map snd (\<JJ> \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset \<Gamma>"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
-        hence "snd \<delta> \<notin> set (map (uncurry (op \<rightarrow>)) \<Psi>)"
+        hence "snd \<delta> \<notin> set (map (uncurry op \<rightarrow>) \<Psi>)"
         proof (induct \<Psi>)
           case Nil
           then show ?case by simp
@@ -2137,7 +2139,7 @@ proof -
                     subset_mset.le_iff_add)
         moreover from \<diamondsuit>(2) have
           "mset (map snd \<Delta>) \<subseteq># 
-           mset (map (uncurry (op \<rightarrow>)) \<Psi> @ (remove1 (snd \<delta>) \<Gamma>) \<ominus> (map snd \<Psi>))"
+           mset (map (uncurry op \<rightarrow>) \<Psi> @ (remove1 (snd \<delta>) \<Gamma>) \<ominus> (map snd \<Psi>))"
           by (simp,
               smt \<open>snd \<delta> \<in># mset (\<Gamma> \<ominus> map snd \<Psi>)\<close> 
                   add_mset_add_single 
@@ -2147,9 +2149,9 @@ proof -
                   mset_map 
                   mset_subset_eq_single 
                   subset_mset.add_diff_assoc)
-        ultimately have "mset (map snd (mergeWitness \<Psi> \<Delta>)) \<subseteq># mset (remove1 (snd \<delta>) \<Gamma>)"
+        ultimately have "mset (map snd (\<JJ> \<Psi> \<Delta>)) \<subseteq># mset (remove1 (snd \<delta>) \<Gamma>)"
           using Cons by blast
-        hence "mset (map snd (\<delta> # (mergeWitness \<Psi> \<Delta>))) \<subseteq># mset \<Gamma>"
+        hence "mset (map snd (\<delta> # (\<JJ> \<Psi> \<Delta>))) \<subseteq># mset \<Gamma>"
           by (simp, metis \<open>snd \<delta> \<in># mset (\<Gamma> \<ominus> map snd \<Psi>)\<close> 
                           cancel_ab_semigroup_add_class.diff_right_commute 
                           diff_single_trivial 
@@ -2211,7 +2213,7 @@ proof -
         ultimately have "mset (map snd \<Delta>) \<subseteq># 
                          mset (map (uncurry op \<rightarrow>) ?\<Psi>' @ (remove1 ?\<gamma> \<Gamma>) \<ominus> map snd ?\<Psi>')"
           by simp
-        hence "mset (map snd (mergeWitness ?\<Psi>' \<Delta>)) \<subseteq># mset (remove1 ?\<gamma> \<Gamma>)"
+        hence "mset (map snd (\<JJ> ?\<Psi>' \<Delta>)) \<subseteq># mset (remove1 ?\<gamma> \<Gamma>)"
           using Cons \<diamondsuit>(1) A
           by (smt image_mset_add_mset 
                   in_multiset_in_set
@@ -2220,7 +2222,7 @@ proof -
                   mset_map 
                   mset_remove1 
                   prod.sel(2))
-        with \<diamondsuit>(1) A have "mset (map snd (mergeWitness ?\<Psi>' \<Delta>)) + {# ?\<gamma> #} \<subseteq># mset \<Gamma>"
+        with \<diamondsuit>(1) A have "mset (map snd (\<JJ> ?\<Psi>' \<Delta>)) + {# ?\<gamma> #} \<subseteq># mset \<Gamma>"
           by (metis add_mset_add_single 
                     image_eqI 
                     insert_subset_eq_iff 
@@ -2229,10 +2231,10 @@ proof -
                     set_map 
                     set_mset_mset 
                     snd_conv)
-        hence "mset (map snd ((fst \<delta> \<sqinter> ?\<chi>, ?\<gamma>) # (mergeWitness ?\<Psi>' \<Delta>))) \<subseteq># mset \<Gamma>"
+        hence "mset (map snd ((fst \<delta> \<sqinter> ?\<chi>, ?\<gamma>) # (\<JJ> ?\<Psi>' \<Delta>))) \<subseteq># mset \<Gamma>"
           by simp
         moreover from \<psi> have 
-          "mergeWitness \<Psi> (\<delta> # \<Delta>) = (fst \<delta> \<sqinter> ?\<chi>, ?\<gamma>) # (mergeWitness ?\<Psi>' \<Delta>)"
+          "\<JJ> \<Psi> (\<delta> # \<Delta>) = (fst \<delta> \<sqinter> ?\<chi>, ?\<gamma>) # (\<JJ> ?\<Psi>' \<Delta>)"
           by simp
         ultimately show ?thesis by simp
       qed
@@ -2243,9 +2245,9 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) right_mergeWitness_stronger_theory:
-  "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry (op \<squnion>)) (mergeWitness \<Psi> \<Delta>)"
+  "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry (op \<squnion>)) (mergeWitness \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2253,10 +2255,10 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<squnion>) (mergeWitness \<Psi> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
-        hence "mergeWitness \<Psi> (\<delta> # \<Delta>) = \<delta> # mergeWitness \<Psi> \<Delta>"
+        hence "\<JJ> \<Psi> (\<delta> # \<Delta>) = \<delta> # \<JJ> \<Psi> \<Delta>"
           by simp
         moreover have "\<turnstile> (uncurry op \<squnion>) \<delta> \<rightarrow> (uncurry op \<squnion>) \<delta>"
           by (metis Axiom_1 Axiom_2 Modus_Ponens)
@@ -2300,9 +2302,9 @@ proof -
 qed  
   
 lemma (in Classical_Propositional_Logic) left_mergeWitness_stronger_theory:
-  "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry (op \<squnion>)) (mergeWitness \<Psi> \<Delta>)"
+  "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry (op \<squnion>)) (mergeWitness \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case
@@ -2311,7 +2313,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry (op \<squnion>)) (mergeWitness \<Psi> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<JJ> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis 
@@ -2348,7 +2350,7 @@ proof -
        }
        ultimately have 
          "map (uncurry op \<squnion>) (\<psi> # (remove1 \<psi> \<Psi>)) \<preceq> 
-          map (uncurry op \<squnion>) (mergeWitness \<Psi> (\<delta> # \<Delta>))"
+          map (uncurry op \<squnion>) (\<JJ> \<Psi> (\<delta> # \<Delta>))"
          using Cons \<psi> stronger_theory_left_right_cons
          by simp
        moreover from \<psi> have "\<psi> \<in> set \<Psi>"
@@ -2375,10 +2377,10 @@ lemma (in Classical_Propositional_Logic) mergeWitness_segmented_deduction_intro:
   assumes "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
       and "map (uncurry op \<rightarrow>) \<Delta> @ (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> map snd \<Psi>) \<ominus> map snd \<Delta> $\<turnstile> \<Phi>"
           (is "?\<Gamma>\<^sub>0 $\<turnstile> \<Phi>")
-    shows "map (uncurry op \<rightarrow>) (mergeWitness \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (mergeWitness \<Psi> \<Delta>) $\<turnstile> \<Phi>"
+    shows "map (uncurry op \<rightarrow>) (\<JJ> \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (\<JJ> \<Psi> \<Delta>) $\<turnstile> \<Phi>"
           (is "?\<Gamma> $\<turnstile> \<Phi>")
 proof -
-  let ?\<Sigma> = "secondComponent \<Psi> \<Delta>"
+  let ?\<Sigma> = "\<BB> \<Psi> \<Delta>"
   let ?A = "map (uncurry op \<rightarrow>) \<Delta>"
   let ?B = "map (uncurry op \<rightarrow>) \<Psi>"
   let ?C = "map snd ?\<Sigma>"
@@ -2406,9 +2408,9 @@ proof -
             subset_mset.order_trans 
             uncurry_def 
             union_code)
-  moreover have "(?A @ (?B \<ominus> ?C)) \<preceq> map (uncurry op \<rightarrow>) (mergeWitness \<Psi> \<Delta>)"
+  moreover have "(?A @ (?B \<ominus> ?C)) \<preceq> map (uncurry op \<rightarrow>) (\<JJ> \<Psi> \<Delta>)"
     using secondComponent_mergeWitness_stronger_theory by simp
-  moreover have "mset (?D \<ominus> ?E) = mset (\<Gamma> \<ominus> map snd (mergeWitness \<Psi> \<Delta>))"
+  moreover have "mset (?D \<ominus> ?E) = mset (\<Gamma> \<ominus> map snd (\<JJ> \<Psi> \<Delta>))"
     using secondComponent_mergeWitness_snd_projection
     by simp
   with calculation have "(?A @ (?B \<ominus> ?C) @ (?D \<ominus> ?E)) \<preceq> ?\<Gamma>"
@@ -2436,14 +2438,14 @@ proof (rule iffI)
   assume "\<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
   from this obtain \<Psi> where \<Psi>:
     "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-    "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi>"
-    "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) $\<turnstile> \<Phi>"
+    "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>"
+    "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) $\<turnstile> \<Phi>"
     by auto
   let ?\<Psi>\<^sub>1 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>)"
-  let ?\<Gamma>\<^sub>1 = "map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>1 @ \<Gamma> \<ominus> (map snd ?\<Psi>\<^sub>1)"
-  let ?\<Psi>\<^sub>2 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>1)"
-  let ?\<Gamma>\<^sub>2 = "map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2 @ ?\<Gamma>\<^sub>1 \<ominus> (map snd ?\<Psi>\<^sub>2)"
-  have "map (uncurry (op \<rightarrow>)) \<Psi> \<preceq> map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2"
+  let ?\<Gamma>\<^sub>1 = "map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>1 @ \<Gamma> \<ominus> (map snd ?\<Psi>\<^sub>1)"
+  let ?\<Psi>\<^sub>2 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>1)"
+  let ?\<Gamma>\<^sub>2 = "map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2 @ ?\<Gamma>\<^sub>1 \<ominus> (map snd ?\<Psi>\<^sub>2)"
+  have "map (uncurry op \<rightarrow>) \<Psi> \<preceq> map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -2452,9 +2454,9 @@ proof (rule iffI)
     let ?\<chi> = "fst \<delta>"
     let ?\<gamma> = "snd \<delta>"
     let ?\<Psi>\<^sub>1 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>)"
-    let ?\<Psi>\<^sub>2 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>1)"
-    let ?T\<^sub>1 = "\<lambda> \<Psi>. map (uncurry (op \<rightarrow>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>))"
-    let ?T\<^sub>2 = "\<lambda> \<Psi>. map (uncurry (op \<rightarrow>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (?T\<^sub>1 \<Psi>))"
+    let ?\<Psi>\<^sub>2 = "zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>1)"
+    let ?T\<^sub>1 = "\<lambda> \<Psi>. map (uncurry op \<rightarrow>) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>))"
+    let ?T\<^sub>2 = "\<lambda> \<Psi>. map (uncurry op \<rightarrow>) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<Psi>) (?T\<^sub>1 \<Psi>))"
     {
       fix \<delta> :: "'a \<times> 'a"
       have "(\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) = (\<lambda> \<delta>. \<psi> \<squnion> (fst \<delta>))"
@@ -2465,9 +2467,9 @@ proof (rule iffI)
            "(\<lambda> (\<chi>,\<gamma>). \<psi> \<rightarrow> \<chi>) \<delta> = \<psi> \<rightarrow> (fst \<delta>)"
         by (simp add: functional_identities)+
     }
-    hence "?T\<^sub>2 (\<delta> # \<Psi>) = ((\<psi> \<rightarrow> ?\<chi>) \<rightarrow> (\<psi> \<squnion> ?\<chi>) \<rightarrow> ?\<gamma>) # (map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2)"
+    hence "?T\<^sub>2 (\<delta> # \<Psi>) = ((\<psi> \<rightarrow> ?\<chi>) \<rightarrow> (\<psi> \<squnion> ?\<chi>) \<rightarrow> ?\<gamma>) # (map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2)"
       by simp
-    moreover have "map (uncurry (op \<rightarrow>)) (\<delta> # \<Psi>) = (?\<chi> \<rightarrow> ?\<gamma>) # map (uncurry (op \<rightarrow>)) \<Psi>"
+    moreover have "map (uncurry op \<rightarrow>) (\<delta> # \<Psi>) = (?\<chi> \<rightarrow> ?\<gamma>) # map (uncurry op \<rightarrow>) \<Psi>"
       by (simp add: case_prod_beta)
     moreover
     {
@@ -2483,27 +2485,27 @@ proof (rule iffI)
     }
     hence identity: "\<turnstile> ((\<psi> \<rightarrow> ?\<chi>) \<rightarrow> (\<psi> \<squnion> ?\<chi>) \<rightarrow> ?\<gamma>) \<rightarrow> (?\<chi> \<rightarrow> ?\<gamma>)"
       using biconditional_def by auto
-    assume "map (uncurry (op \<rightarrow>)) \<Psi> \<preceq> map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2"
-    with identity have "((?\<chi> \<rightarrow> ?\<gamma>) # map (uncurry (op \<rightarrow>)) \<Psi>) \<preceq>
-                        (((\<psi> \<rightarrow> ?\<chi>) \<rightarrow> (\<psi> \<squnion> ?\<chi>) \<rightarrow> ?\<gamma>) # (map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2))"
+    assume "map (uncurry op \<rightarrow>) \<Psi> \<preceq> map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2"
+    with identity have "((?\<chi> \<rightarrow> ?\<gamma>) # map (uncurry op \<rightarrow>) \<Psi>) \<preceq>
+                        (((\<psi> \<rightarrow> ?\<chi>) \<rightarrow> (\<psi> \<squnion> ?\<chi>) \<rightarrow> ?\<gamma>) # (map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2))"
       using stronger_theory_left_right_cons by blast
     ultimately show ?case by simp
   qed
-  hence "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> 
-         ((map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2) @ \<Gamma> \<ominus> (map snd \<Psi>))"
+  hence "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> 
+         ((map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2) @ \<Gamma> \<ominus> (map snd \<Psi>))"
     using stronger_theory_combine stronger_theory_reflexive by blast
-  moreover have "mset ?\<Gamma>\<^sub>2 = mset ((map (uncurry (op \<rightarrow>)) ?\<Psi>\<^sub>2) @ \<Gamma> \<ominus> (map snd ?\<Psi>\<^sub>1))"
+  moreover have "mset ?\<Gamma>\<^sub>2 = mset ((map (uncurry op \<rightarrow>) ?\<Psi>\<^sub>2) @ \<Gamma> \<ominus> (map snd ?\<Psi>\<^sub>1))"
     by simp
-  ultimately have "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> ?\<Gamma>\<^sub>2"
+  ultimately have "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> ?\<Gamma>\<^sub>2"
     by (simp add: stronger_theory_relation_def)
   hence "?\<Gamma>\<^sub>2 $\<turnstile> \<Phi>"
     using \<Psi>(3) segmented_stronger_theory_left_monotonic by blast
   moreover
-  have "(map (uncurry (op \<squnion>)) ?\<Psi>\<^sub>2) :\<turnstile> \<psi> \<rightarrow> \<phi>"
+  have "(map (uncurry op \<squnion>) ?\<Psi>\<^sub>2) :\<turnstile> \<psi> \<rightarrow> \<phi>"
   proof -
     let ?\<Gamma> = "map (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> \<chi>) \<squnion> (\<psi> \<squnion> \<chi>) \<rightarrow> \<gamma>) \<Psi>"
     let ?\<Sigma> = "map (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) \<Psi>"
-    have "map (uncurry (op \<squnion>)) ?\<Psi>\<^sub>2 = ?\<Gamma>"
+    have "map (uncurry op \<squnion>) ?\<Psi>\<^sub>2 = ?\<Gamma>"
     proof (induct \<Psi>)
       case Nil
       then show ?case by simp
@@ -2552,7 +2554,7 @@ proof (rule iffI)
               stronger_theory_left_right_cons
         by simp
     qed
-    moreover have "\<forall> \<phi>. (map (uncurry (op \<squnion>)) \<Psi>) :\<turnstile> \<phi> \<longrightarrow> ?\<Sigma> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+    moreover have "\<forall> \<phi>. (map (uncurry op \<squnion>) \<Psi>) :\<turnstile> \<phi> \<longrightarrow> ?\<Sigma> :\<turnstile> \<psi> \<rightarrow> \<phi>"
     proof (induct \<Psi>)
       case Nil
       then show ?case
@@ -2566,11 +2568,11 @@ proof (rule iffI)
       let ?\<Sigma>' = "map (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) (\<delta> # \<Psi>)"
       {
         fix \<phi>
-        assume "map (uncurry (op \<squnion>)) (\<delta> # \<Psi>) :\<turnstile> \<phi>"
-        hence "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> (uncurry (op \<squnion>)) \<delta> \<rightarrow> \<phi>"
+        assume "map (uncurry op \<squnion>) (\<delta> # \<Psi>) :\<turnstile> \<phi>"
+        hence "map (uncurry op \<squnion>) \<Psi> :\<turnstile> (uncurry op \<squnion>) \<delta> \<rightarrow> \<phi>"
           using list_deduction_theorem
           by simp
-        hence "?\<Sigma> :\<turnstile> \<psi> \<rightarrow> (uncurry (op \<squnion>)) \<delta> \<rightarrow> \<phi>"
+        hence "?\<Sigma> :\<turnstile> \<psi> \<rightarrow> (uncurry op \<squnion>) \<delta> \<rightarrow> \<phi>"
           using Cons 
           by blast
         moreover
@@ -2579,12 +2581,12 @@ proof (rule iffI)
           have "\<turnstile> (\<alpha> \<rightarrow> \<beta> \<rightarrow> \<gamma>) \<rightarrow> ((\<alpha> \<rightarrow> \<beta>) \<rightarrow> \<alpha> \<rightarrow> \<gamma>)"
             using Axiom_2 by auto
         }
-        ultimately have "?\<Sigma> :\<turnstile> (\<psi> \<rightarrow> (uncurry (op \<squnion>)) \<delta>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
+        ultimately have "?\<Sigma> :\<turnstile> (\<psi> \<rightarrow> (uncurry op \<squnion>) \<delta>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
           using list_deduction_weaken [where ?\<Gamma>="?\<Sigma>"]
                 list_deduction_modus_ponens [where ?\<Gamma>="?\<Sigma>"]
           by smt
         moreover
-        have "(\<lambda> \<delta>. \<psi> \<rightarrow> (uncurry (op \<squnion>)) \<delta>) = (\<lambda> \<delta>. (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) \<delta>)"
+        have "(\<lambda> \<delta>. \<psi> \<rightarrow> (uncurry op \<squnion>) \<delta>) = (\<lambda> \<delta>. (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) \<delta>)"
           by fastforce
         ultimately have "?\<Sigma> :\<turnstile> (\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) \<delta> \<rightarrow> \<psi> \<rightarrow> \<phi>"
           by smt
@@ -2627,15 +2629,15 @@ proof (rule iffI)
       by fastforce
     ultimately have "((uncurry op \<squnion>) \<nu>) # (?\<Delta>' :\<rightarrow>  \<phi>) # ?\<Sigma> :\<turnstile> \<psi> \<squnion> \<phi>"
       by (smt insert_subset list.simps(15) list_deduction_monotonic set_subset_Cons)
-    hence "(?\<Delta>' :\<rightarrow>  \<phi>) # ?\<Sigma> :\<turnstile> ((uncurry (op \<squnion>)) \<nu>) \<rightarrow> (\<psi> \<squnion> \<phi>)"
+    hence "(?\<Delta>' :\<rightarrow>  \<phi>) # ?\<Sigma> :\<turnstile> ((uncurry op \<squnion>) \<nu>) \<rightarrow> (\<psi> \<squnion> \<phi>)"
       using list_deduction_theorem
       by simp
     moreover
     let ?\<chi> = "fst \<nu>"
     let ?\<gamma> = "snd \<nu>"
-    have "(\<lambda> \<nu> . (uncurry (op \<squnion>)) \<nu>) = (\<lambda> \<nu>. fst \<nu> \<squnion> snd \<nu>)"
+    have "(\<lambda> \<nu> . (uncurry op \<squnion>) \<nu>) = (\<lambda> \<nu>. fst \<nu> \<squnion> snd \<nu>)"
       by fastforce
-    hence "(uncurry (op \<squnion>)) \<nu> = ?\<chi> \<squnion> ?\<gamma>" by simp
+    hence "(uncurry op \<squnion>) \<nu> = ?\<chi> \<squnion> ?\<gamma>" by simp
     ultimately have "(?\<Delta>' :\<rightarrow>  \<phi>) # ?\<Sigma> :\<turnstile> (?\<chi> \<squnion> ?\<gamma>) \<rightarrow> (\<psi> \<squnion> \<phi>)" by simp
     moreover
     {
@@ -2671,7 +2673,7 @@ proof (rule iffI)
     ultimately have "(?\<Delta>' :\<rightarrow>  \<phi>) # ?\<Sigma>' :\<turnstile> \<psi> \<squnion> \<phi>" by simp
     then show ?case by (simp add: list_deduction_def)
   qed
-  with \<Psi>(2) have "map (uncurry (op \<squnion>)) ?\<Psi>\<^sub>1 :\<turnstile> (\<psi> \<squnion> \<phi>)"
+  with \<Psi>(2) have "map (uncurry op \<squnion>) ?\<Psi>\<^sub>1 :\<turnstile> (\<psi> \<squnion> \<phi>)"
     unfolding list_deduction_def
     using Modus_Ponens
     by blast
@@ -2682,23 +2684,23 @@ next
   assume "\<Gamma> $\<turnstile> (\<psi> \<squnion> \<phi> # \<psi> \<rightarrow> \<phi> # \<Phi>)"
   from this obtain \<Psi> where \<Psi>:
     "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-    "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<psi> \<squnion> \<phi>"
-    "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> (\<psi> \<rightarrow> \<phi> # \<Phi>)"
+    "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<psi> \<squnion> \<phi>"
+    "map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> (\<psi> \<rightarrow> \<phi> # \<Phi>)"
     using segmented_deduction.simps(2) by blast
-  let ?\<Gamma>' = "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)"
+  let ?\<Gamma>' = "map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)"
   from \<Psi> obtain \<Delta> where \<Delta>:
     "mset (map snd \<Delta>) \<subseteq># mset ?\<Gamma>'"
-    "map (uncurry (op \<squnion>)) \<Delta> :\<turnstile> \<psi> \<rightarrow> \<phi>"
-    "(map (uncurry (op \<rightarrow>)) \<Delta> @ ?\<Gamma>' \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
+    "map (uncurry op \<squnion>) \<Delta> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+    "(map (uncurry op \<rightarrow>) \<Delta> @ ?\<Gamma>' \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
     using segmented_deduction.simps(2) by blast
-  let ?\<Omega> = "mergeWitness \<Psi> \<Delta>"
+  let ?\<Omega> = "\<JJ> \<Psi> \<Delta>"
   have "mset (map snd ?\<Omega>) \<subseteq># mset \<Gamma>"
     using \<Delta>(1) \<Psi>(1) mergeWitness_msub_intro 
     by blast 
-  moreover have "map (uncurry (op \<squnion>)) ?\<Omega> :\<turnstile> \<phi>"
+  moreover have "map (uncurry op \<squnion>) ?\<Omega> :\<turnstile> \<phi>"
   proof -
-    have "map (uncurry (op \<squnion>)) ?\<Omega> :\<turnstile> \<psi> \<squnion> \<phi>"
-         "map (uncurry (op \<squnion>)) ?\<Omega> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+    have "map (uncurry op \<squnion>) ?\<Omega> :\<turnstile> \<psi> \<squnion> \<phi>"
+         "map (uncurry op \<squnion>) ?\<Omega> :\<turnstile> \<psi> \<rightarrow> \<phi>"
       using \<Psi>(2) \<Delta>(2)
             stronger_theory_deduction_monotonic
             right_mergeWitness_stronger_theory
@@ -2713,64 +2715,62 @@ next
       using list_deduction_weaken list_deduction_modus_ponens
       by blast
   qed
-  moreover have "map (uncurry (op \<rightarrow>)) ?\<Omega> @ \<Gamma> \<ominus> (map snd ?\<Omega>) $\<turnstile> \<Phi>"
+  moreover have "map (uncurry op \<rightarrow>) ?\<Omega> @ \<Gamma> \<ominus> (map snd ?\<Omega>) $\<turnstile> \<Phi>"
     using \<Delta>(1) \<Delta>(3) \<Psi>(1) mergeWitness_segmented_deduction_intro by blast
   ultimately show "\<Gamma> $\<turnstile> (\<phi> # \<Phi>)"
     using segmented_deduction.simps(2) by blast
 qed
 
 primrec (in Minimal_Logic) 
-  AWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  XWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<XX>")
   where
-    "AWitness \<Psi> [] = []"
-  | "AWitness \<Psi> (\<delta> # \<Delta>) =
+    "\<XX> \<Psi> [] = []"
+  | "\<XX> \<Psi> (\<delta> # \<Delta>) =
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> \<delta> # AWitness \<Psi> \<Delta> 
-           | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (AWitness (remove1 \<psi> \<Psi>) \<Delta>))"  
+             None \<Rightarrow> \<delta> # \<XX> \<Psi> \<Delta> 
+           | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (\<XX> (remove1 \<psi> \<Psi>) \<Delta>))"  
 
 primrec (in Minimal_Logic) 
-  AComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  XComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<XX>\<^sub>\<bullet>")
   where
-    "AComponent \<Psi> [] = []"
-  | "AComponent \<Psi> (\<delta> # \<Delta>) =
+    "\<XX>\<^sub>\<bullet> \<Psi> [] = []"
+  | "\<XX>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>) =
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> AComponent \<Psi> \<Delta> 
-           | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (AComponent (remove1 \<psi> \<Psi>) \<Delta>))"    
+             None \<Rightarrow> \<XX>\<^sub>\<bullet> \<Psi> \<Delta> 
+           | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (\<XX>\<^sub>\<bullet> (remove1 \<psi> \<Psi>) \<Delta>))"    
     
 primrec (in Minimal_Logic) 
-  BWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  YWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<YY>")
   where
-    "BWitness \<Psi> [] = \<Psi>"
-  | "BWitness \<Psi> (\<delta> # \<Delta>) =
+    "\<YY> \<Psi> [] = \<Psi>"
+  | "\<YY> \<Psi> (\<delta> # \<Delta>) =
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> BWitness \<Psi> \<Delta> 
+             None \<Rightarrow> \<YY> \<Psi> \<Delta> 
            | Some \<psi> \<Rightarrow> (fst \<psi>, (fst \<psi> \<rightarrow> fst \<delta>) \<rightarrow> snd \<psi>) # 
-                       (BWitness (remove1 \<psi> \<Psi>) \<Delta>))"
+                       (\<YY> (remove1 \<psi> \<Psi>) \<Delta>))"
 
 primrec (in Minimal_Logic) 
-  BComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  YComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<YY>\<^sub>\<bullet>")
   where
-    "BComponent \<Psi> [] = []"
-  | "BComponent \<Psi> (\<delta> # \<Delta>) =
+    "\<YY>\<^sub>\<bullet> \<Psi> [] = []"
+  | "\<YY>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>) =
        (case find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> of 
-             None \<Rightarrow> BComponent \<Psi> \<Delta> 
+             None \<Rightarrow> \<YY>\<^sub>\<bullet> \<Psi> \<Delta> 
            | Some \<psi> \<Rightarrow> (fst \<psi>, (fst \<psi> \<rightarrow> fst \<delta>) \<rightarrow> snd \<psi>) # 
-                       (BComponent (remove1 \<psi> \<Psi>) \<Delta>))"
+                       (\<YY>\<^sub>\<bullet> (remove1 \<psi> \<Psi>) \<Delta>))"
     
-lemma (in Minimal_Logic) AWitness_right_empty [simp]:
-  "AWitness [] \<Delta> = \<Delta>" 
+lemma (in Minimal_Logic) XWitness_right_empty [simp]:
+  "\<XX> [] \<Delta> = \<Delta>" 
   by (induct \<Delta>, simp+)    
 
-lemma (in Minimal_Logic) BWitness_right_empty [simp]:
-  "BWitness [] \<Delta> = []" 
+lemma (in Minimal_Logic) YWitness_right_empty [simp]:
+  "\<YY> [] \<Delta> = []" 
   by (induct \<Delta>, simp+)
 
-lemma (in Minimal_Logic) AWitness_map_snd_decomposition:
-   "mset (map snd (AWitness \<Psi> \<Delta>)) 
-  = mset (map snd ((firstComponent \<Psi> \<Delta>) @ (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))))"
+lemma (in Minimal_Logic) XWitness_map_snd_decomposition:
+   "mset (map snd (\<XX> \<Psi> \<Delta>)) = mset (map snd ((\<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))))"
 proof -
-  have "\<forall>\<Psi>. mset (map snd (AWitness \<Psi> \<Delta>))
-         =  mset (map snd ((firstComponent \<Psi> \<Delta>) @ (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))))"
+  have "\<forall>\<Psi>. mset (map snd (\<XX> \<Psi> \<Delta>)) = mset (map snd ((\<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2778,9 +2778,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map snd (AWitness \<Psi> (\<delta> # \<Delta>))) =
-            mset (map snd (firstComponent \<Psi> (\<delta> # \<Delta>) @ 
-                           (\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> (\<delta> # \<Delta>)))"
+      have "mset (map snd (\<XX> \<Psi> (\<delta> # \<Delta>))) 
+          = mset (map snd (\<AA> \<Psi> (\<delta> # \<Delta>) @ (\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> (\<delta> # \<Delta>)))"
       using Cons
       by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None",
           simp, 
@@ -2797,12 +2796,10 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) BWitness_map_snd_decomposition:
-   "mset (map snd (BWitness \<Psi> \<Delta>)) 
-  = mset (map snd ((\<Psi> \<ominus> (firstComponent \<Psi> \<Delta>)) @ (BComponent \<Psi> \<Delta>)))"
+lemma (in Minimal_Logic) YWitness_map_snd_decomposition:
+   "mset (map snd (\<YY> \<Psi> \<Delta>)) = mset (map snd ((\<Psi> \<ominus> (\<AA> \<Psi> \<Delta>)) @ (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)))"
 proof -
-  have "\<forall> \<Psi>. mset (map snd (BWitness \<Psi> \<Delta>)) 
-           = mset (map snd ((\<Psi> \<ominus> (firstComponent \<Psi> \<Delta>)) @ (BComponent \<Psi> \<Delta>)))"
+  have "\<forall> \<Psi>. mset (map snd (\<YY> \<Psi> \<Delta>)) = mset (map snd ((\<Psi> \<ominus> (\<AA> \<Psi> \<Delta>)) @ (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2810,8 +2807,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map snd (BWitness \<Psi> (\<delta> # \<Delta>))) 
-          = mset (map snd (\<Psi> \<ominus> firstComponent \<Psi> (\<delta> # \<Delta>) @ BComponent \<Psi> (\<delta> # \<Delta>)))"
+      have "mset (map snd (\<YY> \<Psi> (\<delta> # \<Delta>))) = mset (map snd (\<Psi> \<ominus> \<AA> \<Psi> (\<delta> # \<Delta>) @ \<YY>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>)))"
         using Cons
         by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None", fastforce+)
     }
@@ -2820,32 +2816,31 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Minimal_Logic) AWitness_msub:
+lemma (in Minimal_Logic) XWitness_msub:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
-    shows "mset (map snd (AWitness \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
+      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
+    shows "mset (map snd (\<XX> \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
 proof -
-  have "mset (map snd (\<Delta> \<ominus> (secondComponent \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
+  have "mset (map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
     using assms secondComponent_diff_msub by blast
-  moreover have "mset (map snd (firstComponent \<Psi> \<Delta>)) \<subseteq># mset (map snd \<Psi>)"
+  moreover have "mset (map snd (\<AA> \<Psi> \<Delta>)) \<subseteq># mset (map snd \<Psi>)"
     using firstComponent_msub
     by (simp add: image_mset_subseteq_mono)
   moreover have "mset ((map snd \<Psi>) @ (\<Gamma> \<ominus> map snd \<Psi>)) = mset \<Gamma>"
     using assms(1)
     by simp
-  moreover have "image_mset snd (mset (firstComponent \<Psi> \<Delta>)) + 
-                 image_mset snd (mset (\<Delta> \<ominus> secondComponent \<Psi> \<Delta>)) 
-               = mset (map snd (AWitness \<Psi> \<Delta>))"
-      using AWitness_map_snd_decomposition by force
+  moreover have "image_mset snd (mset (\<AA> \<Psi> \<Delta>)) + image_mset snd (mset (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>)) 
+               = mset (map snd (\<XX> \<Psi> \<Delta>))"
+      using XWitness_map_snd_decomposition by force
   ultimately
   show ?thesis
     by (metis (no_types) mset_append mset_map subset_mset.add_mono)
 qed
 
-lemma (in Minimal_Logic) BComponent_msub:
-  "mset (map snd (BComponent \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) (AWitness \<Psi> \<Delta>))"
+lemma (in Minimal_Logic) YComponent_msub:
+  "mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) (\<XX> \<Psi> \<Delta>))"
 proof -
-  have "\<forall> \<Psi>. mset (map snd (BComponent \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) (AWitness \<Psi> \<Delta>))"
+  have "\<forall> \<Psi>. mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry op \<rightarrow>) (\<XX> \<Psi> \<Delta>))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2853,8 +2848,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (map snd (BComponent \<Psi> (\<delta> # \<Delta>))) \<subseteq>#
-            mset (map (uncurry op \<rightarrow>) (AWitness \<Psi> (\<delta> # \<Delta>)))"
+      have "mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>))) \<subseteq># mset (map (uncurry op \<rightarrow>) (\<XX> \<Psi> (\<delta> # \<Delta>)))"
         using Cons
         by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None", 
             simp, metis add_mset_add_single 
@@ -2867,20 +2861,20 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Minimal_Logic) BWitness_msub:
+lemma (in Minimal_Logic) YWitness_msub:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
-    shows "mset (map snd (BWitness \<Psi> \<Delta>)) \<subseteq># 
-           mset (map (uncurry op \<rightarrow>) (AWitness \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (AWitness \<Psi> \<Delta>))"
+      and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
+    shows "mset (map snd (\<YY> \<Psi> \<Delta>)) \<subseteq># 
+           mset (map (uncurry op \<rightarrow>) (\<XX> \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (\<XX> \<Psi> \<Delta>))"
 proof -
-  have "mset (map snd (\<Psi> \<ominus> firstComponent \<Psi> \<Delta>)) \<subseteq># mset (\<Gamma> \<ominus> map snd (AWitness \<Psi> \<Delta>))"
-    using assms AWitness_map_snd_decomposition
+  have "mset (map snd (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>)) \<subseteq># mset (\<Gamma> \<ominus> map snd (\<XX> \<Psi> \<Delta>))"
+    using assms XWitness_map_snd_decomposition
     by (simp, 
         smt add.commute 
             add.left_commute 
             image_mset_Diff 
             listSubtract_mset_homomorphism 
-            AWitness_msub 
+            XWitness_msub 
             firstComponent_msub 
             secondComponent_diff_msub 
             mset_map 
@@ -2889,15 +2883,15 @@ proof -
             subset_mset.diff_add 
             subset_mset.le_diff_conv2)
   thus ?thesis 
-    using BComponent_msub
-          BWitness_map_snd_decomposition
+    using YComponent_msub
+          YWitness_map_snd_decomposition
     by (simp add: mset_subset_eq_mono_add union_commute)
 qed 
   
-lemma (in Classical_Propositional_Logic) AWitness_right_stronger_theory:
-  "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (AWitness \<Psi> \<Delta>)"
+lemma (in Classical_Propositional_Logic) XWitness_right_stronger_theory:
+  "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (\<XX> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (AWitness \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (\<XX> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2905,7 +2899,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<squnion>) (AWitness \<Psi> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<squnion>) (\<XX> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis 
@@ -2925,7 +2919,7 @@ proof -
         let ?\<alpha> = "fst \<psi>"
         let ?\<beta> = "snd \<psi>"
         let ?\<gamma> = "fst \<delta>"
-        have "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (AWitness ?\<Psi>' \<Delta>)"
+        have "map (uncurry op \<squnion>) \<Delta> \<preceq> map (uncurry op \<squnion>) (\<XX> ?\<Psi>' \<Delta>)"
           using Cons by simp
         moreover
         have "(uncurry op \<squnion>) = (\<lambda> \<delta>. fst \<delta> \<squnion> snd \<delta>)" by fastforce
@@ -2952,10 +2946,10 @@ proof -
   thus ?thesis by simp
 qed
   
-lemma (in Classical_Propositional_Logic) BWitness_left_stronger_theory:
-  "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (BWitness \<Psi> \<Delta>)"
+lemma (in Classical_Propositional_Logic) YWitness_left_stronger_theory:
+  "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<YY> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (BWitness \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<YY> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -2963,7 +2957,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (BWitness \<Psi> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) (\<YY> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         then show ?thesis using Cons by simp
@@ -2977,7 +2971,7 @@ proof -
           by fastforce
         let ?\<phi> = "fst \<psi> \<squnion> (fst \<psi> \<rightarrow> fst \<delta>) \<rightarrow> snd \<psi>"
         let ?\<Psi>' = "remove1 \<psi> \<Psi>"
-        have "map (uncurry op \<squnion>) ?\<Psi>' \<preceq> map (uncurry op \<squnion>) (BWitness ?\<Psi>' \<Delta>)"
+        have "map (uncurry op \<squnion>) ?\<Psi>' \<preceq> map (uncurry op \<squnion>) (\<YY> ?\<Psi>' \<Delta>)"
           using Cons by simp
         moreover 
         {
@@ -2992,7 +2986,7 @@ proof -
         }
         hence "\<turnstile> ?\<phi> \<rightarrow> (uncurry op \<squnion>) \<psi>" using \<psi>(3) by auto
         ultimately 
-        have "map (uncurry op \<squnion>) (\<psi> # ?\<Psi>') \<preceq> (?\<phi> # map (uncurry op \<squnion>) (BWitness ?\<Psi>' \<Delta>))"
+        have "map (uncurry op \<squnion>) (\<psi> # ?\<Psi>') \<preceq> (?\<phi> # map (uncurry op \<squnion>) (\<YY> ?\<Psi>' \<Delta>))"
           by (simp add: stronger_theory_left_right_cons)
         moreover
         from \<psi> have "mset (map (uncurry op \<squnion>) (\<psi> # ?\<Psi>')) = mset (map (uncurry op \<squnion>) \<Psi>)"
@@ -3006,10 +3000,10 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) AWitness_secondComponent_diff_decomposition:
-  "mset (AWitness \<Psi> \<Delta>) = mset (AComponent \<Psi> \<Delta> @ \<Delta> \<ominus> secondComponent \<Psi> \<Delta>)"
+lemma (in Minimal_Logic) XWitness_secondComponent_diff_decomposition:
+  "mset (\<XX> \<Psi> \<Delta>) = mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta> @ \<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. mset (AWitness \<Psi> \<Delta>) = mset (AComponent \<Psi> \<Delta> @ \<Delta> \<ominus> secondComponent \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. mset (\<XX> \<Psi> \<Delta>) = mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta> @ \<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3017,8 +3011,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (AWitness \<Psi> (\<delta> # \<Delta>)) = 
-            mset (AComponent \<Psi> (\<delta> # \<Delta>) @ (\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> (\<delta> # \<Delta>))"
+      have "mset (\<XX> \<Psi> (\<delta> # \<Delta>)) = 
+            mset (\<XX>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>) @ (\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> (\<delta> # \<Delta>))"
         using Cons
         by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None",
             simp, metis add_mset_add_single secondComponent_msub subset_mset.diff_add_assoc2,
@@ -3029,10 +3023,10 @@ proof -
   thus ?thesis by blast
 qed  
   
-lemma (in Minimal_Logic) BWitness_firstComponent_diff_decomposition:
-  "mset (BWitness \<Psi> \<Delta>) = mset (\<Psi> \<ominus> firstComponent \<Psi> \<Delta> @ BComponent \<Psi> \<Delta>)"
+lemma (in Minimal_Logic) YWitness_firstComponent_diff_decomposition:
+  "mset (\<YY> \<Psi> \<Delta>) = mset (\<Psi> \<ominus> \<AA> \<Psi> \<Delta> @ \<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. mset (BWitness \<Psi> \<Delta>) = mset (\<Psi> \<ominus> firstComponent \<Psi> \<Delta> @ BComponent \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. mset (\<YY> \<Psi> \<Delta>) = mset (\<Psi> \<ominus> \<AA> \<Psi> \<Delta> @ \<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3040,8 +3034,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "mset (BWitness \<Psi> (\<delta> # \<Delta>)) = 
-            mset (\<Psi> \<ominus> firstComponent \<Psi> (\<delta> # \<Delta>) @ BComponent \<Psi> (\<delta> # \<Delta>))"
+      have "mset (\<YY> \<Psi> (\<delta> # \<Delta>)) = 
+            mset (\<Psi> \<ominus> \<AA> \<Psi> (\<delta> # \<Delta>) @ \<YY>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>))"
       using Cons
         by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None", simp, fastforce)
     }
@@ -3050,13 +3044,13 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Minimal_Logic) BWitness_right_stronger_theory:
+lemma (in Minimal_Logic) YWitness_right_stronger_theory:
     "map (uncurry op \<rightarrow>) \<Delta> 
-  \<preceq>  map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta> \<ominus> (\<Psi> \<ominus> firstComponent \<Psi> \<Delta>) @ (\<Delta> \<ominus> secondComponent \<Psi> \<Delta>))" 
+  \<preceq>  map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>))" 
 proof -
-  let ?\<ff> = "\<lambda>\<Psi> \<Delta>. (\<Psi> \<ominus> firstComponent \<Psi> \<Delta>)"
-  let ?\<gg> = "\<lambda> \<Psi> \<Delta>. (\<Delta> \<ominus> secondComponent \<Psi> \<Delta>)"
-  have "\<forall> \<Psi>. map (uncurry op \<rightarrow>) \<Delta> \<preceq>  map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>)"
+  let ?\<ff> = "\<lambda>\<Psi> \<Delta>. (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>)"
+  let ?\<gg> = "\<lambda> \<Psi> \<Delta>. (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<rightarrow>) \<Delta> \<preceq>  map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3066,18 +3060,16 @@ proof -
     {
       fix \<Psi>
       have "map (uncurry op \<rightarrow>) (\<delta> # \<Delta>)
-          \<preceq> map (uncurry op \<rightarrow>) (BWitness \<Psi> (\<delta> # \<Delta>) \<ominus> ?\<ff> \<Psi> (\<delta> # \<Delta>) @ ?\<gg> \<Psi> (\<delta> # \<Delta>))"
+          \<preceq> map (uncurry op \<rightarrow>) (\<YY> \<Psi> (\<delta> # \<Delta>) \<ominus> ?\<ff> \<Psi> (\<delta> # \<Delta>) @ ?\<gg> \<Psi> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None")
         case True
         moreover
         from Cons have 
-          "map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) 
-         \<preceq> map (uncurry op \<rightarrow>) (\<delta> # BWitness \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>)"
+          "map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<rightarrow>) (\<delta> # \<YY> \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>)"
           by (simp add: stronger_theory_left_right_cons trivial_implication)
         moreover 
-        have "mset (map (uncurry op \<rightarrow>) (\<delta> # BWitness \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>))
-            = mset (map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ 
-                                         ((\<delta> # \<Delta>) \<ominus> secondComponent \<Psi> \<Delta>)))" 
+        have "mset (map (uncurry op \<rightarrow>) (\<delta> # \<YY> \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ?\<gg> \<Psi> \<Delta>))
+            = mset (map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> ?\<ff> \<Psi> \<Delta> @ ((\<delta> # \<Delta>) \<ominus> \<BB> \<Psi> \<Delta>)))" 
           by (simp, 
               metis (no_types, lifting) 
                     add_mset_add_single 
@@ -3104,12 +3096,12 @@ proof -
         have "(\<lambda> \<delta>. fst \<delta> \<rightarrow> snd \<delta>) = uncurry op \<rightarrow>" by fastforce
         hence "?\<beta> \<rightarrow> ?\<alpha> \<rightarrow> ?\<gamma> = uncurry op \<rightarrow> \<delta>" using \<psi>(2) by smt
         moreover
-        let ?A = "BWitness (remove1 \<psi> \<Psi>) \<Delta>"
-        let ?B = "firstComponent (remove1 \<psi> \<Psi>) \<Delta>"
-        let ?C = "secondComponent (remove1 \<psi> \<Psi>) \<Delta>"
+        let ?A = "\<YY> (remove1 \<psi> \<Psi>) \<Delta>"
+        let ?B = "\<AA> (remove1 \<psi> \<Psi>) \<Delta>"
+        let ?C = "\<BB> (remove1 \<psi> \<Psi>) \<Delta>"
         let ?D = "?A \<ominus> ((remove1 \<psi> \<Psi>) \<ominus> ?B)"
         have "mset ((remove1 \<psi> \<Psi>) \<ominus> ?B) \<subseteq># mset ?A"
-          using BWitness_firstComponent_diff_decomposition by simp 
+          using YWitness_firstComponent_diff_decomposition by simp 
         hence "mset (map (uncurry op \<rightarrow>) 
                     (((?\<alpha>, (?\<alpha> \<rightarrow> ?\<beta>) \<rightarrow> ?\<gamma>) # ?A) \<ominus> remove1 \<psi> (\<Psi> \<ominus> ?B) 
                     @ (remove1 \<delta> ((\<delta> # \<Delta>) \<ominus> ?C))))
@@ -3150,10 +3142,10 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) AComponent_BComponent_connection:
-  "map (uncurry op \<rightarrow>) (AComponent \<Psi> \<Delta>) = map snd (BComponent \<Psi> \<Delta>)"
+lemma (in Minimal_Logic) XComponent_YComponent_connection:
+  "map (uncurry op \<rightarrow>) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
 proof -
-  have "\<forall> \<Psi>. map (uncurry op \<rightarrow>) (AComponent \<Psi> \<Delta>) = map snd (BComponent \<Psi> \<Delta>)"
+  have "\<forall> \<Psi>. map (uncurry op \<rightarrow>) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3161,7 +3153,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have "map (uncurry op \<rightarrow>) (AComponent \<Psi> (\<delta> # \<Delta>)) = map snd (BComponent \<Psi> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<rightarrow>) (\<XX>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>)) = map snd (\<YY>\<^sub>\<bullet> \<Psi> (\<delta> # \<Delta>))"
         using Cons
         by (cases "find (\<lambda> \<psi>. (uncurry op \<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None", simp, fastforce)
     }
@@ -3170,37 +3162,37 @@ proof -
   thus ?thesis by blast
 qed
   
-lemma (in Classical_Propositional_Logic) AWitness_BWitness_segmented_deduction_intro:
+lemma (in Classical_Propositional_Logic) XWitness_YWitness_segmented_deduction_intro:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
       and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
       and "map (uncurry op \<rightarrow>) \<Delta> @ (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> map snd \<Psi>) \<ominus> map snd \<Delta> $\<turnstile> \<Phi>"
           (is "?\<Gamma>\<^sub>0 $\<turnstile> \<Phi>")
-        shows "map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta>) @ 
-                (map (uncurry op \<rightarrow>) (AWitness \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (AWitness \<Psi> \<Delta>)) \<ominus> 
-                 map snd (BWitness \<Psi> \<Delta>) $\<turnstile> \<Phi>"
+        shows "map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta>) @ 
+                (map (uncurry op \<rightarrow>) (\<XX> \<Psi> \<Delta>) @ \<Gamma> \<ominus> map snd (\<XX> \<Psi> \<Delta>)) \<ominus> 
+                 map snd (\<YY> \<Psi> \<Delta>) $\<turnstile> \<Phi>"
           (is "?\<Gamma> $\<turnstile> \<Phi>")
 proof -
-  let ?A = "map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta>)"
-  let ?B = "map (uncurry op \<rightarrow>) (AWitness \<Psi> \<Delta>)"
-  let ?C = "\<Psi> \<ominus> firstComponent \<Psi> \<Delta>"
+  let ?A = "map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta>)"
+  let ?B = "map (uncurry op \<rightarrow>) (\<XX> \<Psi> \<Delta>)"
+  let ?C = "\<Psi> \<ominus> \<AA> \<Psi> \<Delta>"
   let ?D = "map (uncurry op \<rightarrow>) ?C"
-  let ?E = "\<Delta> \<ominus> secondComponent \<Psi> \<Delta>"
+  let ?E = "\<Delta> \<ominus> \<BB> \<Psi> \<Delta>"
   let ?F = "map (uncurry op \<rightarrow>) ?E"
-  let ?G = "map snd (secondComponent \<Psi> \<Delta>)"
-  let ?H = "map (uncurry op \<rightarrow>) (AComponent \<Psi> \<Delta>)"
-  let ?I = "firstComponent \<Psi> \<Delta>"
-  let ?J = "map snd (AWitness \<Psi> \<Delta>)"
-  let ?K = "map snd (BWitness \<Psi> \<Delta>)"
-  have "mset (map (uncurry op \<rightarrow>) (BWitness \<Psi> \<Delta> \<ominus> ?C @ ?E)) = mset (?A \<ominus> ?D @ ?F)" 
-    by (simp add: BWitness_firstComponent_diff_decomposition) 
+  let ?G = "map snd (\<BB> \<Psi> \<Delta>)"
+  let ?H = "map (uncurry op \<rightarrow>) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>)"
+  let ?I = "\<AA> \<Psi> \<Delta>"
+  let ?J = "map snd (\<XX> \<Psi> \<Delta>)"
+  let ?K = "map snd (\<YY> \<Psi> \<Delta>)"
+  have "mset (map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> ?C @ ?E)) = mset (?A \<ominus> ?D @ ?F)" 
+    by (simp add: YWitness_firstComponent_diff_decomposition) 
   hence "(map (uncurry op \<rightarrow>) \<Delta>) \<preceq> (?A \<ominus> ?D @ ?F)"
-    using BWitness_right_stronger_theory
+    using YWitness_right_stronger_theory
     by (smt stronger_theory_relation_alt_def)
   hence "?\<Gamma>\<^sub>0 \<preceq> ((?A \<ominus> ?D @ ?F) @ (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> map snd \<Psi>) \<ominus> map snd \<Delta>)"
     using stronger_theory_combine stronger_theory_reflexive by blast
   moreover
   have \<spadesuit>: "mset ?G \<subseteq># mset (map (uncurry op \<rightarrow>) \<Psi>)"
-          "mset (secondComponent \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
+          "mset (\<BB> \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
           "mset (map snd ?E) \<subseteq># mset (\<Gamma> \<ominus> map snd \<Psi>)"
           "mset (map (uncurry op \<rightarrow>) \<Psi> \<ominus> ?G) = mset ?D"
           "mset ?D \<subseteq># mset ?A"
@@ -3211,11 +3203,11 @@ proof -
           secondComponent_diff_msub
           secondComponent_snd_projection_msub
           firstComponent_secondComponent_mset_connection
-          AWitness_map_snd_decomposition
+          XWitness_map_snd_decomposition
     by (simp, simp,
         metis assms(2),
         simp add: image_mset_Diff firstComponent_msub,
-        simp add: BWitness_firstComponent_diff_decomposition,
+        simp add: YWitness_firstComponent_diff_decomposition,
         simp add: image_mset_subseteq_mono firstComponent_msub,
         metis assms(1) firstComponent_msub map_monotonic subset_mset.dual_order.trans,
         simp)
@@ -3225,7 +3217,7 @@ proof -
         smt Multiset.diff_add 
             image_mset_union 
             firstComponent_msub
-            AWitness_map_snd_decomposition
+            XWitness_map_snd_decomposition
             subset_mset.add_diff_assoc 
             subset_mset.diff_add 
             union_commute)
@@ -3236,12 +3228,12 @@ proof -
   have "mset ?F = mset (?B \<ominus> ?H)"
        "mset ?D \<subseteq># mset ?A"
        "mset (map snd (\<Psi> \<ominus> ?I)) \<subseteq># mset (\<Gamma> \<ominus> ?J)"
-    by (simp add: AWitness_secondComponent_diff_decomposition,
-        simp add: BWitness_firstComponent_diff_decomposition,
+    by (simp add: XWitness_secondComponent_diff_decomposition,
+        simp add: YWitness_firstComponent_diff_decomposition,
         smt \<spadesuit> assms 
             ab_semigroup_add_class.add_ac(1) 
             listSubtract_mset_homomorphism 
-            AWitness_msub 
+            XWitness_msub 
             firstComponent_msub 
             map_append 
             map_listSubtract_mset_equivalence 
@@ -3252,7 +3244,7 @@ proof -
        = mset (?A @ (?B \<ominus> ?H @ \<Gamma> \<ominus> ?J) \<ominus> map snd ?C)"
         "mset ?H \<subseteq># mset ?B"
     by (simp add: subset_mset.diff_add_assoc,
-        simp add: AWitness_secondComponent_diff_decomposition)
+        simp add: XWitness_secondComponent_diff_decomposition)
   hence "mset ((?A \<ominus> ?D @ ?F) @ ?D @ (\<Gamma> \<ominus> ?J) \<ominus> map snd ?C)
        = mset (?A @ (?B @ \<Gamma> \<ominus> ?J) \<ominus> (?H @ map snd ?C))"
     by (simp add: subset_mset.diff_add_assoc)
@@ -3261,8 +3253,8 @@ proof -
     by (simp, 
         smt add.commute 
             listSubtract_mset_homomorphism 
-            AComponent_BComponent_connection 
-            BWitness_map_snd_decomposition 
+            XComponent_YComponent_connection 
+            YWitness_map_snd_decomposition 
             map_append mset_map uncurry_def 
             union_code)
   ultimately have "?\<Gamma>\<^sub>0 \<preceq> (?A @ (?B @ \<Gamma> \<ominus> ?J) \<ominus> ?K)"
@@ -3279,33 +3271,33 @@ lemma (in Classical_Propositional_Logic) segmented_cons_cons_right_permute:
 proof -
   from assms obtain \<Psi> where \<Psi>:
     "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-    "map (uncurry (op \<squnion>)) \<Psi> :\<turnstile> \<phi>"
-    "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> (\<psi> # \<Phi>)"
+    "map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi>"
+    "map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> (\<psi> # \<Phi>)"
     by fastforce
-  let ?\<Gamma>\<^sub>0 = "map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)"
+  let ?\<Gamma>\<^sub>0 = "map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)"
   from \<Psi>(3) obtain \<Delta> where \<Delta>:
     "mset (map snd \<Delta>) \<subseteq># mset ?\<Gamma>\<^sub>0"
-    "map (uncurry (op \<squnion>)) \<Delta> :\<turnstile> \<psi>"
-    "(map (uncurry (op \<rightarrow>)) \<Delta> @ ?\<Gamma>\<^sub>0 \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
+    "map (uncurry op \<squnion>) \<Delta> :\<turnstile> \<psi>"
+    "(map (uncurry op \<rightarrow>) \<Delta> @ ?\<Gamma>\<^sub>0 \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
     using segmented_deduction.simps(2) by blast
-  let ?\<Psi>' = "AWitness \<Psi> \<Delta>"
-  let ?\<Gamma>\<^sub>1 = "map (uncurry (op \<rightarrow>)) ?\<Psi>' @ \<Gamma> \<ominus> (map snd ?\<Psi>')"
-  let ?\<Delta>' = "BWitness \<Psi> \<Delta>"
-  have "(map (uncurry (op \<rightarrow>)) ?\<Delta>' @ ?\<Gamma>\<^sub>1 \<ominus> (map snd ?\<Delta>')) $\<turnstile> \<Phi>"
-       "map (uncurry (op \<squnion>)) \<Psi> \<preceq> map (uncurry (op \<squnion>)) ?\<Delta>'"
+  let ?\<Psi>' = "\<XX> \<Psi> \<Delta>"
+  let ?\<Gamma>\<^sub>1 = "map (uncurry op \<rightarrow>) ?\<Psi>' @ \<Gamma> \<ominus> (map snd ?\<Psi>')"
+  let ?\<Delta>' = "\<YY> \<Psi> \<Delta>"
+  have "(map (uncurry op \<rightarrow>) ?\<Delta>' @ ?\<Gamma>\<^sub>1 \<ominus> (map snd ?\<Delta>')) $\<turnstile> \<Phi>"
+       "map (uncurry op \<squnion>) \<Psi> \<preceq> map (uncurry op \<squnion>) ?\<Delta>'"
     using \<Psi>(1) \<Delta>(1) \<Delta>(3) 
-          AWitness_BWitness_segmented_deduction_intro 
-          BWitness_left_stronger_theory 
+          XWitness_YWitness_segmented_deduction_intro 
+          YWitness_left_stronger_theory 
     by auto
   hence "?\<Gamma>\<^sub>1 $\<turnstile> (\<phi> # \<Phi>)"
     using \<Psi>(1) \<Psi>(2) \<Delta>(1) 
-          BWitness_msub segmented_deduction.simps(2)
+          YWitness_msub segmented_deduction.simps(2)
           stronger_theory_deduction_monotonic
     by blast
   thus ?thesis
     using \<Psi>(1) \<Delta>(1) \<Delta>(2) 
-          AWitness_msub 
-          AWitness_right_stronger_theory
+          XWitness_msub 
+          XWitness_right_stronger_theory
           segmented_deduction.simps(2)
           stronger_theory_deduction_monotonic
     by blast
@@ -3346,10 +3338,10 @@ qed
 
 lemma (in Classical_Propositional_Logic) witness_stronger_theory:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
-  shows "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
+  shows "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
 proof -
   have "\<forall> \<Gamma>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<longrightarrow>
-             (map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
+             (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -3362,19 +3354,19 @@ proof -
       hence "mset (map snd \<Psi>) \<subseteq># mset (remove1 (snd \<psi>) \<Gamma>)"
         by (simp add: insert_subset_eq_iff)
       with Cons have 
-        "(map (uncurry (op \<rightarrow>)) \<Psi> @ (remove1 (snd \<psi>) \<Gamma>) \<ominus> (map snd \<Psi>)) \<preceq> (remove1 ?\<gamma> \<Gamma>)"
+        "(map (uncurry op \<rightarrow>) \<Psi> @ (remove1 (snd \<psi>) \<Gamma>) \<ominus> (map snd \<Psi>)) \<preceq> (remove1 ?\<gamma> \<Gamma>)"
         by blast
-      hence "(map (uncurry (op \<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (remove1 ?\<gamma> \<Gamma>)"
+      hence "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (remove1 ?\<gamma> \<Gamma>)"
         by (simp add: stronger_theory_relation_alt_def)
       moreover
-      have "(uncurry (op \<rightarrow>)) = (\<lambda> \<psi>. fst \<psi> \<rightarrow> snd \<psi>)" 
+      have "(uncurry op \<rightarrow>) = (\<lambda> \<psi>. fst \<psi> \<rightarrow> snd \<psi>)" 
         by fastforce
       hence "\<turnstile> ?\<gamma> \<rightarrow> uncurry (op \<rightarrow>) \<psi>"
         using Axiom_1 by simp
       ultimately have 
-        "(map (uncurry (op \<rightarrow>)) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
+        "(map (uncurry op \<rightarrow>) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
         using stronger_theory_left_right_cons by auto
-      hence "(map (uncurry (op \<rightarrow>)) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> \<Gamma>"
+      hence "(map (uncurry op \<rightarrow>) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> \<Gamma>"
         using stronger_theory_relation_alt_def 
               \<open>mset (map snd (\<psi> # \<Psi>)) \<subseteq># mset \<Gamma>\<close>  
               mset_subset_eqD 
@@ -3484,12 +3476,12 @@ proof -
         moreover
         from \<open>\<Gamma> $\<turnstile> (\<phi> # \<Phi>)\<close> obtain \<Delta> where 
           \<Delta>: "mset (map snd \<Delta>) \<subseteq># mset \<Gamma>"
-              "map (uncurry (op \<squnion>)) \<Delta> :\<turnstile> \<phi>"
-              "(map (uncurry (op \<rightarrow>)) \<Delta> @ \<Gamma> \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
+              "map (uncurry op \<squnion>) \<Delta> :\<turnstile> \<phi>"
+              "(map (uncurry op \<rightarrow>) \<Delta> @ \<Gamma> \<ominus> (map snd \<Delta>)) $\<turnstile> \<Phi>"
           by auto
-        ultimately have "(map (uncurry (op \<rightarrow>)) \<Delta> @ \<Gamma> \<ominus> (map snd \<Delta>)) $\<turnstile> remove1 \<psi> \<Psi>"
+        ultimately have "(map (uncurry op \<rightarrow>) \<Delta> @ \<Gamma> \<ominus> (map snd \<Delta>)) $\<turnstile> remove1 \<psi> \<Psi>"
           using Cons by blast
-        moreover have "map (uncurry (op \<squnion>)) \<Delta> :\<turnstile> \<psi>"
+        moreover have "map (uncurry op \<squnion>) \<Delta> :\<turnstile> \<psi>"
           using \<Delta>(2) \<Sigma>(3) \<open>(\<phi>,\<psi>) \<in> set \<Sigma>\<close> 
                 list_deduction_weaken 
                 list_deduction_modus_ponens 
@@ -3529,10 +3521,10 @@ qed
   
 lemma (in Classical_Propositional_Logic) segmented_witness_right_split:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Phi>"
-  shows "\<Gamma> $\<turnstile> (map (uncurry (op \<squnion>)) \<Psi> @ map (uncurry (op \<rightarrow>)) \<Psi> @ \<Phi> \<ominus> (map snd \<Psi>)) = \<Gamma> $\<turnstile> \<Phi>"
+  shows "\<Gamma> $\<turnstile> (map (uncurry op \<squnion>) \<Psi> @ map (uncurry op \<rightarrow>) \<Psi> @ \<Phi> \<ominus> (map snd \<Psi>)) = \<Gamma> $\<turnstile> \<Phi>"
 proof -
   have "\<forall> \<Gamma> \<Phi>. mset (map snd \<Psi>) \<subseteq># mset \<Phi> \<longrightarrow> 
-      \<Gamma> $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> (map (uncurry (op \<squnion>)) \<Psi> @ map (uncurry (op \<rightarrow>)) \<Psi> @ \<Phi> \<ominus> (map snd \<Psi>))"
+      \<Gamma> $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> (map (uncurry op \<squnion>) \<Psi> @ map (uncurry op \<rightarrow>) \<Psi> @ \<Phi> \<ominus> (map snd \<Psi>))"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -3575,18 +3567,18 @@ proof -
 qed
 
 primrec (in Classical_Propositional_Logic)
-  submergeWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  submergeWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<II>")
   where
-    "submergeWitness \<Sigma> [] = map (\<lambda> \<sigma>. (\<bottom>, (uncurry op \<squnion>) \<sigma>)) \<Sigma>"
-  | "submergeWitness \<Sigma> (\<delta> # \<Delta>) = 
+    "\<II> \<Sigma> [] = map (\<lambda> \<sigma>. (\<bottom>, (uncurry op \<squnion>) \<sigma>)) \<Sigma>"
+  | "\<II> \<Sigma> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<sigma>. (uncurry op \<rightarrow>) \<sigma> = snd \<delta>) \<Sigma> of 
-             None \<Rightarrow> submergeWitness \<Sigma> \<Delta>
-           | Some \<sigma> \<Rightarrow> (fst \<sigma>, (fst \<delta> \<sqinter> fst \<sigma>) \<squnion> snd \<sigma>) # (submergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>))"
+             None \<Rightarrow> \<II> \<Sigma> \<Delta>
+           | Some \<sigma> \<Rightarrow> (fst \<sigma>, (fst \<delta> \<sqinter> fst \<sigma>) \<squnion> snd \<sigma>) # (\<II> (remove1 \<sigma> \<Sigma>) \<Delta>))"
     
 lemma (in Classical_Propositional_Logic) submergeWitness_stronger_theory_left:
-   "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (submergeWitness \<Sigma> \<Delta>)"
+   "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<II> \<Sigma> \<Delta>)"
 proof -
-  have "\<forall> \<Sigma>. map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (submergeWitness \<Sigma> \<Delta>)"
+  have "\<forall> \<Sigma>. map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<II> \<Sigma> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     {
@@ -3598,7 +3590,7 @@ proof -
           using Ex_Falso_Quodlibet Modus_Ponens excluded_middle_elimination by blast
       }
       note tautology = this
-      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (submergeWitness \<Sigma> [])"
+      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<II> \<Sigma> [])"
         by (induct \<Sigma>, 
             simp, 
             simp add: stronger_theory_left_right_cons tautology) 
@@ -3608,7 +3600,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma>
-      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (submergeWitness \<Sigma> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<II> \<Sigma> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<sigma>. (uncurry op \<rightarrow>) \<sigma> = snd \<delta>) \<Sigma> = None")
         case True
         then show ?thesis using Cons by simp
@@ -3639,11 +3631,11 @@ proof -
         hence "\<turnstile> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta>) \<rightarrow> (uncurry op \<squnion>) \<sigma>" using tautology by simp
         moreover
         have "map (uncurry op \<squnion>) (remove1 \<sigma> \<Sigma>) 
-             \<preceq> map (uncurry op \<squnion>) (submergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>)" 
+             \<preceq> map (uncurry op \<squnion>) (\<II> (remove1 \<sigma> \<Sigma>) \<Delta>)" 
           using Cons by simp
         ultimately have 
           "map (uncurry op \<squnion>) (\<sigma> # (remove1 \<sigma> \<Sigma>))
-           \<preceq> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta> # map (uncurry op \<squnion>) (submergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>))"
+           \<preceq> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta> # map (uncurry op \<squnion>) (\<II> (remove1 \<sigma> \<Sigma>) \<Delta>))"
           apply simp
           using stronger_theory_left_right_cons by blast
         moreover from \<sigma>(3) have "mset \<Sigma> = mset (\<sigma> # (remove1 \<sigma> \<Sigma>))"
@@ -3663,16 +3655,15 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) submergeWitness_msub:
-  "mset (map snd (submergeWitness \<Sigma> \<Delta>)) \<subseteq># mset (map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>))"
+  "mset (map snd (\<II> \<Sigma> \<Delta>)) \<subseteq># mset (map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>))"
 proof -
-  have "\<forall> \<Sigma>. mset (map snd (submergeWitness \<Sigma> \<Delta>)) \<subseteq># 
-             mset (map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>))"
+  have "\<forall> \<Sigma>. mset (map snd (\<II> \<Sigma> \<Delta>)) \<subseteq># mset (map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>))"
   proof (induct \<Delta>)
     case Nil
     {
       fix \<Sigma>
-      have "mset (map snd (submergeWitness \<Sigma> [])) \<subseteq># 
-            mset (map (uncurry op \<squnion>) (mergeWitness \<Sigma> []))"
+      have "mset (map snd (\<II> \<Sigma> [])) \<subseteq># 
+            mset (map (uncurry op \<squnion>) (\<JJ> \<Sigma> []))"
         by (induct \<Sigma>, simp+)
     }
     then show ?case by blast
@@ -3680,8 +3671,8 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma>
-      have "mset (map snd (submergeWitness \<Sigma> (\<delta> # \<Delta>))) \<subseteq># 
-            mset (map (uncurry op \<squnion>) (mergeWitness \<Sigma> (\<delta> # \<Delta>)))"
+      have "mset (map snd (\<II> \<Sigma> (\<delta> # \<Delta>))) \<subseteq># 
+            mset (map (uncurry op \<squnion>) (\<JJ> \<Sigma> (\<delta> # \<Delta>)))"
         using Cons
         by (cases "find (\<lambda> \<sigma>. (uncurry op \<rightarrow>) \<sigma> = snd \<delta>) \<Sigma> = None", 
             simp, 
@@ -3697,15 +3688,11 @@ proof -
 qed
   
 lemma (in Classical_Propositional_Logic) submergeWitness_stronger_theory_right:
-   "map (uncurry op \<squnion>) \<Delta>
-    \<preceq>  (  map (uncurry op \<rightarrow>) (submergeWitness \<Sigma> \<Delta>) 
-         @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>) 
-           \<ominus> map snd (submergeWitness \<Sigma> \<Delta>))"
+   "map (uncurry op \<squnion>) \<Delta> 
+ \<preceq> (map (uncurry op \<rightarrow>) (\<II> \<Sigma> \<Delta>) @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>) \<ominus> map snd (\<II> \<Sigma> \<Delta>))"
 proof -
   have "\<forall> \<Sigma>. map (uncurry op \<squnion>) \<Delta> 
-           \<preceq> (  map (uncurry op \<rightarrow>) (submergeWitness \<Sigma> \<Delta>) 
-              @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>) 
-                \<ominus> map snd (submergeWitness \<Sigma> \<Delta>))"
+          \<preceq> (map (uncurry op \<rightarrow>) (\<II> \<Sigma> \<Delta>) @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>)  \<ominus> map snd (\<II> \<Sigma> \<Delta>))"
   proof(induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3714,16 +3701,16 @@ proof -
     {
       fix \<Sigma>
       have "map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<preceq>
-           (  map (uncurry op \<rightarrow>) (submergeWitness \<Sigma> (\<delta> # \<Delta>)) 
-            @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> (\<delta> # \<Delta>)) 
-               \<ominus> map snd (submergeWitness \<Sigma> (\<delta> # \<Delta>)))"
+           (  map (uncurry op \<rightarrow>) (\<II> \<Sigma> (\<delta> # \<Delta>)) 
+            @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> (\<delta> # \<Delta>)) 
+               \<ominus> map snd (\<II> \<Sigma> (\<delta> # \<Delta>)))"
       proof (cases "find (\<lambda> \<sigma>. (uncurry op \<rightarrow>) \<sigma> = snd \<delta>) \<Sigma> = None")
         case True
         from Cons obtain \<Phi> where \<Phi>: 
           "map snd \<Phi> = map (uncurry op \<squnion>) \<Delta>"
           "mset (map fst \<Phi>) \<subseteq>#
-             mset (map (uncurry op \<rightarrow>) (submergeWitness \<Sigma> \<Delta>) 
-                   @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>) \<ominus> map snd (submergeWitness \<Sigma> \<Delta>))"
+             mset (map (uncurry op \<rightarrow>) (\<II> \<Sigma> \<Delta>) 
+                   @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>) \<ominus> map snd (\<II> \<Sigma> \<Delta>))"
           "\<forall>(\<gamma>, \<sigma>)\<in>set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>" 
           unfolding stronger_theory_relation_def
           by fastforce
@@ -3731,9 +3718,9 @@ proof -
         have "map snd ?\<Phi>' = map (uncurry op \<squnion>) (\<delta> # \<Delta>)" using \<Phi>(1) by simp
         moreover have 
           "mset (map fst ?\<Phi>') \<subseteq>#
-             mset (map (uncurry op \<rightarrow>) (submergeWitness \<Sigma> (\<delta> # \<Delta>)) 
-                   @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> (\<delta> # \<Delta>)) 
-                      \<ominus> map snd (submergeWitness \<Sigma> (\<delta> # \<Delta>)))"
+             mset (map (uncurry op \<rightarrow>) (\<II> \<Sigma> (\<delta> # \<Delta>)) 
+                   @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> (\<delta> # \<Delta>)) 
+                      \<ominus> map snd (\<II> \<Sigma> (\<delta> # \<Delta>)))"
           using True \<Phi>(2)
           by (simp, 
               smt Multiset.diff_right_commute 
@@ -3759,10 +3746,10 @@ proof -
           by fastforce
         moreover from Cons have
           "map (uncurry op \<squnion>) \<Delta> \<preceq>
-          (map (uncurry op \<rightarrow>) (submergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>) @
+          (map (uncurry op \<rightarrow>) (\<II> (remove1 \<sigma> \<Sigma>) \<Delta>) @
             remove1 ((fst \<delta> \<sqinter> fst \<sigma>) \<squnion> snd \<sigma>)
-             (((fst \<delta> \<sqinter> fst \<sigma>) \<squnion> snd \<sigma> # map (uncurry op \<squnion>) (mergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>)) 
-                \<ominus> map snd (submergeWitness (remove1 \<sigma> \<Sigma>) \<Delta>)))"
+             (((fst \<delta> \<sqinter> fst \<sigma>) \<squnion> snd \<sigma> # map (uncurry op \<squnion>) (\<JJ> (remove1 \<sigma> \<Sigma>) \<Delta>)) 
+                \<ominus> map snd (\<II> (remove1 \<sigma> \<Sigma>) \<Delta>)))"
           unfolding stronger_theory_relation_alt_def
           by simp
         moreover
@@ -3796,19 +3783,19 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) mergeWitness_cons_segmented_deduction:
-  assumes "map (uncurry (op \<squnion>)) \<Sigma> :\<turnstile> \<phi>"
+  assumes "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
       and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>)"
       and "map (uncurry op \<squnion>) \<Delta> $\<turnstile> \<Phi>"
-    shows "map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>) $\<turnstile> (\<phi> # \<Phi>)"
+    shows "map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>) $\<turnstile> (\<phi> # \<Phi>)"
 proof -
-  let ?\<Sigma>' = "submergeWitness \<Sigma> \<Delta>"
-  let ?\<Gamma> = "map (uncurry op \<rightarrow>) ?\<Sigma>' @ map (uncurry op \<squnion>) (mergeWitness \<Sigma> \<Delta>) \<ominus> map snd ?\<Sigma>'"
+  let ?\<Sigma>' = "\<II> \<Sigma> \<Delta>"
+  let ?\<Gamma> = "map (uncurry op \<rightarrow>) ?\<Sigma>' @ map (uncurry op \<squnion>) (\<JJ> \<Sigma> \<Delta>) \<ominus> map snd ?\<Sigma>'"
   have "?\<Gamma> $\<turnstile> \<Phi>"
     using assms(3) 
           submergeWitness_stronger_theory_right
           segmented_stronger_theory_left_monotonic 
     by blast
-  moreover have "map (uncurry (op \<squnion>)) ?\<Sigma>' :\<turnstile> \<phi>"
+  moreover have "map (uncurry op \<squnion>) ?\<Sigma>' :\<turnstile> \<phi>"
     using assms(1) 
           stronger_theory_deduction_monotonic 
           submergeWitness_stronger_theory_left
@@ -3819,41 +3806,41 @@ proof -
 qed
 
 primrec (in Classical_Propositional_Logic)
-  recoverWitnessA :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  recoverWitnessA :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<PP>")
   where
-    "recoverWitnessA \<Sigma> [] = \<Sigma>"
-  | "recoverWitnessA \<Sigma> (\<delta> # \<Delta>) = 
+    "\<PP> \<Sigma> [] = \<Sigma>"
+  | "\<PP> \<Sigma> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<sigma>. snd \<sigma> = (uncurry op \<squnion>) \<delta>) \<Sigma> of 
-             None \<Rightarrow> recoverWitnessA \<Sigma> \<Delta>
-           | Some \<sigma> \<Rightarrow> (fst \<sigma> \<squnion> fst \<delta>, snd \<delta>) # (recoverWitnessA (remove1 \<sigma> \<Sigma>) \<Delta>))"
+             None \<Rightarrow> \<PP> \<Sigma> \<Delta>
+           | Some \<sigma> \<Rightarrow> (fst \<sigma> \<squnion> fst \<delta>, snd \<delta>) # (\<PP> (remove1 \<sigma> \<Sigma>) \<Delta>))"
 
 primrec (in Classical_Propositional_Logic)
-  recoverComplementA :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  recoverComplementA :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<PP>\<^sup>C")
   where
-    "recoverComplementA \<Sigma> [] = []"
-  | "recoverComplementA \<Sigma> (\<delta> # \<Delta>) = 
+    "\<PP>\<^sup>C \<Sigma> [] = []"
+  | "\<PP>\<^sup>C \<Sigma> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<sigma>. snd \<sigma> = (uncurry op \<squnion>) \<delta>) \<Sigma> of 
-             None \<Rightarrow> \<delta> # recoverComplementA \<Sigma> \<Delta>
-           | Some \<sigma> \<Rightarrow> (recoverComplementA (remove1 \<sigma> \<Sigma>) \<Delta>))"    
+             None \<Rightarrow> \<delta> # \<PP>\<^sup>C \<Sigma> \<Delta>
+           | Some \<sigma> \<Rightarrow> (\<PP>\<^sup>C (remove1 \<sigma> \<Sigma>) \<Delta>))"    
     
 primrec (in Classical_Propositional_Logic)
-  recoverWitnessB :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list"
+  recoverWitnessB :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<QQ>")
   where
-    "recoverWitnessB \<Sigma> [] = []"
-  | "recoverWitnessB \<Sigma> (\<delta> # \<Delta>) = 
+    "\<QQ> \<Sigma> [] = []"
+  | "\<QQ> \<Sigma> (\<delta> # \<Delta>) = 
        (case find (\<lambda> \<sigma>. (snd \<sigma>) = (uncurry op \<squnion>) \<delta>) \<Sigma> of 
-             None \<Rightarrow> \<delta> # recoverWitnessB \<Sigma> \<Delta>
-           | Some \<sigma> \<Rightarrow> (fst \<delta>, (fst \<sigma> \<squnion> fst \<delta>) \<rightarrow> snd \<delta>) # (recoverWitnessB (remove1 \<sigma> \<Sigma>) \<Delta>))"
+             None \<Rightarrow> \<delta> # \<QQ> \<Sigma> \<Delta>
+           | Some \<sigma> \<Rightarrow> (fst \<delta>, (fst \<sigma> \<squnion> fst \<delta>) \<rightarrow> snd \<delta>) # (\<QQ> (remove1 \<sigma> \<Sigma>) \<Delta>))"
     
 lemma (in Classical_Propositional_Logic) recoverWitnessA_left_stronger_theory:
-  "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (recoverWitnessA \<Sigma> \<Delta>)"
+  "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> \<Delta>)"
 proof -
-  have "\<forall> \<Sigma>. map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (recoverWitnessA \<Sigma> \<Delta>)"
+  have "\<forall> \<Sigma>. map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     {
       fix \<Sigma>
-      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (recoverWitnessA \<Sigma> [])"
+      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> [])"
         by(induct \<Sigma>, simp+)
     }
     then show ?case by auto
@@ -3861,7 +3848,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma>
-      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (recoverWitnessA \<Sigma> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<squnion>) \<Sigma> \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         then show ?thesis using Cons by simp
@@ -3883,10 +3870,10 @@ proof -
           by auto 
         moreover
         have "map (uncurry op \<squnion>) (remove1 \<sigma> \<Sigma>)
-            \<preceq> map (uncurry op \<squnion>) (recoverWitnessA (remove1 \<sigma> \<Sigma>) \<Delta>)"
+            \<preceq> map (uncurry op \<squnion>) (\<PP> (remove1 \<sigma> \<Sigma>) \<Delta>)"
           using Cons by simp
         ultimately have "map (uncurry op \<squnion>) (\<sigma> # (remove1 \<sigma> \<Sigma>)) 
-                       \<preceq> map (uncurry op \<squnion>) (recoverWitnessA \<Sigma> (\<delta> # \<Delta>))"
+                       \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> (\<delta> # \<Delta>))"
           using \<sigma>(1)
           apply simp
           using stronger_theory_left_right_cons by blast
@@ -3908,10 +3895,10 @@ qed
 
 lemma (in Classical_Propositional_Logic) recoverWitnessA_mset_equiv:
   assumes "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
-  shows "mset (map snd (recoverWitnessA \<Sigma> \<Delta> @ recoverComplementA \<Sigma> \<Delta>)) = mset (map snd \<Delta>)"
+  shows "mset (map snd (\<PP> \<Sigma> \<Delta> @ \<PP>\<^sup>C \<Sigma> \<Delta>)) = mset (map snd \<Delta>)"
 proof -
   have "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)
-         \<longrightarrow> mset (map snd (recoverWitnessA \<Sigma> \<Delta> @ recoverComplementA \<Sigma> \<Delta>)) = mset (map snd \<Delta>)"
+         \<longrightarrow> mset (map snd (\<PP> \<Sigma> \<Delta> @ \<PP>\<^sup>C \<Sigma> \<Delta>)) = mset (map snd \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3920,8 +3907,7 @@ proof -
     {
       fix \<Sigma> :: "('a \<times> 'a) list"
       assume \<star>: "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) (\<delta> # \<Delta>))"
-      have "mset (map snd (recoverWitnessA \<Sigma> (\<delta> # \<Delta>) @ recoverComplementA \<Sigma> (\<delta> # \<Delta>))) 
-          = mset (map snd (\<delta> # \<Delta>))"
+      have "mset (map snd (\<PP> \<Sigma> (\<delta> # \<Delta>) @ \<PP>\<^sup>C \<Sigma> (\<delta> # \<Delta>))) = mset (map snd (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         hence "uncurry op \<squnion> \<delta> \<notin> set (map snd \<Sigma>)"
@@ -3970,12 +3956,12 @@ qed
 
 lemma (in Classical_Propositional_Logic) recoverWitnessB_stronger_theory:
   assumes "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
-  shows "(map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) \<Delta> \<ominus> map snd \<Sigma>) 
-         \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> \<Delta>)"
+  shows "(map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) \<Delta> \<ominus> map snd \<Sigma>)
+         \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> \<Delta>)"
 proof -
   have "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)
         \<longrightarrow> (map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) \<Delta> \<ominus> map snd \<Sigma>) 
-            \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> \<Delta>)"
+            \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> \<Delta>)"
   proof(induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -3985,7 +3971,7 @@ proof -
       fix \<Sigma> :: "('a \<times> 'a) list"
       assume \<star>: "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) (\<delta> # \<Delta>))"
       have "(map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) (\<delta> # \<Delta>) \<ominus> map snd \<Sigma>) 
-            \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> (\<delta> # \<Delta>))"
+            \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         hence "uncurry op \<squnion> \<delta> \<notin> set (map snd \<Sigma>)"
@@ -4011,11 +3997,11 @@ proof -
                     subset_eq_diff_conv)
         moreover from this have 
           "(map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) \<Delta> \<ominus> map snd \<Sigma>) 
-           \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> \<Delta>)"
+           \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> \<Delta>)"
           using Cons
           by auto
         hence "(uncurry op \<squnion> \<delta> # map (uncurry op \<rightarrow>) \<Sigma> @ map (uncurry op \<squnion>) \<Delta> \<ominus> map snd \<Sigma>) 
-               \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> (\<delta> # \<Delta>))"
+               \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> (\<delta> # \<Delta>))"
           using True
           by (simp add: stronger_theory_left_right_cons trivial_implication)
         ultimately show ?thesis 
@@ -4063,7 +4049,7 @@ proof -
                     mset_map
                     uncurry_def
                     mset_subset_eq_add_mset_cancel)
-        with Cons have \<heartsuit>: "?\<Gamma>\<^sub>0 \<preceq> map (uncurry op \<squnion>) (recoverWitnessB (remove1 \<sigma> \<Sigma>) \<Delta>)" by simp
+        with Cons have \<heartsuit>: "?\<Gamma>\<^sub>0 \<preceq> map (uncurry op \<squnion>) (\<QQ> (remove1 \<sigma> \<Sigma>) \<Delta>)" by simp
         {
           fix \<alpha> \<beta> \<gamma>
           have "\<turnstile> (\<beta> \<squnion> (\<alpha> \<squnion> \<beta>) \<rightarrow> \<gamma>) \<rightarrow> (\<alpha> \<rightarrow> (\<beta> \<squnion> \<gamma>))"
@@ -4076,7 +4062,7 @@ proof -
         }
         hence "\<turnstile> (?\<beta> \<squnion> (?\<alpha> \<squnion> ?\<beta>) \<rightarrow> ?\<gamma>) \<rightarrow> (?\<alpha> \<rightarrow> (?\<beta> \<squnion> ?\<gamma>))"
           by simp
-        hence "(?\<alpha> \<rightarrow> (?\<beta> \<squnion> ?\<gamma>) # ?\<Gamma>\<^sub>0) \<preceq> map (uncurry op \<squnion>) (recoverWitnessB \<Sigma> (\<delta> # \<Delta>))"
+        hence "(?\<alpha> \<rightarrow> (?\<beta> \<squnion> ?\<gamma>) # ?\<Gamma>\<^sub>0) \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> (\<delta> # \<Delta>))"
           using \<sigma>(1) \<heartsuit>
           apply simp
           using stronger_theory_left_right_cons 
@@ -4092,13 +4078,11 @@ qed
 
 lemma (in Classical_Propositional_Logic) recoverWitnessB_mset_equiv:
   assumes "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
-  shows "mset (map snd (recoverWitnessB \<Sigma> \<Delta>)) 
-       = mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) 
-               @ map snd \<Delta> \<ominus> map snd (recoverWitnessA \<Sigma> \<Delta>))"
+  shows "mset (map snd (\<QQ> \<Sigma> \<Delta>)) 
+       = mset (map (uncurry op \<rightarrow>) (\<PP> \<Sigma> \<Delta>) @ map snd \<Delta> \<ominus> map snd (\<PP> \<Sigma> \<Delta>))"
 proof -
   have "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)
-       \<longrightarrow>   mset (map snd (recoverWitnessB \<Sigma> \<Delta>))  
-           = mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) @ map snd (recoverComplementA \<Sigma> \<Delta>))"
+       \<longrightarrow>   mset (map snd (\<QQ> \<Sigma> \<Delta>)) = mset (map (uncurry op \<rightarrow>) (\<PP> \<Sigma> \<Delta>) @ map snd (\<PP>\<^sup>C \<Sigma> \<Delta>))"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -4107,9 +4091,8 @@ proof -
     {
       fix \<Sigma> :: "('a \<times> 'a) list"
       assume \<star>: "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) (\<delta> # \<Delta>))"
-      have "mset (map snd (recoverWitnessB \<Sigma> (\<delta> # \<Delta>))) 
-         =  mset (map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> (\<delta> # \<Delta>)) @ 
-                  map snd (recoverComplementA \<Sigma> (\<delta> # \<Delta>)))"
+      have "mset (map snd (\<QQ> \<Sigma> (\<delta> # \<Delta>))) 
+         =  mset (map (uncurry op \<rightarrow>) (\<PP> \<Sigma> (\<delta> # \<Delta>)) @ map snd (\<PP>\<^sup>C \<Sigma> (\<delta> # \<Delta>)))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         hence "uncurry op \<squnion> \<delta> \<notin> set (map snd \<Sigma>)"
@@ -4159,9 +4142,9 @@ proof -
 qed
   
 lemma (in Classical_Propositional_Logic) recoverWitnessB_right_stronger_theory:
-  "map (uncurry op \<rightarrow>) \<Delta> \<preceq> map (uncurry op \<rightarrow>) (recoverWitnessB \<Sigma> \<Delta>)"
+  "map (uncurry op \<rightarrow>) \<Delta> \<preceq> map (uncurry op \<rightarrow>) (\<QQ> \<Sigma> \<Delta>)"
 proof -
-  have "\<forall> \<Sigma>. map (uncurry op \<rightarrow>) \<Delta> \<preceq> map (uncurry op \<rightarrow>) (recoverWitnessB \<Sigma> \<Delta>)"
+  have "\<forall> \<Sigma>. map (uncurry op \<rightarrow>) \<Delta> \<preceq> map (uncurry op \<rightarrow>) (\<QQ> \<Sigma> \<Delta>)"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -4169,7 +4152,7 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma>
-      have "map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<rightarrow>) (recoverWitnessB \<Sigma> (\<delta> # \<Delta>))"
+      have "map (uncurry op \<rightarrow>) (\<delta> # \<Delta>) \<preceq> map (uncurry op \<rightarrow>) (\<QQ> \<Sigma> (\<delta> # \<Delta>))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         then show ?thesis 
@@ -4202,18 +4185,15 @@ qed
 lemma (in Classical_Propositional_Logic) recoverWitnesses_mset_equiv:
   assumes "mset (map snd \<Delta>) \<subseteq># mset \<Gamma>"
       and "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)"
-    shows "mset (\<Gamma> \<ominus> map snd \<Delta>) =
-           mset ((map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) 
-                 @ \<Gamma> \<ominus> map snd (recoverWitnessA \<Sigma> \<Delta>)) \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>))"
+    shows "mset (\<Gamma> \<ominus> map snd \<Delta>) 
+         = mset ((map (uncurry op \<rightarrow>) (\<PP> \<Sigma> \<Delta>) @ \<Gamma> \<ominus> map snd (\<PP> \<Sigma> \<Delta>)) \<ominus> map snd (\<QQ> \<Sigma> \<Delta>))"
 proof -
-  have "mset (\<Gamma> \<ominus> map snd \<Delta>) = 
-        mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>) \<ominus> map snd (recoverWitnessA \<Sigma> \<Delta>))"
+  have "mset (\<Gamma> \<ominus> map snd \<Delta>) = mset (\<Gamma> \<ominus> map snd (\<PP>\<^sup>C \<Sigma> \<Delta>) \<ominus> map snd (\<PP> \<Sigma> \<Delta>))"
     using assms(2) recoverWitnessA_mset_equiv
     by (simp add: union_commute)
   moreover have "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) \<Delta>)
-                  \<longrightarrow> mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>)) = 
-                      (mset ((map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) @ \<Gamma>) 
-                             \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>)))"
+                  \<longrightarrow> mset (\<Gamma> \<ominus> map snd (\<PP>\<^sup>C \<Sigma> \<Delta>))
+                    = (mset ((map (uncurry op \<rightarrow>) (\<PP> \<Sigma> \<Delta>) @ \<Gamma>) \<ominus> map snd (\<QQ> \<Sigma> \<Delta>)))"
     using assms(1)
   proof (induct \<Delta>)
     case Nil
@@ -4228,9 +4208,8 @@ proof -
     {
       fix \<Sigma> :: "('a \<times> 'a) list"
       assume \<star>: "mset (map snd \<Sigma>) \<subseteq># mset (map (uncurry op \<squnion>) (\<delta> # \<Delta>))"
-      have "mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> (\<delta> # \<Delta>))) =
-            mset ((map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> (\<delta> # \<Delta>)) @ \<Gamma>) 
-                  \<ominus> map snd (recoverWitnessB \<Sigma> (\<delta> # \<Delta>)))"
+      have "mset (\<Gamma> \<ominus> map snd (\<PP>\<^sup>C \<Sigma> (\<delta> # \<Delta>))) 
+          = mset ((map (uncurry op \<rightarrow>) (\<PP> \<Sigma> (\<delta> # \<Delta>)) @ \<Gamma>) \<ominus> map snd (\<QQ> \<Sigma> (\<delta> # \<Delta>)))"
       proof (cases "find (\<lambda> \<sigma>. snd \<sigma> = uncurry op \<squnion> \<delta>) \<Sigma> = None")
         case True
         hence "uncurry op \<squnion> \<delta> \<notin> set (map snd \<Sigma>)"
@@ -4251,9 +4230,8 @@ proof -
                   mset_eq_perm 
                   perm_append_single 
                   subset_eq_diff_conv union_code)
-        with Cons.hyps \<heartsuit> have "mset (\<Gamma> \<ominus> map snd (recoverComplementA \<Sigma> \<Delta>)) = 
-                               mset ((map (uncurry op \<rightarrow>) (recoverWitnessA \<Sigma> \<Delta>) @ \<Gamma>) 
-                                     \<ominus> map snd (recoverWitnessB \<Sigma> \<Delta>))"
+        with Cons.hyps \<heartsuit> have "mset (\<Gamma> \<ominus> map snd (\<PP>\<^sup>C \<Sigma> \<Delta>))
+                             = mset ((map (uncurry op \<rightarrow>) (\<PP> \<Sigma> \<Delta>) @ \<Gamma>) \<ominus> map snd (\<QQ> \<Sigma> \<Delta>))"
           by simp
         thus ?thesis using True \<open>snd \<delta> \<in> set \<Gamma>\<close> by simp
       next
@@ -4271,9 +4249,9 @@ proof -
                           image_mset_add_mset 
                           in_multiset_in_set 
                           mset_subset_eq_add_mset_cancel)
-        with Cons.hyps have "mset (\<Gamma> \<ominus> map snd (recoverComplementA (remove1 \<sigma> \<Sigma>) \<Delta>)) 
-                           = mset ((map (uncurry op \<rightarrow>) (recoverWitnessA (remove1 \<sigma> \<Sigma>) \<Delta>) @ \<Gamma>) 
-                                   \<ominus> map snd (recoverWitnessB (remove1 \<sigma> \<Sigma>) \<Delta>))"
+        with Cons.hyps have "mset (\<Gamma> \<ominus> map snd (\<PP>\<^sup>C (remove1 \<sigma> \<Sigma>) \<Delta>)) 
+                           = mset ((map (uncurry op \<rightarrow>) (\<PP> (remove1 \<sigma> \<Sigma>) \<Delta>) @ \<Gamma>) 
+                                   \<ominus> map snd (\<QQ> (remove1 \<sigma> \<Sigma>) \<Delta>))"
           using \<heartsuit> by blast
         then show ?thesis using \<sigma> by simp
       qed
@@ -4290,14 +4268,14 @@ proof -
             mset_append mset_map uncurry_def)
 qed
   
-lemma (in Classical_Propositional_Logic) segmented_deduction_generalized_witness:
+theorem (in Classical_Propositional_Logic) segmented_deduction_generalized_witness:
   "\<Gamma> $\<turnstile> (\<Phi> @ \<Psi>) = (\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and> 
-                         map (uncurry (op \<squnion>)) \<Sigma> $\<turnstile> \<Phi> \<and> 
-                         (map (uncurry (op \<rightarrow>)) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Psi>)"
+                         map (uncurry op \<squnion>) \<Sigma> $\<turnstile> \<Phi> \<and> 
+                         (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Psi>)"
 proof -
   have "\<forall> \<Gamma> \<Psi>. \<Gamma> $\<turnstile> (\<Phi> @ \<Psi>) = (\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and> 
-                                      map (uncurry (op \<squnion>)) \<Sigma> $\<turnstile> \<Phi> \<and> 
-                                     (map (uncurry (op \<rightarrow>)) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Psi>)"
+                                      map (uncurry op \<squnion>) \<Sigma> $\<turnstile> \<Phi> \<and> 
+                                     (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Psi>)"
   proof (induct \<Phi>)
     case Nil
     {
@@ -4309,8 +4287,8 @@ proof -
         assume "\<Gamma> $\<turnstile> ([] @ \<Psi>)"
         moreover
         have "\<Gamma> $\<turnstile> ([] @ \<Psi>) = (mset (map snd []) \<subseteq># mset \<Gamma> \<and> 
-                                map (uncurry (op \<squnion>)) [] $\<turnstile> [] \<and> 
-                                map (uncurry (op \<rightarrow>)) [] @ \<Gamma> \<ominus> (map snd []) $\<turnstile> \<Psi>)"
+                                map (uncurry op \<squnion>) [] $\<turnstile> [] \<and> 
+                                map (uncurry op \<rightarrow>) [] @ \<Gamma> \<ominus> (map snd []) $\<turnstile> \<Psi>)"
           by simp
         ultimately show "\<exists>\<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and> 
                               map (uncurry op \<squnion>) \<Sigma> $\<turnstile> [] \<and> 
@@ -4342,18 +4320,18 @@ proof -
         assume "\<Gamma> $\<turnstile> ((\<phi> # \<Phi>) @ \<Psi>)"
         from this obtain \<Sigma> where 
           \<Sigma>: "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
-             "map (uncurry (op \<squnion>)) \<Sigma> :\<turnstile> \<phi>"
-             "map (uncurry (op \<rightarrow>)) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>) $\<turnstile> (\<Phi> @ \<Psi>)"
+             "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
+             "map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>) $\<turnstile> (\<Phi> @ \<Psi>)"
              (is "?\<Gamma>\<^sub>0 $\<turnstile> (\<Phi> @ \<Psi>)")
           by auto
         from this(3) obtain \<Delta> where
           \<Delta>: "mset (map snd \<Delta>) \<subseteq># mset ?\<Gamma>\<^sub>0"
-             "map (uncurry (op \<squnion>)) \<Delta> $\<turnstile> \<Phi>"
-             "map (uncurry (op \<rightarrow>)) \<Delta> @ ?\<Gamma>\<^sub>0 \<ominus> (map snd \<Delta>) $\<turnstile> \<Psi>"
+             "map (uncurry op \<squnion>) \<Delta> $\<turnstile> \<Phi>"
+             "map (uncurry op \<rightarrow>) \<Delta> @ ?\<Gamma>\<^sub>0 \<ominus> (map snd \<Delta>) $\<turnstile> \<Psi>"
           using Cons
           by auto
-        let ?\<Sigma>' = "mergeWitness \<Sigma> \<Delta>"
-        have "map (uncurry (op \<squnion>)) ?\<Sigma>' $\<turnstile> (\<phi> # \<Phi>)"
+        let ?\<Sigma>' = "\<JJ> \<Sigma> \<Delta>"
+        have "map (uncurry op \<squnion>) ?\<Sigma>' $\<turnstile> (\<phi> # \<Phi>)"
           using \<Delta>(1) \<Delta>(2) \<Sigma>(2) mergeWitness_cons_segmented_deduction by blast
         moreover have "mset (map snd ?\<Sigma>') \<subseteq># mset \<Gamma>"
           using \<Delta>(1) \<Sigma>(1) mergeWitness_msub_intro by blast
@@ -4378,8 +4356,8 @@ proof -
           "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
           "map (uncurry op \<rightarrow>) \<Sigma> @ (map (uncurry op \<squnion>) \<Delta>) \<ominus> map snd \<Sigma> $\<turnstile> \<Phi>"
           by auto
-        let ?\<Omega> = "recoverWitnessA \<Sigma> \<Delta>"
-        let ?\<Xi> = "recoverWitnessB \<Sigma> \<Delta>"
+        let ?\<Omega> = "\<PP> \<Sigma> \<Delta>"
+        let ?\<Xi> = "\<QQ> \<Sigma> \<Delta>"
         let ?\<Gamma>\<^sub>0 = "map (uncurry op \<rightarrow>) ?\<Omega> @ \<Gamma> \<ominus> map snd ?\<Omega>"
         let ?\<Gamma>\<^sub>1 = "map (uncurry op \<rightarrow>) ?\<Xi> @ ?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>"
         have "mset (\<Gamma> \<ominus> map snd \<Delta>) = mset (?\<Gamma>\<^sub>0 \<ominus> map snd ?\<Xi>)"
@@ -4467,9 +4445,8 @@ proof -
   thus ?thesis using assms by auto
 qed
   
-lemma (in Classical_Propositional_Logic) segmented_transitive:
-  assumes "\<Gamma> $\<turnstile> \<Lambda>"
-      and "\<Lambda> $\<turnstile> \<Delta>"
+theorem (in Classical_Propositional_Logic) segmented_transitive:
+  assumes "\<Gamma> $\<turnstile> \<Lambda>" and "\<Lambda> $\<turnstile> \<Delta>"
     shows "\<Gamma> $\<turnstile> \<Delta>"
 proof -
   have "\<forall> \<Gamma> \<Lambda>. \<Gamma> $\<turnstile> \<Lambda> \<longrightarrow> \<Lambda> $\<turnstile> \<Delta> \<longrightarrow> \<Gamma> $\<turnstile> \<Delta>"
@@ -4512,7 +4489,7 @@ proof -
   with assms show ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) segmented_formula_left_split [simp]:
+lemma (in Classical_Propositional_Logic) segmented_formula_left_split:
   "\<psi> \<squnion> \<phi> # \<psi> \<rightarrow> \<phi> # \<Gamma> $\<turnstile> \<Phi> = \<phi> # \<Gamma> $\<turnstile> \<Phi>"
 proof (rule iffI)
   assume "\<phi> # \<Gamma> $\<turnstile> \<Phi>"
@@ -4538,10 +4515,10 @@ qed
 
 lemma (in Classical_Propositional_Logic) segmented_witness_left_split [simp]:
   assumes "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
-  shows "(map (uncurry (op \<squnion>)) \<Sigma> @ map (uncurry (op \<rightarrow>)) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> \<Phi>"
+  shows "(map (uncurry op \<squnion>) \<Sigma> @ map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> \<Phi>"
 proof -
   have "\<forall> \<Gamma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<longrightarrow> 
-      (map (uncurry (op \<squnion>)) \<Sigma> @ map (uncurry (op \<rightarrow>)) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> \<Phi>"
+      (map (uncurry op \<squnion>) \<Sigma> @ map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)) $\<turnstile> \<Phi> = \<Gamma> $\<turnstile> \<Phi>"
   proof (induct \<Sigma>)
     case Nil
     then show ?case by simp
@@ -4639,7 +4616,7 @@ next
     using segmented_transitive by blast
 qed
 
-lemma (in Classical_Propositional_Logic) segmented_cancel [simp]:
+lemma (in Classical_Propositional_Logic) segmented_cancel:
   "(\<Delta> @ \<Gamma>) $\<turnstile> (\<Delta> @ \<Phi>) = \<Gamma> $\<turnstile> \<Phi>"
 proof -
   {
@@ -4825,8 +4802,44 @@ proof -
     by blast
   finally show ?thesis .
 qed
+  
+primrec (in Classical_Propositional_Logic) 
+  stratified_deduction :: "'a list \<Rightarrow> nat \<Rightarrow> 'a \<Rightarrow> bool" ("_ #\<turnstile> _ _" [60,100,59] 60)
+  where
+    "\<Gamma> #\<turnstile> 0 \<phi> = True"
+  | "\<Gamma> #\<turnstile> (Suc n) \<phi> = (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<and> 
+                             map (uncurry op \<squnion>) \<Psi> :\<turnstile> \<phi> \<and> 
+                             map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) #\<turnstile> n \<phi>)"    
+    
+lemma (in Classical_Propositional_Logic) stratified_segmented_deduction_replicate:
+  "\<Gamma> #\<turnstile> n \<phi> = \<Gamma> $\<turnstile> (replicate n \<phi>)"
+proof -
+  have "\<forall> \<Gamma>. \<Gamma> #\<turnstile> n \<phi> = \<Gamma> $\<turnstile> (replicate n \<phi>)"
+    by (induct n, simp+)
+  thus ?thesis by blast
+qed
 
-lemma (in Classical_Propositional_Logic) segmented_stratified_falsum_equiv:
+lemma (in Classical_Propositional_Logic) stratified_deduction_tautology_weaken:
+  assumes "\<turnstile> \<phi>"
+  shows "\<Gamma> #\<turnstile> n \<phi>"
+proof (induct n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
+    using assms
+          stratified_segmented_deduction_replicate
+          segmented_tautology_right_cancel 
+    by blast
+  hence "\<Gamma> $\<turnstile> replicate (Suc n) \<phi>"
+    by simp
+  then show ?case  
+    using stratified_segmented_deduction_replicate
+    by blast
+qed
+
+theorem (in Classical_Propositional_Logic) segmented_stratified_falsum_equiv:
   "\<Gamma> $\<turnstile> \<Phi> = (\<^bold>\<sim> \<Phi> @ \<Gamma>) #\<turnstile> (length \<Phi>) \<bottom>"
 proof -
   have "\<forall> \<Gamma> \<Psi>. \<Gamma> $\<turnstile> (\<Phi> @ \<Psi>) = (\<^bold>\<sim> \<Phi> @ \<Gamma>) $\<turnstile> (replicate (length \<Phi>) \<bottom> @ \<Psi>)"
@@ -4868,43 +4881,160 @@ proof -
     by (metis append_Nil2 stratified_segmented_deduction_replicate)
 qed
 
-definition (in Minimal_Logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<CC>")
+(**************************************)  
+  
+definition (in Minimal_Logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<C>")
   where
-    "\<CC> \<Gamma> \<phi> = {\<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> 
+    "\<C> \<Gamma> \<phi> = {\<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> 
                   \<and> \<not> \<Phi> :\<turnstile> \<phi> 
                   \<and> (\<forall> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<longrightarrow> \<not> \<Psi> :\<turnstile> \<phi> \<longrightarrow> length \<Psi> \<le> length \<Phi>)}"
 
-lemma (in Minimal_Logic) unproving_core_existance:
-  assumes "\<not> \<turnstile> \<phi>"
-    shows "\<exists> \<Sigma>. \<Sigma> \<in> \<CC> \<Gamma> \<phi>"
-proof (rule ccontr)
-  assume "\<nexists>\<Sigma>. \<Sigma> \<in> \<CC> \<Gamma> \<phi>"
-  hence \<diamondsuit>: "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow>
-                  \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow>
-                  (\<exists>\<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > length \<Phi>)"
-    unfolding unproving_core_def
-    by fastforce
+lemma (in Minimal_Logic) unproving_core_finite:
+  "finite (\<C> \<Gamma> \<phi>)"
+proof -
   {
-    fix n
-    have "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > n"
-      using \<diamondsuit>
-      by (induct n, 
-          metis assms list_deduction_base_theory mset.simps(1) neq0_conv subset_mset.bot.extremum,
-          fastforce)          
+    fix \<Phi>
+    assume "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+    hence "set \<Phi> \<subseteq> set \<Gamma>"
+          "length \<Phi> \<le> length \<Gamma>"
+      unfolding unproving_core_def
+      using mset_subset_eqD 
+            length_sub_mset 
+            mset_eq_length 
+      by fastforce+
   }
-  hence "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> length \<Psi> > length \<Gamma>"
+  hence "\<C> \<Gamma> \<phi> \<subseteq> {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
     by auto
-  thus "False"
-    using size_mset_mono by fastforce
+  moreover 
+  have "finite {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
+    using finite_lists_length_le by blast
+  ultimately show ?thesis using rev_finite_subset by auto
 qed    
+    
+lemma (in Minimal_Logic) unproving_core_existance:
+  "(\<not> \<turnstile> \<phi>) = (\<exists> \<Sigma>. \<Sigma> \<in> \<C> \<Gamma> \<phi>)"
+proof (rule iffI)
+  assume "\<not> \<turnstile> \<phi>"
+  show "\<exists>\<Sigma>. \<Sigma> \<in> \<C> \<Gamma> \<phi>"
+  proof (rule ccontr)
+    assume "\<nexists>\<Sigma>. \<Sigma> \<in> \<C> \<Gamma> \<phi>"
+    hence \<diamondsuit>: "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset \<Gamma> \<longrightarrow>
+                    \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow>
+                    (\<exists>\<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > length \<Phi>)"
+      unfolding unproving_core_def
+      by fastforce
+    {
+      fix n
+      have "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> \<not> \<Psi> :\<turnstile> \<phi> \<and> length \<Psi> > n"
+        using \<diamondsuit>
+        by (induct n, 
+            metis \<open>\<not> \<turnstile> \<phi>\<close> 
+                 list_deduction_base_theory 
+                 mset.simps(1) 
+                 neq0_conv 
+                 subset_mset.bot.extremum,
+            fastforce)          
+    }
+    hence "\<exists> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<and> length \<Psi> > length \<Gamma>"
+      by auto
+    thus "False"
+      using size_mset_mono by fastforce
+  qed
+next
+  assume "\<exists>\<Sigma>. \<Sigma> \<in> \<C> \<Gamma> \<phi>"
+  thus "\<not> \<turnstile> \<phi>"
+    unfolding unproving_core_def
+    using list_deduction_weaken
+    by blast
+qed
 
+lemma (in Minimal_Logic) unproving_core_complement_deduction:
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+      and "\<psi> \<in> set (\<Gamma> \<ominus> \<Phi>)"
+    shows "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+proof (rule ccontr)
+  assume "\<not> \<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+  hence "\<not> (\<psi> # \<Phi>) :\<turnstile> \<phi>"
+    by (simp add: list_deduction_theorem)
+  moreover
+  have "mset \<Phi> \<subseteq># mset \<Gamma>" "\<psi> \<in># mset (\<Gamma> \<ominus> \<Phi>)"
+    using assms
+    unfolding unproving_core_def
+    by (blast, meson in_multiset_in_set)
+  hence "mset (\<psi> # \<Phi>) \<subseteq># mset \<Gamma>" 
+    by (simp, metis add_mset_add_single 
+                    mset_subset_eq_mono_add_left_cancel 
+                    mset_subset_eq_single 
+                    subset_mset.add_diff_inverse)
+  ultimately have "length (\<psi> # \<Phi>) \<le> length (\<Phi>)"
+    using assms
+    unfolding unproving_core_def
+    by blast
+  thus "False"
+    by simp
+qed
+          
+lemma (in Minimal_Logic) unproving_core_set_complement [simp]:
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+  shows "set (\<Gamma> \<ominus> \<Phi>) = set \<Gamma> - set \<Phi>"
+proof (rule equalityI)
+  show "set (\<Gamma> \<ominus> \<Phi>) \<subseteq> set \<Gamma> - set \<Phi>"
+  proof (rule subsetI)
+    fix \<psi>
+    assume "\<psi> \<in> set (\<Gamma> \<ominus> \<Phi>)"
+    moreover from this have "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+      using assms
+      using unproving_core_complement_deduction 
+      by blast  
+    hence "\<psi> \<notin> set \<Phi>"
+      using assms 
+            list_deduction_modus_ponens 
+            list_deduction_reflection 
+            unproving_core_def 
+      by blast
+    ultimately show "\<psi> \<in> set \<Gamma> - set \<Phi>"
+      using listSubtract_set_trivial_upper_bound [where \<Gamma>="\<Gamma>" and \<Phi>="\<Phi>"]
+      by blast
+  qed
+next
+  show "set \<Gamma> - set \<Phi> \<subseteq> set (\<Gamma> \<ominus> \<Phi>)"
+    by (simp add: listSubtract_set_difference_lower_bound)
+qed  
+  
+lemma (in Minimal_Logic) unproving_core_complement_equiv:
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+      and "\<psi> \<in> set \<Gamma>"
+    shows "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi> = (\<psi> \<notin> set \<Phi>)"
+proof (rule iffI)
+  assume "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+  thus "\<psi> \<notin> set \<Phi>"
+    using assms(1) 
+          list_deduction_modus_ponens 
+          list_deduction_reflection 
+          unproving_core_def 
+    by blast
+next
+  assume "\<psi> \<notin> set \<Phi>"
+  thus "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
+    using assms unproving_core_complement_deduction 
+    by auto  
+qed
+  
+lemma (in Minimal_Logic) unproving_length_equiv:
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+      and "\<Psi> \<in> \<C> \<Gamma> \<phi>"
+    shows "length \<Phi> = length \<Psi>"
+  using assms
+  by (simp add: dual_order.antisym unproving_core_def)
+    
 lemma (in Minimal_Logic) unproving_listSubtract_length_equiv:
-  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
-      and "\<Psi> \<in> \<CC> \<Gamma> \<phi>"
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
+      and "\<Psi> \<in> \<C> \<Gamma> \<phi>"
     shows "length (\<Gamma> \<ominus> \<Phi>) = length (\<Gamma> \<ominus> \<Psi>)"
 proof -
-  from assms have "length \<Phi> = length \<Psi>"
-    by (simp add: dual_order.antisym unproving_core_def)
+  have "length \<Phi> = length \<Psi>"
+    using assms unproving_length_equiv
+    by blast
   moreover
   have "mset \<Phi> \<subseteq># mset \<Gamma>"
        "mset \<Psi> \<subseteq># mset \<Gamma>"
@@ -4916,16 +5046,16 @@ proof -
 qed
 
 lemma (in Minimal_Logic) unproving_core_max_list_deduction:
-  "\<Gamma> :\<turnstile> \<phi> = (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. 1 \<le> length (\<Gamma> \<ominus> \<Phi>))"
+  "\<Gamma> :\<turnstile> \<phi> = (\<forall> \<Phi> \<in> \<C> \<Gamma> \<phi>. 1 \<le> length (\<Gamma> \<ominus> \<Phi>))"
 proof cases
   assume "\<turnstile> \<phi>"
-  hence "\<Gamma> :\<turnstile> \<phi>" "\<CC> \<Gamma> \<phi> = {}"
+  hence "\<Gamma> :\<turnstile> \<phi>" "\<C> \<Gamma> \<phi> = {}"
     unfolding unproving_core_def
     by (simp add: list_deduction_weaken)+
   then show ?thesis by blast
 next
   assume "\<not> \<turnstile> \<phi>"
-  from this obtain \<Omega> where \<Omega>: "\<Omega> \<in> \<CC> \<Gamma> \<phi>"
+  from this obtain \<Omega> where \<Omega>: "\<Omega> \<in> \<C> \<Gamma> \<phi>"
     using unproving_core_existance by blast
   from this have "mset \<Omega> \<subseteq># mset \<Gamma>"
     unfolding unproving_core_def by blast
@@ -4972,70 +5102,28 @@ next
       by fastforce
   qed
 qed
-
-lemma (in Classical_Propositional_Logic) stratified_deduction_tautology_weaken:
-  assumes "\<turnstile> \<phi>"
-  shows "\<Gamma> #\<turnstile> n \<phi>"
-proof (induct n)
-  case 0
-  then show ?case by simp
-next
-  case (Suc n)
-  hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
-    using assms
-          stratified_segmented_deduction_replicate
-          segmented_tautology_right_cancel 
-    by blast
-  hence "\<Gamma> $\<turnstile> replicate (Suc n) \<phi>"
-    by simp
-  then show ?case  
-    using stratified_segmented_deduction_replicate
-    by blast
-qed  
-
+  
 definition (in Minimal_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
   where
-    "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<CC> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<CC> \<Gamma> \<phi> })"  
+    "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<C> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<C> \<Gamma> \<phi> })"  
   
 definition (in Minimal_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
   where
     "(\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) = length \<Gamma> - \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
-
-lemma (in Minimal_Logic) unproving_core_finite:
-  "finite (\<CC> \<Gamma> \<phi>)"
-proof -
-  {
-    fix \<Phi>
-    assume "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
-    hence "set \<Phi> \<subseteq> set \<Gamma>"
-          "length \<Phi> \<le> length \<Gamma>"
-      unfolding unproving_core_def
-      using mset_subset_eqD 
-            length_sub_mset 
-            mset_eq_length 
-      by fastforce+
-  }
-  hence "\<CC> \<Gamma> \<phi> \<subseteq> {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
-    by auto
-  moreover 
-  have "finite {xs. set xs \<subseteq> set \<Gamma> \<and> length xs \<le> length \<Gamma>}"
-    using finite_lists_length_le by blast
-  ultimately show ?thesis using rev_finite_subset by auto
-qed
     
 lemma (in Minimal_Logic) core_size_intro:
-  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
   shows "length \<Phi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
 proof -
-  have "\<forall> n \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }. n \<le> length \<Phi>"
-       "length \<Phi> \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }"
+  have "\<forall> n \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<C> \<Gamma> \<phi> }. n \<le> length \<Phi>"
+       "length \<Phi> \<in> { length \<Psi> | \<Psi>. \<Psi> \<in> \<C> \<Gamma> \<phi> }"
     using assms unproving_core_def
     by auto
   moreover 
-  have "finite { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> }"
+  have "finite { length \<Psi> | \<Psi>. \<Psi> \<in> \<C> \<Gamma> \<phi> }"
     using finite_imageI unproving_core_finite
     by simp
-  ultimately have "Max { length \<Psi> | \<Psi>. \<Psi> \<in> \<CC> \<Gamma> \<phi> } = length \<Phi>"
+  ultimately have "Max { length \<Psi> | \<Psi>. \<Psi> \<in> \<C> \<Gamma> \<phi> } = length \<Phi>"
     using Max_eqI
     by blast
   thus ?thesis
@@ -5044,7 +5132,7 @@ proof -
 qed
         
 lemma (in Minimal_Logic) complement_core_size_intro:
-  assumes "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+  assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
   shows "length (\<Gamma> \<ominus> \<Phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
 proof -
   have "mset \<Phi> \<subseteq># mset \<Gamma>"
@@ -5060,7 +5148,7 @@ qed
 
 lemma (in Minimal_Logic) length_core_decomposition:
   "length \<Gamma> = (\<bar> \<Gamma> \<bar>\<^sub>\<phi>) + \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
-proof (cases "\<CC> \<Gamma> \<phi> = {}")
+proof (cases "\<C> \<Gamma> \<phi> = {}")
   case True
   then show ?thesis
     unfolding core_size_def
@@ -5068,7 +5156,7 @@ proof (cases "\<CC> \<Gamma> \<phi> = {}")
     by simp
 next
   case False
-  from this obtain \<Phi> where "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+  from this obtain \<Phi> where "\<Phi> \<in> \<C> \<Gamma> \<phi>"
     by fast
   moreover from this have "mset \<Phi> \<subseteq># mset \<Gamma>"
     unfolding unproving_core_def
@@ -5077,136 +5165,374 @@ next
     by (metis listSubtract_mset_homomorphism size_Diff_submset size_mset)
   ultimately show ?thesis
     unfolding complement_core_size_def
-    using listSubtract_msub_eq local.core_size_intro 
+    using listSubtract_msub_eq core_size_intro 
     by fastforce
 qed
-  
-lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
-   "0 < (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) 
- =  (\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
-          map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
-          1 + (\<parallel>map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>\<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>)"
-  sorry 
 
-lemma (in Classical_Propositional_Logic) complement_core_size_stratified_intro:
-  "\<Gamma> #\<turnstile> (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) \<phi>"
-proof -
-  have "\<forall> n \<le> \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>. \<Gamma> #\<turnstile> n \<phi>"
-  proof (induct "\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>")
-    case 0
+lemma (in Classical_Propositional_Logic) witness_core_size_increase:
+  assumes "\<not> \<turnstile> \<phi>"
+      and "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
+      and "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
+    shows "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) < \<bar> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<bar>\<^sub>\<phi>"
+  sorry
+
+(* TODO: Use fraktur for all the crazy witness constructions *)
+primrec (in Classical_Propositional_Logic) 
+  core_optimal_witness :: "'a \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<WW>")
+  where
+      "\<WW> \<phi> [] = []"
+    | "\<WW> \<phi> (\<psi> # \<Psi>) = (\<Psi> :\<rightarrow> \<phi>, \<psi>) # \<WW> \<phi> \<Psi>"
+
+(* TODO: Move to logic section *)
+lemma (in Classical_Propositional_Logic) conjunction_monotonic_identity:
+  "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<phi> \<sqinter> \<chi>) \<rightarrow> (\<psi> \<sqinter> \<chi>)"
+  unfolding conjunction_def
+  using Modus_Ponens 
+        flip_hypothetical_syllogism 
+  by blast
+      
+lemma (in Classical_Propositional_Logic) conjunction_monotonic:
+  assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
+  shows "\<turnstile> (\<phi> \<sqinter> \<chi>) \<rightarrow> (\<psi> \<sqinter> \<chi>)"
+  using assms 
+        Modus_Ponens 
+        conjunction_monotonic_identity
+  by blast
+
+lemma (in Classical_Propositional_Logic) disjunction_monotonic_identity:
+  "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<phi> \<squnion> \<chi>) \<rightarrow> (\<psi> \<squnion> \<chi>)"
+  unfolding disjunction_def
+  using Modus_Ponens 
+        flip_hypothetical_syllogism 
+  by blast
+      
+lemma (in Classical_Propositional_Logic) disjunction_monotonic:
+  assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
+  shows "\<turnstile> (\<phi> \<squnion> \<chi>) \<rightarrow> (\<psi> \<squnion> \<chi>)"
+  using assms 
+        Modus_Ponens 
+        disjunction_monotonic_identity
+  by blast    
+
+lemma (in Classical_Propositional_Logic) core_optimal_witness_conjunction_identity:
+  "\<turnstile> \<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>)) \<leftrightarrow> (\<phi> \<squnion> \<Sqinter> \<Psi>)"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case
+    unfolding biconditional_def
+              disjunction_def
+    using Axiom_1 
+          Modus_Ponens 
+          verum_tautology 
+    by (simp, blast)
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> \<Psi> \<rightarrow> \<phi>)"
+    by (simp add: list_curry_uncurry)
+  hence "\<turnstile> \<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> (\<psi> # \<Psi>)))
+        \<leftrightarrow> ((\<Sqinter> \<Psi> \<rightarrow> \<phi> \<squnion> \<psi>) \<sqinter> \<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>)))"
+    unfolding biconditional_def
+    using conjunction_monotonic
+          disjunction_monotonic
+    by simp
+  moreover have "\<turnstile> ((\<Sqinter> \<Psi> \<rightarrow> \<phi> \<squnion> \<psi>) \<sqinter> \<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>)))
+                 \<leftrightarrow> ((\<Sqinter> \<Psi> \<rightarrow> \<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<Sqinter> \<Psi>))"
+    using Cons.hyps biconditional_conjunction_weaken_rule 
+    by blast
+  moreover
+  {
+    fix \<phi> \<psi> \<chi>
+    have "\<turnstile> ((\<chi> \<rightarrow> \<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<chi>)) \<leftrightarrow> (\<phi> \<squnion> (\<psi> \<sqinter> \<chi>))"
+    proof -
+      let ?\<phi> = "((\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
+      have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+      hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+      thus ?thesis by simp
+    qed
+  }
+  ultimately have "\<turnstile> \<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> (\<psi> # \<Psi>))) \<leftrightarrow> (\<phi> \<squnion> (\<psi> \<sqinter> \<Sqinter> \<Psi>))"
+    using biconditional_transitivity_rule 
+    by blast
+  then show ?case by simp
+qed
+    
+lemma (in Classical_Propositional_Logic) core_optimal_witness_deduction:
+  "\<turnstile> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Psi> :\<rightarrow> \<phi>)"
+proof -  
+  have "\<turnstile> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>)) \<rightarrow> \<phi>)"
+    by (simp add: list_curry_uncurry)
+  moreover
+  {
+    fix \<alpha> \<beta> \<gamma>
+    have "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<rightarrow> ((\<alpha> \<rightarrow> \<gamma>) \<leftrightarrow> (\<beta> \<rightarrow> \<gamma>))"
+    proof -
+      let ?\<phi> = "(\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<beta>\<^bold>\<rangle>) \<rightarrow> ((\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>))"
+      have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+      hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+      thus ?thesis by simp
+    qed
+  }
+  ultimately have "\<turnstile> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> ((\<phi> \<squnion> \<Sqinter> \<Psi>) \<rightarrow> \<phi>)"
+    using Modus_Ponens 
+          biconditional_transitivity_rule 
+          core_optimal_witness_conjunction_identity 
+    by blast
+  moreover
+  {
+    fix \<alpha> \<beta>
+    have "\<turnstile> ((\<alpha> \<squnion> \<beta>) \<rightarrow> \<alpha>) \<leftrightarrow> (\<beta> \<rightarrow> \<alpha>)"
+    proof -
+      let ?\<phi> = "((\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<beta>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>)"
+      have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+      hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+      thus ?thesis by simp
+    qed
+  }
+  ultimately have "\<turnstile> (map (uncurry op \<squnion>) (\<WW> \<phi> \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> \<Psi> \<rightarrow> \<phi>)"
+    using biconditional_transitivity_rule by blast
+  thus ?thesis
+    using biconditional_symmetry_rule 
+          biconditional_transitivity_rule 
+          list_curry_uncurry 
+    by blast
+qed
+
+lemma (in Classical_Propositional_Logic) witness_cancel_identity:
+  "\<turnstile> (map (uncurry op \<squnion>) \<Sigma> :\<rightarrow> \<phi> \<sqinter> map (uncurry op \<rightarrow>) \<Sigma> :\<rightarrow> \<phi>) \<leftrightarrow> \<phi>"
+  sorry
+   
+lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
+  assumes "\<not> \<turnstile> \<phi>"
+  shows "0 < (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) 
+     =  (\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
+              map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
+              1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>)"
+proof (rule iffI)
+  assume "0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+  from this obtain \<Xi> where \<Xi>: "\<Xi> \<in> \<C> \<Gamma> \<phi>" "length \<Xi> < length \<Gamma>"
+    using \<open>\<not> \<turnstile> \<phi>\<close> 
+          complement_core_size_def 
+          core_size_intro 
+          unproving_core_existance 
+    by fastforce
+  from this obtain \<psi> where \<psi>: "\<psi> \<in> set (\<Gamma> \<ominus> \<Xi>)"
+    by (metis \<open>0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>\<close> 
+              less_not_refl 
+              list.exhaust 
+              list.set_intros(1) 
+              list.size(3) 
+              complement_core_size_intro)
+  let ?\<Sigma> = "\<WW> \<phi> (\<psi> # \<Xi>)"
+  have "\<forall> \<Gamma>. mset \<Xi> \<subseteq># mset \<Gamma> \<longrightarrow> \<psi> \<in> set (\<Gamma> \<ominus> \<Xi>) \<longrightarrow> mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
+  proof(induct \<Xi>)
+    case Nil
     then show ?case by simp
   next
-    case (Suc n)
-    then show ?case sorry
+    case (Cons \<xi> \<Xi>)
+    {
+      fix \<Gamma>
+      assume "mset (\<xi> # \<Xi>) \<subseteq># mset \<Gamma>"
+             "\<psi> \<in> set (\<Gamma> \<ominus> (\<xi> # \<Xi>))"     
+      hence "\<xi> \<in> set \<Gamma>"
+            "mset \<Xi> \<subseteq># mset (remove1 \<xi> \<Gamma>)"
+            "\<psi> \<in> set ((remove1 \<xi> \<Gamma>) \<ominus> \<Xi>)"
+        by (simp, metis ex_mset 
+                        list.set_intros(1) 
+                        mset.simps(2) 
+                        mset_eq_setD 
+                        subset_mset.le_iff_add 
+                        union_mset_add_mset_left,
+            metis listSubtract.simps(1) 
+                  listSubtract.simps(2) 
+                  listSubtract_monotonic 
+                  remove_hd,
+            simp, metis listSubtract_remove1_cons_perm
+                        perm_set_eq)
+      with Cons.hyps have "mset \<Gamma> = mset (\<xi> # (remove1 \<xi> \<Gamma>))"
+                          "mset (\<psi> # \<Xi>) \<subseteq># mset (remove1 \<xi> \<Gamma>)"
+        by (simp, blast)
+      hence "mset (\<psi> # \<xi> # \<Xi>) \<subseteq># mset \<Gamma>"
+        by (simp, metis add_mset_commute 
+                        mset_subset_eq_add_mset_cancel)
+    }
+    then show ?case by auto
   qed
+  hence "mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
+        "\<psi> # \<Xi> :\<turnstile> \<phi>"
+    using \<Xi>(1) \<psi> 
+          unproving_core_def 
+          list_deduction_theorem 
+          unproving_core_complement_deduction
+    by blast+
+  moreover have "map snd ?\<Sigma> = \<psi> # \<Xi>" by (induct \<Xi>, simp+)
+  ultimately have "map (uncurry op \<squnion>) ?\<Sigma> :\<turnstile> \<phi>" 
+                  "mset (map snd ?\<Sigma>) \<subseteq># mset \<Gamma>"
+    using core_optimal_witness_deduction 
+          list_deduction_def weak_biconditional_weaken 
+    by (smt+)
+  moreover
+  {
+    have "map (uncurry op \<rightarrow>) ?\<Sigma> \<in> \<C> (map (uncurry op \<rightarrow>) ?\<Sigma> @ \<Gamma> \<ominus> map snd ?\<Sigma>) \<phi>"
+      sorry
+    moreover have "length (map (uncurry op \<rightarrow>) ?\<Sigma>) = 1 + length \<Xi>"
+      by (induct \<Xi>, simp+)
+    ultimately have "1 + (\<parallel> map (uncurry op \<rightarrow>) ?\<Sigma> @ \<Gamma> \<ominus> map snd ?\<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+      by (smt Nat.add_diff_assoc2 \<Xi>(1) 
+              \<open>map snd ?\<Sigma> = \<psi> # \<Xi>\<close> 
+              \<open>mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>\<close> 
+              add.commute 
+              add_diff_cancel_right' 
+              le_add2 length_append 
+              length_map 
+              listSubtract_msub_eq 
+              complement_core_size_def 
+              core_size_intro)
+  }
+  ultimately show "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
+                        map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
+                        1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+  by smt
+next
+  assume "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
+               map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
+               1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+  thus "0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+    by auto
+qed
     
+lemma (in Classical_Propositional_Logic) complement_core_size_stratified_intro:
+  "\<Gamma> #\<turnstile> (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) \<phi>"
+proof (cases "\<turnstile> \<phi>")
+  case True
+  then show ?thesis
+    by (simp add: stratified_deduction_tautology_weaken) 
+next
+  assume "\<not> \<turnstile> \<phi>"  
+  {
+    fix n
+    have "\<forall> \<Gamma>. n = (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) \<longrightarrow> \<Gamma> #\<turnstile> n \<phi>"
+    proof (induct "n")
+      case 0
+      then show ?case by simp
+    next
+      case (Suc n)
+      {
+        fix \<Gamma>
+        assume "Suc n = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+        hence "0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>" by auto
+        from this obtain \<Sigma> where \<Sigma>:
+          "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
+          "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
+          "1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+          using unproving_core_optimal_witness
+                \<open>\<not> \<turnstile> \<phi>\<close>
+          by blast
+        let ?\<Gamma>' = "map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>"
+        have "n = \<parallel>?\<Gamma>'\<parallel>\<^sub>\<phi>"
+          using \<Sigma>(3) \<open>Suc n = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>\<close>
+          by linarith
+        with Suc have "?\<Gamma>' #\<turnstile> n \<phi>" by blast
+        with \<Sigma>(1) \<Sigma>(2) have "\<Gamma> #\<turnstile> (Suc n) \<phi>" by fastforce
+      }
+      then show ?case by blast
+    qed
+  } 
   thus ?thesis
     by blast
-    
-    
+qed 
+
 lemma (in Classical_Propositional_Logic) unproving_core_stratified_deduction_lower_bound:
   assumes "\<Gamma> #\<turnstile> n \<phi>"
-      and "\<Phi> \<in> \<CC> \<Gamma> \<phi>"
+      and "\<Phi> \<in> \<C> \<Gamma> \<phi>"
     shows "n \<le> length (\<Gamma> \<ominus> \<Phi>)"
 proof cases
   assume "\<turnstile> \<phi>"
-  hence  "\<CC> \<Gamma> \<phi> = {}"
+  hence  "\<C> \<Gamma> \<phi> = {}"
     unfolding unproving_core_def
     by (simp add: stratified_deduction_tautology_weaken list_deduction_weaken)
   then show ?thesis using assms by blast
 next
   assume "\<not> \<turnstile> \<phi>"
-  with assms show ?thesis sorry
-qed  
-  
-lemma (in Classical_Propositional_Logic) unproving_core_max_stratified_deduction:
-  "\<Gamma> #\<turnstile> n \<phi> = (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>))"
-proof -
   {
-    assume "n = 0"
-    hence ?thesis by simp
-  }
-  moreover
-  {
-    assume "n = 1"
-    hence ?thesis
-      using stratified_segmented_deduction_replicate 
-            segmented_deduction_one_collapse
-            unproving_core_max_list_deduction
-      by fastforce
-  }
-  moreover
-  {
-    assume "\<turnstile> \<phi>"
-    moreover from this have "\<CC> \<Gamma> \<phi> = {}"
-      unfolding unproving_core_def
-      by (simp add: list_deduction_weaken)
-    moreover have "\<Gamma> #\<turnstile> n \<phi>"
+    fix n
+    have "\<forall> \<Gamma>. \<Gamma> #\<turnstile> n \<phi> \<longrightarrow> n \<le> \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
     proof (induct n)
       case 0
       then show ?case by simp
     next
-      case (Suc n)
-      hence "\<Gamma> $\<turnstile> (\<phi> # replicate n \<phi>)"
-        using \<open>\<turnstile> \<phi>\<close> stratified_segmented_deduction_replicate
-              segmented_tautology_right_cancel 
-        by blast
-      then show ?case
-        using stratified_segmented_deduction_replicate
-        by simp
-    qed
-    ultimately have ?thesis by blast
-  }
-  moreover
-  {
-    assume "n > 1" "\<not> \<turnstile> \<phi>"
-    have "\<forall> \<Gamma>. (\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>)) \<longrightarrow> \<Gamma> #\<turnstile> n \<phi>"
-    proof (induct n)
-      case 0
-      then show ?case by simp
-    next
-      let ?\<ff> = "\<lambda> \<Gamma> \<Sigma>. map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>"
       case (Suc n)
       {
         fix \<Gamma>
-        assume "\<forall> \<Phi> \<in> \<CC> \<Gamma> \<phi>. Suc n \<le> length (\<Gamma> \<ominus> \<Phi>)"
-        with \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Sigma> where \<Sigma>: "\<Sigma> \<in> \<CC> \<Gamma> \<phi>" "Suc n \<le> length (\<Gamma> \<ominus> \<Sigma>)"
-          using unproving_core_existance by blast
-        have "\<Gamma> #\<turnstile> (Suc n) \<phi>"
-        proof (rule ccontr)
-          assume "\<not> \<Gamma> #\<turnstile> (Suc n) \<phi>"
-          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> 
-                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> 
-                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. n > length ((?\<ff> \<Gamma> \<Sigma>) \<ominus> \<Psi>))"
-            by (meson Suc.hyps stratified_deduction.simps(2) not_less)
-          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>
-                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>
-                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. length \<Psi> + n > length (?\<ff> \<Gamma> \<Sigma>))"
-            by (metis (no_types, lifting) add.commute
-                                          add_less_mono1
-                                          listSubtract_msub_eq
-                                          unproving_core_def 
-                                          mem_Collect_eq)
-          hence "\<forall> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>
-                  \<longrightarrow> map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>
-                  \<longrightarrow> (\<exists> \<Psi> \<in> \<CC> (?\<ff> \<Gamma> \<Sigma>) \<phi>. length \<Psi> + length \<Sigma> + n > length (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma>))"
-            using listSubtract_msub_eq
-            by (simp, 
-                smt add.commute 
-                    length_map 
-                    listSubtract_msub_eq 
-                    mset_map)
-          show "False" sorry
-        qed
+        assume "\<Gamma> #\<turnstile> (Suc n) \<phi>"
+        from this obtain \<Sigma> where \<Sigma>:
+          "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
+          "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>" 
+          "map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>) #\<turnstile> n \<phi>"
+          by fastforce
+        let ?\<Gamma>' = "map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> (map snd \<Sigma>)"
+        have "length \<Gamma> = length ?\<Gamma>'"
+          using \<Sigma>(1) listSubtract_msub_eq by fastforce
+        hence "(\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) > (\<parallel> ?\<Gamma>' \<parallel>\<^sub>\<phi>)"
+          by (metis \<Sigma>(1) \<Sigma>(2) \<open>\<not> \<turnstile> \<phi>\<close> 
+                    witness_core_size_increase 
+                    length_core_decomposition 
+                    add_less_cancel_right 
+                    nat_add_left_cancel_less)
+        with \<Sigma>(3) Suc.hyps have "Suc n \<le> \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+          by auto
       }
-      then show ?case by blast
+      then show ?case by simp
     qed
-    hence ?thesis
-      using unproving_core_stratified_deduction_lower_bound 
-      by blast
   }
-  ultimately show ?thesis
-    by (meson less_one linorder_neqE_nat)
+  thus ?thesis
+    using assms complement_core_size_intro by auto
+qed
+
+lemma (in Classical_Propositional_Logic) stratified_deduction_weaken:
+  assumes "n \<le> m"
+      and "\<Gamma> #\<turnstile> m \<phi>"
+    shows "\<Gamma> #\<turnstile> n \<phi>"
+proof -
+  have "\<Gamma> $\<turnstile> replicate m \<phi>"
+    using assms(2) stratified_segmented_deduction_replicate 
+    by blast
+  hence "\<Gamma> $\<turnstile> replicate n \<phi>"
+    by (metis append_Nil2 
+              assms(1) 
+              le_iff_add 
+              segmented_deduction.simps(1) 
+              segmented_deduction_generalized_witness
+              replicate_add)
+  thus ?thesis
+    using stratified_segmented_deduction_replicate 
+    by blast
+qed
+      
+lemma (in Classical_Propositional_Logic) unproving_core_max_stratified_deduction:
+  "\<Gamma> #\<turnstile> n \<phi> = (\<forall> \<Phi> \<in> \<C> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>))"
+proof (rule iffI)
+  assume "\<Gamma> #\<turnstile> n \<phi>"
+  thus "\<forall> \<Phi> \<in> \<C> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>)"
+    using unproving_core_stratified_deduction_lower_bound 
+    by blast 
+next
+  assume \<heartsuit>: "\<forall> \<Phi> \<in> \<C> \<Gamma> \<phi>. n \<le> length (\<Gamma> \<ominus> \<Phi>)"
+  show "\<Gamma> #\<turnstile> n \<phi>"
+  proof (cases "\<turnstile> \<phi>")
+    case True
+    then show ?thesis
+      by (simp add: stratified_deduction_tautology_weaken) 
+  next
+    case False
+    with \<heartsuit> have "n \<le> \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+      using complement_core_size_intro 
+            unproving_core_existance 
+      by auto
+    then show ?thesis
+      using complement_core_size_stratified_intro 
+            stratified_deduction_weaken 
+      by blast
+  qed
 qed
   
 lemma (in Classical_Propositional_Logic) stratified_deduction_implication:
@@ -5255,12 +5581,12 @@ proof -
     assume "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
     have "\<exists> Pr \<in> Binary_Probabilities. real n * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     proof -
-      have "\<exists>\<Phi>. \<Phi> \<in> \<CC> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
+      have "\<exists>\<Phi>. \<Phi> \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
         using \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close>
               unproving_core_existance
               stratified_deduction_tautology_weaken
         by blast
-      from this obtain \<Phi> where \<Phi>: "(\<^bold>\<sim> \<Phi>) \<in> \<CC> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" "mset \<Phi> \<subseteq># mset \<Gamma>"
+      from this obtain \<Phi> where \<Phi>: "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" "mset \<Phi> \<subseteq># mset \<Gamma>"
         by (metis (mono_tags, lifting) 
                   unproving_core_def 
                   mem_Collect_eq 
