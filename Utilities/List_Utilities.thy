@@ -2,6 +2,8 @@ theory List_Utilities
   imports "~~/src/HOL/Library/Permutation"
 begin  
 
+sledgehammer_params [smt_proofs = false]  
+  
 subsection {* Permutations and List Counts *}
   
 (* TODO the converse of this is also true, is that useful for anything? *)    
@@ -125,16 +127,45 @@ proof -
     {
       fix \<Phi> :: "'a list"
       assume "count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>"
-      hence "count_list \<Lambda> \<phi> \<le> count_list (remove1 \<psi> \<Phi>) \<phi>"
-        by (smt Suc_eq_plus1 
-                count_list.simps(2) 
-                le_eq_less_or_eq 
-                less_Suc_eq_le 
-                linorder_linear 
-                order_eq_iff 
-                perm_count_list 
-                perm_remove 
-                remove1_idem)
+      have "count_list \<Lambda> \<phi> \<le> count_list (remove1 \<psi> \<Phi>) \<phi>"
+      proof (cases "\<phi> = \<psi>")
+        case True
+        hence "1 + count_list \<Lambda> \<phi> \<le> count_list \<Phi> \<phi>"
+          using \<open>count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>\<close>
+          by auto
+        moreover from this have "\<phi> \<in> set \<Phi>"
+          using not_one_le_zero by fastforce
+        hence "\<Phi> <~~> \<phi> # (remove1 \<psi> \<Phi>)"
+          using True
+          by (simp add: True perm_remove)
+        ultimately show ?thesis by (simp add: perm_count_list)
+      next
+        case False
+        hence "count_list (\<psi> # \<Lambda>) \<phi> = count_list \<Lambda> \<phi>"
+           by simp
+        moreover have "count_list \<Phi> \<phi> = count_list (remove1 \<psi> \<Phi>) \<phi>"
+        proof (induct \<Phi>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<phi>' \<Phi>)
+          show ?case 
+          proof (cases "\<phi>' = \<phi>")
+            case True
+            with \<open>\<phi> \<noteq> \<psi>\<close>
+            have "count_list (\<phi>' # \<Phi>) \<phi> = 1 + count_list \<Phi> \<phi>"
+                 "count_list (remove1 \<psi> (\<phi>' # \<Phi>)) \<phi> = 1 + count_list (remove1 \<psi> \<Phi>) \<phi>"
+              by simp+
+            with Cons show ?thesis by linarith
+          next
+            case False
+            with Cons show ?thesis by (cases "\<phi>' = \<psi>", simp+)
+          qed
+        qed
+        ultimately show ?thesis
+          using \<open>count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>\<close>
+          by auto
+      qed
       hence "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) <~~> (\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda>"
           using inductive_hypothesis by blast
       moreover have "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) <~~> \<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>))"
@@ -343,7 +374,7 @@ proof -
           by (metis \<open>\<phi> # \<Phi> <~~> \<Psi>\<close> perm_count_list)
         from A have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> (\<phi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
           using listSubtract_removeAll_perm
-          by smt
+          by metis
         hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
           by simp
         moreover from \<open>count_list \<Phi> \<phi> < count_list \<Lambda> \<phi>\<close>
@@ -425,8 +456,7 @@ proof -
         by (meson listSubtract_cons_absorb perm.trans perm_sym) 
     }
     then show ?case 
-      using append_set_containment 
-            perm_append_swap
+      using append_set_containment
             listSubtract_cons_remove1_perm 
             Cons 
             perm.trans 
@@ -434,7 +464,7 @@ proof -
             remove1_append 
             remove1_idem 
             remove_hd
-      by smt 
+      by (metis (mono_tags, lifting))
   qed
   thus ?thesis using assms by blast
 qed

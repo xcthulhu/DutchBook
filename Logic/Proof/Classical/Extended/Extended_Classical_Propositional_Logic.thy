@@ -6,7 +6,7 @@ class Extended_Classical_Propositional_Logic = Classical_Propositional_Logic + I
             
 theorem (in Extended_Classical_Propositional_Logic) Formula_Maximally_Consistent_Set_biconditional:
   assumes "\<phi>-MCS \<Omega>"
-  shows "(\<psi> \<leftrightarrow> \<chi>) \<in> \<Omega> \<equiv> \<psi> \<in> \<Omega> \<longleftrightarrow> \<chi> \<in> \<Omega>"   
+  shows "(\<psi> \<leftrightarrow> \<chi>) \<in> \<Omega> = (\<psi> \<in> \<Omega> \<longleftrightarrow> \<chi> \<in> \<Omega>)"   
 proof -
   {
     assume "\<psi> \<in> \<Omega> \<longleftrightarrow> \<chi> \<in> \<Omega>"
@@ -17,10 +17,10 @@ proof -
                 Formula_Maximally_Consistent_Set_implication
                 set_deduction_weaken) 
   }
-  thus "(\<psi> \<leftrightarrow> \<chi>) \<in> \<Omega> \<equiv> \<psi> \<in> \<Omega> \<longleftrightarrow> \<chi> \<in> \<Omega>"
+  thus ?thesis
     using assms 
           Formula_Maximally_Consistent_Set_biconditional_elimination
-    by smt 
+    by metis
 qed
 
 end

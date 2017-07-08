@@ -128,13 +128,13 @@ lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_falsum:
 
 lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_negation:
   assumes "\<phi>-MCS \<Omega>"
-  shows "\<psi> \<rightarrow> \<bottom> \<in> \<Omega> \<equiv> \<sim> \<psi> \<in> \<Omega>"
-  by (smt assms 
-          Formula_Maximally_Consistent_Set_reflection 
-          Negation_Elimination 
-          Negation_Introduction 
-          set_deduction_modus_ponens 
-          set_deduction_weaken)
+  shows "\<psi> \<rightarrow> \<bottom> \<in> \<Omega> = (\<sim> \<psi> \<in> \<Omega>)"
+  by (metis assms 
+            Formula_Maximally_Consistent_Set_reflection 
+            Negation_Elimination 
+            Negation_Introduction 
+            set_deduction_modus_ponens 
+            set_deduction_weaken)
 
 theorem (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_biconditional_elimination:
   assumes "\<phi>-MCS \<Omega>"

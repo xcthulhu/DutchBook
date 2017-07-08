@@ -125,9 +125,9 @@ lemma (in Minimal_Logic) list_flip_implication2: "\<turnstile> \<Gamma> :\<right
 
 text {* Together the two lemmas above suffice to prove a form of the deduction theorem: *}
     
-theorem (in Minimal_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<equiv> \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
+theorem (in Minimal_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
   unfolding list_deduction_def
-  by (smt Modus_Ponens list_flip_implication1 list_flip_implication2)
+  by (metis Modus_Ponens list_flip_implication1 list_flip_implication2)
   
 subsection {* Monotonic Growth in Deductive Power *}
 
@@ -243,15 +243,15 @@ text {* The monotonic nature of deduction allows us to prove another form of the
         assumptions. *}
 
 theorem (in Minimal_Logic) alternate_list_deduction_theorem:
-  "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<equiv> (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
-  by (smt list_deduction_def
-          Modus_Ponens 
-          filter_is_subset 
-          list_deduction_monotonic 
-          list_deduction_theorem 
-          list_implication_removeAll 
-          removeAll.simps(2) 
-          removeAll_filter_not_eq)
+  "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
+  by (metis list_deduction_def
+            Modus_Ponens 
+            filter_is_subset 
+            list_deduction_monotonic 
+            list_deduction_theorem 
+            list_implication_removeAll 
+            removeAll.simps(2) 
+            removeAll_filter_not_eq)
 
 subsection {* Reflection *}
 
@@ -384,7 +384,7 @@ next
     show "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"  by (metis Axiom_2 set_deduction_weaken)
 next
     fix \<phi> \<psi>
-    show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>" using set_deduction_modus_ponens by smt
+    show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>" using set_deduction_modus_ponens by metis
 qed
 end
 
@@ -392,7 +392,7 @@ subsection {* The Deduction Theorem *}
 
 text {* The next result gives the deduction theorem for @{term "op \<tturnstile>"}. *}
 
-theorem (in Minimal_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<equiv> \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
+theorem (in Minimal_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> insert \<phi> \<Gamma> \<tturnstile> \<psi>" 
     by (metis set_deduction_def insert_mono list.simps(15) list_deduction_theorem)
@@ -407,7 +407,7 @@ proof -
     ultimately have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
       using set_deduction_def by blast 
   }
-  ultimately show "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<equiv> \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>" by smt
+  ultimately show "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>" by metis
 qed
   
 subsection {* Monotonic Growth in Deductive Power *}
@@ -426,8 +426,8 @@ text {* As a consequence of the fact that @{thm "set_deduction_monotonic"} autom
         @{thm "set_deduction_theorem"} and some basic set identities. *}  
   
 theorem (in Minimal_Logic) alternate_set_deduction_theorem: 
-  "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<equiv> \<Gamma> - {\<phi>} \<tturnstile> \<phi> \<rightarrow> \<psi>"
-  by (smt insert_Diff_single set_deduction_theorem) 
+  "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> - {\<phi>} \<tturnstile> \<phi> \<rightarrow> \<psi>"
+  by (metis insert_Diff_single set_deduction_theorem) 
 
 subsection {* Reflection *}
 
@@ -455,7 +455,7 @@ proof -
   hence "\<Gamma> \<union> \<Delta> \<tturnstile> \<phi> \<rightarrow> \<psi>" using set_deduction_def by auto 
   moreover assume "\<Delta> \<tturnstile> \<phi>"
   hence "\<Gamma> \<union> \<Delta> \<tturnstile> \<phi>" using set_deduction_def by auto 
-  ultimately show ?thesis using set_deduction_modus_ponens by smt
+  ultimately show ?thesis using set_deduction_modus_ponens by metis
 qed
 
 text {* Another lemma is shown next in order to establish the strong form of the rule. 

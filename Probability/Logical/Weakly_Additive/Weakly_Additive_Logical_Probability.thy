@@ -2,6 +2,8 @@ theory Weakly_Additive_Logical_Probability
   imports "../../../Logic/Proof/Classical/Classical_Propositional_Connectives" 
           Real
 begin
+
+sledgehammer_params [smt_proofs = false]  
   
 class Weakly_Additive_Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -32,24 +34,47 @@ lemma (in Weakly_Additive_Logical_Probability) consistency: "\<not> \<turnstile>
           
 lemma (in Weakly_Additive_Logical_Probability) falsum_implication_zero_probability:
   "\<turnstile> \<phi> \<rightarrow> \<bottom> \<Longrightarrow> Pr \<phi> = 0"
-  by (smt Alternate_Additivity Unity bivalence negation_def negation_elimination)
-  
+proof -
+  assume "\<turnstile> \<phi> \<rightarrow> \<bottom>"
+  moreover have "\<forall>\<phi> \<psi>. \<not> \<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<or> Pr \<psi> + - 1 * Pr (\<phi> \<squnion> \<psi>) + Pr \<phi> = 0"
+    by (simp add: Alternate_Additivity)
+  then have "Pr \<phi> + - 1 * Pr (\<sim> \<phi> \<squnion> \<phi>) + Pr (\<sim> \<phi>) = 0"
+    by (meson Alternate_Additivity negation_elimination)
+  ultimately show ?thesis
+    using Unity bivalence negation_def by auto
+qed
+
 lemma (in Weakly_Additive_Logical_Probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
-  by (smt Alternate_Additivity Unity bivalence negation_elimination)
+  by (metis Alternate_Additivity 
+            Unity 
+            bivalence 
+            negation_elimination 
+            add.commute 
+            add_diff_cancel_left')
 
 lemma (in Weakly_Additive_Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
-  by (smt Non_Negative complementation)
+  by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
     
 lemma (in Weakly_Additive_Logical_Probability) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
-  by (smt Alternate_Additivity 
-          Modus_Ponens 
-          complementation 
-          flip_hypothetical_syllogism 
-          negation_def 
-          unity_upper_bound)
+proof -
+  assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
+  hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<sim> \<psi>)"
+    unfolding negation_def conjunction_def
+    by (metis conjunction_def
+              exclusion_contrapositive_equivalence
+              negation_def
+              weak_biconditional_weaken)
+  hence "Pr (\<phi> \<squnion> \<sim> \<psi>) = Pr \<phi> + Pr (\<sim> \<psi>)"
+    by (simp add: Additivity)
+  hence "Pr \<phi> + Pr (\<sim> \<psi>) \<le> 1"
+    by (metis unity_upper_bound)
+  hence "Pr \<phi> + 1 - Pr \<psi> \<le> 1"
+    by (simp add: complementation)
+  thus ?thesis by linarith
+qed
            
 lemma (in Weakly_Additive_Logical_Probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
@@ -142,7 +167,7 @@ proof -
   qed
   ultimately show ?thesis
     using Additivity
-    by smt
+    by auto
 qed
 
 definition (in Minimal_Logic_With_Falsum) Binary_Probabilities :: "('a \<Rightarrow> real) set"
@@ -156,22 +181,71 @@ lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Prob
       (is "?Pr \<in> Binary_Probabilities")
 proof -
   have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> ?Pr"
-      by (standard,
-          simp,
-          meson assms
-                Formula_Maximally_Consistent_Set_reflection 
-                Maximally_Consistent_Set_def 
-                set_deduction_weaken,
-         smt assms
-             Formula_Consistent_def 
-             Formula_Maximally_Consistent_Set_def 
-             Formula_Maximally_Consistent_Set_implication 
+  proof (standard, simp,
+         meson assms
+               Formula_Maximally_Consistent_Set_reflection 
+               Maximally_Consistent_Set_def 
+               set_deduction_weaken)
+     fix \<phi> \<psi>
+     assume "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
+     hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
+       by (metis assms
+                 Formula_Consistent_def
+                 Formula_Maximally_Consistent_Set_def
+                 Maximally_Consistent_Set_def
+                 conjunction_def
+                 conjunction_negation_identity
+                 set_deduction_modus_ponens
+                 set_deduction_reflection
+                 set_deduction_weaken
+                 weak_biconditional_weaken)
+     hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
+       using assms 
              Formula_Maximally_Consistent_Set_reflection 
              Maximally_Consistent_Set_def 
-             conjunction_def 
-             disjunction_def 
-             negation_def 
-             set_deduction_weaken)
+             conjunction_deduction_equivalence 
+       by blast
+     have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
+       by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close> 
+                 assms 
+                 Formula_Maximally_Consistent_Set_implication 
+                 Maximally_Consistent_Set_def 
+                 conjunction_def 
+                 disjunction_def)
+     show "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then (1::real) else 0) 
+         = (if \<phi> \<in> \<Omega> then (1::real) else 0) + (if \<psi> \<in> \<Omega> then (1::real) else 0)"
+     proof (cases "\<phi> \<squnion> \<psi> \<in> \<Omega>")
+       case True
+       hence \<diamondsuit>: "1 = (if \<phi> \<squnion> \<psi> \<in> \<Omega> then (1::real) else 0)" by simp
+       show ?thesis
+       proof (cases "\<phi> \<in> \<Omega>")
+         case True
+         hence "\<psi> \<notin> \<Omega>"
+           using \<open>\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>\<close> 
+           by blast
+         have "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then 1 else 0) = (1::real)" using \<diamondsuit> by simp
+         also have "... = 1 + (0::real)" by linarith
+         also have "... = (if \<phi> \<in> \<Omega> then 1 else 0) + (if \<psi> \<in> \<Omega> then 1 else 0)" 
+           using \<open>\<psi> \<notin> \<Omega>\<close> \<open>\<phi> \<in> \<Omega>\<close> by simp
+         finally show ?thesis .
+       next
+         case False
+         hence "\<psi> \<in> \<Omega>"
+           using \<open>\<phi> \<squnion> \<psi> \<in> \<Omega>\<close> \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close> 
+           by blast
+         have "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then 1 else 0) = (1::real)" using \<diamondsuit> by simp
+         also have "... = (0::real) + 1" by linarith
+         also have "... = (if \<phi> \<in> \<Omega> then 1 else 0) + (if \<psi> \<in> \<Omega> then 1 else 0)" 
+           using \<open>\<psi> \<in> \<Omega>\<close> \<open>\<phi> \<notin> \<Omega>\<close> by simp
+         finally show ?thesis .
+       qed
+     next
+       case False
+       moreover from this have "\<phi> \<notin> \<Omega>" "\<psi> \<notin> \<Omega>"
+         using \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close> by blast+
+       ultimately show ?thesis by simp
+     qed
+  qed          
   thus ?thesis
     unfolding Binary_Probabilities_def
     by simp
@@ -191,14 +265,14 @@ proof (induct \<Psi>)
     by (simp, blast) 
 next
   case (Cons \<psi> \<Psi>)
-  have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> \<equiv> \<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>"
-    by (simp add: disjunction_def, 
-        smt assms 
-            Formula_Consistent_def 
-            Formula_Maximally_Consistent_Set_def
-            Formula_Maximally_Consistent_Set_implication
-            Maximally_Consistent_Set_def 
-            set_deduction_reflection)
+  have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
+    by (simp add: disjunction_def,
+        meson assms 
+              Formula_Consistent_def 
+              Formula_Maximally_Consistent_Set_def
+              Formula_Maximally_Consistent_Set_implication
+              Maximally_Consistent_Set_def 
+              set_deduction_reflection)
   thus ?case using Cons.hyps by simp
 qed    
     

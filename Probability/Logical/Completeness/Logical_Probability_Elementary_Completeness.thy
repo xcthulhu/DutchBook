@@ -1,12 +1,31 @@
 theory Logical_Probability_Elementary_Completeness
   imports "../Weakly_Additive/Weakly_Additive_Logical_Probability"
 begin
+
+sledgehammer_params [smt_proofs = false]
+
+lemma (in Weakly_Additive_Logical_Probability) disjunction_sum_inequality:
+  "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
+proof -
+  have "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
+       "0 \<le> Pr (\<phi> \<sqinter> \<psi>)"
+    by (simp add: sum_rule, simp add: Non_Negative)
+  thus ?thesis by linarith
+qed
   
 lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
-  by (induct \<Phi>, 
-      simp, smt falsum_zero_probability, 
-      simp, smt Non_Negative sum_rule sum_list.Cons)
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by (simp add: falsum_zero_probability)
+next
+  case (Cons \<phi> \<Phi>)
+  have "Pr (\<Squnion> (\<phi> # \<Phi>)) \<le> Pr \<phi> + Pr (\<Squnion> \<Phi>)"
+    using disjunction_sum_inequality
+    by simp
+  with Cons have "Pr (\<Squnion> (\<phi> # \<Phi>)) \<le> Pr \<phi> + (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" by linarith
+  then show ?case by simp
+qed
   
 lemma (in Weakly_Additive_Logical_Probability) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -15,7 +34,7 @@ lemma (in Weakly_Additive_Logical_Probability) implication_list_summation_inequa
   by blast
     
 theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
+  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
@@ -51,8 +70,8 @@ proof -
       using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability by auto
   }
   ultimately show 
-    "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
-    by smt
+    "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
+    by blast
 qed
     
 lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_set_summation_inequality:
@@ -69,15 +88,15 @@ lemma (in Weakly_Additive_Logical_Probability) implication_set_summation_inequal
   by blast
 
 theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>)"
-  by (smt List_Summation_Completeness 
-          Modus_Ponens 
-          arbitrary_disjunction_remdups 
-          biconditional_left_elimination 
-          biconditional_right_elimination 
-          hypothetical_syllogism 
-          sum.set_conv_list)
-  
+  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>))"
+  by (metis List_Summation_Completeness 
+            Modus_Ponens 
+            arbitrary_disjunction_remdups 
+            biconditional_left_elimination 
+            biconditional_right_elimination 
+            hypothetical_syllogism 
+            sum.set_conv_list)
+ 
 lemma (in Weakly_Additive_Logical_Probability) exclusive_sum_list_identity:
   assumes "\<turnstile> exclusive \<Phi>"
   shows "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
@@ -121,8 +140,8 @@ proof -
           with \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> have "set \<Phi> \<subseteq> set \<Psi>" by auto
           hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. f \<phi>) \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. f \<psi>)" 
             using Cons.hyps \<open>distinct \<Phi>\<close> by auto
-          hence ?thesis
-            using \<open>\<forall> x. f x \<ge> 0\<close> by (simp, smt)
+          moreover have "f \<psi> \<ge> 0" using \<open>\<forall> x. f x \<ge> 0\<close> by metis
+          ultimately have ?thesis by simp 
         }
         moreover
         {
@@ -154,10 +173,14 @@ qed
 lemma count_remove_all_sum_list:
   fixes f :: "'a \<Rightarrow> real"
   shows "real (count_list xs x) * f x + (\<Sum>x'\<leftarrow>(removeAll x xs). f x') = (\<Sum>x\<leftarrow>xs. f x)"
-    by (induct xs, simp, simp, smt semiring_normalization_rules(3))
+  by (induct xs, simp, simp,
+      metis (no_types, hide_lams)
+            semiring_normalization_rules(3)
+            add.commute
+            add.left_commute)
 
 theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
-  "\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
+  "(\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>) = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
 proof -
   {
     fix Pr
@@ -230,7 +253,10 @@ proof -
         fix \<Psi>
         have "(\<Sum>\<phi>\<leftarrow>\<Psi>. ?Pr \<phi>) \<ge> 0" by (induct \<Psi>, simp, simp)
       }
-      ultimately have "real (count_list \<Phi> \<phi>) * ?Pr \<phi> + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?Pr \<phi>) \<ge> 2" by smt
+      moreover have "(0::real) \<le> (\<Sum>a\<leftarrow>removeAll \<phi> \<Phi>. if a \<in> \<Omega> then 1 else 0)"
+          using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close> by presburger
+      ultimately have "real (count_list \<Phi> \<phi>) * ?Pr \<phi> + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?Pr \<phi>) \<ge> 2"
+          using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close> by linarith
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" by auto
       thus ?thesis
@@ -255,68 +281,96 @@ proof -
                 set_deduction_theorem)
     let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
     from \<phi> have "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 1"
-      by (induct \<Phi>, simp, simp, smt sum_list_0 sum_list_mono)
+    proof (induct \<Phi>)
+      case Nil
+      then show ?case by simp
+    next
+      case (Cons \<phi>' \<Phi>)
+      obtain f :: "real list \<Rightarrow> real" where f: 
+        "\<forall>rs. f rs \<in> set rs \<and> \<not> 0 \<le> f rs \<or> 0 \<le> sum_list rs"
+        using sum_list_nonneg by moura
+      moreover have "f (map ?Pr \<Phi>) \<notin> set (map ?Pr \<Phi>) \<or> 0 \<le> f (map ?Pr \<Phi>)"
+        by fastforce
+      ultimately show ?case
+        by (simp, metis Cons.hyps Cons.prems(1) \<phi>(2) set_ConsD)
+    qed
     hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" using \<psi> by auto
     hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
       using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability
       by auto
   }
-  ultimately show 
-    "\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
-    by smt
+  ultimately show ?thesis by blast
 qed
 
 theorem (in Classical_Propositional_Logic) Inequality_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>"
+  "\<turnstile> \<phi> \<rightarrow> \<psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>)"
 proof -
   have "\<turnstile> exclusive [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def verum_tautology)
-  hence "\<turnstile> exclusive [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi> \<equiv> \<turnstile> \<phi> \<rightarrow> \<psi>"
-    by (smt Arbitrary_Disjunction.simps(1) 
-            Arbitrary_Disjunction.simps(2) 
-            biconditional_weaken 
-            disjunction_def 
-            implication_equivalence 
-            negation_def 
-            set_deduction_base_theory)
-  thus "\<turnstile> \<phi> \<rightarrow> \<psi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>"
+  hence "(\<turnstile> exclusive [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+    by (metis Arbitrary_Disjunction.simps(1) 
+              Arbitrary_Disjunction.simps(2) 
+              disjunction_def implication_equivalence 
+              negation_def 
+              weak_biconditional_weaken)
+  thus ?thesis
     using Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"] 
     by auto
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
-  "\<turnstile> exclusive \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
+  "\<turnstile> exclusive \<Phi> = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>))"
 proof -
   have "\<turnstile> exclusive \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> exclusive \<Phi>"
     by (simp add: Inequality_Completeness)
   hence "\<turnstile> exclusive \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
     by (simp add: Exclusive_Implication_Completeness)
   moreover have "\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
-      using Inequality_Completeness List_Summation_Completeness by blast
-  ultimately show "\<turnstile> exclusive \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
-    by smt
+    using Inequality_Completeness List_Summation_Completeness by blast
+  ultimately show ?thesis
+    by fastforce  
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
-  "\<turnstile> exclusive (remdups \<Phi>) \<equiv> \<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
-  by (smt eq_iff 
-          Exclusive_List_Summation_Completeness 
-          Inequality_Completeness 
-          arbitrary_disjunction_monotone 
-          set_remdups 
-          sum.set_conv_list)
+  "\<turnstile> exclusive (remdups \<Phi>) = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>))"
+  by (metis (mono_tags, hide_lams) 
+            eq_iff 
+            Exclusive_Implication_Completeness 
+            Set_Summation_Completeness 
+            trivial_implication 
+            set_remdups 
+            sum.set_conv_list)
   
 lemma (in Weakly_Additive_Logical_Probability) exclusive_list_set_inequality:
   assumes "\<turnstile> exclusive \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>)"
-  by (smt assms 
-          distinct_remdups 
-          Non_Negative 
-          arbitrary_disjunction_set_summation_inequality 
-          exclusive_sum_list_identity 
-          set_eq_subset 
-          set_remdups 
-          sum.set_conv_list 
-          sum_list_monotone)
+proof -
+  have "distinct (remdups \<Phi>)" using distinct_remdups by auto
+  hence "duplicates (remdups \<Phi>) = {}"
+    by (induct "\<Phi>", simp+)
+  moreover have "set (remdups \<Phi>) = set \<Phi>"
+    by (induct "\<Phi>", simp, simp add: insert_absorb)
+  moreover have "(\<forall>\<phi>\<in>duplicates \<Phi>. \<turnstile> \<sim> \<phi>) 
+               \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
+    using assms
+          exclusive_elimination1
+          exclusive_elimination2
+          set_deduction_base_theory 
+    by blast
+  ultimately have 
+    "(\<forall>\<phi>\<in>duplicates (remdups \<Phi>). \<turnstile> \<sim> \<phi>) 
+   \<and> (\<forall> \<phi> \<in> set (remdups \<Phi>). \<forall> \<psi> \<in> set (remdups \<Phi>). (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
+    by auto
+  hence "\<turnstile> exclusive (remdups \<Phi>)"
+    by (meson exclusive_equivalence set_deduction_base_theory)
+  hence "(\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>) = Pr (\<Squnion> \<Phi>)"
+    by (metis arbitrary_disjunction_remdups 
+              biconditional_equivalence 
+              exclusive_sum_list_identity 
+              sum.set_conv_list)
+  moreover have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = Pr (\<Squnion> \<Phi>)"
+    by (simp add: assms exclusive_sum_list_identity)
+  ultimately show ?thesis by metis
+qed
 
 end

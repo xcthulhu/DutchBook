@@ -5,6 +5,8 @@ theory Classical_Propositional_Connectives
           "../../../Utilities/List_Utilities"
 begin
 
+sledgehammer_params [smt_proofs = false]  
+  
 subsection {* Verum *}    
     
 definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
@@ -232,29 +234,29 @@ subsubsection {* Biconditional Weakening *}
     
 lemma (in Classical_Propositional_Logic) biconditional_weaken:
   assumes "\<Gamma> \<tturnstile> \<phi> \<leftrightarrow> \<psi>"
-  shows "\<Gamma> \<tturnstile> \<phi> \<equiv> \<Gamma> \<tturnstile> \<psi>"
-  by (smt assms 
-          biconditional_left_elimination 
-          biconditional_right_elimination 
-          set_deduction_modus_ponens 
-          set_deduction_weaken)
+  shows "\<Gamma> \<tturnstile> \<phi> = \<Gamma> \<tturnstile> \<psi>"
+  by (metis assms 
+            biconditional_left_elimination 
+            biconditional_right_elimination 
+            set_deduction_modus_ponens 
+            set_deduction_weaken)
 
 lemma (in Classical_Propositional_Logic) list_biconditional_weaken:
   assumes "\<Gamma> :\<turnstile> \<phi> \<leftrightarrow> \<psi>"
-  shows "\<Gamma> :\<turnstile> \<phi> \<equiv> \<Gamma> :\<turnstile> \<psi>"
-  by (smt assms 
-          biconditional_left_elimination 
-          biconditional_right_elimination 
-          list_deduction_modus_ponens 
-          list_deduction_weaken)        
+  shows "\<Gamma> :\<turnstile> \<phi> = \<Gamma> :\<turnstile> \<psi>"
+  by (metis assms 
+            biconditional_left_elimination 
+            biconditional_right_elimination 
+            list_deduction_modus_ponens 
+            list_deduction_weaken)        
 
 lemma (in Classical_Propositional_Logic) weak_biconditional_weaken:
   assumes "\<turnstile> \<phi> \<leftrightarrow> \<psi>"
-  shows "\<turnstile> \<phi> \<equiv> \<turnstile> \<psi>"
-  by (smt assms 
-          biconditional_left_elimination 
-          biconditional_right_elimination 
-          Modus_Ponens)        
+  shows "\<turnstile> \<phi> = \<turnstile> \<psi>"
+  by (metis assms 
+            biconditional_left_elimination 
+            biconditional_right_elimination 
+            Modus_Ponens)        
         
 subsubsection {* Conjunction Identities *}
 
@@ -268,16 +270,17 @@ lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
             negation_def)
 
 lemma (in Classical_Propositional_Logic) conjunction_deduction_equivalence [simp]:
-  "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> \<equiv> \<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>"
+  "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>)"
   using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
         set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
-  by (smt conjunction_introduction conjunction_left_elimination conjunction_right_elimination)
+  by (metis conjunction_introduction 
+            conjunction_left_elimination 
+            conjunction_right_elimination)
 
 lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
-  "\<turnstile> \<phi> \<sqinter> \<psi> \<equiv> \<turnstile> \<phi> \<and> \<turnstile> \<psi>"
-  by (smt conjunction_deduction_equivalence set_deduction_base_theory)
+  "\<turnstile> \<phi> \<sqinter> \<psi> = (\<turnstile> \<phi> \<and> \<turnstile> \<psi>)"
+  by (metis conjunction_deduction_equivalence set_deduction_base_theory)
 
-    
 lemma (in Classical_Propositional_Logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis (full_types) Modus_Ponens 
@@ -766,9 +769,9 @@ lemma (in Classical_Propositional_Logic) double_negation_biconditional:
   by (simp add: Double_Negation Double_Negation_converse)
   
 lemma (in Classical_Propositional_Logic) double_negation_elimination [simp]:
-  "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) \<equiv> \<Gamma> \<tturnstile> \<phi>"
+  "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) = \<Gamma> \<tturnstile> \<phi>"
   using set_deduction_weaken biconditional_weaken double_negation_biconditional
-  by smt
+  by metis
 
 lemma (in Classical_Propositional_Logic) alt_double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<Gamma> \<tturnstile> \<phi>"
@@ -777,9 +780,8 @@ lemma (in Classical_Propositional_Logic) alt_double_negation_elimination [simp]:
   by auto
     
 lemma (in Classical_Propositional_Logic) base_double_negation_elimination [simp]:    
-  "\<turnstile> \<sim> (\<sim> \<phi>) \<equiv> \<turnstile> \<phi>"
-  by (smt double_negation_elimination set_deduction_base_theory)
-  
+  "\<turnstile> \<sim> (\<sim> \<phi>) = \<turnstile> \<phi>"
+  by (metis double_negation_elimination set_deduction_base_theory)
 
 lemma (in Classical_Propositional_Logic) alt_base_double_negation_elimination [simp]:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<turnstile> \<phi>"
@@ -818,13 +820,13 @@ next
   qed
   ultimately have "\<turnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) \<leftrightarrow> (\<sim> (\<psi> \<sqinter> \<phi>) \<sqinter> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>))"
     by simp
-  hence "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) \<equiv> \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>) \<and> (\<forall>\<phi>\<in>set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>))"
+  hence "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) = (\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>) \<and> (\<forall>\<phi>\<in>set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)))"
     using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
           conjunction_deduction_equivalence [where \<Gamma>="\<Gamma>"]
           Cons.hyps
           biconditional_def
           set_deduction_modus_ponens
-    by smt
+    by metis
   thus "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) = (\<forall>\<phi>\<in>set (\<phi> # \<Phi>). \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>))"
     by simp
 qed  
@@ -913,8 +915,8 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) exclusive_equivalence:
-   "\<Gamma> \<tturnstile> exclusive \<Phi> \<equiv> 
-    (\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
+   "\<Gamma> \<tturnstile> exclusive \<Phi> = 
+    ((\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)))"
 proof -
   {
     assume "\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>"
@@ -987,9 +989,8 @@ proof -
       qed
     qed
   }
-  thus "\<Gamma> \<tturnstile> exclusive \<Phi> \<equiv> 
-        (\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
-    by (smt exclusive_elimination1 exclusive_elimination2)
+  thus ?thesis
+    by (metis exclusive_elimination1 exclusive_elimination2)
 qed
 
   

@@ -2,6 +2,8 @@ theory Extended_Classical_Propositional_Calculus
   imports Extended_Classical_Propositional_Logic
 begin
 
+sledgehammer_params [smt_proofs = false]
+  
 datatype 'a Extended_Classical_Propositional_Formula =
       Falsum                                            ("\<^bold>\<bottom>")
     | Verum                                             ("\<^bold>\<top>")
@@ -78,8 +80,8 @@ primrec Extended_Classical_Propositional_Semantics ::
     |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<^bold>\<bottom> = False"
     |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<^bold>\<top> = True"
     |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<^bold>\<sim> \<phi> = (~ \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>)"
-    |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<^bold>\<sqinter> \<psi> = (\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<and>  \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<psi>)"
-    |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<^bold>\<squnion> \<psi> = (\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<or>  \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<psi>)"
+    |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<^bold>\<sqinter> \<psi> = (\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<and> \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<psi>)"
+    |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<^bold>\<squnion> \<psi> = (\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<or> \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<psi>)"
     |  "\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<^bold>\<leftrightarrow> \<psi> = (\<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<longleftrightarrow> \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<psi>)"
       
 theorem Extended_Classical_Propositional_Calculus_Soundness:
@@ -90,13 +92,13 @@ definition Strong_Extended_Classical_Propositional_Deduction ::
   "'a Extended_Classical_Propositional_Formula set \<Rightarrow> 'a Extended_Classical_Propositional_Formula \<Rightarrow> bool"  
   (infix "\<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P" 65)
   where
-    [simp]: "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<Gamma> \<tturnstile> \<phi>"
+    [simp]: "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = \<Gamma> \<tturnstile> \<phi>"
   
 definition Strong_Extended_Classical_Propositional_Models ::
   "'a Extended_Classical_Propositional_Formula set \<Rightarrow> 'a Extended_Classical_Propositional_Formula \<Rightarrow> bool"  
   (infix "\<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P" 65)
   where
-    [simp]: "\<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<forall> \<MM>.(\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<gamma>) \<longrightarrow> \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
+    [simp]: "\<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = (\<forall> \<MM>.(\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<gamma>) \<longrightarrow> \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>)"
     
 definition Extended_Theory_Propositions :: 
   "'a Extended_Classical_Propositional_Formula set \<Rightarrow> 'a set" ("\<^bold>\<lbrace> _ \<^bold>\<rbrace>" [50])
@@ -105,7 +107,7 @@ definition Extended_Theory_Propositions ::
 
 lemma Truth_Lemma:
   assumes "MCS \<Gamma>"
-  shows "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
+  shows "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = \<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
   unfolding Strong_Extended_Classical_Propositional_Deduction_def
 proof (induct \<phi>)
   case Falsum
@@ -174,7 +176,7 @@ next
 qed
 
 theorem Extended_Classical_Propositional_Calculus_Strong_Soundness_And_Completeness:
-  "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
+  "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = \<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
 proof -
   have soundness: "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<Longrightarrow> \<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>" 
   proof -
@@ -206,20 +208,34 @@ proof -
     proof -
       from \<open>~ \<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>\<close> obtain \<Omega> where \<Omega>: "\<Gamma> \<subseteq> \<Omega>" "\<phi>-MCS \<Omega>"
         by (meson Formula_Consistent_def 
-                  Formula_Maximally_Consistent_Extension 
+                  Formula_Maximally_Consistent_Extension
                   Strong_Extended_Classical_Propositional_Deduction_def)
-      hence "(\<phi> \<rightarrow> \<bottom>) \<in> \<Omega>"
-        using Formula_Maximal_Consistent_Set_negation by blast
-      hence "~ \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
-        using \<Omega>
-              Formula_Consistent_def 
-              Formula_Maximal_Consistency 
-              Formula_Maximally_Consistent_Set_def 
-              Truth_Lemma 
-        unfolding Strong_Extended_Classical_Propositional_Deduction_def
+      have "MCS \<Omega>"
+        by (meson \<Omega>(2)
+                  Formula_Maximal_Consistency
+                  Formula_Consistent_def 
+                  Formula_Maximally_Consistent_Set_def
+                  Formula_Maximally_Consistent_Set_falsum
+                  Formula_Maximally_Consistent_Set_implication
+                  Formula_Maximally_Consistent_Set_reflection
+                  Maximally_Consistent_Set_def)
+      hence \<star>: "\<forall> \<phi>. \<Omega> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
+        using Truth_Lemma [where \<Gamma>="\<Omega>"]
+        by blast
+      moreover have "(\<phi> \<rightarrow> \<bottom>) \<in> \<Omega>"
+        using \<Omega>(2) Formula_Maximal_Consistent_Set_negation by blast
+      hence "\<Omega> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<rightarrow> \<bottom>"
+        by (simp add: set_deduction_reflection)
+      ultimately have "~ \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
+        using set_deduction_modus_ponens [where \<Gamma>="\<Omega>" and \<phi>="\<phi>" and \<psi>="\<bottom>"]
+              Strong_Extended_Classical_Propositional_Deduction_def
+              \<open>MCS \<Omega>\<close>
+        unfolding Maximally_Consistent_Set_def
+                  Formula_Maximally_Consistent_Set_def
+                  Formula_Consistent_def
         by blast
       moreover have "\<forall> \<gamma> \<in> \<Gamma>. \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<gamma>"
-        using Formula_Maximal_Consistency Truth_Lemma \<Omega> set_deduction_reflection 
+        using \<star> \<Omega>(1) set_deduction_reflection 
         unfolding Strong_Extended_Classical_Propositional_Deduction_def
         by blast  
       ultimately show ?thesis by auto
@@ -228,16 +244,16 @@ proof -
       unfolding Strong_Extended_Classical_Propositional_Models_def
       by simp
   qed
-  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>" by smt
+  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = \<Gamma> \<TTurnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>" by metis
 qed
 
 theorem Extended_Classical_Propositional_Calculus_Soundness_And_Completeness:
-  "\<turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> \<equiv> \<forall>\<MM>. \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>"
-  by (smt Extended_Classical_Propositional_Calculus_Strong_Soundness_And_Completeness 
-          Extended_Classical_Propositional_Calculus_Soundness 
-          Strong_Extended_Classical_Propositional_Deduction_def 
-          Strong_Extended_Classical_Propositional_Models_def 
-          proves_Extended_Classical_Propositional_Formula_def 
-          set_deduction_base_theory)
-        
+  "\<turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi> = (\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>P\<^sub>R\<^sub>O\<^sub>P \<phi>)"
+  by (metis Extended_Classical_Propositional_Calculus_Strong_Soundness_And_Completeness 
+            Extended_Classical_Propositional_Calculus_Soundness 
+            Strong_Extended_Classical_Propositional_Deduction_def 
+            Strong_Extended_Classical_Propositional_Models_def 
+            proves_Extended_Classical_Propositional_Formula_def 
+            set_deduction_base_theory)
+
 end

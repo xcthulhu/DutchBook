@@ -142,17 +142,21 @@ proof -
       unfolding Strong_Classical_Propositional_Models_def
       by simp
   qed
-  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>" by smt
+  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
+    by linarith 
 qed
 
 theorem Classical_Propositional_Calculus_Soundness_And_Completeness:
-  "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
-  by (smt Classical_Propositional_Calculus_Soundness 
-          Classical_Propositional_Calculus_Strong_Soundness_And_Completeness 
-          Strong_Classical_Propositional_Deduction_def 
-          Strong_Classical_Propositional_Models_def 
-          proves_Classical_Propositional_Formula_def 
-          set_deduction_base_theory)
+  "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = (\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>)"
+  using Classical_Propositional_Calculus_Soundness [where \<phi>="\<phi>"]
+        Classical_Propositional_Calculus_Strong_Soundness_And_Completeness [where \<phi>="\<phi>" 
+                                                                              and \<Gamma>="{}"]
+        Strong_Classical_Propositional_Deduction_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
+        Strong_Classical_Propositional_Models_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
+        proves_Classical_Propositional_Formula_def [where \<phi>="\<phi>"]
+        set_deduction_base_theory [where \<phi>="\<phi>"]
+  by metis
+    
 
 primrec (in Classical_Propositional_Logic) Classical_Propositional_Formula_embedding
                            :: "'a Classical_Propositional_Formula \<Rightarrow> 'a" ("\<^bold>\<lparr> _ \<^bold>\<rparr>" [50]) where
