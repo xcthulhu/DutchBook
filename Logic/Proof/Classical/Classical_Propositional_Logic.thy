@@ -5,19 +5,19 @@ theory Classical_Propositional_Logic
 begin
 
 sledgehammer_params [smt_proofs = false]
-  
-text {* This theory presents \emph{Classical propositional logic}, which is 
+
+text {* This theory presents \emph{Classical propositional logic}, which is
         a classical logic without quantifiers. *}
 
 subsection {* Axiomatization *}
 
 text {* Minimal logic is given by the following Hilbert-style axiom system: *}
-  
+
 class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
 
 subsection {* Common Rules *}
-  
+
 lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism by blast
 
@@ -30,7 +30,7 @@ proof -
     by presburger
   hence "[\<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
     using list_deduction_theorem by blast
-  hence "[\<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<phi>" 
+  hence "[\<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<phi>"
     using Double_Negation list_deduction_weaken list_deduction_modus_ponens
     by blast
   thus ?thesis
@@ -39,19 +39,19 @@ qed
 
 lemma (in Classical_Propositional_Logic) Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson Axiom_1 Modus_Ponens flip_implication)
-  
+
 lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
-    
+
 lemma (in Classical_Propositional_Logic) Peirces_law: "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
     using The_Principle_of_Pseudo_Scotus list_deduction_theorem list_deduction_weaken by blast
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
-    by (meson list.set_intros(1) 
-              list_deduction_reflection 
-              list_deduction_modus_ponens 
-              set_subset_Cons 
+    by (meson list.set_intros(1)
+              list_deduction_reflection
+              list_deduction_modus_ponens
+              set_subset_Cons
               subsetCE)
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<bottom>"
     by (meson list.set_intros(1) list_deduction_modus_ponens list_deduction_reflection)
@@ -72,46 +72,46 @@ proof -
        "?\<Gamma> :\<turnstile> \<psi> \<rightarrow> \<bottom>"
     by (simp add: list_deduction_reflection)+
   hence "?\<Gamma> :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-    by (meson flip_hypothetical_syllogism 
-              list_deduction_base_theory 
-              list_deduction_monotonic 
-              list_deduction_theorem 
+    by (meson flip_hypothetical_syllogism
+              list_deduction_base_theory
+              list_deduction_monotonic
+              list_deduction_theorem
               set_subset_Cons)
   hence "?\<Gamma> :\<turnstile> \<phi>"
-    using Double_Negation 
-          list_deduction_modus_ponens 
-          list_deduction_weaken 
+    using Double_Negation
+          list_deduction_modus_ponens
+          list_deduction_weaken
     by blast
   hence "?\<Gamma> :\<turnstile> \<psi>"
-    by (meson list.set_intros(1) 
-              list_deduction_modus_ponens 
-              list_deduction_reflection 
+    by (meson list.set_intros(1)
+              list_deduction_modus_ponens
+              list_deduction_reflection
               set_subset_Cons subsetCE)
   hence "[\<phi> \<rightarrow> \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>] :\<turnstile> \<psi>"
-    using Peirces_law 
-          list_deduction_modus_ponens 
-          list_deduction_theorem 
-          list_deduction_weaken 
+    using Peirces_law
+          list_deduction_modus_ponens
+          list_deduction_theorem
+          list_deduction_weaken
     by blast
   thus ?thesis
     unfolding list_deduction_def
-    by simp   
+    by simp
 qed
-          
+
 subsection {* Maximally Consistent Sets *}
 
-definition (in Minimal_Logic) 
-  Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100) where 
-    [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"    
-    
+definition (in Minimal_Logic)
+  Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100) where
+    [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"
+
 lemma (in Minimal_Logic) Formula_Consistent_Extension:
-  assumes "\<phi>-Consistent \<Gamma>" 
+  assumes "\<phi>-Consistent \<Gamma>"
   shows "(\<phi>-Consistent insert \<psi> \<Gamma>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>)"
 proof -
   {
     assume "~ \<phi>-Consistent insert \<psi> \<Gamma>"
-    hence "\<Gamma> \<tturnstile> \<psi> \<rightarrow> \<phi>" 
-      using set_deduction_theorem 
+    hence "\<Gamma> \<tturnstile> \<psi> \<rightarrow> \<phi>"
+      using set_deduction_theorem
       unfolding Formula_Consistent_def
       by simp
     hence "\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>"
@@ -120,18 +120,18 @@ proof -
   thus ?thesis by blast
 qed
 
-definition (in Minimal_Logic) 
+definition (in Minimal_Logic)
   Formula_Maximally_Consistent_Set :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100) where
    [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
-  
+
 theorem (in Minimal_Logic) Formula_Maximally_Consistent_Extension:
-  assumes "\<phi>-Consistent \<Gamma>" 
+  assumes "\<phi>-Consistent \<Gamma>"
   shows "\<exists> \<Omega>. (\<phi>-MCS \<Omega>) \<and> \<Gamma> \<subseteq> \<Omega>"
 proof -
   let ?\<Gamma>_Extensions = "{\<Sigma>. (\<phi>-Consistent \<Sigma>) \<and> \<Gamma> \<subseteq> \<Sigma>}"
   have "\<exists> \<Omega> \<in> ?\<Gamma>_Extensions. \<forall>\<Sigma> \<in> ?\<Gamma>_Extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>"
   proof (rule subset_Zorn)
-    fix \<C> :: "'a set set" 
+    fix \<C> :: "'a set set"
     assume subset_chain_\<C>: "subset.chain ?\<Gamma>_Extensions \<C>"
     hence \<C>:  "\<forall> \<Sigma> \<in> \<C>. \<Gamma> \<subseteq> \<Sigma>" "\<forall> \<Sigma> \<in> \<C>. \<phi>-Consistent \<Sigma>"
       unfolding subset.chain_def by blast+
@@ -147,39 +147,39 @@ proof -
         {
           assume "~ \<phi>-Consistent ?\<Omega>"
           then obtain \<omega> where \<omega>: "finite \<omega>" "\<omega> \<subseteq> ?\<Omega>" "~ \<phi>-Consistent \<omega>"
-            unfolding Formula_Consistent_def 
-                      set_deduction_def 
+            unfolding Formula_Consistent_def
+                      set_deduction_def
             by auto
-          from \<omega>(1) \<omega>(2) have "\<exists> \<Sigma> \<in> \<C>. \<omega> \<subseteq> \<Sigma>" 
+          from \<omega>(1) \<omega>(2) have "\<exists> \<Sigma> \<in> \<C>. \<omega> \<subseteq> \<Sigma>"
           proof (induct \<omega> rule: finite_induct)
-            case empty thus ?case using \<open>\<C> \<noteq> {}\<close> by blast 
+            case empty thus ?case using \<open>\<C> \<noteq> {}\<close> by blast
           next
             case (insert \<psi> \<omega>)
-            from this obtain \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 where 
-              \<Sigma>\<^sub>1: "\<omega> \<subseteq> \<Sigma>\<^sub>1" "\<Sigma>\<^sub>1 \<in> \<C>" and 
+            from this obtain \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 where
+              \<Sigma>\<^sub>1: "\<omega> \<subseteq> \<Sigma>\<^sub>1" "\<Sigma>\<^sub>1 \<in> \<C>" and
               \<Sigma>\<^sub>2: "\<psi> \<in> \<Sigma>\<^sub>2" "\<Sigma>\<^sub>2 \<in> \<C>"
               by auto
-            hence "\<Sigma>\<^sub>1 \<subseteq> \<Sigma>\<^sub>2 \<or> \<Sigma>\<^sub>2 \<subseteq> \<Sigma>\<^sub>1" 
-              using subset_chain_\<C> 
+            hence "\<Sigma>\<^sub>1 \<subseteq> \<Sigma>\<^sub>2 \<or> \<Sigma>\<^sub>2 \<subseteq> \<Sigma>\<^sub>1"
+              using subset_chain_\<C>
               unfolding subset.chain_def
               by blast
             hence "(insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>1 \<or> (insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>2" using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
             thus ?case using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
           qed
-          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> ~ (\<phi>-Consistent \<Sigma>)" 
+          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> ~ (\<phi>-Consistent \<Sigma>)"
             using \<C>(2) \<omega>(3)
-            unfolding Formula_Consistent_def 
+            unfolding Formula_Consistent_def
                       set_deduction_def
             by auto
           hence "False" by auto
-        } 
+        }
         thus ?thesis by blast
       qed
       ultimately show ?thesis by blast
     qed
   qed
-  then obtain \<Omega> where \<Omega>: "\<Omega> \<in> ?\<Gamma>_Extensions" 
-                          "\<forall>\<Sigma> \<in> ?\<Gamma>_Extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>" by auto+ 
+  then obtain \<Omega> where \<Omega>: "\<Omega> \<in> ?\<Gamma>_Extensions"
+                          "\<forall>\<Sigma> \<in> ?\<Gamma>_Extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>" by auto+
   {
     fix \<psi>
     have "(\<phi>-Consistent insert \<psi> \<Omega>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
@@ -198,10 +198,10 @@ proof -
   assume "\<phi>-MCS \<Gamma>"
   {
     assume "\<Gamma> \<tturnstile> \<psi>"
-    moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "~ \<Gamma> \<tturnstile> \<phi>" 
-      unfolding Formula_Maximally_Consistent_Set_def Formula_Consistent_def 
+    moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "~ \<Gamma> \<tturnstile> \<phi>"
+      unfolding Formula_Maximally_Consistent_Set_def Formula_Consistent_def
       by auto
-    ultimately have "\<psi> \<in> \<Gamma>" 
+    ultimately have "\<psi> \<in> \<Gamma>"
       using set_deduction_reflection set_deduction_modus_ponens
       by metis
   }
@@ -209,12 +209,12 @@ proof -
     using set_deduction_reflection
     by metis
 qed
-  
-definition (in Classical_Propositional_Logic) 
-  Consistent :: "'a set \<Rightarrow> bool" where 
-    [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-Consistent \<Gamma>"  
-  
-definition (in Classical_Propositional_Logic) 
+
+definition (in Classical_Propositional_Logic)
+  Consistent :: "'a set \<Rightarrow> bool" where
+    [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-Consistent \<Gamma>"
+
+definition (in Classical_Propositional_Logic)
   Maximally_Consistent_Set :: "'a set \<Rightarrow> bool" ("MCS") where
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
@@ -232,11 +232,11 @@ proof -
       using set_deduction_reflection
       by simp
     hence "\<Gamma> \<tturnstile> \<phi>"
-      using Peirces_law 
-            set_deduction_modus_ponens 
+      using Peirces_law
+            set_deduction_modus_ponens
             set_deduction_weaken
          by metis
-    hence "False" 
+    hence "False"
       using \<open>\<phi>-MCS \<Gamma>\<close>
       unfolding Formula_Maximally_Consistent_Set_def
                 Formula_Consistent_def
@@ -244,7 +244,7 @@ proof -
   }
   thus ?thesis by blast
 qed
-  
+
 lemma (in Classical_Propositional_Logic) Formula_Maximal_Consistency:
   "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
 proof -
@@ -257,7 +257,7 @@ proof -
         using \<open>\<phi>-MCS \<Gamma>\<close>
               Ex_Falso_Quodlibet [where \<phi>="\<phi>"]
               set_deduction_weaken [where \<Gamma>="\<Gamma>"]
-              set_deduction_modus_ponens 
+              set_deduction_modus_ponens
         unfolding Formula_Maximally_Consistent_Set_def
                   Consistent_def
                   Formula_Consistent_def
@@ -268,14 +268,14 @@ proof -
         proof -
           assume "\<psi> \<rightarrow> \<bottom> \<notin> \<Gamma>"
           hence "(\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<in> \<Gamma>"
-            using \<open>\<phi>-MCS \<Gamma>\<close> 
-            unfolding Formula_Maximally_Consistent_Set_def 
+            using \<open>\<phi>-MCS \<Gamma>\<close>
+            unfolding Formula_Maximally_Consistent_Set_def
             by blast
           hence "\<Gamma> \<tturnstile> (\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
             using set_deduction_reflection
             by simp
           also have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<bottom>"
-            using \<open>\<phi>-MCS \<Gamma>\<close> 
+            using \<open>\<phi>-MCS \<Gamma>\<close>
                   Formula_Maximal_Consistent_Set_negation
                   set_deduction_reflection
             by simp
@@ -296,8 +296,8 @@ proof -
             by blast
        qed
       }
-      ultimately show ?thesis 
-        unfolding Maximally_Consistent_Set_def 
+      ultimately show ?thesis
+        unfolding Maximally_Consistent_Set_def
                   Formula_Maximally_Consistent_Set_def
                   Formula_Consistent_def
                   Consistent_def
@@ -312,11 +312,11 @@ qed
 theorem (in Minimal_Logic) Formula_Maximally_Consistent_Set_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<longrightarrow> \<chi> \<in> \<Omega>"
-  using assms 
-        Formula_Maximally_Consistent_Set_reflection 
-        set_deduction_modus_ponens 
-  by blast  
-  
+  using assms
+        Formula_Maximally_Consistent_Set_reflection
+        set_deduction_modus_ponens
+  by blast
+
 lemma (in Classical_Propositional_Logic) Formula_Maximally_Consistent_Set_implication:
   assumes "\<phi>-MCS \<Gamma>"
   shows "\<psi> \<rightarrow> \<chi> \<in> \<Gamma> = (\<psi> \<in> \<Gamma> \<longrightarrow> \<chi> \<in> \<Gamma>)"
@@ -339,18 +339,18 @@ proof -
                   set_deduction_theorem
                   set_deduction_weaken)
       hence "\<psi> \<rightarrow> \<chi> \<in> \<Gamma>"
-        by (meson \<open>\<psi> \<notin> \<Gamma>\<close> 
+        by (meson \<open>\<psi> \<notin> \<Gamma>\<close>
                   assms
                   Formula_Maximally_Consistent_Set_def
                   Formula_Maximally_Consistent_Set_reflection
-                  set_deduction_theorem)              
+                  set_deduction_theorem)
     }
     moreover {
       assume "\<chi> \<in> \<Gamma>"
       hence "\<psi> \<rightarrow> \<chi> \<in> \<Gamma>"
-        by (metis assms 
-                  calculation 
-                  insert_absorb 
+        by (metis assms
+                  calculation
+                  insert_absorb
                   Formula_Maximally_Consistent_Set_reflection
                   set_deduction_theorem)
     }
@@ -361,5 +361,5 @@ proof -
           Formula_Maximally_Consistent_Set_implication_elimination
     by metis
 qed
-  
+
 end
