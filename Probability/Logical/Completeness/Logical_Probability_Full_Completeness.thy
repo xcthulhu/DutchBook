@@ -4888,6 +4888,83 @@ proof -
   thus ?thesis by blast
 qed
 
+lemma (in Classical_Propositional_Logic) right_segmented_sub:
+  assumes "\<turnstile> \<phi> \<leftrightarrow> \<psi>"
+  shows "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = \<Gamma> $\<turnstile> (\<psi> # \<Phi>)"
+proof -
+  have "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<psi> # \<Gamma>) $\<turnstile> (\<psi> # \<phi> # \<Phi>)"
+    using segmented_cancel [where \<Delta>="[\<psi>]" and \<Gamma>="\<Gamma>" and \<Phi>="\<phi> # \<Phi>"] by simp
+  also have "... = (\<psi> # \<Gamma>) $\<turnstile> (\<phi> # \<psi> # \<Phi>)"
+    using segmented_cons_cons_right_permute by blast
+  also have "... = \<Gamma> $\<turnstile> (\<psi> # \<Phi>)"
+    using assms biconditional_symmetry_rule segmented_biconditional_cancel by blast
+  finally show ?thesis .
+qed
+
+lemma (in Classical_Propositional_Logic) left_segmented_sub:
+  assumes "\<turnstile> \<gamma> \<leftrightarrow> \<chi>"
+  shows "(\<gamma> # \<Gamma>) $\<turnstile> \<Phi> = (\<chi> # \<Gamma>) $\<turnstile> \<Phi>"
+proof -
+  have "(\<gamma> # \<Gamma>) $\<turnstile> \<Phi> = (\<chi> # \<gamma> # \<Gamma>) $\<turnstile> (\<chi> # \<Phi>)"
+    using segmented_cancel [where \<Delta>="[\<chi>]" and \<Gamma>="(\<gamma> # \<Gamma>)" and \<Phi>="\<Phi>"] by simp
+  also have "... = (\<gamma> # \<chi> # \<Gamma>) $\<turnstile> (\<chi> # \<Phi>)"
+    by (metis segmented_msub_left_monotonic mset_eq_perm perm.swap subset_mset.dual_order.refl) 
+  also have "... = (\<chi> # \<Gamma>) $\<turnstile> \<Phi>"
+    using assms biconditional_symmetry_rule segmented_biconditional_cancel by blast
+  finally show ?thesis .
+qed
+
+lemma (in Classical_Propositional_Logic) right_segmented_sum_rule:
+  "\<Gamma> $\<turnstile> (\<alpha> # \<beta> # \<Phi>) = \<Gamma> $\<turnstile> (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Phi>)"
+proof -
+  have A: "mset (\<alpha> \<squnion> \<beta> # \<beta> \<rightarrow> \<alpha> # \<beta> # \<Phi>) = mset (\<beta> \<rightarrow> \<alpha> # \<beta> # \<alpha> \<squnion> \<beta> # \<Phi>)" by simp
+  have B: "\<turnstile> (\<beta> \<rightarrow> \<alpha>) \<leftrightarrow> (\<beta> \<rightarrow> (\<alpha> \<sqinter> \<beta>))"
+  proof -
+    let ?\<phi> = "(\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<beta>\<^bold>\<rangle>))"
+    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+    hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+    thus ?thesis by simp
+  qed
+  have C: "\<turnstile> \<beta> \<leftrightarrow> (\<beta> \<squnion> (\<alpha> \<sqinter> \<beta>))"
+  proof -
+    let ?\<phi> = "\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<beta>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<beta>\<^bold>\<rangle>))"
+    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+    hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+    thus ?thesis by simp
+  qed
+  have "\<Gamma> $\<turnstile> (\<alpha> # \<beta> # \<Phi>) = \<Gamma> $\<turnstile> (\<beta> \<squnion> \<alpha> # \<beta> \<rightarrow> \<alpha> # \<beta> # \<Phi>)"
+    using segmented_formula_right_split by blast
+  also have "... = \<Gamma> $\<turnstile> (\<alpha> \<squnion> \<beta> # \<beta> \<rightarrow> \<alpha> # \<beta> # \<Phi>)"
+    using disjunction_commutativity right_segmented_sub by blast
+  also have "... = \<Gamma> $\<turnstile> (\<beta> \<rightarrow> \<alpha> # \<beta> # \<alpha> \<squnion> \<beta> # \<Phi>)"
+    by (metis A segmented_msub_weaken subset_mset.dual_order.refl)
+  also have "... = \<Gamma> $\<turnstile> (\<beta> \<rightarrow> (\<alpha> \<sqinter> \<beta>) # \<beta> # \<alpha> \<squnion> \<beta> # \<Phi>)"
+    using B right_segmented_sub by blast
+  also have "... = \<Gamma> $\<turnstile> (\<beta> # \<beta> \<rightarrow> (\<alpha> \<sqinter> \<beta>) # \<alpha> \<squnion> \<beta> # \<Phi>)"
+    using segmented_cons_cons_right_permute by blast
+  also have "... = \<Gamma> $\<turnstile> (\<beta> \<squnion> (\<alpha> \<sqinter> \<beta>) # \<beta> \<rightarrow> (\<alpha> \<sqinter> \<beta>) # \<alpha> \<squnion> \<beta> # \<Phi>)"
+    using C right_segmented_sub by blast
+  also have "... = \<Gamma> $\<turnstile> (\<alpha> \<sqinter> \<beta> # \<alpha> \<squnion> \<beta> # \<Phi>)"
+    using segmented_formula_right_split by blast
+  finally show ?thesis 
+    using segmented_cons_cons_right_permute by blast
+qed
+
+lemma (in Classical_Propositional_Logic) left_segmented_sum_rule:
+  "(\<alpha> # \<beta> # \<Gamma>) $\<turnstile> \<Phi> = (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Gamma>) $\<turnstile> \<Phi>"
+proof -
+  have \<star>: "mset (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<alpha> # \<beta> # \<Gamma>) = mset (\<alpha> # \<beta> # \<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Gamma>)" by simp
+  have "(\<alpha> # \<beta> # \<Gamma>) $\<turnstile> \<Phi> = (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<alpha> # \<beta> # \<Gamma>) $\<turnstile> (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Phi>)"
+    using segmented_cancel [where \<Delta>="[\<alpha> \<squnion> \<beta>, \<alpha> \<sqinter> \<beta>]" and \<Gamma>="(\<alpha> # \<beta> # \<Gamma>)" and \<Phi>="\<Phi>"] by simp
+  also have "... = (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<alpha> # \<beta> # \<Gamma>) $\<turnstile> (\<alpha> # \<beta> # \<Phi>)"
+    using right_segmented_sum_rule by blast
+  also have "... = (\<alpha> # \<beta> # \<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Gamma>) $\<turnstile> (\<alpha> # \<beta> # \<Phi>)"
+    by (metis \<star> segmented_msub_left_monotonic subset_mset.dual_order.refl)
+  also have "... = (\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Gamma>) $\<turnstile> \<Phi>"
+    using segmented_cancel [where \<Delta>="[\<alpha>, \<beta>]" and \<Gamma>="(\<alpha> \<squnion> \<beta> # \<alpha> \<sqinter> \<beta> # \<Gamma>)" and \<Phi>="\<Phi>"] by simp
+  finally show ?thesis .
+qed
+    
 lemma (in Classical_Propositional_Logic) segmented_exchange:
   "(\<gamma> # \<Gamma>) $\<turnstile> (\<phi> # \<Phi>) = (\<phi> \<rightarrow> \<gamma> # \<Gamma>) $\<turnstile> (\<gamma> \<rightarrow> \<phi> # \<Phi>)"
 proof -
@@ -4900,8 +4977,8 @@ proof -
     using segmented_biconditional_cancel
           disjunction_commutativity
     by blast
-qed
-
+qed  
+  
 lemma (in Classical_Propositional_Logic) segmented_negation_swap:
   "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> # \<Phi>)"
 proof -
