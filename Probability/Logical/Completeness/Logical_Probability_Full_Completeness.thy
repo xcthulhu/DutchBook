@@ -5684,7 +5684,34 @@ next
     by blast
   thus ?case by simp
 qed
-
+  
+lemma (in Classical_Propositional_Logic) disj_conj_impl_duality:
+  "\<turnstile> (\<phi> \<rightarrow> \<chi> \<sqinter> \<psi> \<rightarrow> \<chi>) \<leftrightarrow> ((\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>)"
+proof -
+  let ?\<phi> = "(\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
+  have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+  hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+  thus ?thesis by simp
+qed
+  
+lemma (in Classical_Propositional_Logic) disj_of_conj_equiv:
+  "(\<forall>\<sigma>\<in>set \<Sigma>. \<sigma> :\<turnstile> \<phi>) = \<turnstile> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>"
+proof (induct \<Sigma>)
+  case Nil
+  then show ?case
+    by (simp add: Ex_Falso_Quodlibet) 
+next
+  case (Cons \<sigma> \<Sigma>)
+  have "(\<forall>\<sigma>'\<in>set (\<sigma> # \<Sigma>). \<sigma>' :\<turnstile> \<phi>) = (\<sigma> :\<turnstile> \<phi> \<and> (\<forall>\<sigma>'\<in>set \<Sigma>. \<sigma>' :\<turnstile> \<phi>))" by simp
+  also have "... = (\<turnstile> \<sigma> :\<rightarrow> \<phi> \<and> \<turnstile> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)" using Cons.hyps list_deduction_def by simp
+  also have "... = (\<turnstile> \<Sqinter> \<sigma> \<rightarrow> \<phi> \<and> \<turnstile> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)"
+    using list_curry_uncurry weak_biconditional_weaken by blast
+  also have "... = (\<turnstile> \<Sqinter> \<sigma> \<rightarrow> \<phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)" by simp
+  also have "... = (\<turnstile> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)) \<rightarrow> \<phi>)"
+    using disj_conj_impl_duality weak_biconditional_weaken by blast
+  finally show ?case by simp
+qed
+  
 lemma set_exclusion_mset_simplify:
   assumes "\<not> (\<exists> \<psi> \<in> set \<Psi>. \<psi> \<in> set \<Sigma>)"
       and "mset \<Psi> \<subseteq># mset (\<Sigma> @ \<Gamma>)"
@@ -5710,11 +5737,13 @@ next
               append_Cons)
 qed
 
-primrec listIntersect :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"  (infixl "\<^bold>\<inter>" 60)
+primrec list_intersect :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"  (infixl "\<^bold>\<inter>" 60)
   where
     "_ \<^bold>\<inter> [] = []"
   | "xs \<^bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<^bold>\<inter> ys)) else (xs \<^bold>\<inter> ys))"
 
+lemma list_intersect_left_empty [simp]: "[] \<^bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
+    
 lemma list_diff_intersect_comp:
   "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<^bold>\<inter> \<Psi>)"
 proof -
@@ -5755,7 +5784,38 @@ proof -
   qed
   thus ?thesis by simp
 qed
+  
+lemma list_intersect_left_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
+  by (metis list_diff_intersect_comp mset_subset_eq_add_right)
 
+lemma list_intersect_right_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
+proof - 
+  have "\<forall> \<Phi>. mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
+  proof (induct \<Psi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<psi> \<Psi>)
+    {
+      fix \<Phi>
+      have "mset (\<Phi> \<^bold>\<inter> \<psi> # \<Psi>) \<subseteq># mset (\<psi> # \<Psi>)"
+        using Cons
+        by (cases "\<psi> \<in> set \<Phi>", 
+            simp, 
+            metis add_mset_add_single 
+                  diff_single_trivial 
+                  list_diff_intersect_comp 
+                  list_intersect.simps(2) 
+                  mset.simps(2) 
+                  set_mset_mset 
+                  subset_eq_diff_conv 
+                  union_iff)
+    }
+    then show ?case by simp
+  qed
+  thus ?thesis by simp
+qed
+  
 lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_biconditional:
   assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
       and "mset \<Phi> \<subseteq># mset (\<Gamma> \<ominus> \<Xi>)"
@@ -5763,7 +5823,6 @@ lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_bicondit
     shows "\<exists> \<Sigma>. \<turnstile> ((\<Phi> @ \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
                 \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Gamma> \<and> length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>))"
   sorry
-
     
 lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
   assumes "\<not> \<turnstile> \<phi>"
@@ -5789,8 +5848,8 @@ proof (rule iffI)
   let ?\<Sigma> = "\<WW> \<phi> (\<psi> # \<Xi>)"
   let ?\<Sigma>\<^sub>A = "\<WW>\<^sub>\<squnion> \<phi> (\<psi> # \<Xi>)"
   let ?\<Sigma>\<^sub>B = "\<WW>\<^sub>\<rightarrow> \<phi> (\<psi> # \<Xi>)"
-  have "mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
-       "\<psi> # \<Xi> :\<turnstile> \<phi>"
+  have \<diamondsuit>: "mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
+           "\<psi> # \<Xi> :\<turnstile> \<phi>"
     using \<Xi>(1) \<psi>
           unproving_core_def
           list_deduction_theorem
@@ -5834,44 +5893,64 @@ proof (rule iffI)
                   \<open>mset ?\<Sigma>\<^sub>B \<subseteq># mset ?\<Gamma>'\<close>
             unfolding unproving_core_def
             by blast
-          hence \<star>: "length \<Psi> > length ?\<Sigma>\<^sub>B"
+          hence "length \<Psi> > length ?\<Sigma>\<^sub>B"
             using \<Psi>(2)
             by linarith
-          have "length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B) \<ge> 2"
-          proof (rule ccontr)
-            assume "\<not> 2 \<le> length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B)"
-            hence "length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B) \<le> 1"
-              by linarith
-            moreover have "length \<Psi> > 1 + length \<Xi>" using A \<star> by metis
-            hence "length (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) + length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B) > 1 + length \<Xi>"
-              by (metis list_diff_intersect_comp 
-                        length_append 
-                        mset_eq_length 
-                        union_code)
-            ultimately have \<dagger>: "length (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) > length \<Xi>" by linarith
-            have "mset \<Psi> \<subseteq># mset ?\<Gamma>'" using \<Psi>(1) unproving_core_def by blast 
-            hence "mset (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<subseteq># mset (?\<Gamma>' \<ominus> ?\<Sigma>\<^sub>B)" using listSubtract_monotonic by blast 
-            hence "mset (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<subseteq># mset (\<Gamma> \<ominus> map snd ?\<Sigma>)"
+          have "length \<Psi> = length (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) + length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B)"
+            (is "length \<Psi> = length ?A + length ?B")
+            by (metis length_append
+                      list_diff_intersect_comp
+                      mset_append
+                      mset_eq_length)
+          {
+            fix \<sigma>
+            assume "mset \<sigma> \<subseteq># mset \<Gamma>"
+                   "length \<sigma> + 1 \<ge> length (?A @ ?B)"
+            hence "length \<sigma> + 1 \<ge> length \<Psi>"
+              using \<open>length \<Psi> = length ?A + length ?B\<close>
               by simp
-            hence "mset (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<subseteq># mset \<Gamma>"
-              by (metis (no_types, lifting) list_diff_intersect_comp 
-                                            mset_subset_eq_add_left 
-                                            subset_mset.dual_order.trans)
-            moreover have "mset (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<subseteq># mset \<Psi>"
-              by (metis (no_types, lifting) list_diff_intersect_comp 
-                                            mset_subset_eq_add_left)
-            hence "set (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<subseteq> set \<Psi>"
-              by (meson listSubtract_set_trivial_upper_bound)
-            hence "\<not> (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) :\<turnstile> \<phi>" 
-              using \<Psi>(1) list_deduction_monotonic unproving_core_def
-              by blast
-            ultimately have Y: "length (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) \<le> length \<Xi>" 
-              using \<Xi>(1)
-              unfolding unproving_core_def
-              by simp
-            with \<dagger> show "False" by linarith
-          qed
-          thus "False" sorry
+            hence "length \<sigma> + 1 > length ?\<Sigma>\<^sub>B"
+              using \<open>length \<Psi> > length ?\<Sigma>\<^sub>B\<close> by linarith
+            hence "length \<sigma> + 1 > length \<Xi> + 1"
+              using A by simp
+            hence "length \<sigma> > length \<Xi>" by linarith
+            have "\<sigma> :\<turnstile> \<phi>"
+            proof (rule ccontr)
+              assume "\<not> \<sigma> :\<turnstile> \<phi>"
+              hence "length \<sigma> \<le> length \<Xi>" 
+                using \<open>mset \<sigma> \<subseteq># mset \<Gamma>\<close> \<Xi>(1)
+                unfolding unproving_core_def
+                by blast
+              thus "False" using \<open>length \<sigma> > length \<Xi>\<close> by linarith
+            qed
+          }
+          moreover
+          have "mset \<Psi> \<subseteq># mset ?\<Gamma>'" 
+               "\<not> \<Psi> :\<turnstile> \<phi>" 
+               "\<forall>\<Phi>. mset \<Phi> \<subseteq># mset ?\<Gamma>' \<and> \<not> \<Phi> :\<turnstile> \<phi> \<longrightarrow> length \<Phi> \<le> length \<Psi>"
+            using \<Psi>(1) unproving_core_def by blast+
+          hence "mset ?A \<subseteq># mset (\<Gamma> \<ominus> map snd ?\<Sigma>)"
+            by (simp add: add.commute subset_eq_diff_conv)
+          hence "mset ?A \<subseteq># mset (\<Gamma> \<ominus> (\<psi> # \<Xi>))"
+            using \<open>map snd ?\<Sigma> = \<psi> # \<Xi>\<close> by metis
+          moreover
+          have "mset ?B \<subseteq># mset (\<WW>\<^sub>\<rightarrow> \<phi> (\<psi> # \<Xi>))"
+            using list_intersect_right_project by blast
+          ultimately obtain \<Sigma> where \<Sigma>: "\<turnstile> ((?A @ ?B) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)"
+                                       "\<forall>\<sigma>\<in>set \<Sigma>. \<sigma> :\<turnstile> \<phi>"
+            using \<diamondsuit> optimal_witness_list_intersect_biconditional
+            by metis
+          hence "\<turnstile> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>"
+            using disj_of_conj_equiv by blast
+          hence "?A @ ?B :\<turnstile> \<phi>"
+            using \<Sigma>(1) Modus_Ponens list_deduction_def weak_biconditional_weaken 
+            by blast
+          moreover have "set (?A @ ?B) = set \<Psi>"
+            using list_diff_intersect_comp union_code set_mset_mset by metis
+          hence "?A @ ?B :\<turnstile> \<phi> = \<Psi> :\<turnstile> \<phi>"
+            using list_deduction_monotonic by blast
+          ultimately have "\<Psi> :\<turnstile> \<phi>" by metis
+          thus "False" using \<Psi>(1) unfolding unproving_core_def by blast
         qed
         moreover have "\<exists> \<Psi>. \<Psi> \<in> \<C> ?\<Gamma>' \<phi>"
           using assms unproving_core_existance by blast
@@ -5908,13 +5987,116 @@ next
   thus "0 < \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
     by auto
 qed
+  
+primrec (in Minimal_Logic) core_witness :: "('a \<times> 'a) list \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<UU>")
+  where
+    "\<UU> _ [] = []"
+  | "\<UU> \<Sigma> (\<xi> # \<Xi>) = (case find (\<lambda> \<sigma>. \<xi> = snd \<sigma>) \<Sigma> of
+                       None \<Rightarrow> \<UU> \<Sigma> \<Xi>
+                     | Some \<sigma> \<Rightarrow> \<sigma> # (\<UU> (remove1 \<sigma> \<Sigma>) \<Xi>))"
+
+lemma (in Minimal_Logic) core_witness_right_msub:
+  "mset (map snd (\<UU> \<Sigma> \<Xi>)) \<subseteq># mset \<Xi>"
+proof -
+  have "\<forall> \<Sigma>. mset (map snd (\<UU> \<Sigma> \<Xi>)) \<subseteq># mset \<Xi>"
+  proof (induct \<Xi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<xi> \<Xi>)
+    {
+      fix \<Sigma>
+      have "mset (map snd (\<UU> \<Sigma> (\<xi> # \<Xi>))) \<subseteq># mset (\<xi> # \<Xi>)"
+      proof (cases "find (\<lambda> \<sigma>. \<xi> = snd \<sigma>) \<Sigma>")
+        case None
+        then show ?thesis
+          by (simp, metis Cons.hyps 
+                          add_mset_add_single 
+                          mset_map mset_subset_eq_add_left subset_mset.order_trans)
+      next
+        case (Some \<sigma>)
+        note \<sigma> = this
+        hence "\<xi> = snd \<sigma>"
+          by (meson find_Some_predicate)
+        moreover 
+        have "\<sigma> \<in> set \<Sigma>"
+        using \<sigma>
+        proof (induct \<Sigma>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<sigma>' \<Sigma>)
+          then show ?case
+            by (cases "\<xi> = snd \<sigma>'", simp+) 
+        qed
+        ultimately show ?thesis using \<sigma> Cons.hyps by simp
+      qed
+    }
+    then show ?case by simp
+  qed
+  thus ?thesis by simp
+qed
+    
+lemma (in Minimal_Logic) core_witness_left_msub:
+  "mset (\<UU> \<Sigma> \<Xi>) \<subseteq># mset \<Sigma>"
+proof - 
+  have "\<forall> \<Sigma>. mset (\<UU> \<Sigma> \<Xi>) \<subseteq># mset \<Sigma>"
+  proof (induct \<Xi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<xi> \<Xi>)
+    {
+      fix \<Sigma>
+      have "mset (\<UU> \<Sigma> (\<xi> # \<Xi>)) \<subseteq># mset \<Sigma>"
+      proof (cases "find (\<lambda> \<sigma>. \<xi> = snd \<sigma>) \<Sigma>")
+        case None
+        then show ?thesis using Cons.hyps by simp
+      next
+        case (Some \<sigma>)
+        note \<sigma> = this
+        hence "\<sigma> \<in> set \<Sigma>"
+        proof (induct \<Sigma>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<sigma>' \<Sigma>)
+          then show ?case
+            by (cases "\<xi> = snd \<sigma>'", simp+) 
+        qed
+        moreover from Cons.hyps have "mset (\<UU> (remove1 \<sigma> \<Sigma>) \<Xi>) \<subseteq># mset (remove1 \<sigma> \<Sigma>)"
+          by blast
+        hence "mset (\<UU> \<Sigma> (\<xi> # \<Xi>)) \<subseteq># mset (\<sigma> # remove1 \<sigma> \<Sigma>)" using \<sigma> by simp
+        ultimately show ?thesis by simp
+      qed
+    }
+    then show ?case by simp
+  qed
+  thus ?thesis by simp
+qed
+    
+lemma (in Minimal_Logic) core_witness_comp:
+  "mset \<Sigma> = mset (\<Sigma> \<ominus> \<UU> \<Sigma> \<Xi>) + mset (\<UU> \<Sigma> \<Xi>)"
+  by (simp add: core_witness_left_msub)
+    
 
 lemma (in Classical_Propositional_Logic) witness_core_size_increase:
   assumes "\<not> \<turnstile> \<phi>"
       and "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
       and "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
     shows "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) < \<bar> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<bar>\<^sub>\<phi>"
-  sorry
+proof -
+  from \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Xi> where \<Xi>: "\<Xi> \<in> \<C> \<Gamma> \<phi>"
+    using unproving_core_existance by blast
+  let ?\<Xi>' = "\<UU> \<Sigma> \<Xi>"
+  let ?\<Sigma>' = "\<Sigma> \<ominus> ?\<Xi>'"
+  have "mset \<Sigma> = mset (?\<Xi>' @ ?\<Sigma>')" by (simp add: core_witness_left_msub)
+  hence "set (map (uncurry op \<squnion>) \<Sigma>) = set (map (uncurry op \<squnion>) (?\<Xi>' @ ?\<Sigma>'))"
+    by (metis mset_map mset_eq_setD)  
+  hence "map (uncurry op \<squnion>) (?\<Xi>' @ ?\<Sigma>') :\<turnstile> \<phi>"
+    
+  show ?thesis sorry
+qed
   
 lemma (in Classical_Propositional_Logic) unproving_core_stratified_deduction_lower_bound:
   assumes "\<not> \<turnstile> \<phi>"
