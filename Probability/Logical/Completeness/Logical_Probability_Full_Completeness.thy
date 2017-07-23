@@ -6074,11 +6074,53 @@ proof -
   qed
   thus ?thesis by simp
 qed
+
+lemma (in Minimal_Logic) core_witness_right_projection:
+  "map snd (\<UU> \<Sigma> \<Xi>) = ((map snd \<Sigma>) \<^bold>\<inter> \<Xi>)"
+proof -
+  have "\<forall> \<Sigma>. map snd (\<UU> \<Sigma> \<Xi>) = ((map snd \<Sigma>) \<^bold>\<inter> \<Xi>)"
+  proof (induct \<Xi>)
+    case Nil
+    then show ?case sorry
+  next
+    case (Cons \<xi> \<Xi>)
+    then show ?case sorry
+  qed
     
-lemma (in Minimal_Logic) core_witness_comp:
-  "mset \<Sigma> = mset (\<Sigma> \<ominus> \<UU> \<Sigma> \<Xi>) + mset (\<UU> \<Sigma> \<Xi>)"
-  by (simp add: core_witness_left_msub)
-    
+
+lemma (in Classical_Propositional_Logic) witness_list_implication_rule:
+  "\<turnstile> (map (uncurry op \<squnion>) \<Sigma> :\<rightarrow> \<phi>) \<rightarrow> \<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>) \<rightarrow> \<phi>"
+proof (induct \<Sigma>)
+  case Nil
+  then show ?case using Axiom_1 by simp
+next
+  case (Cons \<sigma> \<Sigma>)
+  let ?\<chi> = "fst \<sigma>"
+  let ?\<xi> = "snd \<sigma>"
+  let ?\<Sigma>\<^sub>A = "map (uncurry op \<squnion>) \<Sigma>"
+  let ?\<Sigma>\<^sub>B = "map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>"
+  assume "\<turnstile> ?\<Sigma>\<^sub>A :\<rightarrow> \<phi> \<rightarrow> \<Sqinter> ?\<Sigma>\<^sub>B \<rightarrow> \<phi>"
+  moreover have 
+    "\<turnstile> (?\<Sigma>\<^sub>A :\<rightarrow> \<phi> \<rightarrow> \<Sqinter> ?\<Sigma>\<^sub>B \<rightarrow> \<phi>) 
+     \<rightarrow> ((?\<chi> \<squnion> ?\<xi>) \<rightarrow> ?\<Sigma>\<^sub>A :\<rightarrow> \<phi>) \<rightarrow> (((?\<chi> \<rightarrow> ?\<xi>) \<rightarrow> \<phi>) \<sqinter> \<Sqinter> ?\<Sigma>\<^sub>B) \<rightarrow> \<phi>"
+  proof -
+      let ?\<phi> = "(\<^bold>\<langle>?\<Sigma>\<^sub>A :\<rightarrow> \<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Sqinter> ?\<Sigma>\<^sub>B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) 
+                \<rightarrow> (((\<^bold>\<langle>?\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?\<xi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>?\<Sigma>\<^sub>A :\<rightarrow> \<phi>\<^bold>\<rangle>) \<rightarrow> (((\<^bold>\<langle>?\<chi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>?\<xi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Sqinter> ?\<Sigma>\<^sub>B\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
+      have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+      hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+      thus ?thesis by simp
+  qed
+  ultimately have "\<turnstile> ((?\<chi> \<squnion> ?\<xi>) \<rightarrow> ?\<Sigma>\<^sub>A :\<rightarrow> \<phi>) \<rightarrow> (((?\<chi> \<rightarrow> ?\<xi>) \<rightarrow> \<phi>) \<sqinter> \<Sqinter> ?\<Sigma>\<^sub>B) \<rightarrow> \<phi>"
+    using Modus_Ponens by blast
+  moreover
+  have "(\<lambda> \<sigma>. (fst \<sigma> \<rightarrow> snd \<sigma>) \<rightarrow> \<phi>) = (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>)"
+       "uncurry op \<squnion> = (\<lambda> \<sigma>. fst \<sigma> \<squnion> snd \<sigma>)"
+    by fastforce+
+  hence "(\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<sigma> = (?\<chi> \<rightarrow> ?\<xi>) \<rightarrow> \<phi>"
+        "uncurry op \<squnion> \<sigma> = ?\<chi> \<squnion> ?\<xi>"
+    by metis+
+  ultimately show ?case by simp
+qed
 
 lemma (in Classical_Propositional_Logic) witness_core_size_increase:
   assumes "\<not> \<turnstile> \<phi>"
@@ -6088,13 +6130,41 @@ lemma (in Classical_Propositional_Logic) witness_core_size_increase:
 proof -
   from \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Xi> where \<Xi>: "\<Xi> \<in> \<C> \<Gamma> \<phi>"
     using unproving_core_existance by blast
-  let ?\<Xi>' = "\<UU> \<Sigma> \<Xi>"
-  let ?\<Sigma>' = "\<Sigma> \<ominus> ?\<Xi>'"
-  have "mset \<Sigma> = mset (?\<Xi>' @ ?\<Sigma>')" by (simp add: core_witness_left_msub)
-  hence "set (map (uncurry op \<squnion>) \<Sigma>) = set (map (uncurry op \<squnion>) (?\<Xi>' @ ?\<Sigma>'))"
+  let ?\<Sigma>' = "\<Sigma> \<ominus> \<UU> \<Sigma> \<Xi>"
+  let ?\<Xi>' = "map (uncurry op \<squnion>) (\<UU> \<Sigma> \<Xi>) @ map (uncurry op \<rightarrow>) (\<UU> \<Sigma> \<Xi>)"
+  have "mset \<Sigma> = mset (\<UU> \<Sigma> \<Xi> @ ?\<Sigma>')" by (simp add: core_witness_left_msub)
+  hence "set (map (uncurry op \<squnion>) \<Sigma>) = set (map (uncurry op \<squnion>) ((\<UU> \<Sigma> \<Xi>) @ ?\<Sigma>'))"
     by (metis mset_map mset_eq_setD)  
-  hence "map (uncurry op \<squnion>) (?\<Xi>' @ ?\<Sigma>') :\<turnstile> \<phi>"
-    
+  hence "map (uncurry op \<squnion>) ((\<UU> \<Sigma> \<Xi>) @ ?\<Sigma>') :\<turnstile> \<phi>"
+    using list_deduction_monotonic assms(3)
+    by blast
+  hence "map (uncurry op \<squnion>) (\<UU> \<Sigma> \<Xi>) @ map (uncurry op \<squnion>) ?\<Sigma>' :\<turnstile> \<phi>" by simp
+  moreover 
+  {
+    fix \<Phi> \<Psi>
+    have "((\<Phi> @ \<Psi>) :\<rightarrow> \<phi>) = (\<Phi> :\<rightarrow> (\<Psi> :\<rightarrow> \<phi>))"
+      by (induct \<Phi>, simp+)
+    hence "(\<Phi> @ \<Psi>) :\<turnstile> \<phi> = \<Phi> :\<turnstile> (\<Psi> :\<rightarrow> \<phi>)"
+      unfolding list_deduction_def
+      by (induct \<Phi>, simp+)
+  }
+  ultimately have "map (uncurry op \<squnion>) (\<UU> \<Sigma> \<Xi>) :\<turnstile> map (uncurry op \<squnion>) ?\<Sigma>' :\<rightarrow> \<phi>"
+    by simp
+  moreover have "set (map (uncurry op \<squnion>) (\<UU> \<Sigma> \<Xi>)) \<subseteq> set ?\<Xi>'"
+    by simp
+  ultimately have "?\<Xi>' :\<turnstile> map (uncurry op \<squnion>) ?\<Sigma>' :\<rightarrow> \<phi>"
+    using list_deduction_monotonic by blast
+  hence "?\<Xi>' :\<turnstile> \<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>) \<rightarrow> \<phi>"
+    using assms(3)
+          Modus_Ponens
+          list_deduction_def 
+          list_deduction_weaken 
+          witness_list_implication_rule 
+    by blast
+  hence "?\<Xi>' $\<turnstile> [\<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>) \<rightarrow> \<phi>]"
+    using segmented_deduction_one_collapse by metis
+  hence "\<not> (?\<Xi>' :\<turnstile> \<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>))"
+  hence "map (uncurry op \<squnion>) ?\<Xi>' :\<turnstile> map (uncurry op \<squnion>) ?\<Sigma>' :\<rightarrow> \<phi>"
   show ?thesis sorry
 qed
   
