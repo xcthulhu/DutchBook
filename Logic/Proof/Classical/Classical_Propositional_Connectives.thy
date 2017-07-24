@@ -13,9 +13,13 @@ definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
   where
     "\<top> = \<bottom> \<rightarrow> \<bottom>"
 
-lemma (in Minimal_Logic_With_Falsum) verum_tautology: "\<turnstile> \<top>"
+lemma (in Minimal_Logic_With_Falsum) verum_tautology [simp]: "\<turnstile> \<top>"
   by (metis list_implication.simps(1) list_implication_Axiom_1 verum_def)
 
+lemma verum_semantics [simp]:
+  "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<top>"
+  unfolding verum_def by simp    
+    
 subsection {* Conjunction *}
 
 definition (in Classical_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)
@@ -269,18 +273,38 @@ lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
             conjunction_def
             negation_def)
 
-lemma (in Classical_Propositional_Logic) conjunction_deduction_equivalence [simp]:
+lemma (in Classical_Propositional_Logic) conjunction_set_deduction_equivalence [simp]:
   "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>)"
-  using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
-        set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
-  by (metis conjunction_introduction
+  by (metis set_deduction_weaken [where \<Gamma>="\<Gamma>"]
+            set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"] 
+            conjunction_introduction
             conjunction_left_elimination
             conjunction_right_elimination)
 
+lemma (in Classical_Propositional_Logic) conjunction_list_deduction_equivalence [simp]:
+  "\<Gamma> :\<turnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> :\<turnstile> \<phi> \<and> \<Gamma> :\<turnstile> \<psi>)"
+  by (metis list_deduction_weaken [where \<Gamma>="\<Gamma>"]
+            list_deduction_modus_ponens [where \<Gamma>="\<Gamma>"] 
+            conjunction_introduction
+            conjunction_left_elimination
+            conjunction_right_elimination)
+          
 lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
   "\<turnstile> \<phi> \<sqinter> \<psi> = (\<turnstile> \<phi> \<and> \<turnstile> \<psi>)"
-  by (metis conjunction_deduction_equivalence set_deduction_base_theory)
+  by (metis conjunction_set_deduction_equivalence set_deduction_base_theory)
 
+lemma (in Classical_Propositional_Logic) conjunction_set_deduction_arbitrary_equivalence [simp]:
+  "\<Gamma> \<tturnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<phi>)"
+  by (induct \<Phi>, simp add: set_deduction_weaken, simp)
+
+lemma (in Classical_Propositional_Logic) conjunction_list_deduction_arbitrary_equivalence [simp]:
+  "\<Gamma> :\<turnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<Gamma> :\<turnstile> \<phi>)"
+  by (induct \<Phi>, simp add: list_deduction_weaken, simp)
+
+lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_arbitrary_equivalence [simp]:
+  "\<turnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<phi>)"
+  by (induct \<Phi>, simp+)
+    
 lemma (in Classical_Propositional_Logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis (full_types) Modus_Ponens
