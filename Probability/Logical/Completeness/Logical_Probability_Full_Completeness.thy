@@ -6223,11 +6223,7 @@ proof -
     by fastforce
   have "mset (\<chi> \<rightarrow> \<gamma> # ?\<Xi>\<^sub>1) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>)"
   proof -
-    let ?A = "map (uncurry op \<rightarrow>) \<Sigma>"
-    let ?B = "map (uncurry op \<rightarrow>) (\<UU> \<Sigma> \<Xi>)"
-    from \<open>(\<chi>,\<gamma>) \<in> set ?\<Sigma>'\<close> 
-    have "\<chi> \<rightarrow> \<gamma> \<in> (set ?A - set ?B)"
-      sorry
+    
     hence "mset (\<chi> \<rightarrow> \<gamma> # ?B) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma>)"
       by (meson listSubtract_set_difference_lower_bound 
                 core_witness_left_msub 
