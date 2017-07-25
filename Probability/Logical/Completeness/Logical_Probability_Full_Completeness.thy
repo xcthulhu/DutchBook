@@ -6223,7 +6223,31 @@ proof -
     by fastforce
   have "mset (\<chi> \<rightarrow> \<gamma> # ?\<Xi>\<^sub>1) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma>)"
   proof -
-    
+    let ?A = "map (uncurry op \<rightarrow>) \<Sigma>"
+    let ?B = "map (uncurry op \<rightarrow>) (\<UU> \<Sigma> \<Xi>)"
+    have "(\<chi>,\<gamma>) \<in> (set \<Sigma> - set (\<UU> \<Sigma> \<Xi>))"
+    proof -
+      from \<open>(\<chi>,\<gamma>) \<in> set ?\<Sigma>'\<close> have "\<gamma> \<in># mset (map snd (\<Sigma> \<ominus> \<UU> \<Sigma> \<Xi>))"
+        by (metis set_mset_mset image_eqI set_map snd_conv)
+      hence \<dagger>: "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> map snd (\<UU> \<Sigma> \<Xi>))"
+        by (metis core_witness_left_msub map_listSubtract_mset_equivalence)
+      hence "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> (map snd \<Sigma> \<^bold>\<inter> \<Xi>))"
+        by (metis core_witness_right_projection listSubtract_mset_homomorphism)
+      hence "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> \<Xi>)"
+        by (metis add_diff_cancel_right' 
+                  listSubtract_mset_homomorphism 
+                  list_diff_intersect_comp)
+      moreover from assms(2) have "mset (map snd \<Sigma> \<ominus> \<Xi>) \<subseteq># mset (\<Gamma> \<ominus> \<Xi>)"
+        by (simp, metis listSubtract_monotonic listSubtract_mset_homomorphism mset_map)        
+      ultimately have "\<gamma> \<in># mset (\<Gamma> \<ominus> \<Xi>)"
+        by (simp add: mset_subset_eqD)
+      hence "\<gamma> \<in> set (\<Gamma> \<ominus> \<Xi>)"
+        using set_mset_mset by fastforce
+      hence "\<gamma> \<in> set \<Gamma> - set \<Xi>"
+        using \<Xi> by simp
+      hence "\<gamma> \<notin> set \<Xi>"
+        by blast
+        
     hence "mset (\<chi> \<rightarrow> \<gamma> # ?B) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma>)"
       by (meson listSubtract_set_difference_lower_bound 
                 core_witness_left_msub 
