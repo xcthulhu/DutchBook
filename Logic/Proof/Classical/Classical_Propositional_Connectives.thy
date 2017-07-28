@@ -20,6 +20,11 @@ lemma verum_semantics [simp]:
   "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<top>"
   unfolding verum_def by simp    
     
+lemma (in Classical_Propositional_Logic) verum_embedding [simp]:
+  "\<^bold>\<lparr> \<top> \<^bold>\<rparr> = \<top>"
+  unfolding verum_def Minimal_Logic_With_Falsum_class.verum_def
+  by simp
+
 subsection {* Conjunction *}
 
 definition (in Classical_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)

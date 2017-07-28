@@ -46,6 +46,7 @@ next
   then show ?case by (cases "P \<omega>", fastforce+)
 qed
 
+  
 (********)
 
 lemma remove1_pairs_list_projections_fst:
@@ -375,6 +376,69 @@ lemma listSubtract_mset_homomorphism [simp]:
   "mset (A \<ominus> B) = mset A - mset B"
   by (induct B, simp, simp)
 
+lemma set_exclusion_mset_simplify:
+  assumes "\<not> (\<exists> \<psi> \<in> set \<Psi>. \<psi> \<in> set \<Sigma>)"
+      and "mset \<Psi> \<subseteq># mset (\<Sigma> @ \<Gamma>)"
+    shows "mset \<Psi> \<subseteq># mset \<Gamma>"
+using assms
+proof (induct \<Sigma>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<sigma> \<Sigma>)
+  then show ?case
+    by (cases "\<sigma> \<in> set \<Psi>",
+        fastforce,
+        metis add.commute
+              add_mset_add_single
+              diff_single_trivial
+              in_multiset_in_set
+              mset.simps(2)
+              notin_set_remove1
+              remove_hd
+              subset_eq_diff_conv
+              union_code
+              append_Cons)
+qed
+
+primrec list_intersect :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"  (infixl "\<^bold>\<inter>" 60)
+  where
+    "_ \<^bold>\<inter> [] = []"
+  | "xs \<^bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<^bold>\<inter> ys)) else (xs \<^bold>\<inter> ys))"
+
+lemma list_intersect_mset_homomorphism [simp]: "mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
+proof -
+  have "\<forall> \<Phi>. mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
+  proof (induct \<Psi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<psi> \<Psi>)
+    {
+      fix \<Phi>
+      have "mset (\<Phi> \<^bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
+        using Cons.hyps
+        by (cases "\<psi> \<in> set \<Phi>", 
+            simp add: inter_add_right2,
+            simp add: inter_add_right1)
+    }
+    then show ?case by blast 
+  qed
+  thus ?thesis by simp
+qed
+    
+lemma list_intersect_left_empty [simp]: "[] \<^bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
+    
+lemma list_diff_intersect_comp:
+  "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<^bold>\<inter> \<Psi>)"
+  by (simp add: multiset_inter_def)
+  
+lemma list_intersect_left_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
+  by simp
+
+lemma list_intersect_right_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
+  by simp 
+    
 lemma listSubtract_msub_eq:
   assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
       and "length (\<Gamma> \<ominus> \<Phi>) = m"
@@ -5711,77 +5775,64 @@ next
     using disj_conj_impl_duality weak_biconditional_weaken by blast
   finally show ?case by simp
 qed
-  
-lemma set_exclusion_mset_simplify:
-  assumes "\<not> (\<exists> \<psi> \<in> set \<Psi>. \<psi> \<in> set \<Sigma>)"
-      and "mset \<Psi> \<subseteq># mset (\<Sigma> @ \<Gamma>)"
-    shows "mset \<Psi> \<subseteq># mset \<Gamma>"
-using assms
-proof (induct \<Sigma>)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons \<sigma> \<Sigma>)
-  then show ?case
-    by (cases "\<sigma> \<in> set \<Psi>",
-        fastforce,
-        metis add.commute
-              add_mset_add_single
-              diff_single_trivial
-              in_multiset_in_set
-              mset.simps(2)
-              notin_set_remove1
-              remove_hd
-              subset_eq_diff_conv
-              union_code
-              append_Cons)
-qed
 
-primrec list_intersect :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list"  (infixl "\<^bold>\<inter>" 60)
-  where
-    "_ \<^bold>\<inter> [] = []"
-  | "xs \<^bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<^bold>\<inter> ys)) else (xs \<^bold>\<inter> ys))"
-
-lemma list_intersect_mset_homomorphism [simp]: "mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
-proof -
-  have "\<forall> \<Phi>. mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
-  proof (induct \<Psi>)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons \<psi> \<Psi>)
-    {
-      fix \<Phi>
-      have "mset (\<Phi> \<^bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
-        using Cons.hyps
-        by (cases "\<psi> \<in> set \<Phi>", 
-            simp add: inter_add_right2,
-            simp add: inter_add_right1)
-    }
-    then show ?case by blast 
-  qed
-  thus ?thesis by simp
-qed
-    
-lemma list_intersect_left_empty [simp]: "[] \<^bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
-    
-lemma list_diff_intersect_comp:
-  "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<^bold>\<inter> \<Psi>)"
-  by (simp add: multiset_inter_def)
-  
-lemma list_intersect_left_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
-  by simp
-
-lemma list_intersect_right_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
-  by simp
-    
 lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_biconditional:
   assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
       and "mset \<Phi> \<subseteq># mset (\<Gamma> \<ominus> \<Xi>)"
       and "mset \<Psi> \<subseteq># mset (\<WW>\<^sub>\<rightarrow> \<phi> \<Xi>)"
     shows "\<exists> \<Sigma>. \<turnstile> ((\<Phi> @ \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
                 \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Gamma> \<and> length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>))"
-  sorry
+proof -
+  from assms(3) obtain \<Psi>\<^sub>0 where \<Psi>\<^sub>0: 
+    "mset (map (uncurry op \<rightarrow>) \<Psi>\<^sub>0) = mset \<Psi>"
+    "mset \<Psi>\<^sub>0 \<subseteq># mset (\<WW> \<phi> \<Xi>)"
+    using mset_sub_map_list_exists by blast
+  have "\<exists> \<Sigma>. \<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
+             \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Xi> \<and> length \<sigma> + 1 \<ge> length \<Psi>)"
+    sorry
+  from this obtain \<Sigma>\<^sub>0 where \<Sigma>\<^sub>0:
+    "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0) \<rightarrow> \<phi>)"
+    "\<forall> \<sigma> \<in> set \<Sigma>\<^sub>0. mset \<sigma> \<subseteq># mset \<Xi> \<and> length \<sigma> + 1 \<ge> length \<Psi>"
+    by blast
+  moreover
+  have "(\<Phi> @ \<Psi>) :\<rightarrow> \<phi> = \<Phi> :\<rightarrow> (\<Psi> :\<rightarrow> \<phi>)" by (induct \<Phi>, simp+)
+  hence "\<turnstile> ((\<Phi> @ \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> \<Phi> \<rightarrow> (\<Psi> :\<rightarrow> \<phi>))"
+    by (simp add: list_curry_uncurry)
+  moreover have "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0) \<rightarrow> \<phi>)
+                \<rightarrow> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> (\<Sqinter> \<Phi> \<rightarrow> \<Psi> :\<rightarrow> \<phi>)
+                \<rightarrow> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> ((\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)) \<rightarrow> \<phi>)"
+  proof -
+    let ?\<phi> = "\<^bold>\<langle>\<Psi> :\<rightarrow> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
+           \<rightarrow> \<^bold>\<langle>(\<Phi> @ \<Psi>) :\<rightarrow> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Psi> :\<rightarrow> \<phi>\<^bold>\<rangle>)
+           \<rightarrow> \<^bold>\<langle>(\<Phi> @ \<Psi>) :\<rightarrow> \<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
+    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+    hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+    thus ?thesis by simp
+  qed
+  moreover
+  let ?\<Sigma> = "map (op @ \<Phi>) \<Sigma>\<^sub>0"
+  have "\<forall>\<phi> \<psi> \<chi>. \<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<chi> \<rightarrow> \<psi> \<or> \<not> \<turnstile> \<chi> \<rightarrow> \<phi>"
+    by (meson Modus_Ponens flip_hypothetical_syllogism)
+  hence "\<turnstile> ((\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+    using append_finite_disj_distribute biconditional_def by fastforce
+  ultimately have "\<turnstile> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+    using Modus_Ponens biconditional_transitivity_rule
+    by blast
+  moreover 
+  {
+    fix \<sigma>
+    assume "\<sigma> \<in> set ?\<Sigma>"
+    from this obtain \<sigma>\<^sub>0 where \<sigma>\<^sub>0: "\<sigma> = \<Phi> @ \<sigma>\<^sub>0" "\<sigma>\<^sub>0 \<in> set \<Sigma>\<^sub>0" by (simp, blast)
+    hence "mset \<sigma>\<^sub>0 \<subseteq># mset \<Xi>" using \<Sigma>\<^sub>0(2) by blast
+    hence "mset \<sigma> \<subseteq># mset (\<Phi> @ \<Xi>)" using \<sigma>\<^sub>0(1) by simp
+    hence "mset \<sigma> \<subseteq># mset \<Gamma>" using assms(1) assms(2)
+      by (simp, meson subset_mset.dual_order.trans subset_mset.le_diff_conv2) 
+    moreover
+    have "length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>)" using \<Sigma>\<^sub>0(2) \<sigma>\<^sub>0 by simp
+    ultimately have "mset \<sigma> \<subseteq># mset \<Gamma>" "length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>)" by auto
+  }    
+  ultimately show ?thesis by blast 
+qed
     
 lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
   assumes "\<not> \<turnstile> \<phi>"
@@ -6229,7 +6280,7 @@ proof -
     proof -
       from \<open>(\<chi>,\<gamma>) \<in> set ?\<Sigma>'\<close> have "\<gamma> \<in># mset (map snd (\<Sigma> \<ominus> \<UU> \<Sigma> \<Xi>))"
         by (metis set_mset_mset image_eqI set_map snd_conv)
-      hence \<dagger>: "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> map snd (\<UU> \<Sigma> \<Xi>))"
+      hence "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> map snd (\<UU> \<Sigma> \<Xi>))"
         by (metis core_witness_left_msub map_listSubtract_mset_equivalence)
       hence "\<gamma> \<in># mset (map snd \<Sigma> \<ominus> (map snd \<Sigma> \<^bold>\<inter> \<Xi>))"
         by (metis core_witness_right_projection listSubtract_mset_homomorphism)
@@ -6247,13 +6298,43 @@ proof -
         using \<Xi> by simp
       hence "\<gamma> \<notin> set \<Xi>"
         by blast
-        
+      hence "\<forall> \<Sigma>. (\<chi>,\<gamma>) \<notin> set (\<UU> \<Sigma> \<Xi>)"
+      proof (induct \<Xi>)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons \<xi> \<Xi>)
+        {
+          fix \<Sigma>
+          have "(\<chi>, \<gamma>) \<notin> set (\<UU> \<Sigma> (\<xi> # \<Xi>))"
+          proof (cases "find (\<lambda>\<sigma>. \<xi> = snd \<sigma>) \<Sigma>")
+            case None
+            then show ?thesis using Cons by simp
+          next
+            case (Some \<sigma>)
+            moreover from this have "snd \<sigma> = \<xi>"
+              using find_Some_predicate by fastforce
+            with Cons.prems have "\<sigma> \<noteq> (\<chi>,\<gamma>)" by fastforce
+            ultimately show ?thesis using Cons by simp
+          qed
+        }
+        then show ?case by blast
+      qed
+      moreover from \<open>(\<chi>,\<gamma>) \<in> set ?\<Sigma>'\<close> have "(\<chi>,\<gamma>) \<in> set \<Sigma>"
+        by (meson listSubtract_set_trivial_upper_bound subsetCE)
+      ultimately show ?thesis by fastforce
+    qed
+    with \<open>(\<chi>, \<gamma>) \<in> set ?\<Sigma>'\<close> have "mset ((\<chi>,\<gamma>) # \<UU> \<Sigma> \<Xi>) \<subseteq># mset \<Sigma>"
+      by (meson core_witness_left_msub msub_listSubtract_elem_cons_msub)
     hence "mset (\<chi> \<rightarrow> \<gamma> # ?B) \<subseteq># mset (map (uncurry op \<rightarrow>) \<Sigma>)"
-      by (meson listSubtract_set_difference_lower_bound 
-                core_witness_left_msub 
-                map_monotonic 
-                msub_listSubtract_elem_cons_msub 
-                rev_subsetD)
+      by (metis (no_types, lifting) \<open>(\<chi>, \<gamma>) \<in> set ?\<Sigma>'\<close> 
+                                    core_witness_left_msub 
+                                    map_listSubtract_mset_equivalence 
+                                    map_monotonic 
+                                    mset_eq_setD msub_listSubtract_elem_cons_msub 
+                                    pair_imageI 
+                                    set_map 
+                                    uncurry_def)
     moreover
     have "mset \<Xi> \<subseteq># mset \<Gamma>"
       using \<Xi> unproving_core_def
