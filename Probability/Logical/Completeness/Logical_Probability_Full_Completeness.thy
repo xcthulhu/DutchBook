@@ -5818,7 +5818,7 @@ proof -
   ultimately have "\<turnstile> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
     using Modus_Ponens biconditional_transitivity_rule
     by blast
-  moreover 
+  moreover
   {
     fix \<sigma>
     assume "\<sigma> \<in> set ?\<Sigma>"
@@ -5972,7 +5972,7 @@ proof (rule iffI)
         unfolding unproving_core_def
         by fastforce
     qed
-    have C: "\<forall>\<Xi> \<Gamma> (\<phi>::'a). \<Xi> \<notin> \<C> \<Gamma> \<phi> \<or> length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
+    have C: "\<forall>\<Xi> \<Gamma> \<phi>. \<Xi> \<notin> \<C> \<Gamma> \<phi> \<or> length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
       using core_size_intro by blast
     then have D: "length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
       using \<open>\<Xi> \<in> \<C> \<Gamma> \<phi>\<close> by blast
