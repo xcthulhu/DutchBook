@@ -56,7 +56,7 @@ theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
             sum.set_conv_list)
  
 lemma (in Weakly_Additive_Logical_Probability) exclusive_sum_list_identity:
-  assumes "\<turnstile> exclusive \<Phi>"
+  assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
   using assms
 proof (induct \<Phi>)
@@ -64,8 +64,8 @@ proof (induct \<Phi>)
   then show ?case by (simp add: falsum_zero_probability) 
 next
   case (Cons \<phi> \<Phi>)
-  assume "\<turnstile> exclusive (\<phi> # \<Phi>)"
-  hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" "\<turnstile> exclusive \<Phi>" by simp+
+  assume "\<turnstile> \<Coprod> (\<phi> # \<Phi>)"
+  hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" "\<turnstile> \<Coprod> \<Phi>" by simp+
   hence "Pr(\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + Pr (\<Squnion> \<Phi>)"  
         "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" using Cons.hyps Additivity by auto
   hence "Pr(\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" by auto
@@ -138,7 +138,7 @@ lemma count_remove_all_sum_list:
             add.left_commute)
 
 theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
-  "(\<turnstile> exclusive \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>) = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
+  "(\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>) = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
 proof -
   {
     fix Pr
@@ -146,13 +146,13 @@ proof -
     from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
       unfolding Binary_Probabilities_def
       by simp
-    assume "\<turnstile> exclusive \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
+    assume "\<turnstile> \<Coprod> \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
       using exclusive_sum_list_identity monotonicity by fastforce
   }
   moreover
   {
-    assume "\<not> \<turnstile> exclusive \<Phi>"
+    assume "\<not> \<turnstile> \<Coprod> \<Phi>"
     hence "(\<exists> \<phi> \<in> set \<Phi>. \<exists> \<psi> \<in> set \<Phi>. \<phi> \<noteq> \<psi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)) \<or> (\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>)"
       using exclusive_equivalence set_deduction_base_theory by blast
     hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
@@ -263,9 +263,9 @@ qed
 theorem (in Classical_Propositional_Logic) Inequality_Completeness:
   "\<turnstile> \<phi> \<rightarrow> \<psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>)"
 proof -
-  have "\<turnstile> exclusive [\<phi>]"
-    by (simp add: conjunction_right_elimination negation_def verum_tautology)
-  hence "(\<turnstile> exclusive [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+  have "\<turnstile> \<Coprod> [\<phi>]"
+    by (simp add: conjunction_right_elimination negation_def)
+  hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
     by (metis Arbitrary_Disjunction.simps(1) 
               Arbitrary_Disjunction.simps(2) 
               disjunction_def implication_equivalence 
@@ -277,11 +277,11 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
-  "\<turnstile> exclusive \<Phi> = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>))"
+  "\<turnstile> \<Coprod> \<Phi> = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>))"
 proof -
-  have "\<turnstile> exclusive \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> exclusive \<Phi>"
+  have "\<turnstile> \<Coprod> \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> \<Coprod> \<Phi>"
     by (simp add: Inequality_Completeness)
-  hence "\<turnstile> exclusive \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
+  hence "\<turnstile> \<Coprod> \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
     by (simp add: Exclusive_Implication_Completeness)
   moreover have "\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
     using Inequality_Completeness List_Summation_Completeness by blast
@@ -290,7 +290,7 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
-  "\<turnstile> exclusive (remdups \<Phi>) = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>))"
+  "\<turnstile> \<Coprod> (remdups \<Phi>) = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>))"
   by (metis (mono_tags, hide_lams) 
             eq_iff 
             Exclusive_Implication_Completeness 
@@ -300,7 +300,7 @@ theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
             sum.set_conv_list)
   
 lemma (in Weakly_Additive_Logical_Probability) exclusive_list_set_inequality:
-  assumes "\<turnstile> exclusive \<Phi>"
+  assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>)"
 proof -
   have "distinct (remdups \<Phi>)" using distinct_remdups by auto
@@ -319,7 +319,7 @@ proof -
     "(\<forall>\<phi>\<in>duplicates (remdups \<Phi>). \<turnstile> \<sim> \<phi>) 
    \<and> (\<forall> \<phi> \<in> set (remdups \<Phi>). \<forall> \<psi> \<in> set (remdups \<Phi>). (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
     by auto
-  hence "\<turnstile> exclusive (remdups \<Phi>)"
+  hence "\<turnstile> \<Coprod> (remdups \<Phi>)"
     by (meson exclusive_equivalence set_deduction_base_theory)
   hence "(\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>) = Pr (\<Squnion> \<Phi>)"
     by (metis arbitrary_disjunction_remdups 

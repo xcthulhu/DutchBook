@@ -622,7 +622,7 @@ lemma (in Classical_Propositional_Logic) disjunction_monotonic:
         disjunction_monotonic_identity
   by blast
 
-lemma (in Classical_Propositional_Logic) conj_finite_disj_distribute:
+lemma (in Classical_Propositional_Logic) conj_dnf_distribute:
   "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (op # \<phi>)) \<Lambda>) \<leftrightarrow> (\<phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
 proof(induct \<Lambda>)
   case Nil
@@ -655,7 +655,7 @@ next
   ultimately show ?case by simp
 qed  
   
-lemma (in Classical_Propositional_Logic) append_finite_disj_distribute:
+lemma (in Classical_Propositional_Logic) append_dnf_distribute:
   "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (op @ \<Phi>)) \<Lambda>) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
 proof(induct \<Phi>)
   case Nil
@@ -691,7 +691,7 @@ next
       by simp
   qed
   ultimately have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (op # \<phi>)) ?A) \<leftrightarrow> ((\<phi> \<sqinter> ?B) \<sqinter> ?C)"
-    using Modus_Ponens conj_finite_disj_distribute
+    using Modus_Ponens conj_dnf_distribute
     by blast
   moreover
   have "\<Sqinter> \<circ> (op @ (\<phi> # \<Phi>)) = \<Sqinter> \<circ> op # \<phi> \<circ> op @ \<Phi>" by auto
@@ -3318,8 +3318,7 @@ proof -
 qed
 
 lemma (in Minimal_Logic) YWitness_right_stronger_theory:
-    "map (uncurry op \<rightarrow>) \<Delta>
-  \<preceq>  map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>))"
+    "map (uncurry op \<rightarrow>) \<Delta> \<preceq> map (uncurry op \<rightarrow>) (\<YY> \<Psi> \<Delta> \<ominus> (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>))"
 proof -
   let ?\<ff> = "\<lambda>\<Psi> \<Delta>. (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>)"
   let ?\<gg> = "\<lambda> \<Psi> \<Delta>. (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
@@ -3384,7 +3383,7 @@ proof -
           using YWitness_firstComponent_diff_decomposition by simp
         hence "mset (map (uncurry op \<rightarrow>)
                     (((?\<alpha>, (?\<alpha> \<rightarrow> ?\<beta>) \<rightarrow> ?\<gamma>) # ?A) \<ominus> remove1 \<psi> (\<Psi> \<ominus> ?B)
-                    @ (remove1 \<delta> ((\<delta> # \<Delta>) \<ominus> ?C))))
+                     @ (remove1 \<delta> ((\<delta> # \<Delta>) \<ominus> ?C))))
             = mset ((?\<alpha> \<rightarrow> (?\<alpha> \<rightarrow> ?\<beta>) \<rightarrow> ?\<gamma>) # map (uncurry op \<rightarrow>) (?D @ (\<Delta> \<ominus> ?C)))"
           by (simp, metis (no_types, hide_lams)
                           add_mset_add_single
@@ -5614,11 +5613,15 @@ next
     by fastforce
 qed
 
-primrec (in Classical_Propositional_Logic)
+primrec core_optimal_pre_witness :: "'a list \<Rightarrow> ('a list \<times> 'a) list" ("\<VV>")
+  where
+    "\<VV> [] = []"
+  | "\<VV> (\<psi> # \<Psi>) = (\<Psi>, \<psi>) # \<VV> \<Psi>"
+
+abbreviation (in Classical_Propositional_Logic)
   core_optimal_witness :: "'a \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<WW>")
   where
-      "\<WW> \<phi> [] = []"
-    | "\<WW> \<phi> (\<psi> # \<Psi>) = (\<Psi> :\<rightarrow> \<phi>, \<psi>) # \<WW> \<phi> \<Psi>"
+    "\<WW> \<phi> \<Xi> \<equiv> map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi>, \<psi>)) (\<VV> \<Xi>)"
 
 abbreviation (in Classical_Propositional_Logic)
   disjunction_core_optimal_witness :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" ("\<WW>\<^sub>\<squnion>")
@@ -5775,7 +5778,7 @@ next
     using disj_conj_impl_duality weak_biconditional_weaken by blast
   finally show ?case by simp
 qed
-
+  
 lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_biconditional:
   assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
       and "mset \<Phi> \<subseteq># mset (\<Gamma> \<ominus> \<Xi>)"
@@ -5783,13 +5786,82 @@ lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_bicondit
     shows "\<exists> \<Sigma>. \<turnstile> ((\<Phi> @ \<Psi>) :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
                 \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Gamma> \<and> length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>))"
 proof -
-  from assms(3) obtain \<Psi>\<^sub>0 where \<Psi>\<^sub>0: 
-    "mset (map (uncurry op \<rightarrow>) \<Psi>\<^sub>0) = mset \<Psi>"
-    "mset \<Psi>\<^sub>0 \<subseteq># mset (\<WW> \<phi> \<Xi>)"
-    using mset_sub_map_list_exists by blast
   have "\<exists> \<Sigma>. \<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
              \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Xi> \<and> length \<sigma> + 1 \<ge> length \<Psi>)"
-    sorry
+  proof -
+    from assms(3) obtain \<Psi>\<^sub>0 where \<Psi>\<^sub>0:
+      "mset \<Psi>\<^sub>0 \<subseteq># mset (\<VV> \<Xi>)"
+      "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0 = \<Psi>"
+      using mset_sub_map_list_exists by fastforce
+    let ?\<Pi> = "\<lambda> \<Xi> \<Sigma>. [\<xi> # \<sigma>. \<sigma> \<leftarrow> \<Sigma>,  \<xi> \<leftarrow> (zip \<Xi> (rev [0..<length \<Xi>]))]"
+    let ?T\<^sub>\<Sigma> = "\<lambda> \<Psi>. foldr ?\<Pi> \<Psi> [[]]"
+    let ?\<Psi>' = "map (\<lambda>(\<Xi>,\<xi>). \<xi> # \<Xi>) \<Psi>\<^sub>0"
+    let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> ?\<Psi>')"
+    let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ?\<Psi>')"
+    {
+      fix \<Psi> :: "'a list list"
+      let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
+      let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+      have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+      proof (induct \<Psi>)
+        case Nil
+        then show ?case by (simp add: biconditional_reflection)
+      next
+        case (Cons \<Xi> \<Psi>)
+        let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
+        let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+        let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+        let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+        have "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow> 
+                ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+        proof (induct \<Xi>)
+          case Nil
+          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
+          let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
+          have "?\<Sigma>\<^sub>\<alpha>' = ?\<Sigma>'" by simp
+          hence "(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) = (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)" by metis
+          hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
+            using biconditional_reflection by auto
+          then show ?case
+            using Axiom_1 Modus_Ponens by blast 
+        next
+          case (Cons \<xi> \<Xi>)
+          let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
+          let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+          let ?\<Gamma> = "[(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)]"
+          let ?\<U> = 
+            "concat \<circ>
+               (map (\<lambda>\<sigma>. ((\<xi>, length \<Xi>) # \<sigma>) # map (\<lambda>\<xi>. \<xi> # \<sigma>) (zip \<Xi> (rev [0..<length \<Xi>]))))"
+          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+          let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+          have \<star>: "map (\<Sqinter> \<circ> (map fst \<circ> remdups)) = map (\<Sqinter> \<circ> (\<lambda>ps. map fst (remdups ps)))"
+            by fastforce
+          have "?\<Gamma> :\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
+            unfolding list_deduction_def
+            using Cons by (simp, metis \<star>)
+          moreover have 
+            "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))
+             \<rightarrow> (\<Squnion> (map (\<Sqinter> \<circ> map fst) (?\<U> (?T\<^sub>\<Sigma> \<Psi>))) \<rightarrow> \<phi>) \<leftrightarrow>
+                (\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) (?\<U> (?T\<^sub>\<Sigma> \<Psi>))) \<rightarrow> \<phi>)" sorry
+          ultimately have 
+            "?\<Gamma> :\<turnstile> (\<Squnion> (map (\<Sqinter> \<circ> map fst) (?\<U> (?T\<^sub>\<Sigma> \<Psi>))) \<rightarrow> \<phi>) \<leftrightarrow>
+                   (\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) (?\<U> (?T\<^sub>\<Sigma> \<Psi>))) \<rightarrow> \<phi>)"
+            using list_deduction_weaken [where \<Gamma>="?\<Gamma>"]
+                  list_deduction_modus_ponens [where \<Gamma>="?\<Gamma>"]
+            by blast
+          thus ?case by (simp add: list_deduction_def, metis \<star>) 
+        qed
+        thus ?case using Cons Modus_Ponens by blast
+      qed
+    }
+    hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)" by blast
+    moreover have "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)" sorry
+    ultimately have I: "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+      using biconditional_transitivity_rule by blast
+    have II: "\<forall> \<sigma> \<in> set ?\<Sigma>. length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>)" sorry
+    have III: "\<forall> \<sigma> \<in> set ?\<Sigma>. mset \<sigma> \<subseteq># mset \<Xi>" sorry
+    show ?thesis using I II III by fastforce 
+  qed
   from this obtain \<Sigma>\<^sub>0 where \<Sigma>\<^sub>0:
     "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0) \<rightarrow> \<phi>)"
     "\<forall> \<sigma> \<in> set \<Sigma>\<^sub>0. mset \<sigma> \<subseteq># mset \<Xi> \<and> length \<sigma> + 1 \<ge> length \<Psi>"
@@ -5814,7 +5886,7 @@ proof -
   have "\<forall>\<phi> \<psi> \<chi>. \<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<chi> \<rightarrow> \<psi> \<or> \<not> \<turnstile> \<chi> \<rightarrow> \<phi>"
     by (meson Modus_Ponens flip_hypothetical_syllogism)
   hence "\<turnstile> ((\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
-    using append_finite_disj_distribute biconditional_def by fastforce
+    using append_dnf_distribute biconditional_def by fastforce
   ultimately have "\<turnstile> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
     using Modus_Ponens biconditional_transitivity_rule
     by blast

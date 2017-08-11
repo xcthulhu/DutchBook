@@ -186,10 +186,10 @@ lemma disjunction_semantics [simp]:
 
 subsection {* Mutual Exclusion *}
 
-primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a"
+primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a" ("\<Coprod>")
   where
-      "exclusive [] = \<top>"
-    | "exclusive (\<phi> # \<Phi>) = \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>) \<sqinter> exclusive \<Phi>"
+      "\<Coprod> [] = \<top>"
+    | "\<Coprod> (\<phi> # \<Phi>) = \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>) \<sqinter> \<Coprod> \<Phi>"
 
 subsection {* Subtraction *}
 
@@ -483,13 +483,14 @@ proof (induct \<Phi>)
     unfolding biconditional_def
               conjunction_def
               verum_def
-    by (metis Axiom_1
+    using Axiom_1
               Ex_Falso_Quodlibet
               Modus_Ponens
-              conjunction_deduction_equivalence
               conjunction_def
               excluded_middle_elimination
-              set_deduction_base_theory)
+              set_deduction_base_theory
+              conjunction_set_deduction_equivalence
+    by metis
 next
   case (Cons \<phi> \<Phi>)
   have "\<turnstile> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<chi>))"
@@ -851,7 +852,7 @@ next
     by simp
   hence "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) = (\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>) \<and> (\<forall>\<phi>\<in>set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)))"
     using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
-          conjunction_deduction_equivalence [where \<Gamma>="\<Gamma>"]
+          conjunction_set_deduction_equivalence [where \<Gamma>="\<Gamma>"]
           Cons.hyps
           biconditional_def
           set_deduction_modus_ponens
@@ -861,7 +862,7 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) exclusive_elimination1:
-  assumes "\<Gamma> \<tturnstile> exclusive \<Phi>"
+  assumes "\<Gamma> \<tturnstile> \<Coprod> \<Phi>"
   shows "\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   using assms
 proof (induct \<Phi>)
@@ -869,11 +870,11 @@ proof (induct \<Phi>)
   thus ?case by auto
 next
   case (Cons \<chi> \<Phi>)
-  assume "\<Gamma> \<tturnstile> exclusive (\<chi> # \<Phi>)"
-  hence "\<Gamma> \<tturnstile> exclusive \<Phi>" by simp
+  assume "\<Gamma> \<tturnstile> \<Coprod> (\<chi> # \<Phi>)"
+  hence "\<Gamma> \<tturnstile> \<Coprod> \<Phi>" by simp
   hence "\<forall>\<phi>\<in>set \<Phi>. \<forall>\<psi>\<in>set \<Phi>. \<phi> \<noteq> \<psi> \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)" using Cons.hyps by blast
   moreover have "\<Gamma> \<tturnstile> \<sim> (\<chi> \<sqinter> \<Squnion> \<Phi>)"
-    using \<open>\<Gamma> \<tturnstile> exclusive (\<chi> # \<Phi>)\<close> conjunction_deduction_equivalence by auto
+    using \<open>\<Gamma> \<tturnstile> \<Coprod> (\<chi> # \<Phi>)\<close> conjunction_set_deduction_equivalence by auto
   hence "\<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<chi> \<sqinter> \<phi>)"
     using disjuction_exclusion_equivalence by auto
   moreover {
@@ -892,7 +893,7 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) exclusive_elimination2:
-  assumes "\<Gamma> \<tturnstile> exclusive \<Phi>"
+  assumes "\<Gamma> \<tturnstile> \<Coprod> \<Phi>"
   shows "\<forall> \<phi> \<in> duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>"
   using assms
 proof (induct \<Phi>)
@@ -900,8 +901,8 @@ proof (induct \<Phi>)
   then show ?case by simp
 next
   case (Cons \<phi> \<Phi>)
-  assume "\<Gamma> \<tturnstile> exclusive (\<phi> # \<Phi>)"
-  hence "\<Gamma> \<tturnstile> exclusive \<Phi>" by simp
+  assume "\<Gamma> \<tturnstile> \<Coprod> (\<phi> # \<Phi>)"
+  hence "\<Gamma> \<tturnstile> \<Coprod> \<Phi>" by simp
   hence "\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>" using Cons.hyps by auto
   show ?case
   proof cases
@@ -932,7 +933,7 @@ next
     hence "\<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<phi>) \<equiv> \<Gamma> \<tturnstile> \<sim> \<phi>"
       using set_deduction_weaken
             biconditional_weaken by presburger
-    moreover have "\<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" using \<open>\<Gamma> \<tturnstile> exclusive (\<phi> # \<Phi>)\<close> by simp
+    moreover have "\<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" using \<open>\<Gamma> \<tturnstile> \<Coprod> (\<phi> # \<Phi>)\<close> by simp
     ultimately have "\<Gamma> \<tturnstile> \<sim> \<phi>" by (induct \<Phi>, simp, simp, blast)
     thus ?thesis using \<open>\<phi> \<in> set \<Phi>\<close> \<open>\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>\<close> by simp
   next
@@ -944,22 +945,22 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) exclusive_equivalence:
-   "\<Gamma> \<tturnstile> exclusive \<Phi> =
+   "\<Gamma> \<tturnstile> \<Coprod> \<Phi> =
     ((\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)))"
 proof -
   {
     assume "\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>"
            "\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
-    hence "\<Gamma> \<tturnstile> exclusive \<Phi>"
+    hence "\<Gamma> \<tturnstile> \<Coprod> \<Phi>"
     proof (induct \<Phi>)
       case Nil
       then show ?case
-        by (simp add: set_deduction_weaken verum_tautology)
+        by (simp add: set_deduction_weaken)
     next
       case (Cons \<phi> \<Phi>)
       assume A: "\<forall>\<phi>\<in>duplicates (\<phi> # \<Phi>). \<Gamma> \<tturnstile> \<sim> \<phi>"
          and B: "\<forall>\<chi>\<in>set (\<phi> # \<Phi>). \<forall>\<psi>\<in>set (\<phi> # \<Phi>). \<chi> \<noteq> \<psi> \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<chi> \<sqinter> \<psi>)"
-      hence C: "\<Gamma> \<tturnstile> exclusive \<Phi>" using Cons.hyps by simp
+      hence C: "\<Gamma> \<tturnstile> \<Coprod> \<Phi>" using Cons.hyps by simp
       then show ?case
       proof cases
         assume "\<phi> \<in> duplicates (\<phi> # \<Phi>)"
@@ -1007,14 +1008,14 @@ proof -
         qed
         with \<open>\<Gamma> \<tturnstile> \<sim> \<phi>\<close> have "\<Gamma> \<tturnstile> \<sim>(\<phi> \<sqinter> \<Squnion> \<Phi>)"
           using biconditional_weaken set_deduction_weaken by blast
-        with \<open>\<Gamma> \<tturnstile> exclusive \<Phi>\<close> show ?thesis by simp
+        with \<open>\<Gamma> \<tturnstile> \<Coprod> \<Phi>\<close> show ?thesis by simp
       next
         assume "\<phi> \<notin> duplicates (\<phi> # \<Phi>)"
         hence "\<phi> \<notin> set \<Phi>" by auto
         with B have "\<forall>\<psi>\<in>set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)" by (simp, metis)
         hence "\<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)"
           by (simp add: disjuction_exclusion_equivalence)
-        with \<open>\<Gamma> \<tturnstile> exclusive \<Phi>\<close> show ?thesis by simp
+        with \<open>\<Gamma> \<tturnstile> \<Coprod> \<Phi>\<close> show ?thesis by simp
       qed
     qed
   }
