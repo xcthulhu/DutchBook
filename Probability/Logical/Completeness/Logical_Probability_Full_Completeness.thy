@@ -5818,12 +5818,12 @@ proof -
       "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0 = \<Psi>"
       using mset_sub_map_list_exists by fastforce
     let ?\<Psi>' = "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0"
-    let ?\<Pi>\<^sub>C = "\<lambda> \<Xi> \<Sigma>. [\<xi> # \<sigma>. \<sigma> \<leftarrow> \<Sigma>,  \<xi> \<leftarrow> (zip \<Xi> (rev [0..<length \<Xi>]))]"
+    let ?\<Pi>\<^sub>C = "\<lambda> (\<Xi>,\<xi>) \<Sigma>. (map (op # (\<xi>,length \<Xi>)) \<Sigma>) @ (map (op @ (zip \<Xi> (rev [0..<length \<Xi>]))) \<Sigma>)"
     let ?T\<^sub>\<Sigma> = "\<lambda> \<Psi>. foldr ?\<Pi>\<^sub>C \<Psi> [[]]"
-    let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> (map (\<lambda>(\<Xi>,\<xi>). \<xi> # \<Xi>) \<Psi>\<^sub>0))"
-    let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (map (\<lambda>(\<Xi>,\<xi>). \<xi> # \<Xi>) \<Psi>\<^sub>0))"
+    let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
+    let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
     {
-      fix \<Psi> :: "'a list list"
+      fix \<Psi> :: "('a list \<times> 'a) list"
       let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
       let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
       have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
@@ -5831,303 +5831,322 @@ proof -
         case Nil
         then show ?case by (simp add: biconditional_reflection)
       next
-        case (Cons \<Xi> \<Psi>)
+        case (Cons \<Xi>\<xi> \<Psi>)
+        let ?\<Xi> = "fst \<Xi>\<xi>"
+        let ?\<xi> = "snd \<Xi>\<xi>"
         let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
         let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
-        let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
-        let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
-        have "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow> 
-                ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
-        proof (induct \<Xi>)
-          case Nil
-          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
-          let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
-          have "?\<Sigma>\<^sub>\<alpha>' = ?\<Sigma>'" by simp
-          hence "(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) = (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)" by metis
-          hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
-            using biconditional_reflection by auto
-          then show ?case
-            using Axiom_1 Modus_Ponens by blast 
-        next
-          case (Cons \<xi> \<Xi>)
+        let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ((?\<Xi>,?\<xi>) # \<Psi>))"
+        let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ((?\<Xi>,?\<xi>) # \<Psi>))"
+        {
+          fix \<Xi> :: "'a list"
+          fix \<xi> :: 'a
           let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
           let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
-          let ?\<Gamma> = "[(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)]"
-          let ?\<Xi>\<^sub>0 = "zip \<Xi> (rev [0..<length \<Xi>])"
-          let ?\<ff> = "\<lambda>\<psi>. map (\<lambda>\<xi>. \<xi> # \<psi>) ?\<Xi>\<^sub>0"
-          let ?\<gg> = "op # (\<xi>, length \<Xi>)"
-          let ?\<U> = "concat \<circ> (map (\<lambda>\<psi>. ?\<gg> \<psi> # ?\<ff> \<psi>))"
-          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
-          let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
-          have \<star>: "map (\<Sqinter> \<circ> (map fst \<circ> remdups)) = map (\<Sqinter> \<circ> (\<lambda>\<psi>. map fst (remdups \<psi>)))"
-            by fastforce
-          have "?\<Gamma> :\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
-               (is "?\<Gamma> :\<turnstile> (?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)")
-            unfolding list_deduction_def
-            using Cons by (simp, metis \<star>)
-          let ?C = "\<Squnion> (map (\<Sqinter> \<circ> map fst) (?\<U> (?T\<^sub>\<Sigma> \<Psi>)))"
-          let ?D = "\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) (?\<U> (?T\<^sub>\<Sigma> \<Psi>)))"
-          let ?\<Gamma>' = "[(?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)]"
-          let ?\<Delta> = "map (op # (\<xi>, length \<Xi>)) (?T\<^sub>\<Sigma> \<Psi>)"
-          let ?\<Pi>\<^sub>1 = "\<Sqinter> \<circ> map fst"
-          let ?\<Pi>\<^sub>2 = "\<Sqinter> \<circ> (map fst \<circ> remdups)"
-          have \<dagger>: "\<turnstile> \<bottom> \<leftrightarrow> (\<bottom> \<squnion> \<bottom>)"
-            using Peirces_law 
-                  biconditional_def 
-                  disjunction_def 
-                  disjunction_right_introduction 
-                  weak_conjunction_deduction_equivalence
-            by presburger
-          {
-            fix \<alpha> :: "'a"
-            fix A B C D :: "'a list"
-            have "\<turnstile>    (\<Squnion> A \<leftrightarrow> (\<Squnion> B \<squnion> \<Squnion> C))
-                    \<rightarrow> (\<Squnion> (D @ A) \<leftrightarrow> (\<Squnion> D \<squnion> \<Squnion> A))
-                    \<rightarrow> (\<Squnion> (D @ C) \<leftrightarrow> (\<Squnion> D \<squnion> \<Squnion> C))
-                    \<rightarrow> (\<alpha> \<squnion> \<Squnion> (D @ A)) \<leftrightarrow> ((\<alpha> \<squnion> \<Squnion> B) \<squnion> \<Squnion> (D @ C))"
+          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ((\<Xi>,\<xi>) # \<Psi>))"
+          let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ((\<Xi>,\<xi>) # \<Psi>))"
+          have 
+            "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow> 
+               ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+          proof (induct \<Xi>)
+            case Nil
+            let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
+            let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> ([] # \<Psi>))"
+            have "?\<Sigma>\<^sub>\<alpha>' = ?\<Sigma>'" by simp
+            hence "(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) = (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)" by metis
+            hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
+              using biconditional_reflection by auto
+            show ?case apply simp
+          next
+            case (Cons \<xi> \<Xi>)
+            let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Sigma> = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Gamma> = "[(\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)]"
+            let ?\<Xi>\<^sub>0 = "zip \<Xi> (rev [0..<length \<Xi>])"
+            let ?\<ff> = "\<lambda>\<psi>. map (\<lambda>\<xi>. \<xi> # \<psi>) ?\<Xi>\<^sub>0"
+            let ?\<gg> = "op # (\<xi>, length \<Xi>)"
+            let ?\<U> = "concat \<circ> (map (\<lambda>\<psi>. ?\<gg> \<psi> # ?\<ff> \<psi>))"
+            let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+            let ?\<Sigma>' = "map ((map fst) \<circ> remdups) (?T\<^sub>\<Sigma> (\<Xi> # \<Psi>))"
+            have \<star>: "map (\<Sqinter> \<circ> (map fst \<circ> remdups)) = map (\<Sqinter> \<circ> (\<lambda>\<psi>. map fst (remdups \<psi>)))"
+              by fastforce
+            have "?\<Gamma> :\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>)"
+                 (is "?\<Gamma> :\<turnstile> (?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)")
+              unfolding list_deduction_def
+              using Cons by (simp, metis \<star>)
+            let ?C = "\<Squnion> (map (\<Sqinter> \<circ> map fst) (?\<U> (?T\<^sub>\<Sigma> \<Psi>)))"
+            let ?D = "\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) (?\<U> (?T\<^sub>\<Sigma> \<Psi>)))"
+            let ?\<Gamma>' = "[(?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)]"
+            let ?\<Delta> = "map (op # (\<xi>, length \<Xi>)) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Pi>\<^sub>1 = "\<Sqinter> \<circ> map fst"
+            let ?\<Pi>\<^sub>2 = "\<Sqinter> \<circ> (map fst \<circ> remdups)"
+            have \<dagger>: "\<turnstile> \<bottom> \<leftrightarrow> (\<bottom> \<squnion> \<bottom>)"
+              using Peirces_law 
+                    biconditional_def 
+                    disjunction_def 
+                    disjunction_right_introduction 
+                    weak_conjunction_deduction_equivalence
+              by presburger
+            {
+              fix \<alpha> :: "'a"
+              fix A B C D :: "'a list"
+              have "\<turnstile>    (\<Squnion> A \<leftrightarrow> (\<Squnion> B \<squnion> \<Squnion> C))
+                      \<rightarrow> (\<Squnion> (D @ A) \<leftrightarrow> (\<Squnion> D \<squnion> \<Squnion> A))
+                      \<rightarrow> (\<Squnion> (D @ C) \<leftrightarrow> (\<Squnion> D \<squnion> \<Squnion> C))
+                      \<rightarrow> (\<alpha> \<squnion> \<Squnion> (D @ A)) \<leftrightarrow> ((\<alpha> \<squnion> \<Squnion> B) \<squnion> \<Squnion> (D @ C))"
+              proof -
+                let ?\<phi> = "   (\<^bold>\<langle>\<Squnion> A\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> B\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> C\<^bold>\<rangle>))
+                          \<rightarrow> (\<^bold>\<langle>\<Squnion> (D @ A)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> D\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> A\<^bold>\<rangle>))
+                          \<rightarrow> (\<^bold>\<langle>\<Squnion> (D @ C)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> D\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> C\<^bold>\<rangle>))
+                          \<rightarrow> (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (D @ A)\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> B\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>\<Squnion> (D @ C)\<^bold>\<rangle>)"
+                have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+                hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+                thus ?thesis by simp
+              qed
+            }
+            note \<ddagger> = this
+            have "\<turnstile> ?C \<leftrightarrow> (\<Squnion> (map ?\<Pi>\<^sub>1 ?\<Delta>) \<squnion> ?A)" 
+              (is "\<turnstile> ?C \<leftrightarrow> (?X \<squnion> ?A)")
             proof -
-              let ?\<phi> = "   (\<^bold>\<langle>\<Squnion> A\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> B\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> C\<^bold>\<rangle>))
-                        \<rightarrow> (\<^bold>\<langle>\<Squnion> (D @ A)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> D\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> A\<^bold>\<rangle>))
-                        \<rightarrow> (\<^bold>\<langle>\<Squnion> (D @ C)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> D\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> C\<^bold>\<rangle>))
-                        \<rightarrow> (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (D @ A)\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> B\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>\<Squnion> (D @ C)\<^bold>\<rangle>)"
-              have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-              hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+              {
+                fix \<Psi> :: "('a \<times> nat) list list"
+                have 
+                  "\<turnstile>    \<Squnion> (map ?\<Pi>\<^sub>1 (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>))) 
+                     \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>1 \<circ> ?\<gg>) \<Psi>) \<squnion> \<Squnion> (map ?\<Pi>\<^sub>1 (concat (map ?\<ff> \<Psi>))))"
+                proof (induct \<Psi>)
+                  case Nil
+                  from \<dagger> show ?case by simp
+                next
+                  case (Cons \<psi> \<Psi>)
+                  let ?\<Pi> = "\<lambda>\<psi>. ?\<Pi>\<^sub>1 \<psi>"
+                  let ?\<alpha> = "\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>"
+                  let ?A = "map ?\<Pi> (concat (map (\<lambda>\<psi>. ?\<gg> \<psi> # ?\<ff> \<psi>) \<Psi>))"
+                  let ?B = "map (\<lambda>\<psi>. \<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<Psi>"
+                  let ?C = "map ?\<Pi> (concat (map ?\<ff> \<Psi>))"
+                  let ?D = "map (?\<Pi> \<circ> (\<lambda>\<xi>. \<xi> # \<psi>)) ?\<Xi>\<^sub>0"
+                  have "\<turnstile> \<Squnion> ?A \<leftrightarrow> (\<Squnion> ?B \<squnion> \<Squnion> ?C)" using Cons by simp
+                  hence "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
+                    using \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
+                    by meson
+                  thus ?case by simp
+                qed
+              }
               thus ?thesis by simp
             qed
-          }
-          note \<ddagger> = this
-          have "\<turnstile> ?C \<leftrightarrow> (\<Squnion> (map ?\<Pi>\<^sub>1 ?\<Delta>) \<squnion> ?A)" 
-            (is "\<turnstile> ?C \<leftrightarrow> (?X \<squnion> ?A)")
-          proof -
-            {
-              fix \<Psi> :: "('a \<times> nat) list list"
-              have 
-                "\<turnstile>    \<Squnion> (map ?\<Pi>\<^sub>1 (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>))) 
-                   \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>1 \<circ> ?\<gg>) \<Psi>) \<squnion> \<Squnion> (map ?\<Pi>\<^sub>1 (concat (map ?\<ff> \<Psi>))))"
-              proof (induct \<Psi>)
-                case Nil
-                from \<dagger> show ?case by simp
-              next
-                case (Cons \<psi> \<Psi>)
-                let ?\<Pi> = "\<lambda>\<psi>. ?\<Pi>\<^sub>1 \<psi>"
-                let ?\<alpha> = "\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>"
-                let ?A = "map ?\<Pi> (concat (map (\<lambda>\<psi>. ?\<gg> \<psi> # ?\<ff> \<psi>) \<Psi>))"
-                let ?B = "map (\<lambda>\<psi>. \<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<Psi>"
-                let ?C = "map ?\<Pi> (concat (map ?\<ff> \<Psi>))"
-                let ?D = "map (?\<Pi> \<circ> (\<lambda>\<xi>. \<xi> # \<psi>)) ?\<Xi>\<^sub>0"
-                have "\<turnstile> \<Squnion> ?A \<leftrightarrow> (\<Squnion> ?B \<squnion> \<Squnion> ?C)" using Cons by simp
-                hence "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
-                  using \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
-                  by meson
-                thus ?case by simp
-              qed
-            }
-            thus ?thesis by simp
-          qed
-          have "\<turnstile> ?D \<leftrightarrow> (\<Squnion> (map ?\<Pi>\<^sub>2 ?\<Delta>) \<squnion> ?B)" 
-            (is "\<turnstile> ?D \<leftrightarrow> (?Y \<squnion> ?B)")
-          proof -
-            {
-              fix \<Psi> :: "('a \<times> nat) list list"
-              have 
-                "\<turnstile>   \<Squnion> (map ?\<Pi>\<^sub>2 (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>)))
-                  \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>2 \<circ> ?\<gg>) \<Psi>) \<squnion> \<Squnion> (map ?\<Pi>\<^sub>2 (concat (map ?\<ff> \<Psi>))))"
-              proof (induct \<Psi>)
-                case Nil
-                from \<dagger> show ?case by simp
-              next
-                case (Cons \<psi> \<Psi>)
-                let ?\<Pi> = "\<lambda>\<sigma>. ?\<Pi>\<^sub>2 \<sigma>"
-                let ?A = "map ?\<Pi> (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>))"
-                let ?B = "map (\<Sqinter> \<circ> (map fst \<circ> remdups) \<circ> ?\<gg>) \<Psi>"
-                let ?C = "map ?\<Pi> (concat (map ?\<ff> \<Psi>))"
-                let ?D = "map (?\<Pi> \<circ> (\<lambda>\<xi>. \<xi> # \<psi>)) ?\<Xi>\<^sub>0"
-                have \<lozenge>: "(?\<Pi>\<^sub>2 \<circ> ?\<gg>) = (\<lambda>\<psi>. (?\<Pi>\<^sub>1 \<circ> (remdups \<circ> ?\<gg>)) \<psi>)"
-                  by fastforce
-                hence \<odot>: "\<turnstile> \<Squnion> ?A \<leftrightarrow> (\<Squnion> ?B \<squnion> \<Squnion> ?C)" using Cons by simp
-                show ?case
-                proof (cases "(\<xi>, length \<Xi>) \<in> set \<psi>")
-                  case True
-                  let ?\<alpha> = "?\<Pi> \<psi>"
-                  have "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
-                    using \<odot> \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
-                    by meson
-                  then show ?thesis using True \<lozenge> by simp
+            have "\<turnstile> ?D \<leftrightarrow> (\<Squnion> (map ?\<Pi>\<^sub>2 ?\<Delta>) \<squnion> ?B)" 
+              (is "\<turnstile> ?D \<leftrightarrow> (?Y \<squnion> ?B)")
+            proof -
+              {
+                fix \<Psi> :: "('a \<times> nat) list list"
+                have 
+                  "\<turnstile>   \<Squnion> (map ?\<Pi>\<^sub>2 (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>)))
+                    \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>2 \<circ> ?\<gg>) \<Psi>) \<squnion> \<Squnion> (map ?\<Pi>\<^sub>2 (concat (map ?\<ff> \<Psi>))))"
+                proof (induct \<Psi>)
+                  case Nil
+                  from \<dagger> show ?case by simp
                 next
-                  case False
-                  let ?\<alpha> = "\<xi> \<sqinter> ?\<Pi> \<psi>"
-                  have "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
-                    using \<odot> \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
-                    by meson
-                  then show ?thesis using False \<lozenge> by simp
+                  case (Cons \<psi> \<Psi>)
+                  let ?\<Pi> = "\<lambda>\<sigma>. ?\<Pi>\<^sub>2 \<sigma>"
+                  let ?A = "map ?\<Pi> (concat (map (\<lambda>\<sigma>. ?\<gg> \<sigma> # ?\<ff> \<sigma>) \<Psi>))"
+                  let ?B = "map (\<Sqinter> \<circ> (map fst \<circ> remdups) \<circ> ?\<gg>) \<Psi>"
+                  let ?C = "map ?\<Pi> (concat (map ?\<ff> \<Psi>))"
+                  let ?D = "map (?\<Pi> \<circ> (\<lambda>\<xi>. \<xi> # \<psi>)) ?\<Xi>\<^sub>0"
+                  have \<lozenge>: "(?\<Pi>\<^sub>2 \<circ> ?\<gg>) = (\<lambda>\<psi>. (?\<Pi>\<^sub>1 \<circ> (remdups \<circ> ?\<gg>)) \<psi>)"
+                    by fastforce
+                  hence \<odot>: "\<turnstile> \<Squnion> ?A \<leftrightarrow> (\<Squnion> ?B \<squnion> \<Squnion> ?C)" using Cons by simp
+                  show ?case
+                  proof (cases "(\<xi>, length \<Xi>) \<in> set \<psi>")
+                    case True
+                    let ?\<alpha> = "?\<Pi> \<psi>"
+                    have "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
+                      using \<odot> \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
+                      by meson
+                    then show ?thesis using True \<lozenge> by simp
+                  next
+                    case False
+                    let ?\<alpha> = "\<xi> \<sqinter> ?\<Pi> \<psi>"
+                    have "\<turnstile> (?\<alpha> \<squnion> \<Squnion> (?D @ ?A)) \<leftrightarrow> ((?\<alpha> \<squnion> \<Squnion> ?B) \<squnion> \<Squnion> (?D @ ?C))"
+                      using \<odot> \<ddagger> Modus_Ponens arbitrary_disj_concat_equiv
+                      by meson
+                    then show ?thesis using False \<lozenge> by simp
+                  qed
                 qed
-              qed
-            }
-            thus ?thesis by simp
-          qed
-          have "\<turnstile> (?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>)"
-          proof -
-            {
-              fix \<Psi>
-              let ?\<zeta> = "op # (\<xi>, length \<Xi>)"
-              have  "\<turnstile> (\<Squnion> (map (?\<Pi>\<^sub>1 \<circ> ?\<zeta>) \<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>2 \<circ> ?\<zeta>) \<Psi>) \<rightarrow> \<phi>)"
-              proof (induct \<Psi>)
-                case Nil
-                then show ?case
-                  using biconditional_reflection by auto 
-              next
-                case (Cons \<psi> \<Psi>)
-                let ?\<beta> = "\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>"
-                let ?A = "\<Squnion> (map (\<lambda>\<psi>. \<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<Psi>)"
-                let ?B = "\<Squnion> (map (\<lambda>\<psi>. (?\<Pi>\<^sub>2 \<circ> ?\<zeta>) \<psi>) \<Psi>)"
-                {
-                  fix \<psi> :: "('a \<times> nat) list"
-                  have "\<forall> \<xi> \<in> set \<psi>. \<turnstile> (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>"
+              }
+              thus ?thesis by simp
+            qed
+            have "\<turnstile> (?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>)"
+            proof -
+              {
+                fix \<Psi>
+                let ?\<zeta> = "op # (\<xi>, length \<Xi>)"
+                have  "\<turnstile> (\<Squnion> (map (?\<Pi>\<^sub>1 \<circ> ?\<zeta>) \<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map (?\<Pi>\<^sub>2 \<circ> ?\<zeta>) \<Psi>) \<rightarrow> \<phi>)"
+                proof (induct \<Psi>)
+                  case Nil
+                  then show ?case
+                    using biconditional_reflection by auto 
+                next
+                  case (Cons \<psi> \<Psi>)
+                  let ?\<beta> = "\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>"
+                  let ?A = "\<Squnion> (map (\<lambda>\<psi>. \<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<Psi>)"
+                  let ?B = "\<Squnion> (map (\<lambda>\<psi>. (?\<Pi>\<^sub>2 \<circ> ?\<zeta>) \<psi>) \<Psi>)"
+                  {
+                    fix \<psi> :: "('a \<times> nat) list"
+                    have "\<forall> \<xi> \<in> set \<psi>. \<turnstile> (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>"
+                    proof (induct \<psi>)
+                      case Nil
+                      then show ?case by simp
+                    next
+                      case (Cons \<sigma> \<psi>)
+                      then show ?case
+                      proof (cases "\<sigma> \<in> set \<psi>")
+                        case True
+                        then show ?thesis using Cons by simp
+                      next
+                        case False
+                        moreover have "\<turnstile> (fst \<sigma> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                        proof -
+                          let ?\<phi> = "(\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                          have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+                          hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+                          thus ?thesis by simp
+                        qed
+                        moreover
+                        {
+                          fix \<xi> :: "'a \<times> nat"
+                          assume "\<xi> \<in> set \<psi>"
+                          with Cons have "\<turnstile> (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" by simp
+                          moreover have "\<turnstile>   (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>
+                                           \<rightarrow> (fst \<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                          proof -
+                            let ?\<phi> = "   (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>
+                                      \<rightarrow> (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                            have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+                            hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+                            thus ?thesis by simp
+                          qed
+                          ultimately have "\<turnstile> (fst \<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                            using Modus_Ponens by blast
+                        }
+                        ultimately show ?thesis by simp
+                      qed
+                    qed
+                  }
+                  note \<dagger> = this
+                  have \<ddagger>: "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
                   proof (induct \<psi>)
                     case Nil
-                    then show ?case by simp
+                    then show ?case by (simp add: biconditional_reflection)
                   next
                     case (Cons \<sigma> \<psi>)
                     then show ?case
                     proof (cases "\<sigma> \<in> set \<psi>")
                       case True
-                      then show ?thesis using Cons by simp
-                    next
-                      case False
-                      moreover have "\<turnstile> (fst \<sigma> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                      hence "\<turnstile> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" using \<dagger> by simp
+                      moreover have "\<turnstile>   ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
+                                      \<rightarrow> ((fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>)
+                                      \<rightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
                       proof -
-                        let ?\<phi> = "(\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                        let ?\<phi> = "   (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
+                                  \<rightarrow> ((\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
+                                  \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
                         have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
                         hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
                         thus ?thesis by simp
                       qed
-                      moreover
-                      {
-                        fix \<xi> :: "'a \<times> nat"
-                        assume "\<xi> \<in> set \<psi>"
-                        with Cons have "\<turnstile> (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" by simp
-                        moreover have "\<turnstile>   (fst \<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>
-                                         \<rightarrow> (fst \<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
-                        proof -
-                          let ?\<phi> = "   (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>
-                                    \<rightarrow> (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
-                          have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-                          hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-                          thus ?thesis by simp
-                        qed
-                        ultimately have "\<turnstile> (fst \<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
-                          using Modus_Ponens by blast
-                      }
-                      ultimately show ?thesis by simp
+                      ultimately have "\<turnstile> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                        using Cons Modus_Ponens by blast
+                      then show ?thesis using True by simp
+                    next
+                      case False
+                      have "\<turnstile>   ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
+                             \<rightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                      proof -
+                        let ?\<phi> = "   (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
+                                  \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                        have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+                        hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+                        thus ?thesis by simp
+                      qed
+                      then show ?thesis using False Cons Modus_Ponens by simp
                     qed
                   qed
-                }
-                note \<dagger> = this
-                have \<ddagger>: "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
-                proof (induct \<psi>)
-                  case Nil
-                  then show ?case by (simp add: biconditional_reflection)
-                next
-                  case (Cons \<sigma> \<psi>)
-                  then show ?case
-                  proof (cases "\<sigma> \<in> set \<psi>")
+                  show ?case
+                  proof (cases "(\<xi>, length \<Xi>) \<in> set \<psi>")
                     case True
-                    hence "\<turnstile> (fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" using \<dagger> by simp
-                    moreover have "\<turnstile>   ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
-                                    \<rightarrow> ((fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>)
-                                    \<rightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                    hence "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" using \<dagger> by fastforce
+                    moreover have "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)" using \<ddagger> by simp
+                    moreover have "\<turnstile>   ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>))
+                                    \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>)
+                                    \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
+                                    \<rightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<squnion> ?A) \<rightarrow> \<phi>) \<leftrightarrow> ((?\<Pi>\<^sub>2 \<psi> \<squnion> ?B) \<rightarrow> \<phi>)"
                     proof -
-                      let ?\<phi> = "   (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
-                                \<rightarrow> ((\<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
-                                \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                      let ?\<phi> = "   (\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
+                                \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>
+                                \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
+                                \<rightarrow> (((\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
                       have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
                       hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
                       thus ?thesis by simp
                     qed
-                    ultimately have "\<turnstile> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
-                      using Cons Modus_Ponens by blast
-                    then show ?thesis using True by simp
+                    ultimately show ?thesis using True Cons Modus_Ponens by (simp, blast)
                   next
                     case False
-                    have "\<turnstile>   ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
-                           \<rightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> fst \<sigma> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)"
+                    have "\<turnstile>   ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>))
+                           \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
+                           \<rightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<squnion> ?A) \<rightarrow> \<phi>) \<leftrightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<squnion> ?B) \<rightarrow> \<phi>)"
                     proof -
-                      let ?\<phi> = "   (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
-                                \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>fst \<sigma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)"
+                      let ?\<phi> = "   ((\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
+                                \<rightarrow> (\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
+                                \<rightarrow> ((\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
                       have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
                       hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
                       thus ?thesis by simp
                     qed
-                    then show ?thesis using False Cons Modus_Ponens by simp
+                    thus ?thesis using False Modus_Ponens Cons \<ddagger> by (simp, blast)
                   qed
                 qed
-                show ?case
-                proof (cases "(\<xi>, length \<Xi>) \<in> set \<psi>")
-                  case True
-                  hence "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>" using \<dagger> by fastforce
-                  moreover have "\<turnstile> (\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>)" using \<ddagger> by simp
-                  moreover have "\<turnstile>   ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>))
-                                  \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<leftrightarrow> ?\<Pi>\<^sub>2 \<psi>)
-                                  \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
-                                  \<rightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<squnion> ?A) \<rightarrow> \<phi>) \<leftrightarrow> ((?\<Pi>\<^sub>2 \<psi> \<squnion> ?B) \<rightarrow> \<phi>)"
-                  proof -
-                    let ?\<phi> = "   (\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
-                              \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>) \<leftrightarrow> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>
-                              \<rightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
-                              \<rightarrow> (((\<^bold>\<langle>\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
-                    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-                    hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-                    thus ?thesis by simp
-                  qed
-                  ultimately show ?thesis using True Cons Modus_Ponens by (simp, blast)
-                next
-                  case False
-                  have "\<turnstile>   ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>))
-                         \<rightarrow> ((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<leftrightarrow> (\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>))
-                         \<rightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>) \<squnion> ?A) \<rightarrow> \<phi>) \<leftrightarrow> (((\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>) \<squnion> ?B) \<rightarrow> \<phi>)"
-                  proof -
-                    let ?\<phi> = "   ((\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
-                              \<rightarrow> (\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle>)
-                              \<rightarrow> ((\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>1 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<xi> \<sqinter> ?\<Pi>\<^sub>2 \<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
-                    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-                    hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-                    thus ?thesis by simp
-                  qed
-                  thus ?thesis using False Modus_Ponens Cons \<ddagger> by (simp, blast)
-                qed
-              qed
-            }
-            thus ?thesis
-              unfolding list_deduction_def
-              by simp
+              }
+              thus ?thesis
+                unfolding list_deduction_def
+                by simp
+            qed
+            have "\<turnstile>    (?C \<leftrightarrow> (?X \<squnion> ?A)) 
+                    \<rightarrow> (?D \<leftrightarrow> (?Y \<squnion> ?B))
+                    \<rightarrow> ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)) 
+                    \<rightarrow> ((?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>))
+                    \<rightarrow> ((?C \<rightarrow> \<phi>) \<leftrightarrow> (?D \<rightarrow> \<phi>))"
+            proof -
+              let ?\<phi> = 
+                "   (\<^bold>\<langle>?C\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?X\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>))
+                 \<rightarrow> (\<^bold>\<langle>?D\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?Y\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>))
+                 \<rightarrow> ((\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
+                 \<rightarrow> ((\<^bold>\<langle>?X\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?Y\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
+                 \<rightarrow> ((\<^bold>\<langle>?C\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?D\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
+              have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+              hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+              thus ?thesis by simp
+            qed
+            hence "?\<Gamma> :\<turnstile> (?C \<rightarrow> \<phi>) \<leftrightarrow> (?D \<rightarrow> \<phi>)"
+              using list_deduction_weaken [where \<Gamma>="?\<Gamma>"]
+                    list_deduction_modus_ponens [where \<Gamma>="?\<Gamma>"]
+                    \<open>?\<Gamma> :\<turnstile> (?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)\<close>
+                    \<open>\<turnstile> ?C \<leftrightarrow> (?X \<squnion> ?A)\<close>
+                    \<open>\<turnstile> ?D \<leftrightarrow> (?Y \<squnion> ?B)\<close>
+                    \<open>\<turnstile> (?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>)\<close>
+              by meson
+            thus ?case by (simp add: list_deduction_def, metis \<star>) 
           qed
-          have "\<turnstile>    (?C \<leftrightarrow> (?X \<squnion> ?A)) 
-                  \<rightarrow> (?D \<leftrightarrow> (?Y \<squnion> ?B))
-                  \<rightarrow> ((?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)) 
-                  \<rightarrow> ((?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>))
-                  \<rightarrow> ((?C \<rightarrow> \<phi>) \<leftrightarrow> (?D \<rightarrow> \<phi>))"
-          proof -
-            let ?\<phi> = 
-              "   (\<^bold>\<langle>?C\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?X\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>))
-               \<rightarrow> (\<^bold>\<langle>?D\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?Y\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>))
-               \<rightarrow> ((\<^bold>\<langle>?A\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?B\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
-               \<rightarrow> ((\<^bold>\<langle>?X\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?Y\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))
-               \<rightarrow> ((\<^bold>\<langle>?C\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>?D\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
-            have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-            hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-            thus ?thesis by simp
-          qed
-          hence "?\<Gamma> :\<turnstile> (?C \<rightarrow> \<phi>) \<leftrightarrow> (?D \<rightarrow> \<phi>)"
-            using list_deduction_weaken [where \<Gamma>="?\<Gamma>"]
-                  list_deduction_modus_ponens [where \<Gamma>="?\<Gamma>"]
-                  \<open>?\<Gamma> :\<turnstile> (?A \<rightarrow> \<phi>) \<leftrightarrow> (?B \<rightarrow> \<phi>)\<close>
-                  \<open>\<turnstile> ?C \<leftrightarrow> (?X \<squnion> ?A)\<close>
-                  \<open>\<turnstile> ?D \<leftrightarrow> (?Y \<squnion> ?B)\<close>
-                  \<open>\<turnstile> (?X \<rightarrow> \<phi>) \<leftrightarrow> (?Y \<rightarrow> \<phi>)\<close>
-            by meson
-          thus ?case by (simp add: list_deduction_def, metis \<star>) 
-        qed
-        thus ?case using Cons Modus_Ponens by blast
+          *)
+        }
+        hence
+          "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow> 
+             ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+          by fastforce
+        hence
+          "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+          using Cons Modus_Ponens by blast
+        moreover have "\<Xi>\<xi> = (?\<Xi>,?\<xi>)" by fastforce
+        ultimately show ?case by metis 
       qed
     }
     hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)" by blast
