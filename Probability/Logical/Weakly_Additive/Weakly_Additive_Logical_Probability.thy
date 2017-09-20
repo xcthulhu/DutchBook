@@ -244,9 +244,10 @@ proof -
      hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
        using assms 
              Formula_Maximally_Consistent_Set_reflection 
-             Maximally_Consistent_Set_def 
-             conjunction_deduction_equivalence 
-       by blast
+             Maximally_Consistent_Set_def
+             conjunction_set_deduction_equivalence
+       by meson 
+             
      have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
        by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close> 
                  assms 
