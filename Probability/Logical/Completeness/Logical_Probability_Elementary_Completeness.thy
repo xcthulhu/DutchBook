@@ -5,7 +5,7 @@ begin
 sledgehammer_params [smt_proofs = false]
     
 theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
+  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
@@ -40,13 +40,11 @@ proof -
       "\<exists> Pr \<in> Binary_Probabilities. \<not> (Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
       using \<Omega>(1) MCS_Binary_Weakly_Additive_Logical_Probability by auto
   }
-  ultimately show 
-    "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
-    by blast
+  ultimately show ?thesis by blast
 qed
 
 theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>))"
+  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis List_Summation_Completeness 
             Modus_Ponens 
             arbitrary_disjunction_remdups 
@@ -138,7 +136,7 @@ lemma count_remove_all_sum_list:
             add.left_commute)
 
 theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
-  "(\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>) = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
+  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
     fix Pr
@@ -261,7 +259,7 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Inequality_Completeness:
-  "\<turnstile> \<phi> \<rightarrow> \<psi> = (\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>)"
+  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
@@ -277,10 +275,10 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
-  "\<turnstile> \<Coprod> \<Phi> = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>))"
+  "(\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
 proof -
   have "\<turnstile> \<Coprod> \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> \<Coprod> \<Phi>"
-    by (simp add: Inequality_Completeness)
+    by (simp add: trivial_implication)
   hence "\<turnstile> \<Coprod> \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
     by (simp add: Exclusive_Implication_Completeness)
   moreover have "\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
@@ -290,7 +288,7 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
-  "\<turnstile> \<Coprod> (remdups \<Phi>) = (\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>))"
+  "(\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams) 
             eq_iff 
             Exclusive_Implication_Completeness 
