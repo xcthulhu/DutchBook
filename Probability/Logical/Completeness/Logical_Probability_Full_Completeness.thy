@@ -7,7 +7,7 @@ sledgehammer_params [smt_proofs = false]
 (* TODO: Move utility stuff *)
 
 definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
-  where [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
+  where uncurry_def [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
 
 lemma listSubtract_set_difference_lower_bound:
   "set \<Gamma> - set \<Phi> \<subseteq> set (\<Gamma> \<ominus> \<Phi>)"
@@ -719,6 +719,11 @@ definition (in Minimal_Logic)
                     mset (map fst \<Phi>) \<subseteq># mset \<Gamma> \<and>
                     (\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
 
+abbreviation (in Minimal_Logic)
+  stronger_theory_relation_op :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<succeq>" 100)
+  where
+    "\<Gamma> \<succeq> \<Sigma> \<equiv> \<Sigma> \<preceq> \<Gamma>"
+    
 lemma (in Minimal_Logic) msub_stronger_theory_intro:
   assumes "mset \<Sigma> \<subseteq># mset \<Gamma>"
   shows "\<Sigma> \<preceq> \<Gamma>"
@@ -748,11 +753,11 @@ lemma (in Minimal_Logic) stronger_theory_empty_list_intro [simp]:
   using assms stronger_theory_relation_def by simp
 
 lemma (in Minimal_Logic) stronger_theory_right_permutation:
-  assumes "\<Gamma> <~~> \<Gamma>'"
+  assumes "\<Gamma> <~~> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
-    shows "\<Sigma> \<preceq> \<Gamma>'"
+    shows "\<Sigma> \<preceq> \<Delta>"
 proof -
-  from assms(1) have "mset \<Gamma> = mset \<Gamma>'"
+  from assms(1) have "mset \<Gamma> = mset \<Delta>"
     by (simp add: mset_eq_perm)
   thus ?thesis
     using assms(2) stronger_theory_relation_def
@@ -760,29 +765,29 @@ proof -
 qed
 
 lemma (in Minimal_Logic) stronger_theory_left_permutation:
-  assumes "\<Sigma> <~~> \<Sigma>'"
+  assumes "\<Sigma> <~~> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
-    shows "\<Sigma>' \<preceq> \<Gamma>"
+    shows "\<Delta> \<preceq> \<Gamma>"
 proof -
-  have "\<forall> \<Sigma> \<Gamma>. \<Sigma> <~~> \<Sigma>' \<longrightarrow> \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Sigma>' \<preceq> \<Gamma>"
-  proof (induct \<Sigma>')
+  have "\<forall> \<Sigma> \<Gamma>. \<Sigma> <~~> \<Delta> \<longrightarrow> \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Delta> \<preceq> \<Gamma>"
+  proof (induct \<Delta>)
     case Nil
     then show ?case by simp
   next
-    case (Cons \<sigma> \<Sigma>')
+    case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma> \<Gamma>
-      assume "\<Sigma> <~~> (\<sigma> # \<Sigma>')" "\<Sigma> \<preceq> \<Gamma>"
+      assume "\<Sigma> <~~> (\<delta> # \<Delta>)" "\<Sigma> \<preceq> \<Gamma>"
       from this obtain \<Phi> where \<Phi>:
         "map snd \<Phi> = \<Sigma>"
         "mset (map fst \<Phi>) \<subseteq># mset \<Gamma>"
-        "\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>"
+        "\<forall> (\<gamma>,\<delta>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<delta>"
         using stronger_theory_relation_def by fastforce
-      with \<open>\<Sigma> <~~> (\<sigma> # \<Sigma>')\<close> have "\<sigma> \<in># mset (map snd \<Phi>)"
+      with \<open>\<Sigma> <~~> (\<delta> # \<Delta>)\<close> have "\<delta> \<in># mset (map snd \<Phi>)"
         by (simp add: perm_set_eq)
-      from this obtain \<gamma> where \<gamma>: "(\<gamma>, \<sigma>) \<in># mset \<Phi>"
+      from this obtain \<gamma> where \<gamma>: "(\<gamma>, \<delta>) \<in># mset \<Phi>"
         by (induct \<Phi>, fastforce+)
-      let ?\<Phi>\<^sub>0 = "remove1 (\<gamma>, \<sigma>) \<Phi>"
+      let ?\<Phi>\<^sub>0 = "remove1 (\<gamma>, \<delta>) \<Phi>"
       let ?\<Sigma>\<^sub>0 = "map snd ?\<Phi>\<^sub>0"
       from \<gamma> \<Phi>(2) have "mset (map fst ?\<Phi>\<^sub>0) \<subseteq># mset (remove1 \<gamma> \<Gamma>)"
         by (metis ex_mset
@@ -791,36 +796,36 @@ proof -
                   mset_remove1
                   remove1_pairs_list_projections_fst)
       moreover have "mset ?\<Phi>\<^sub>0 \<subseteq># mset \<Phi>" by simp
-      with \<Phi>(3) have "\<forall> (\<gamma>,\<sigma>) \<in> set ?\<Phi>\<^sub>0. \<turnstile> \<gamma> \<rightarrow> \<sigma>" by fastforce
+      with \<Phi>(3) have "\<forall> (\<gamma>,\<delta>) \<in> set ?\<Phi>\<^sub>0. \<turnstile> \<gamma> \<rightarrow> \<delta>" by fastforce
       ultimately have "?\<Sigma>\<^sub>0 \<preceq> remove1 \<gamma> \<Gamma>"
         unfolding stronger_theory_relation_def by blast
-      moreover have "\<Sigma>' <~~> (remove1 \<sigma> \<Sigma>)" using \<open>\<Sigma> <~~> (\<sigma> # \<Sigma>')\<close>
+      moreover have "\<Delta> <~~> (remove1 \<delta> \<Sigma>)" using \<open>\<Sigma> <~~> (\<delta> # \<Delta>)\<close>
         by (metis perm_remove_perm perm_sym remove_hd)
-      moreover from \<gamma> \<Phi>(1) have "mset ?\<Sigma>\<^sub>0 = mset (remove1 \<sigma> \<Sigma>)"
+      moreover from \<gamma> \<Phi>(1) have "mset ?\<Sigma>\<^sub>0 = mset (remove1 \<delta> \<Sigma>)"
         using remove1_pairs_list_projections_snd
         by fastforce
-      hence "?\<Sigma>\<^sub>0 <~~> remove1 \<sigma> \<Sigma>"
+      hence "?\<Sigma>\<^sub>0 <~~> remove1 \<delta> \<Sigma>"
         using mset_eq_perm by blast
-      ultimately have "\<Sigma>' \<preceq> remove1 \<gamma> \<Gamma>" using Cons
+      ultimately have "\<Delta> \<preceq> remove1 \<gamma> \<Gamma>" using Cons
         by (meson perm.trans perm_sym)
       from this obtain \<Psi>\<^sub>0 where \<Psi>\<^sub>0:
-        "map snd \<Psi>\<^sub>0 = \<Sigma>'"
+        "map snd \<Psi>\<^sub>0 = \<Delta>"
         "mset (map fst \<Psi>\<^sub>0) \<subseteq># mset (remove1 \<gamma> \<Gamma>)"
-        "\<forall> (\<gamma>,\<sigma>) \<in> set \<Psi>\<^sub>0. \<turnstile> \<gamma> \<rightarrow> \<sigma>"
+        "\<forall> (\<gamma>,\<delta>) \<in> set \<Psi>\<^sub>0. \<turnstile> \<gamma> \<rightarrow> \<delta>"
         using stronger_theory_relation_def by fastforce
-      let ?\<Psi> = "(\<gamma>, \<sigma>) # \<Psi>\<^sub>0"
-      have "map snd ?\<Psi> = (\<sigma> # \<Sigma>')"
+      let ?\<Psi> = "(\<gamma>, \<delta>) # \<Psi>\<^sub>0"
+      have "map snd ?\<Psi> = (\<delta> # \<Delta>)"
         by (simp add: \<Psi>\<^sub>0(1))
       moreover have "mset (map fst ?\<Psi>) \<subseteq># mset (\<gamma> # (remove1 \<gamma> \<Gamma>))"
         using \<Psi>\<^sub>0(2) by auto
       moreover from \<gamma> \<Phi>(3) \<Psi>\<^sub>0(3) have "\<forall> (\<gamma>,\<sigma>) \<in> set ?\<Psi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>" by auto
-      ultimately have "(\<sigma> # \<Sigma>') \<preceq> (\<gamma> # (remove1 \<gamma> \<Gamma>))"
+      ultimately have "(\<delta> # \<Delta>) \<preceq> (\<gamma> # (remove1 \<gamma> \<Gamma>))"
         unfolding stronger_theory_relation_def by metis
       moreover from \<gamma> \<Phi>(2) have "\<gamma> \<in># mset \<Gamma>"
         using mset_subset_eqD by fastforce
       hence "(\<gamma> # (remove1 \<gamma> \<Gamma>)) <~~> \<Gamma>"
         by (simp add: perm_remove perm_sym)
-      ultimately have "(\<sigma> # \<Sigma>') \<preceq> \<Gamma>"
+      ultimately have "(\<delta> # \<Delta>) \<preceq> \<Gamma>"
         using stronger_theory_right_permutation by blast
     }
     then show ?case by blast
@@ -1236,7 +1241,7 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) segmented_stronger_theory_intro:
-  assumes "\<Sigma> \<preceq> \<Gamma>"
+  assumes "\<Gamma> \<succeq> \<Sigma>"
   shows "\<Gamma> $\<turnstile> \<Sigma>"
 proof -
   have "\<forall> \<Gamma>. \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Gamma> $\<turnstile> \<Sigma>"
@@ -3483,15 +3488,16 @@ proof -
           secondComponent_snd_projection_msub
           firstComponent_secondComponent_mset_connection
           XWitness_map_snd_decomposition
-    by (simp, simp,
+    by (simp, 
+        simp,
         metis assms(2),
         simp add: image_mset_Diff firstComponent_msub,
         simp add: YWitness_firstComponent_diff_decomposition,
         simp add: image_mset_subseteq_mono firstComponent_msub,
         metis assms(1) firstComponent_msub map_monotonic subset_mset.dual_order.trans,
         simp)
-      have "mset \<Delta> - mset (\<BB> \<Psi> \<Delta>) + mset (\<BB> \<Psi> \<Delta>) = mset \<Delta>"
-      using \<spadesuit> by simp
+  hence "mset \<Delta> - mset (\<BB> \<Psi> \<Delta>) + mset (\<BB> \<Psi> \<Delta>) = mset \<Delta>"
+    by simp
   hence \<heartsuit>: "{#x \<rightarrow> y. (x, y) \<in># mset \<Psi>#} + (mset \<Gamma> - image_mset snd (mset \<Psi>))
                                           - image_mset snd (mset \<Delta>)
            = {#x \<rightarrow> y. (x, y) \<in># mset \<Psi>#} + (mset \<Gamma> - image_mset snd (mset \<Psi>))
@@ -3625,8 +3631,7 @@ lemma (in Classical_Propositional_Logic) witness_stronger_theory:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
   shows "(map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
 proof -
-  have "\<forall> \<Gamma>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<longrightarrow>
-             (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
+  have "\<forall> \<Gamma>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<longrightarrow> (map (uncurry op \<rightarrow>) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>)) \<preceq> \<Gamma>"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -4178,8 +4183,7 @@ proof -
         ultimately have "map (uncurry op \<squnion>) (\<sigma> # (remove1 \<sigma> \<Sigma>))
                        \<preceq> map (uncurry op \<squnion>) (\<PP> \<Sigma> (\<delta> # \<Delta>))"
           using \<sigma>(1)
-          apply simp
-          using stronger_theory_left_right_cons by blast
+          by (simp, metis stronger_theory_left_right_cons)
         moreover
         from \<sigma>(3) have "mset \<Sigma> = mset (\<sigma> # (remove1 \<sigma> \<Sigma>))"
           by simp
@@ -4371,9 +4375,7 @@ proof -
           by simp
         hence "(?\<alpha> \<rightarrow> (?\<beta> \<squnion> ?\<gamma>) # ?\<Gamma>\<^sub>0) \<preceq> map (uncurry op \<squnion>) (\<QQ> \<Sigma> (\<delta> # \<Delta>))"
           using \<sigma>(1) \<heartsuit>
-          apply simp
-          using stronger_theory_left_right_cons
-          by blast
+          by (simp, metis stronger_theory_left_right_cons)
         ultimately show ?thesis
           using stronger_theory_transitive by blast
       qed
@@ -5618,10 +5620,262 @@ primrec core_optimal_pre_witness :: "'a list \<Rightarrow> ('a list \<times> 'a)
     "\<VV> [] = []"
   | "\<VV> (\<psi> # \<Psi>) = (\<Psi>, \<psi>) # \<VV> \<Psi>"
 
+lemma core_optimal_pre_witness_element_inclusion:
+  "\<forall> (\<Delta>,\<delta>) \<in> set (\<VV> \<Psi>). set (\<VV> \<Delta>) \<subseteq> set (\<VV> \<Psi>)"
+  by (induct \<Psi>, fastforce+)
+
+lemma core_optimal_pre_witness_nonelement:
+  assumes "length \<Delta> \<ge> length \<Psi>"
+  shows "(\<Delta>,\<delta>) \<notin> set (\<VV> \<Psi>)"
+  using assms
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<psi> \<Psi>)
+  hence "\<Psi> \<noteq> \<Delta>" by auto 
+  then show ?case using Cons by simp
+qed
+
+lemma core_optimal_pre_witness_distinct: "distinct (\<VV> \<Psi>)"
+  by (induct \<Psi>, simp, simp add: core_optimal_pre_witness_nonelement)
+
+lemma core_optimal_pre_witness_length_iff_eq:
+  "\<forall> (\<Delta>,\<delta>) \<in> set (\<VV> \<Psi>). \<forall> (\<Sigma>,\<sigma>) \<in> set (\<VV> \<Psi>). (length \<Delta> = length \<Sigma>) = ((\<Delta>, \<delta>) = (\<Sigma>,\<sigma>))"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<psi> \<Psi>)
+  {
+    fix \<Delta>
+    fix \<delta>
+    assume "(\<Delta>,\<delta>) \<in> set (\<VV> (\<psi> # \<Psi>))"
+       and "length \<Delta> = length \<Psi>"
+    hence "(\<Delta>,\<delta>) = (\<Psi>, \<psi>)"
+      by (simp add: core_optimal_pre_witness_nonelement)
+  }
+  hence "\<forall> (\<Delta>,\<delta>) \<in> set (\<VV> (\<psi> # \<Psi>)). (length \<Delta> = length \<Psi>) = ((\<Delta>,\<delta>) = (\<Psi>,\<psi>))"
+    by blast
+  with Cons show ?case
+    by auto 
+qed
+
+lemma mset_distinct_msub_down:
+  assumes "mset A \<subseteq># mset B"
+      and "distinct B"
+    shows "distinct A"
+  using assms
+  by (meson distinct_append mset_le_perm_append perm_distinct_iff)
+
+lemma mset_remdups_set_sub_iff:
+  "(mset (remdups A) \<subseteq># mset (remdups B)) = (set A \<subseteq> set B)"
+proof -
+  have "\<forall>B. (mset (remdups A) \<subseteq># mset (remdups B)) = (set A \<subseteq> set B)"
+  proof (induct A)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a A)
+    then show ?case
+    proof (cases "a \<in> set A")
+      case True
+      then show ?thesis using Cons by auto
+    next
+      case False
+      {
+        fix B
+        have "(mset (remdups (a # A)) \<subseteq># mset (remdups B)) = (set (a # A) \<subseteq> set B)"
+        proof (rule iffI)
+          assume assm: "mset (remdups (a # A)) \<subseteq># mset (remdups B)"
+          hence "mset (remdups A) \<subseteq># mset (remdups B) - {#a#}"
+            using False
+            by (simp add: insert_subset_eq_iff)
+          hence "mset (remdups A) \<subseteq># mset (remdups (removeAll a B))"
+            by (metis diff_subset_eq_self 
+                      distinct_remdups 
+                      distinct_remove1_removeAll 
+                      mset_distinct_msub_down 
+                      mset_remove1 
+                      set_eq_iff_mset_eq_distinct 
+                      set_remdups set_removeAll)
+          hence "set A \<subseteq> set (removeAll a B)"
+            using Cons.hyps by blast
+          moreover from assm False have "a \<in> set B"
+            using mset_subset_eq_insertD by fastforce  
+          ultimately show "set (a # A) \<subseteq> set B"
+            by auto 
+        next
+          assume assm: "set (a # A) \<subseteq> set B"
+          hence "set A \<subseteq> set (removeAll a B)" using False
+            by auto
+          hence "mset (remdups A) \<subseteq># mset (remdups B) - {#a#}"
+            by (metis Cons.hyps 
+                      distinct_remdups 
+                      mset_remdups_subset_eq 
+                      mset_remove1 remove_code(1) 
+                      set_remdups set_remove1_eq 
+                      set_removeAll 
+                      subset_mset.dual_order.trans)
+          moreover from assm False have "a \<in> set B" by auto
+          ultimately show "mset (remdups (a # A)) \<subseteq># mset (remdups B)"
+            by (simp add: False insert_subset_eq_iff) 
+        qed
+      }
+      then show ?thesis by simp
+    qed
+  qed
+  thus ?thesis by blast
+qed
+
+lemma range_characterization:
+  shows "(mset X = mset [0..<length X]) = (distinct X \<and> (\<forall> x \<in> set X. x < length X))"
+proof (rule iffI)
+  assume "mset X = mset [0..<length X]"
+  thus "distinct X \<and> (\<forall>x\<in>set X. x < length X)"
+    by (metis atLeastLessThan_iff count_mset_0_iff distinct_count_atmost_1 distinct_upt set_upt)
+next
+  assume "distinct X \<and> (\<forall>x\<in>set X. x < length X)"
+  moreover
+  {
+    fix n
+    have "\<forall> X. n = length X \<longrightarrow> 
+               distinct X \<and> (\<forall>x\<in>set X. x < length X) \<longrightarrow> 
+               mset X = mset [0..<length X]" 
+    proof (induct n)
+      case 0
+      then show ?case by simp
+    next
+      case (Suc n)
+      {
+        fix X
+        assume A: "n + 1 = length X" 
+           and B: "distinct X" 
+           and C: "\<forall>x\<in>set X. x < length X"
+        have "n \<in> set X"
+        proof (rule ccontr)
+          assume "n \<notin> set X"
+          from A have A': "n = length (tl X)"
+            by simp 
+          from B have B': "distinct (tl X)"
+            by (simp add: distinct_tl)
+          have C': "\<forall>x\<in>set (tl X). x < length (tl X)"
+            by (metis A A' C \<open>n \<notin> set X\<close> 
+                      Suc_eq_plus1 
+                      Suc_le_eq 
+                      Suc_le_mono 
+                      le_less 
+                      list.set_sel(2) 
+                      list.size(3) 
+                      nat.simps(3))
+          from A' B' C' Suc have "mset (tl X) = mset [0..<n]"
+            by blast
+          from A have "X = hd X # tl X"
+            by (metis Suc_eq_plus1 list.exhaust_sel list.size(3) nat.simps(3))
+          with B \<open>mset (tl X) = mset [0..<n]\<close> have "hd X \<notin> set [0..<n]"
+            by (metis distinct.simps(2) mset_eq_setD)
+          hence "hd X \<ge> n" by simp
+          with C \<open>n \<notin> set X\<close> \<open>X = hd X # tl X\<close> show "False"
+            by (metis A Suc_eq_plus1 Suc_le_eq le_neq_trans list.set_intros(1) not_less) 
+        qed
+        let ?X' = "remove1 n X"
+        have A': "n = length ?X'"
+          by (metis A \<open>n \<in> set X\<close> diff_add_inverse2 length_remove1)
+        have B': "distinct ?X'"
+          by (simp add: B)
+        have C': "\<forall>x\<in>set ?X'. x < length ?X'"
+          by (metis A A' B C 
+                    DiffE 
+                    Suc_eq_plus1 
+                    Suc_le_eq
+                    Suc_le_mono
+                    le_neq_trans
+                    set_remove1_eq
+                    singletonI)
+        hence "mset ?X' = mset [0..<n]" 
+          using A' B' C' Suc
+          by auto
+        hence "mset (n # ?X') = mset [0..<n+1]" 
+          by simp
+        hence "mset X = mset [0..<length X]"
+          by (metis A B 
+                    \<open>n \<in> set X\<close> 
+                    distinct_upt 
+                    perm_remove 
+                    perm_set_eq 
+                    set_eq_iff_mset_eq_distinct 
+                    set_mset_mset)
+      }
+      then show ?case by fastforce
+    qed
+  }
+  ultimately show "mset X = mset [0..<length X]"
+    by blast
+qed
+
+lemma distinct_pigeon_hole:
+  assumes "distinct X"
+      and "X \<noteq> []"
+    shows "\<exists> n \<in> set X. n + 1 \<ge> length X"
+proof (rule ccontr)
+  assume \<star>: "\<not> (\<exists> n \<in> set X. length X \<le> n + 1)"
+  hence "\<forall> n \<in> set X. n < length X" by fastforce
+  hence "mset X = mset [0..<length X]" 
+    using assms(1) range_characterization 
+    by fastforce
+  with assms(2) have "length X - 1 \<in> set X"
+    by (metis diff_zero last_in_set last_upt length_greater_0_conv length_upt mset_eq_setD)
+  with \<star> show False
+    by (metis One_nat_def Suc_eq_plus1 Suc_pred le_refl length_pos_if_in_set) 
+qed
+
+lemma core_optimal_pre_witness_pigeon_hole:
+  assumes "mset \<Sigma> \<subseteq># mset (\<VV> \<Psi>)"
+      and "\<Sigma> \<noteq> []"
+    shows "\<exists> (\<Delta>, \<delta>) \<in> set \<Sigma>. length \<Delta> + 1 \<ge> length \<Sigma>"
+proof -
+  have "distinct \<Sigma>" 
+    using assms 
+          core_optimal_pre_witness_distinct 
+          mset_distinct_msub_down
+    by blast
+  with assms(1) have "distinct (map (length \<circ> fst) \<Sigma>)"
+  proof (induct \<Sigma>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<sigma> \<Sigma>)
+    hence "mset \<Sigma> \<subseteq># mset (\<VV> \<Psi>)"
+          "distinct \<Sigma>"
+      by (metis mset.simps(2) mset_subset_eq_insertD subset_mset_def, simp) 
+    with Cons.hyps have "distinct (map (\<lambda>a. length (fst a)) \<Sigma>)" by simp
+    moreover
+    obtain \<delta> \<Delta> where "\<sigma> = (\<Delta>, \<delta>)"
+      by fastforce
+    hence "(\<Delta>, \<delta>) \<in> set (\<VV> \<Psi>)" 
+      using Cons.prems mset_subset_eq_insertD 
+      by fastforce
+    hence "\<forall> (\<Sigma>,\<sigma>) \<in> set (\<VV> \<Psi>). (length \<Delta> = length \<Sigma>) = ((\<Delta>, \<delta>) = (\<Sigma>, \<sigma>))"
+      using core_optimal_pre_witness_length_iff_eq [where \<Psi>="\<Psi>"]
+      by fastforce
+    hence "\<forall> (\<Sigma>,\<sigma>) \<in> set \<Sigma>. (length \<Delta> = length \<Sigma>) = ((\<Delta>, \<delta>) = (\<Sigma>, \<sigma>))"
+      using \<open>mset \<Sigma> \<subseteq># mset (\<VV> \<Psi>)\<close>
+      by (metis (no_types, lifting) Un_iff mset_le_perm_append perm_set_eq set_append)
+    hence "length (fst \<sigma>) \<notin> set (map (\<lambda>a. length (fst a)) \<Sigma>)" 
+      using Cons.prems(2) \<open>\<sigma> = (\<Delta>, \<delta>)\<close>
+      by fastforce
+    ultimately show ?case by simp
+  qed
+  moreover have "length (map (length \<circ> fst) \<Sigma>) = length \<Sigma>" by simp
+  moreover have "map (length \<circ> fst) \<Sigma> \<noteq> []" using assms by simp
+  ultimately show ?thesis
+    using distinct_pigeon_hole
+    by fastforce
+qed
+
 abbreviation (in Classical_Propositional_Logic)
   core_optimal_witness :: "'a \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<WW>")
-  where
-    "\<WW> \<phi> \<Xi> \<equiv> map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi>, \<psi>)) (\<VV> \<Xi>)"
+  where "\<WW> \<phi> \<Xi> \<equiv> map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi>, \<psi>)) (\<VV> \<Xi>)"
 
 abbreviation (in Classical_Propositional_Logic)
   disjunction_core_optimal_witness :: "'a \<Rightarrow> 'a list \<Rightarrow> 'a list" ("\<WW>\<^sub>\<squnion>")
@@ -5881,7 +6135,7 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) conj_multi_extract: 
-  "\<turnstile> \<Squnion> (map \<Sqinter> (map (op @ \<Xi>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>))"
+  "\<turnstile> \<Squnion> (map \<Sqinter> (map (op @ \<Delta>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>))"
 proof (induct \<Sigma>)
   case Nil
   then show ?case 
@@ -5889,28 +6143,27 @@ proof (induct \<Sigma>)
 next
   case (Cons \<sigma> \<Sigma>)
   moreover have 
-    "\<turnstile>   \<Squnion> (map \<Sqinter> (map (op @ \<Xi>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>))
-      \<rightarrow> \<Sqinter> (\<Xi> @ \<sigma>) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Sqinter> \<sigma>)
-      \<rightarrow> (\<Sqinter> (\<Xi> @ \<sigma>) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> op @ \<Xi>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)))"
+    "\<turnstile>   \<Squnion> (map \<Sqinter> (map (op @ \<Delta>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>))
+      \<rightarrow> \<Sqinter> (\<Delta> @ \<sigma>) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Sqinter> \<sigma>)
+      \<rightarrow> (\<Sqinter> (\<Delta> @ \<sigma>) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> op @ \<Delta>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)))"
   proof -
     let ?\<phi> = 
-      "   \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ \<Xi>) \<Sigma>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>)\<^bold>\<rangle>)
-       \<rightarrow> \<^bold>\<langle>\<Sqinter> (\<Xi> @ \<sigma>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<sigma>\<^bold>\<rangle>)
-       \<rightarrow> (\<^bold>\<langle>\<Sqinter> (\<Xi> @ \<sigma>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> op @ \<Xi>) \<Sigma>)\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Xi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<Sqinter> \<sigma>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>)\<^bold>\<rangle>))"
+      "   \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ \<Delta>) \<Sigma>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>)\<^bold>\<rangle>)
+       \<rightarrow> \<^bold>\<langle>\<Sqinter> (\<Delta> @ \<sigma>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<sigma>\<^bold>\<rangle>)
+       \<rightarrow> (\<^bold>\<langle>\<Sqinter> (\<Delta> @ \<sigma>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> op @ \<Delta>) \<Sigma>)\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Delta>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<Sqinter> \<sigma>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> \<Sigma>)\<^bold>\<rangle>))"
     have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
   qed
   hence
-    "\<turnstile> (\<Sqinter> (\<Xi> @ \<sigma>) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> op @ \<Xi>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)))"
+    "\<turnstile> (\<Sqinter> (\<Delta> @ \<sigma>) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> op @ \<Delta>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)))"
     using Cons.hyps arbitrary_conj_concat_equiv Modus_Ponens by blast
   then show ?case by simp
 qed
-  
 
 lemma (in Classical_Propositional_Logic) extract_inner_concat:
-  "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> op @ \<Xi>)) \<Psi>) \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> map fst) \<Psi>))"
-proof (induct \<Xi>)
+  "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> op @ \<Delta>)) \<Psi>) \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> map snd) \<Psi>))"
+proof (induct \<Delta>)
   case Nil
   then show ?case
     by (simp,
@@ -5920,46 +6173,46 @@ proof (induct \<Xi>)
               conjunction_right_elimination
               verum_tautology) 
 next
-  case (Cons \<chi> \<Xi>)
-  let ?\<Xi>' = "map fst \<Xi>"
-  let ?\<chi>' = "fst \<chi>"
-  let ?\<Pi> = "\<lambda>\<phi>. \<Sqinter> (map fst \<phi>)"
-  let ?\<Pi>\<Xi> = "\<lambda>\<phi>. \<Sqinter> (?\<Xi>' @ map fst \<phi>)"
+  case (Cons \<chi> \<Delta>)
+  let ?\<Delta>' = "map snd \<Delta>"
+  let ?\<chi>' = "snd \<chi>"
+  let ?\<Pi> = "\<lambda>\<phi>. \<Sqinter> (map snd \<phi>)"
+  let ?\<Pi>\<Delta> = "\<lambda>\<phi>. \<Sqinter> (?\<Delta>' @ map snd \<phi>)"
   from Cons have 
-    "\<turnstile> \<Squnion> (map ?\<Pi>\<Xi> \<Psi>) \<leftrightarrow> (\<Sqinter> ?\<Xi>' \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))"
+    "\<turnstile> \<Squnion> (map ?\<Pi>\<Delta> \<Psi>) \<leftrightarrow> (\<Sqinter> ?\<Delta>' \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))"
     by auto
-  moreover have \<star>: "map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) = map (op \<sqinter> ?\<chi>') \<circ> map ?\<Pi>\<Xi>"
+  moreover have \<star>: "map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) = map (op \<sqinter> ?\<chi>') \<circ> map ?\<Pi>\<Delta>"
     by fastforce
-  have "\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>) = \<Squnion> (map (op \<sqinter> ?\<chi>') (map ?\<Pi>\<Xi> \<Psi>))"
+  have "\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>) = \<Squnion> (map (op \<sqinter> ?\<chi>') (map ?\<Pi>\<Delta> \<Psi>))"
     by (simp add: \<star>)
   hence 
-    "\<turnstile> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>) \<leftrightarrow> (?\<chi>' \<sqinter> \<Squnion> (map (\<lambda>\<phi>. ?\<Pi>\<Xi> \<phi>) \<Psi>))"
+    "\<turnstile> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>) \<leftrightarrow> (?\<chi>' \<sqinter> \<Squnion> (map (\<lambda>\<phi>. ?\<Pi>\<Delta> \<phi>) \<Psi>))"
     using conj_extract by presburger
   moreover have 
-    "\<turnstile> \<Squnion> (map ?\<Pi>\<Xi> \<Psi>) \<leftrightarrow> (\<Sqinter> ?\<Xi>' \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))
-    \<rightarrow> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>) \<leftrightarrow> (?\<chi>' \<sqinter> \<Squnion> (map ?\<Pi>\<Xi> \<Psi>))
-    \<rightarrow> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>) \<leftrightarrow> ((?\<chi>' \<sqinter> \<Sqinter> ?\<Xi>') \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))"
+    "\<turnstile> \<Squnion> (map ?\<Pi>\<Delta> \<Psi>) \<leftrightarrow> (\<Sqinter> ?\<Delta>' \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))
+    \<rightarrow> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>) \<leftrightarrow> (?\<chi>' \<sqinter> \<Squnion> (map ?\<Pi>\<Delta> \<Psi>))
+    \<rightarrow> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>) \<leftrightarrow> ((?\<chi>' \<sqinter> \<Sqinter> ?\<Delta>') \<sqinter> \<Squnion> (map ?\<Pi> \<Psi>))"
   proof -
-    let ?\<phi> = "\<^bold>\<langle>\<Squnion> (map ?\<Pi>\<Xi> \<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Xi>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi> \<Psi>)\<^bold>\<rangle>)
-              \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?\<chi>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi>\<Xi> \<Psi>)\<^bold>\<rangle>)
-              \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Xi> \<phi>) \<Psi>)\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>?\<chi>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> ?\<Xi>'\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi> \<Psi>)\<^bold>\<rangle>)"
+    let ?\<phi> = "\<^bold>\<langle>\<Squnion> (map ?\<Pi>\<Delta> \<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Delta>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi> \<Psi>)\<^bold>\<rangle>)
+              \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?\<chi>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi>\<Delta> \<Psi>)\<^bold>\<rangle>)
+              \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> ?\<Pi>\<Delta> \<phi>) \<Psi>)\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>?\<chi>'\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> ?\<Delta>'\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map ?\<Pi> \<Psi>)\<^bold>\<rangle>)"
     have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
   qed
-  ultimately have "\<turnstile> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> \<Sqinter> (?\<Xi>' @ map fst \<phi>)) \<Psi>) 
-                  \<leftrightarrow> ((?\<chi>' \<sqinter> \<Sqinter> ?\<Xi>') \<sqinter> \<Squnion> (map (\<lambda>\<phi>. \<Sqinter> (map fst \<phi>)) \<Psi>))"
+  ultimately have "\<turnstile> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> \<Sqinter> (?\<Delta>' @ map snd \<phi>)) \<Psi>) 
+                  \<leftrightarrow> ((?\<chi>' \<sqinter> \<Sqinter> ?\<Delta>') \<sqinter> \<Squnion> (map (\<lambda>\<phi>. \<Sqinter> (map snd \<phi>)) \<Psi>))"
     using Modus_Ponens by blast
   thus ?case by simp 
 qed
   
 lemma (in Classical_Propositional_Logic) extract_inner_concat_remdups:
-  "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) \<leftrightarrow> 
-    (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
+  "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) \<leftrightarrow> 
+    (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
 proof -
-  have "\<forall> \<Psi>. \<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) \<leftrightarrow> 
-               (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
-  proof (induct \<Xi>)
+  have "\<forall> \<Psi>. \<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) \<leftrightarrow> 
+               (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
+  proof (induct \<Delta>)
     case Nil
     then show ?case
       by (simp, 
@@ -5969,44 +6222,44 @@ proof -
                 conjunction_right_elimination
                 verum_tautology) 
   next
-    case (Cons \<xi> \<Xi>)
+    case (Cons \<delta> \<Delta>)
     {
       fix \<Psi>
-      have " \<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)
-              \<leftrightarrow> (\<Sqinter> (map fst (\<xi> # \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
-      proof (cases "\<xi> \<in> set \<Xi>")
-        assume "\<xi> \<in> set \<Xi>"
+      have " \<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)
+              \<leftrightarrow> (\<Sqinter> (map snd (\<delta> # \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
+      proof (cases "\<delta> \<in> set \<Delta>")
+        assume "\<delta> \<in> set \<Delta>"
         have 
-          "\<turnstile>    \<Sqinter> (map fst \<Xi>) \<leftrightarrow> (fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>))
-             \<rightarrow> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) 
-                \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))
-             \<rightarrow> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) 
-                \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
+          "\<turnstile>    \<Sqinter> (map snd \<Delta>) \<leftrightarrow> (snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))
+             \<rightarrow> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) 
+                \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))
+             \<rightarrow> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) 
+                \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
         proof -
-          let ?\<phi> = "   \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>)
-                    \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>)\<^bold>\<rangle> 
-                      \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>)
-                    \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>)\<^bold>\<rangle> 
-                      \<leftrightarrow> ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>)"
+          let ?\<phi> = "   \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>)
+                    \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>)\<^bold>\<rangle> 
+                      \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>)
+                    \<rightarrow> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>)\<^bold>\<rangle> 
+                      \<leftrightarrow> ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>)"
           have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
           hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
           thus ?thesis by simp
         qed
-        moreover have "\<turnstile> \<Sqinter> (map fst \<Xi>) \<leftrightarrow> (fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>))"
-          by (simp add: \<open>\<xi> \<in> set \<Xi>\<close> conj_absorption)
+        moreover have "\<turnstile> \<Sqinter> (map snd \<Delta>) \<leftrightarrow> (snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))"
+          by (simp add: \<open>\<delta> \<in> set \<Delta>\<close> conj_absorption)
         ultimately have 
-          "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) 
-             \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
+          "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) 
+             \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
           using Cons.hyps Modus_Ponens by blast
-        moreover have "map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>) = map fst \<circ> remdups \<circ> op @ \<Xi>"
-          using \<open>\<xi> \<in> set \<Xi>\<close> by fastforce
+        moreover have "map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>) = map snd \<circ> remdups \<circ> op @ \<Delta>"
+          using \<open>\<delta> \<in> set \<Delta>\<close> by fastforce
         ultimately show ?thesis using Cons by simp 
       next
-        assume "\<xi> \<notin> set \<Xi>"
+        assume "\<delta> \<notin> set \<Delta>"
         hence \<dagger>: 
-          "\<Sqinter> \<circ> (map fst \<circ> remdups) = (\<lambda>\<psi>. \<Sqinter> (map fst (remdups \<psi>)))"
-          "   (\<lambda>\<psi>. \<Sqinter> (map fst (if \<xi> \<in> set \<psi> then remdups (\<Xi> @ \<psi>) else \<xi> # remdups (\<Xi> @ \<psi>))))
-            = \<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))"
+          "\<Sqinter> \<circ> (map snd \<circ> remdups) = (\<lambda>\<psi>. \<Sqinter> (map snd (remdups \<psi>)))"
+          "   (\<lambda>\<psi>. \<Sqinter> (map snd (if \<delta> \<in> set \<psi> then remdups (\<Delta> @ \<psi>) else \<delta> # remdups (\<Delta> @ \<psi>))))
+            = \<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))"
           by fastforce+
         show ?thesis
         proof (induct \<Psi>)
@@ -6015,17 +6268,17 @@ proof -
             by (simp, metis list.simps(8) Arbitrary_Disjunction.simps(1) conj_extract) 
         next
           case (Cons \<psi> \<Psi>)
-          have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) [\<psi>]) 
-                \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) [\<psi>]))"
-            using \<open>\<forall>\<Psi>. \<turnstile>     \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ \<Xi>)) \<Psi>) 
-                        \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))\<close>
+          have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) [\<psi>]) 
+                \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) [\<psi>]))"
+            using \<open>\<forall>\<Psi>. \<turnstile>     \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ \<Delta>)) \<Psi>) 
+                        \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))\<close>
             by blast
           hence 
-            "\<turnstile>   (\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>))) \<squnion> \<bottom>) 
-               \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Sqinter> (map fst (remdups \<psi>)) \<squnion> \<bottom>)" 
+            "\<turnstile>   (\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>))) \<squnion> \<bottom>) 
+               \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<bottom>)" 
           by simp
           hence \<star>:
-            "\<turnstile> \<Sqinter> (map fst (remdups (\<Xi> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Sqinter> (map fst (remdups \<psi>)))" 
+            "\<turnstile> \<Sqinter> (map snd (remdups (\<Delta> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Sqinter> (map snd (remdups \<psi>)))" 
             by (metis (no_types, hide_lams) 
                       biconditional_conjunction_weaken_rule 
                       biconditional_symmetry_rule 
@@ -6033,82 +6286,82 @@ proof -
                       disjunction_def 
                       double_negation_biconditional 
                       negation_def)
-          have "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>) 
-                  \<leftrightarrow> (\<Sqinter> (map fst (\<xi> # \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
+          have "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>) 
+                  \<leftrightarrow> (\<Sqinter> (map snd (\<delta> # \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
             using Cons by blast
-          hence \<diamondsuit>: "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>) 
-                      \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>))"
+          hence \<diamondsuit>: "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>) 
+                      \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
             by simp
           show ?case
-          proof (cases "\<xi> \<in> set \<psi>")
-            assume "\<xi> \<in> set \<psi>"
-            have "fst \<xi> \<in> set (map fst (remdups \<psi>))"
-              using \<open>\<xi> \<in> set \<psi>\<close> by auto
-            hence \<spadesuit>: "\<turnstile> \<Sqinter> (map fst (remdups \<psi>)) \<leftrightarrow> (fst \<xi> \<sqinter> \<Sqinter> (map fst (remdups \<psi>)))"
+          proof (cases "\<delta> \<in> set \<psi>")
+            assume "\<delta> \<in> set \<psi>"
+            have "snd \<delta> \<in> set (map snd (remdups \<psi>))"
+              using \<open>\<delta> \<in> set \<psi>\<close> by auto
+            hence \<spadesuit>: "\<turnstile> \<Sqinter> (map snd (remdups \<psi>)) \<leftrightarrow> (snd \<delta> \<sqinter> \<Sqinter> (map snd (remdups \<psi>)))"
               using conj_absorption by blast
             have
-              "\<turnstile>    (\<Sqinter> (map fst (remdups \<psi>)) \<leftrightarrow> (fst \<xi> \<sqinter> \<Sqinter> (map fst (remdups \<psi>))))
-                 \<rightarrow> (\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>) 
-                        \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))
-                 \<rightarrow> (\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Sqinter> (map fst (remdups \<psi>))))
-                 \<rightarrow>    (\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))
-                         \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>))
-                    \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) 
-                         \<sqinter> (\<Sqinter> (map fst (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))"
+              "\<turnstile>    (\<Sqinter> (map snd (remdups \<psi>)) \<leftrightarrow> (snd \<delta> \<sqinter> \<Sqinter> (map snd (remdups \<psi>))))
+                 \<rightarrow> (\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>) 
+                        \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))
+                 \<rightarrow> (\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Sqinter> (map snd (remdups \<psi>))))
+                 \<rightarrow>    (\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))
+                         \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>))
+                    \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) 
+                         \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
             proof -
               let ?\<phi> = 
-                "   (\<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle>))
-                 \<rightarrow>    (\<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)\<^bold>\<rangle> 
-                    \<leftrightarrow> ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))
-                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))\<^bold>\<rangle> 
-                    \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle>))
-                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))\<^bold>\<rangle>
-                         \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)\<^bold>\<rangle>)
-                    \<leftrightarrow> ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>) 
-                         \<sqinter> (\<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))"
+                "   (\<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle>))
+                 \<rightarrow>    (\<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)\<^bold>\<rangle> 
+                    \<leftrightarrow> ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))
+                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))\<^bold>\<rangle> 
+                    \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle>))
+                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))\<^bold>\<rangle>
+                         \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)\<^bold>\<rangle>)
+                    \<leftrightarrow> ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>) 
+                         \<sqinter> (\<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))"
               have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
               hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
               thus ?thesis by simp
             qed
             hence
-              "\<turnstile>     (\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))
-                      \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>))
-                  \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>))  
-                      \<sqinter> (\<Sqinter> (map fst (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))"
+              "\<turnstile>     (\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))
+                      \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>))
+                  \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))  
+                      \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
               using \<star> \<diamondsuit> \<spadesuit> Modus_Ponens by blast
-            thus ?thesis using \<open>\<xi> \<notin> set \<Xi>\<close> \<open>\<xi> \<in> set \<psi>\<close>
+            thus ?thesis using \<open>\<delta> \<notin> set \<Delta>\<close> \<open>\<delta> \<in> set \<psi>\<close>
               by (simp add: \<dagger>)
           next
-            assume "\<xi> \<notin> set \<psi>"
+            assume "\<delta> \<notin> set \<psi>"
             have
-              "\<turnstile>       (\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)
-                    \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))
-                 \<rightarrow> (\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map fst \<Xi>) \<sqinter> \<Sqinter> (map fst (remdups \<psi>))))
-                 \<rightarrow>    ((fst \<xi> \<sqinter> \<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))) 
-                        \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>))
-                    \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>))
-                        \<sqinter> (\<Sqinter> (map fst (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))"
+              "\<turnstile>       (\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)
+                    \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))
+                 \<rightarrow> (\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>))) \<leftrightarrow> (\<Sqinter> (map snd \<Delta>) \<sqinter> \<Sqinter> (map snd (remdups \<psi>))))
+                 \<rightarrow>    ((snd \<delta> \<sqinter> \<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))) 
+                        \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>))
+                    \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))
+                        \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
             proof -
               let ?\<phi> = 
-                "      (\<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)\<^bold>\<rangle>
-                    \<leftrightarrow> ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))
-                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))\<^bold>\<rangle> 
-                    \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle>))
-                 \<rightarrow>    ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))\<^bold>\<rangle>) 
-                        \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>)\<^bold>\<rangle>)
-                    \<leftrightarrow> ((\<^bold>\<langle>fst \<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map fst \<Xi>)\<^bold>\<rangle>)
-                        \<sqinter> (\<^bold>\<langle>\<Sqinter> (map fst (remdups \<psi>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))"
+                "      (\<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)\<^bold>\<rangle>
+                    \<leftrightarrow> ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))
+                 \<rightarrow>    (\<^bold>\<langle>\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))\<^bold>\<rangle> 
+                    \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle>))
+                 \<rightarrow>    ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))\<^bold>\<rangle>) 
+                        \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>)\<^bold>\<rangle>)
+                    \<leftrightarrow> ((\<^bold>\<langle>snd \<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (map snd \<Delta>)\<^bold>\<rangle>)
+                        \<sqinter> (\<^bold>\<langle>\<Sqinter> (map snd (remdups \<psi>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)\<^bold>\<rangle>))"
               have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
               hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
               thus ?thesis by simp
             qed
             hence
-              "\<turnstile>   ((fst \<xi> \<sqinter> \<Sqinter> (map fst (remdups (\<Xi> @ \<psi>)))) 
-                    \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups \<circ> op @ (\<xi> # \<Xi>))) \<Psi>))
-                 \<leftrightarrow> ((fst \<xi> \<sqinter> \<Sqinter> (map fst \<Xi>))
-                    \<sqinter> (\<Sqinter> (map fst (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map fst \<circ> remdups)) \<Psi>)))"
+              "\<turnstile>   ((snd \<delta> \<sqinter> \<Sqinter> (map snd (remdups (\<Delta> @ \<psi>)))) 
+                    \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> op @ (\<delta> # \<Delta>))) \<Psi>))
+                 \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))
+                    \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
               using \<star> \<diamondsuit> Modus_Ponens by blast
-            then show ?thesis using \<open>\<xi> \<notin> set \<psi>\<close> \<open>\<xi> \<notin> set \<Xi>\<close> by (simp add: \<dagger>)
+            then show ?thesis using \<open>\<delta> \<notin> set \<psi>\<close> \<open>\<delta> \<notin> set \<Delta>\<close> by (simp add: \<dagger>)
           qed
         qed
       qed
@@ -6117,7 +6370,193 @@ proof -
   qed
   thus ?thesis by blast
 qed
-  
+
+lemma remove1_remdups_removeAll: "remove1 x (remdups A) = remdups (removeAll x A)"
+proof (induct A)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a A)
+  then show ?case
+    by (cases "a = x", (simp add: Cons)+)
+qed
+
+lemma mset_remdups:
+  assumes "mset A = mset B"
+  shows "mset (remdups A) = mset (remdups B)"
+proof -
+  have "\<forall> B. mset A = mset B \<longrightarrow> mset (remdups A) = mset (remdups B)"
+  proof (induct A)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a A)
+    {
+      fix B
+      assume "mset (a # A) = mset B"
+      hence "mset A = mset (remove1 a B)"
+        by (metis add_mset_add_mset_same_iff 
+                  list.set_intros(1) 
+                  mset.simps(2) 
+                  mset_eq_perm 
+                  mset_eq_setD 
+                  perm_remove)
+      hence "mset (remdups A) = mset (remdups (remove1 a B))"
+        using Cons.hyps by blast
+      hence "mset (remdups (a # (remdups A))) = mset (remdups (a # (remdups (remove1 a B))))"
+        by (metis mset_eq_setD set_eq_iff_mset_remdups_eq list.simps(15)) 
+      hence "  mset (remdups (a # (removeAll a (remdups A))))
+             = mset (remdups (a # (removeAll a (remdups (remove1 a B)))))"
+        by (metis insert_Diff_single list.set(2) set_eq_iff_mset_remdups_eq set_removeAll)
+      hence "  mset (remdups (a # (remdups (removeAll a A))))
+             = mset (remdups (a # (remdups (removeAll a (remove1 a B)))))"
+        by (metis distinct_remdups distinct_remove1_removeAll remove1_remdups_removeAll)
+      hence "mset (remdups (remdups (a # A))) = mset (remdups (remdups (a # (remove1 a B))))"
+        by (metis \<open>mset A = mset (remove1 a B)\<close> 
+                  list.set(2) 
+                  mset_eq_setD 
+                  set_eq_iff_mset_remdups_eq)
+      hence "mset (remdups (a # A)) = mset (remdups (a # (remove1 a B)))"
+        by (metis remdups_remdups)
+      hence "mset (remdups (a # A)) = mset (remdups B)"
+        using \<open>mset (a # A) = mset B\<close> mset_eq_setD set_eq_iff_mset_remdups_eq by blast 
+    }
+    then show ?case by simp
+  qed
+  thus ?thesis using assms by blast
+qed
+
+lemma mset_mset_map_snd_remdups:
+  assumes "mset (map mset A) = mset (map mset B)"
+  shows "mset (map (mset \<circ> (map snd) \<circ> remdups) A) = mset (map (mset \<circ> (map snd) \<circ> remdups) B)"
+proof -
+  {
+    fix B :: "('a \<times> 'b) list list"
+    fix b :: "('a \<times> 'b) list"
+    assume "b \<in> set B"
+    hence "  mset (map (mset \<circ> (map snd) \<circ> remdups) (b # (remove1 b B)))
+         = mset (map (mset \<circ> (map snd) \<circ> remdups) B)"
+    proof (induct B)
+      case Nil
+      then show ?case by simp
+    next
+      case (Cons b' B)
+      then show ?case
+      by (cases "b = b'", simp+)
+    qed
+  }
+  note \<diamondsuit> = this
+  have 
+    "\<forall> B :: ('a \<times> 'b) list list.    
+     mset (map mset A) = mset (map mset B) 
+       \<longrightarrow> mset (map (mset \<circ> (map snd) \<circ> remdups) A) = mset (map (mset \<circ> (map snd) \<circ> remdups) B)"
+  proof (induct A)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a A)
+    {
+      fix B
+      assume \<spadesuit>: "mset (map mset (a # A)) = mset (map mset B)"
+      hence "mset a \<in># mset (map mset B)"
+        by (simp, 
+            metis \<spadesuit> 
+                  image_set 
+                  list.set_intros(1) 
+                  list.simps(9) 
+                  mset_eq_setD)
+      from this obtain b where \<dagger>:
+        "b \<in> set B"
+        "mset a = mset b"
+        by auto
+      with \<spadesuit> have "mset (map mset A) = mset (remove1 (mset b) (map mset B))"
+        by (simp add: union_single_eq_diff)
+      moreover have "mset B = mset (b # remove1 b B)" using \<dagger> by simp
+      hence "mset (map mset B) = mset (map mset (b # (remove1 b B)))"
+        by (simp,
+            metis image_mset_add_mset 
+                  mset.simps(2) 
+                  mset_remove1) 
+      ultimately have "mset (map mset A) = mset (map mset (remove1 b B))"
+        by simp
+      hence "  mset (map (mset \<circ> (map snd) \<circ> remdups) A)
+             = mset (map (mset \<circ> (map snd) \<circ> remdups) (remove1 b B))"
+        using Cons.hyps by blast
+      moreover have "(mset \<circ> (map snd) \<circ> remdups) a = (mset \<circ> (map snd) \<circ> remdups) b"
+        using \<dagger>(2) mset_remdups by fastforce 
+      ultimately have
+        "  mset (map (mset \<circ> (map snd) \<circ> remdups) (a # A))
+         = mset (map (mset \<circ> (map snd) \<circ> remdups) (b # (remove1 b B)))"
+        by simp
+      moreover have
+        "  mset (map (mset \<circ> (map snd) \<circ> remdups) (b # (remove1 b B)))
+         = mset (map (mset \<circ> (map snd) \<circ> remdups) B)"
+        using \<dagger>(1) \<diamondsuit> by blast
+      ultimately have 
+        "  mset (map (mset \<circ> (map snd) \<circ> remdups) (a # A)) 
+         = mset (map (mset \<circ> (map snd) \<circ> remdups) B)"
+        by simp
+    }
+    then show ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
+
+lemma image_mset_cons_homomorphism:
+  "image_mset mset (image_mset (op # \<phi>) \<Phi>) = image_mset (op + {# \<phi> #}) (image_mset mset \<Phi>)"
+  by (induct \<Phi>, simp+)
+
+lemma image_mset_append_homomorphism:
+  "image_mset mset (image_mset (op @ \<Delta>) \<Phi>) = image_mset (op + (mset \<Delta>)) (image_mset mset \<Phi>)"
+  by (induct \<Phi>, simp+)
+
+lemma image_mset_add_collapse:
+  fixes A B :: "'a multiset"
+  shows "image_mset (op + A) (image_mset (op + B) X) = image_mset (op + (A + B)) X"
+  by (induct X, simp, simp)
+
+lemma mset_remdups_append_msub:
+  "mset (remdups A) \<subseteq># mset (remdups (B @ A))"
+proof -
+  have "\<forall> B. mset (remdups A) \<subseteq># mset (remdups (B @ A))"
+  proof (induct A)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a A)
+    {
+      fix B
+      have \<dagger>: "mset (remdups (B @ (a # A))) = mset (remdups (a # (B @ A)))"
+        by (induct B, simp+)
+      have "mset (remdups (a # A)) \<subseteq># mset (remdups (B @ (a # A)))"
+      proof (cases "a \<in> set B \<and> a \<notin> set A")
+        case True
+        hence \<dagger>: "mset (remove1 a (remdups (B @ A))) = mset (remdups ((removeAll a B) @ A))"
+          by (simp add: remove1_remdups_removeAll)
+        hence "   (add_mset a (mset (remdups A)) \<subseteq># mset (remdups (B @ A))) 
+               = (mset (remdups A) \<subseteq># mset (remdups ((removeAll a B) @ A)))"
+          using True
+          by (simp add: insert_subset_eq_iff)
+        then show ?thesis 
+          by (metis \<dagger> Cons True 
+                    Un_insert_right 
+                    list.set(2) 
+                    mset.simps(2) 
+                    mset_subset_eq_insertD 
+                    remdups.simps(2) 
+                    set_append 
+                    set_eq_iff_mset_remdups_eq 
+                    set_mset_mset set_remdups) 
+      next
+        case False
+        then show ?thesis using \<dagger> Cons by simp
+      qed
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis by blast
+qed
+
 lemma (in Classical_Propositional_Logic) optimal_witness_list_intersect_biconditional:
   assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
       and "mset \<Phi> \<subseteq># mset (\<Gamma> \<ominus> \<Xi>)"
@@ -6128,165 +6567,517 @@ proof -
   have "\<exists> \<Sigma>. \<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>)
              \<and> (\<forall> \<sigma> \<in> set \<Sigma>. mset \<sigma> \<subseteq># mset \<Xi> \<and> length \<sigma> + 1 \<ge> length \<Psi>)"
   proof -
-    from assms(3) obtain \<Psi>\<^sub>0 where \<Psi>\<^sub>0:
+    from assms(3) obtain \<Psi>\<^sub>0 :: "('a list \<times> 'a) list"  where \<Psi>\<^sub>0:
       "mset \<Psi>\<^sub>0 \<subseteq># mset (\<VV> \<Xi>)"
       "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0 = \<Psi>"
       using mset_sub_map_list_exists by fastforce
-    let ?\<Psi>' = "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0"
-    let ?\<Pi>\<^sub>C = "\<lambda> (\<Xi>,\<xi>) \<Sigma>. (map (op # (\<xi>,length \<Xi>)) \<Sigma>) 
-                         @ (map (op @ (zip \<Xi> (rev [0..<length \<Xi>]))) \<Sigma>)"
+    let ?\<Pi>\<^sub>C = "\<lambda> (\<Delta>,\<delta>) \<Sigma>. (map (op # (\<Delta>, \<delta>)) \<Sigma>) @ (map (op @ (\<VV> \<Delta>)) \<Sigma>)"
     let ?T\<^sub>\<Sigma> = "\<lambda> \<Psi>. foldr ?\<Pi>\<^sub>C \<Psi> [[]]"
-    let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
-    let ?\<Sigma> = "map (map fst \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
-    {
-      fix \<Psi> :: "('a list \<times> 'a) list"
-      let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
-      let ?\<Sigma> = "map (map fst \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
-      have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
-      proof (induct \<Psi>)
+    let ?\<Sigma> = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
+    have I: "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+    proof -
+      let ?\<Sigma>\<^sub>\<alpha> = "map (map snd) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
+      let ?\<Psi>' = "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0"
+      {
+        fix \<Psi> :: "('a list \<times> 'a) list"
+        let ?\<Sigma>\<^sub>\<alpha> = "map (map snd) (?T\<^sub>\<Sigma> \<Psi>)"
+        let ?\<Sigma> = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+        have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
+        proof (induct \<Psi>)
+          case Nil
+          then show ?case by (simp add: biconditional_reflection)
+        next
+          case (Cons \<Delta>\<delta> \<Psi>)
+          let ?\<Delta> = "fst \<Delta>\<delta>"
+          let ?\<delta> = "snd \<Delta>\<delta>"
+          let ?\<Sigma>\<^sub>\<alpha> = "map (map snd) (?T\<^sub>\<Sigma> \<Psi>)"
+          let ?\<Sigma> = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
+          let ?\<Sigma>\<^sub>\<alpha>' = "map (map snd) (?T\<^sub>\<Sigma> ((?\<Delta>,?\<delta>) # \<Psi>))"
+          let ?\<Sigma>' = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> ((?\<Delta>,?\<delta>) # \<Psi>))"
+          {
+            fix \<Delta> :: "'a list"
+            fix \<delta> :: 'a
+            let ?\<Sigma>\<^sub>\<alpha>' = "map (map snd) (?T\<^sub>\<Sigma> ((\<Delta>,\<delta>) # \<Psi>))"
+            let ?\<Sigma>' = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> ((\<Delta>,\<delta>) # \<Psi>))"
+            let ?\<Phi> = "map (map snd \<circ> op @ [(\<Delta>, \<delta>)]) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Psi> = "map (map snd \<circ> op @ (\<VV> \<Delta>)) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Delta> = "map (map snd \<circ> remdups \<circ> op @ [(\<Delta>, \<delta>)]) (?T\<^sub>\<Sigma> \<Psi>)"
+            let ?\<Omega> = "map (map snd \<circ> remdups \<circ> op @ (\<VV> \<Delta>)) (?T\<^sub>\<Sigma> \<Psi>)"
+            have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Phi>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Psi>))) \<rightarrow>
+                    (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Omega>))) \<rightarrow>
+                    (\<Squnion> (map \<Sqinter> ?\<Phi>) \<leftrightarrow> (\<Sqinter> [\<delta>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))) \<rightarrow>
+                    (\<Squnion> (map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))) \<rightarrow>
+                    (\<Squnion> (map \<Sqinter> ?\<Delta>) \<leftrightarrow> (\<Sqinter> [\<delta>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))) \<rightarrow>
+                    (\<Squnion> (map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))) \<rightarrow>
+                    ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
+                    ((\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<rightarrow> \<phi>))"
+            proof -
+              let ?\<phi> =
+                "(\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Psi>)\<^bold>\<rangle>)) \<rightarrow>
+                 (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Omega>)\<^bold>\<rangle>)) \<rightarrow>
+                 (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> [\<delta>]\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)) \<rightarrow>
+                 (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)) \<rightarrow>
+                 (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> [\<delta>]\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle>)) \<rightarrow>
+                 (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle>)) \<rightarrow>
+                 ((\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)) \<rightarrow>
+                 ((\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
+              have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+              hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+              thus ?thesis by simp
+            qed
+            moreover
+            have "map snd (\<VV> \<Delta>) = \<Delta>" by (induct \<Delta>, auto)
+            hence "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Phi>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Psi>))"
+                  "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Omega>))"
+                  "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Phi>) \<leftrightarrow> (\<Sqinter> [\<delta>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
+                  "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
+                  "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Delta>) \<leftrightarrow> (\<Sqinter> [\<delta>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))"
+                  "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))"
+              using arbitrary_disj_concat_equiv 
+                    extract_inner_concat [where \<Delta> = "[(\<Delta>, \<delta>)]" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
+                    extract_inner_concat [where \<Delta> = "\<VV> \<Delta>" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
+                    extract_inner_concat_remdups [where \<Delta> = "[(\<Delta>, \<delta>)]" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
+                    extract_inner_concat_remdups [where \<Delta> = "\<VV> \<Delta>" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
+              by auto
+            ultimately have
+              "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
+                  (\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<rightarrow> \<phi>)"
+              using Modus_Ponens by blast
+            moreover have "op # (\<Delta>, \<delta>) = op @ [(\<Delta>, \<delta>)]" by fastforce
+            ultimately have
+              "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
+                 ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+              by auto
+          }
+          hence
+            "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
+            using Cons Modus_Ponens by blast
+          moreover have "\<Delta>\<delta> = (?\<Delta>,?\<delta>)" by fastforce
+          ultimately show ?case by metis 
+        qed
+      }
+      hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)" by blast
+      moreover have "\<turnstile> (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)"
+      proof (induct \<Psi>\<^sub>0)
         case Nil
-        then show ?case by (simp add: biconditional_reflection)
+        have "\<turnstile> \<phi> \<leftrightarrow> ((\<top> \<squnion> \<bottom>) \<rightarrow> \<phi>)"
+        proof -
+          let ?\<phi> = "\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<top> \<squnion> \<bottom>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
+          have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+          hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+          thus ?thesis by simp
+        qed
+        thus ?case by simp 
       next
-        case (Cons \<Xi>\<xi> \<Psi>)
-        let ?\<Xi> = "fst \<Xi>\<xi>"
-        let ?\<xi> = "snd \<Xi>\<xi>"
-        let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>)"
-        let ?\<Sigma> = "map (map fst \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)"
-        let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ((?\<Xi>,?\<xi>) # \<Psi>))"
-        let ?\<Sigma>' = "map (map fst \<circ> remdups) (?T\<^sub>\<Sigma> ((?\<Xi>,?\<xi>) # \<Psi>))"
+        case (Cons \<psi>\<^sub>0 \<Psi>\<^sub>0)
+        let ?\<Xi> = "fst \<psi>\<^sub>0"
+        let ?\<delta> = "snd \<psi>\<^sub>0"
+        let ?\<Psi>' = "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0"
+        let ?\<Sigma>\<^sub>\<alpha> = "map (map snd) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
         {
           fix \<Xi> :: "'a list"
-          fix \<xi> :: 'a
-          let ?\<Sigma>\<^sub>\<alpha>' = "map (map fst) (?T\<^sub>\<Sigma> ((\<Xi>,\<xi>) # \<Psi>))"
-          let ?\<Sigma>' = "map (map fst \<circ> remdups) (?T\<^sub>\<Sigma> ((\<Xi>,\<xi>) # \<Psi>))"
-          let ?\<Phi> = "map (map fst \<circ> op @ [(\<xi>, length \<Xi>)]) (?T\<^sub>\<Sigma> \<Psi>)"
-          let ?\<Psi> = "map (map fst \<circ> op @ (zip \<Xi> (rev [0..<length \<Xi>]))) (?T\<^sub>\<Sigma> \<Psi>)"
-          let ?\<Delta> = "map (map fst \<circ> remdups \<circ> op @ [(\<xi>, length \<Xi>)]) (?T\<^sub>\<Sigma> \<Psi>)"
-          let ?\<Omega> = "map (map fst \<circ> remdups \<circ> op @ (zip \<Xi> (rev [0..<length \<Xi>]))) (?T\<^sub>\<Sigma> \<Psi>)"
-          have "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Phi>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Psi>))) \<rightarrow>
-                  (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Omega>))) \<rightarrow>
-                  (\<Squnion> (map \<Sqinter> ?\<Phi>) \<leftrightarrow> (\<Sqinter> [\<xi>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))) \<rightarrow>
-                  (\<Squnion> (map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))) \<rightarrow>
-                  (\<Squnion> (map \<Sqinter> ?\<Delta>) \<leftrightarrow> (\<Sqinter> [\<xi>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))) \<rightarrow>
-                  (\<Squnion> (map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))) \<rightarrow>
-                  ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
-                  ((\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<rightarrow> \<phi>))"
-          proof -
-            let ?\<phi> =
-              "(\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Psi>)\<^bold>\<rangle>)) \<rightarrow>
-               (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta>)\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Omega>)\<^bold>\<rangle>)) \<rightarrow>
-               (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> [\<xi>]\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)) \<rightarrow>
-               (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)) \<rightarrow>
-               (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> [\<xi>]\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle>)) \<rightarrow>
-               (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> \<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle>)) \<rightarrow>
-               ((\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)) \<rightarrow>
-               ((\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
-            have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-            hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-            thus ?thesis by simp
-          qed
-          moreover
-          have "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Phi>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Psi>))"
-               "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta>) \<squnion> \<Squnion> (map \<Sqinter> ?\<Omega>))"
-               "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Phi>) \<leftrightarrow> (\<Sqinter> [\<xi>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
-               "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Psi>) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
-               "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Delta>) \<leftrightarrow> (\<Sqinter> [\<xi>] \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))"
-               "\<turnstile> \<Squnion> (map \<Sqinter> ?\<Omega>) \<leftrightarrow> (\<Sqinter> \<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>))"
-            using 
-              arbitrary_disj_concat_equiv
-              extract_inner_concat
-                [where \<Xi> = "[(\<xi>, length \<Xi>)]" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
-              extract_inner_concat 
-                [where \<Xi> = "zip \<Xi> (rev [0..<length \<Xi>])" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
-              extract_inner_concat_remdups 
-                [where \<Xi>="[(\<xi>, length \<Xi>)]" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
-              extract_inner_concat_remdups
-                [where \<Xi> = "zip \<Xi> (rev [0..<length \<Xi>])" and \<Psi> = "?T\<^sub>\<Sigma> \<Psi>"]
-            by fastforce+
-          ultimately have
-            "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
-                (\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<rightarrow> \<phi>)"
-            using Modus_Ponens by blast
-          moreover have "op # (\<xi>, length \<Xi>) = op @ [(\<xi>, length \<Xi>)]" by fastforce
-          ultimately have
-            "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
-               ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
-            by auto
+          have "map snd (\<VV> \<Xi>) = \<Xi>" by (induct \<Xi>, auto)
+          hence "map snd \<circ> op @ (\<VV> \<Xi>) = op @ \<Xi> \<circ> map snd" by fastforce
         }
-        hence
-          "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
-          using Cons Modus_Ponens by blast
-        moreover have "\<Xi>\<xi> = (?\<Xi>,?\<xi>)" by fastforce
-        ultimately show ?case by metis 
+        moreover have "(map snd \<circ> op # (?\<Xi>, ?\<delta>)) = op @ [?\<delta>] \<circ> map snd" by fastforce
+        ultimately have \<dagger>: 
+          "map (map snd) (?T\<^sub>\<Sigma> (\<psi>\<^sub>0 # \<Psi>\<^sub>0)) = map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha> @ map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>"                 
+          "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) (\<psi>\<^sub>0 # \<Psi>\<^sub>0) = ?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<delta> # ?\<Psi>'"
+          by (simp add: case_prod_beta')+
+        have A: "\<turnstile> (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)" using Cons.hyps by auto
+        have B: "\<turnstile> (?\<Xi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<rightarrow> \<phi>)"
+          by (simp add: list_curry_uncurry)
+        have C: "\<turnstile>    \<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))
+                   \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>)) \<squnion> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)))"
+          using arbitrary_disj_concat_equiv by blast
+        have "map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) = (map (op \<sqinter> ?\<delta>) (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))" by auto
+        hence D: "\<turnstile> \<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (?\<delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
+          using conj_extract by presburger 
+        have E: "\<turnstile> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
+          using conj_multi_extract by blast
+        have 
+          "\<turnstile>        (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)
+             \<rightarrow>     (?\<Xi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<rightarrow> \<phi>)
+             \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))
+                \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>)) \<squnion> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)))
+             \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (?\<delta> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))
+             \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))
+             \<rightarrow>    ((?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<delta>) \<rightarrow> ?\<Psi>' :\<rightarrow> \<phi>) 
+                \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<rightarrow> \<phi>)"
+        proof -
+          let ?\<phi> = 
+            "         \<^bold>\<langle>?\<Psi>' :\<rightarrow> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
+               \<rightarrow>     \<^bold>\<langle>(?\<Xi> :\<rightarrow> \<phi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Xi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
+               \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle>
+                  \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle>)
+               \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?\<delta>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)
+               \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)
+               \<rightarrow>    ((\<^bold>\<langle>?\<Xi> :\<rightarrow> \<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>?\<delta>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>?\<Psi>' :\<rightarrow> \<phi>\<^bold>\<rangle>) 
+                  \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
+          have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
+          hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
+          thus ?thesis by simp
+        qed
+        hence 
+          "\<turnstile>    ((?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<delta>) \<rightarrow> ?\<Psi>' :\<rightarrow> \<phi>) 
+             \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<rightarrow> \<phi>)"
+          using A B C D E Modus_Ponens by blast
+        thus ?case using \<dagger> by simp
       qed
-    }
-    hence "\<turnstile> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)" by blast
-    moreover have "\<turnstile> (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)"
-    proof (induct \<Psi>\<^sub>0)
-      case Nil
-      have "\<turnstile> \<phi> \<leftrightarrow> ((\<top> \<squnion> \<bottom>) \<rightarrow> \<phi>)"
-      proof -
-        let ?\<phi> = "\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<top> \<squnion> \<bottom>) \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
-        have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-        hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-        thus ?thesis by simp
-      qed
-      thus ?case by simp 
-    next
-      case (Cons \<psi>\<^sub>0 \<Psi>\<^sub>0)
-      let ?\<Xi> = "fst \<psi>\<^sub>0"
-      let ?\<xi> = "snd \<psi>\<^sub>0"
-      let ?\<Psi>' = "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) \<Psi>\<^sub>0"
-      let ?\<Sigma>\<^sub>\<alpha> = "map (map fst) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
-      have "map fst \<circ> op @ (zip ?\<Xi> (rev [0..<length ?\<Xi>])) = op @ ?\<Xi> \<circ> map fst"
-           "(map fst \<circ> op # (?\<xi>, length ?\<Xi>)) = op @ [?\<xi>] \<circ> map fst" by auto
-      hence \<dagger>: "map (map fst) (?T\<^sub>\<Sigma> (\<psi>\<^sub>0 # \<Psi>\<^sub>0)) = map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha> @ map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>"
-               "map (\<lambda>(\<Psi>,\<psi>). (\<Psi> :\<rightarrow> \<phi> \<rightarrow> \<psi>)) (\<psi>\<^sub>0 # \<Psi>\<^sub>0) = ?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<xi> # ?\<Psi>'"
-        by (simp add: case_prod_beta')+
-      have A: "\<turnstile> (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)" using Cons.hyps by auto
-      have B: "\<turnstile> (?\<Xi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<rightarrow> \<phi>)"
-        by (simp add: list_curry_uncurry)
-      have C: "\<turnstile>    \<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))
-                 \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>)) \<squnion> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)))"
-        using arbitrary_disj_concat_equiv by blast
-      have "map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) = (map (op \<sqinter> ?\<xi>) (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))" by auto
-      hence D: "\<turnstile> \<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (?\<xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
-        using conj_extract by presburger 
-      have E: "\<turnstile> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))"
-        using conj_multi_extract by blast
-      have 
-        "\<turnstile>        (?\<Psi>' :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>)
-           \<rightarrow>     (?\<Xi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<rightarrow> \<phi>)
-           \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))
-              \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>)) \<squnion> \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)))
-           \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (?\<xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))
-           \<rightarrow>     \<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<leftrightarrow> (\<Sqinter> ?\<Xi> \<sqinter> \<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>))
-           \<rightarrow>    ((?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<xi>) \<rightarrow> ?\<Psi>' :\<rightarrow> \<phi>) 
-              \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<rightarrow> \<phi>)"
-      proof -
-        let ?\<phi> = 
-          "         \<^bold>\<langle>?\<Psi>' :\<rightarrow> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
-             \<rightarrow>     \<^bold>\<langle>(?\<Xi> :\<rightarrow> \<phi>)\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Xi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)
-             \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle>
-                \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle>)
-             \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>?\<xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)
-             \<rightarrow>     \<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<Sqinter> ?\<Xi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>)\<^bold>\<rangle>)
-             \<rightarrow>    ((\<^bold>\<langle>?\<Xi> :\<rightarrow> \<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>?\<xi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>?\<Psi>' :\<rightarrow> \<phi>\<^bold>\<rangle>) 
-                \<leftrightarrow> (\<^bold>\<langle>\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>))\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<phi>\<^bold>\<rangle>)"
-        have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
-        hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
-        thus ?thesis by simp
-      qed
-      hence 
-        "\<turnstile>    ((?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<xi>) \<rightarrow> ?\<Psi>' :\<rightarrow> \<phi>) 
-           \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map (op # ?\<xi>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map (op @ ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<rightarrow> \<phi>)"
-        using A B C D E Modus_Ponens by blast
-      thus ?case using \<dagger> by simp
+      ultimately show ?thesis using biconditional_transitivity_rule \<Psi>\<^sub>0 by blast
     qed
-    ultimately have I: "\<turnstile> (\<Psi> :\<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
-      using biconditional_transitivity_rule \<Psi>\<^sub>0 by blast
-    have II: "\<forall> \<sigma> \<in> set ?\<Sigma>. length \<sigma> + 1 \<ge> length \<Psi>" sorry
-    have III: "\<forall> \<sigma> \<in> set ?\<Sigma>. mset \<sigma> \<subseteq># mset \<Xi>" sorry
+    have II: "\<forall> \<sigma> \<in> set ?\<Sigma>. length \<sigma> + 1 \<ge> length \<Psi>"
+    proof -
+      let ?\<M> = "length \<circ> fst"
+      let ?\<S> = "sort_key (- ?\<M>)"
+      let ?\<Sigma>' = "map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> (?\<S> \<Psi>\<^sub>0))"
+      have "mset \<Psi>\<^sub>0 = mset (?\<S> \<Psi>\<^sub>0)" by simp
+      
+      have "\<forall> \<Phi>. mset \<Psi>\<^sub>0 = mset \<Phi> \<longrightarrow> mset (map mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)) = mset (map mset (?T\<^sub>\<Sigma> \<Phi>))"
+      proof (induct \<Psi>\<^sub>0)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons \<psi> \<Psi>\<^sub>0)
+        obtain \<Delta> \<delta> where "\<psi> = (\<Delta>,\<delta>)" by fastforce
+        {
+          fix \<Phi>
+          assume "mset (\<psi> # \<Psi>\<^sub>0) = mset \<Phi>"
+          hence "mset \<Psi>\<^sub>0 = mset (remove1 \<psi> \<Phi>)"
+            by (simp add: union_single_eq_diff)
+          have "\<psi> \<in> set \<Phi>" using \<open>mset (\<psi> # \<Psi>\<^sub>0) = mset \<Phi>\<close>
+            using mset_eq_setD by fastforce 
+          hence "mset (map mset (?T\<^sub>\<Sigma> \<Phi>)) = mset (map mset (?T\<^sub>\<Sigma> (\<psi> # (remove1 \<psi> \<Phi>))))"
+          proof (induct \<Phi>)
+            case Nil
+            then show ?case by simp
+          next
+            case (Cons \<phi> \<Phi>)
+            then show ?case proof (cases "\<phi> = \<psi>")
+              case True
+              then show ?thesis by simp
+            next
+              case False
+              let ?\<Sigma>' = "?T\<^sub>\<Sigma> (\<psi> # (remove1 \<psi> \<Phi>))"
+              have \<dagger>: "mset (map mset ?\<Sigma>') = mset (map mset (?T\<^sub>\<Sigma> \<Phi>))" 
+                using Cons False by simp
+              obtain \<Delta>' \<delta>' 
+                where "\<phi> = (\<Delta>',\<delta>')"
+                by fastforce
+              let ?\<Sigma> = "?T\<^sub>\<Sigma> (remove1 \<psi> \<Phi>)"
+              let ?\<mm> = "image_mset mset"
+              have 
+                "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                 mset (map mset (?\<Pi>\<^sub>C \<psi> (?\<Pi>\<^sub>C \<phi> ?\<Sigma>)))" 
+                using False by simp
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     (?\<mm> \<circ> (image_mset (op # \<psi>) \<circ> image_mset (op # \<phi>))) (mset ?\<Sigma>) + 
+                     (?\<mm> \<circ> (image_mset (op # \<psi>) \<circ> image_mset (op @ (\<VV> \<Delta>')))) (mset ?\<Sigma>) +
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>)) \<circ> image_mset (op # \<phi>))) (mset ?\<Sigma>) +
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>)) \<circ> image_mset (op @ (\<VV> \<Delta>')))) (mset ?\<Sigma>)"
+                using \<open>\<psi> = (\<Delta>,\<delta>)\<close> \<open>\<phi> = (\<Delta>',\<delta>')\<close>
+                by (simp add: multiset.map_comp)
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     (?\<mm> \<circ> (image_mset (op # \<phi>) \<circ> image_mset (op # \<psi>))) (mset ?\<Sigma>) + 
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>')) \<circ> image_mset (op # \<psi>))) (mset ?\<Sigma>) +
+                     (?\<mm> \<circ> (image_mset (op # \<phi>) \<circ> image_mset (op @ (\<VV> \<Delta>)))) (mset ?\<Sigma>) +
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>')) \<circ> image_mset (op @ (\<VV> \<Delta>)))) (mset ?\<Sigma>)"
+                by (simp add: image_mset_cons_homomorphism 
+                              image_mset_append_homomorphism
+                              image_mset_add_collapse 
+                              add_mset_commute
+                              add.commute) 
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     (?\<mm> \<circ> (image_mset (op # \<phi>))) (mset ?\<Sigma>') + 
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>')))) (mset ?\<Sigma>')"
+                using \<open>\<psi> = (\<Delta>,\<delta>)\<close>
+                by (simp add: multiset.map_comp)
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     image_mset (op + {#\<phi>#}) (mset (map mset ?\<Sigma>')) + 
+                     image_mset (op + (mset (\<VV> \<Delta>'))) (mset (map mset ?\<Sigma>'))"
+                by (simp add: image_mset_cons_homomorphism
+                              image_mset_append_homomorphism)
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     image_mset (op + {#\<phi>#}) (mset (map mset (?T\<^sub>\<Sigma> \<Phi>))) + 
+                     image_mset (op + (mset (\<VV> \<Delta>'))) (mset (map mset (?T\<^sub>\<Sigma> \<Phi>)))"
+                using \<dagger> by auto
+              hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # remove1 \<psi> (\<phi> # \<Phi>)))) = 
+                     (?\<mm> \<circ> (image_mset (op # \<phi>))) (mset (?T\<^sub>\<Sigma> \<Phi>)) + 
+                     (?\<mm> \<circ> (image_mset (op @ (\<VV> \<Delta>')))) (mset (?T\<^sub>\<Sigma> \<Phi>))"
+                by (simp add: image_mset_cons_homomorphism
+                              image_mset_append_homomorphism)
+              thus ?thesis using \<open>\<phi> = (\<Delta>',\<delta>')\<close> by (simp add: multiset.map_comp) 
+            qed
+          qed
+          hence "  image_mset mset (image_mset (op # \<psi>) (mset (?T\<^sub>\<Sigma> (remove1 \<psi> \<Phi>)))) +
+                   image_mset mset (image_mset (op @ (\<VV> \<Delta>)) (mset (?T\<^sub>\<Sigma> (remove1 \<psi> \<Phi>)))) 
+                 = image_mset mset (mset (?T\<^sub>\<Sigma> \<Phi>))"
+            by (simp add: \<open>\<psi> = (\<Delta>,\<delta>)\<close> multiset.map_comp)
+          hence 
+            "  image_mset (op + {# \<psi> #}) (image_mset mset (mset (?T\<^sub>\<Sigma> (remove1 \<psi> \<Phi>)))) +
+               image_mset (op + (mset (\<VV> \<Delta>))) (image_mset mset (mset (?T\<^sub>\<Sigma> (remove1 \<psi> \<Phi>)))) 
+             = image_mset mset (mset (?T\<^sub>\<Sigma> \<Phi>))"
+            by (simp add: image_mset_cons_homomorphism image_mset_append_homomorphism)
+          hence
+            "image_mset (op + {# \<psi> #}) (image_mset mset (mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0))) +
+             image_mset (op + (mset (\<VV> \<Delta>))) (image_mset mset (mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0))) 
+           = image_mset mset (mset (?T\<^sub>\<Sigma> \<Phi>))"
+            using Cons \<open>mset \<Psi>\<^sub>0 = mset (remove1 \<psi> \<Phi>)\<close>
+            by fastforce 
+          hence
+            "image_mset mset (image_mset (op # \<psi>) (mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0))) +
+             image_mset mset (image_mset (op @ (\<VV> \<Delta>)) (mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0))) 
+           = image_mset mset (mset (?T\<^sub>\<Sigma> \<Phi>))"
+            by (simp add: image_mset_cons_homomorphism image_mset_append_homomorphism) 
+          hence "mset (map mset (?T\<^sub>\<Sigma> (\<psi> # \<Psi>\<^sub>0))) = mset (map mset (?T\<^sub>\<Sigma> \<Phi>))"
+            by (simp add: \<open>\<psi> = (\<Delta>,\<delta>)\<close> multiset.map_comp) 
+        }
+        then show ?case by blast
+      qed
+      hence "mset (map mset (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)) = mset (map mset (?T\<^sub>\<Sigma> (?\<S> \<Psi>\<^sub>0)))"
+        using \<open>mset \<Psi>\<^sub>0 = mset (?\<S> \<Psi>\<^sub>0)\<close> by blast
+      hence "   mset (map (mset \<circ> (map snd) \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)) 
+              = mset (map (mset \<circ> (map snd) \<circ> remdups) (?T\<^sub>\<Sigma> (?\<S> \<Psi>\<^sub>0)))"
+        using mset_mset_map_snd_remdups by blast
+      hence "mset (map mset ?\<Sigma>) = mset (map mset ?\<Sigma>')"
+        by (simp add: fun.map_comp) 
+      hence "set (map mset ?\<Sigma>) = set (map mset ?\<Sigma>')"
+        using mset_eq_setD by blast
+      hence "\<forall> \<sigma> \<in> set ?\<Sigma>. \<exists> \<sigma>' \<in> set ?\<Sigma>'. mset \<sigma> = mset \<sigma>'"
+        by fastforce
+      hence "\<forall> \<sigma> \<in> set ?\<Sigma>. \<exists> \<sigma>' \<in> set ?\<Sigma>'. length \<sigma> = length \<sigma>'"
+        using mset_eq_length by blast
+      have "mset (?\<S> \<Psi>\<^sub>0) \<subseteq># mset (\<VV> \<Xi>)"
+        by (simp add: \<Psi>\<^sub>0(1))
+      {
+        fix n
+        have "\<forall> \<Psi>. mset \<Psi> \<subseteq># mset (\<VV> \<Xi>) \<longrightarrow>
+                    sorted (map (- ?\<M>) \<Psi>) \<longrightarrow>
+                    length \<Psi> = n \<longrightarrow>
+                    (\<forall> \<sigma>' \<in> set (map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)). length \<sigma>' + 1 \<ge> n)"
+        proof (induct n)
+          case 0
+          then show ?case by simp
+        next
+          case (Suc n)
+          {
+            fix \<Psi> :: "('a list \<times> 'a) list"
+            assume A: "mset \<Psi> \<subseteq># mset (\<VV> \<Xi>)"
+               and B: "sorted (map (- ?\<M>) \<Psi>)"
+               and C: "length \<Psi> = n + 1"
+            obtain \<Delta> \<delta> where "(\<Delta>, \<delta>) = hd \<Psi>"
+              using prod.collapse by blast 
+            let ?\<Psi>' = "tl \<Psi>"
+            have "mset ?\<Psi>' \<subseteq># mset (\<VV> \<Xi>)" using A 
+              by (induct \<Psi>, simp, simp, meson mset_subset_eq_insertD subset_mset_def)
+            moreover
+            have "sorted (map (- ?\<M>) (tl \<Psi>))"
+              using B
+              by (simp add: map_tl sorted_tl)
+            moreover have "length ?\<Psi>' = n" using C
+              by simp
+            ultimately have \<star>: "\<forall> \<sigma>' \<in> set (map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> ?\<Psi>')). length \<sigma>' + 1 \<ge> n"
+              using Suc 
+              by blast
+            from C have "\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'"
+              by (metis \<open>(\<Delta>, \<delta>) = hd \<Psi>\<close> 
+                        One_nat_def 
+                        add_is_0 
+                        list.exhaust_sel 
+                        list.size(3) 
+                        nat.simps(3))
+            have "distinct ((\<Delta>, \<delta>) # ?\<Psi>')"
+              using A \<open>\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'\<close> 
+                    core_optimal_pre_witness_distinct 
+                    mset_distinct_msub_down
+              by fastforce
+            hence "set ((\<Delta>, \<delta>) # ?\<Psi>') \<subseteq> set (\<VV> \<Xi>)"
+              by (metis A \<open>\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'\<close> 
+                        Un_iff
+                        mset_le_perm_append 
+                        perm_set_eq set_append 
+                        subsetI)
+            hence "\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. (\<Delta>, \<delta>) \<noteq> (\<Delta>', \<delta>')"
+                  "\<forall> (\<Delta>', \<delta>') \<in> set (\<VV> \<Xi>). ((\<Delta>, \<delta>) \<noteq> (\<Delta>', \<delta>')) \<longrightarrow> (length \<Delta> \<noteq> length \<Delta>')"
+                  "set ?\<Psi>' \<subseteq> set (\<VV> \<Xi>)"
+              using core_optimal_pre_witness_length_iff_eq [where \<Psi>="\<Xi>"]
+                    \<open>distinct ((\<Delta>, \<delta>) # ?\<Psi>')\<close>
+              by auto
+            hence "\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. length \<Delta> \<noteq> length \<Delta>'"
+                  "sorted (map (- ?\<M>) ((\<Delta>, \<delta>) # ?\<Psi>'))"
+              using B \<open>\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'\<close> 
+              by (fastforce, auto)
+            hence "\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. length \<Delta> > length \<Delta>'"
+              using sorted_Cons [where x="(- ?\<M>) (\<Delta>, \<delta>)" and xs="map (- ?\<M>) ?\<Psi>'"]
+              by fastforce
+            {
+              fix \<sigma>' :: "'a list"
+              assume "\<sigma>' \<in> set (map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>))"
+              hence "\<sigma>' \<in> set (map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> ((\<Delta>, \<delta>) # ?\<Psi>')))"
+                using \<open>\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'\<close> 
+                by simp
+              from this obtain \<psi> where \<psi>:
+                "\<psi> \<in> set (?T\<^sub>\<Sigma> ?\<Psi>')"
+                "\<sigma>' = (map snd \<circ> remdups \<circ> op # (\<Delta>, \<delta>)) \<psi> \<or>
+                 \<sigma>' = (map snd \<circ> remdups \<circ> op @ (\<VV> \<Delta>)) \<psi>"
+                by fastforce
+              hence "length \<sigma>' \<ge> n"
+              proof (cases "\<sigma>' = (map snd \<circ> remdups \<circ> op # (\<Delta>, \<delta>)) \<psi>")
+                case True
+                {
+                  fix \<Psi> :: "('a list \<times> 'a) list"
+                  fix n :: "nat"
+                  assume "\<forall> (\<Delta>, \<delta>) \<in> set \<Psi>. n > length \<Delta>"
+                  hence "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>). \<forall> (\<Delta>, \<delta>) \<in> set \<sigma>. n > length \<Delta>"
+                  proof (induct \<Psi>)
+                    case Nil
+                    then show ?case by simp
+                  next
+                    case (Cons \<psi> \<Psi>)
+                    obtain \<Delta> \<delta> where "\<psi> = (\<Delta>, \<delta>)"
+                      by fastforce
+                    hence "n > length \<Delta>" using Cons.prems by fastforce
+                    have 0: "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>). \<forall> (\<Delta>', \<delta>') \<in> set \<sigma>. n > length \<Delta>'" 
+                      using Cons by simp
+                    {
+                      fix \<sigma> :: "('a list \<times> 'a) list"
+                      fix \<psi>' :: "'a list \<times> 'a"
+                      assume 1: "\<sigma> \<in> set (?T\<^sub>\<Sigma> (\<psi> # \<Psi>))"
+                         and 2: "\<psi>' \<in> set \<sigma>"
+                      obtain \<Delta>' \<delta>' where "\<psi>' = (\<Delta>', \<delta>')"
+                        by fastforce
+                      have 3: "\<sigma> \<in> op # (\<Delta>, \<delta>) ` set (?T\<^sub>\<Sigma> \<Psi>) \<or> \<sigma> \<in> op @ (\<VV> \<Delta>) ` set (?T\<^sub>\<Sigma> \<Psi>)" 
+                        using 1 \<open>\<psi> = (\<Delta>, \<delta>)\<close> by simp
+                      have "n > length \<Delta>'"
+                      proof (cases "\<sigma> \<in> op # (\<Delta>, \<delta>) ` set (?T\<^sub>\<Sigma> \<Psi>)")
+                        case True
+                        from this obtain \<sigma>' where 
+                          "set \<sigma> = insert (\<Delta>, \<delta>) (set \<sigma>')"
+                          "\<sigma>' \<in> set (?T\<^sub>\<Sigma> \<Psi>)"
+                          by auto
+                        then show ?thesis 
+                          using 0 \<open>\<psi>' \<in> set \<sigma>\<close> \<open>\<psi>' = (\<Delta>', \<delta>')\<close> \<open>n > length \<Delta>\<close>
+                          by auto
+                      next
+                        case False
+                        from this and 3 obtain \<sigma>' where \<sigma>':
+                          "set \<sigma> = set (\<VV> \<Delta>) \<union> (set \<sigma>')"
+                          "\<sigma>' \<in> set (?T\<^sub>\<Sigma> \<Psi>)"
+                          by auto
+                        have "\<forall> (\<Delta>', \<delta>') \<in> set (\<VV> \<Delta>). length \<Delta> > length \<Delta>'"
+                          by (metis (mono_tags, lifting) 
+                                     case_prodI2 
+                                     core_optimal_pre_witness_nonelement 
+                                     not_le)
+                        hence "\<forall> (\<Delta>', \<delta>') \<in> set (\<VV> \<Delta>). n > length \<Delta>'"
+                          using \<open>n > length \<Delta>\<close> by auto
+                        then show ?thesis using 0 \<sigma>' \<open>\<psi>' \<in> set \<sigma>\<close> \<open>\<psi>' = (\<Delta>', \<delta>')\<close> by fastforce
+                      qed
+                      hence "n > length (fst \<psi>')" using \<open>\<psi>' = (\<Delta>', \<delta>')\<close> by fastforce
+                    }
+                    then show ?case by fastforce 
+                  qed
+                }
+                hence "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> ?\<Psi>'). \<forall> (\<Delta>', \<delta>') \<in> set \<sigma>. length \<Delta> > length \<Delta>'"
+                  using \<open>\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. length \<Delta> > length \<Delta>'\<close> 
+                  by blast
+                then show ?thesis using True \<star> \<psi>(1) by fastforce
+              next
+                case False
+                have "\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. length \<Delta> \<ge> length \<Delta>'"
+                  using \<open>\<forall> (\<Delta>', \<delta>') \<in> set ?\<Psi>'. length \<Delta> > length \<Delta>'\<close>
+                  by auto                  
+                hence "\<forall> (\<Delta>', \<delta>') \<in> set \<Psi>. length \<Delta> \<ge> length \<Delta>'"
+                  using \<open>\<Psi> = (\<Delta>, \<delta>) # ?\<Psi>'\<close>
+                  by (metis case_prodI2 eq_iff prod.sel(1) set_ConsD)
+                hence "length \<Delta> + 1 \<ge> length \<Psi>" 
+                  using A core_optimal_pre_witness_pigeon_hole
+                  by fastforce
+                hence "length \<Delta> \<ge> n" 
+                  using C 
+                  by simp
+                have "length \<Delta> = length (\<VV> \<Delta>)" 
+                  by (induct \<Delta>, simp+)
+                hence "length (remdups (\<VV> \<Delta>)) = length (\<VV> \<Delta>)"
+                  by (simp add: core_optimal_pre_witness_distinct)
+                hence "length (remdups (\<VV> \<Delta>)) \<ge> n"
+                  using \<open>length \<Delta> = length (\<VV> \<Delta>)\<close> \<open>n \<le> length \<Delta>\<close> 
+                  by linarith
+                have "mset (remdups (\<VV> \<Delta> @ \<psi>)) = mset (remdups (\<psi> @ \<VV> \<Delta>))"
+                  by (simp add: mset_remdups)
+                hence "length (remdups (\<VV> \<Delta> @ \<psi>)) \<ge> length (remdups (\<VV> \<Delta>))"
+                  by (metis le_cases length_sub_mset mset_remdups_append_msub size_mset)
+                hence "length (remdups (\<VV> \<Delta> @ \<psi>)) \<ge> n"
+                  using \<open>n \<le> length (remdups (\<VV> \<Delta>))\<close> dual_order.trans by blast
+                thus ?thesis using False \<psi>(2)
+                  by simp
+              qed
+            }
+            hence "\<forall> \<sigma>' \<in> set (map (map snd \<circ> remdups) (?T\<^sub>\<Sigma> \<Psi>)). length \<sigma>' \<ge> n"
+              by blast
+          }
+          then show ?case by fastforce
+        qed
+      }
+      hence "\<forall> \<sigma>' \<in> set ?\<Sigma>'. length \<sigma>' + 1 \<ge> length (?\<S> \<Psi>\<^sub>0)"
+        using \<open>mset (?\<S> \<Psi>\<^sub>0) \<subseteq># mset (\<VV> \<Xi>)\<close>
+        by fastforce
+      hence "\<forall> \<sigma>' \<in> set ?\<Sigma>'. length \<sigma>' + 1 \<ge> length \<Psi>\<^sub>0" by simp
+      hence "\<forall> \<sigma> \<in> set ?\<Sigma>. length \<sigma> + 1 \<ge> length \<Psi>\<^sub>0"
+        using \<open>\<forall> \<sigma> \<in> set ?\<Sigma>. \<exists> \<sigma>' \<in> set ?\<Sigma>'. length \<sigma> = length \<sigma>'\<close>
+        by fastforce
+      thus ?thesis using \<Psi>\<^sub>0 by fastforce
+    qed
+    have III: "\<forall> \<sigma> \<in> set ?\<Sigma>. mset \<sigma> \<subseteq># mset \<Xi>"
+    proof -
+      have "remdups (\<VV> \<Xi>) = \<VV> \<Xi>"
+        by (simp add: core_optimal_pre_witness_distinct distinct_remdups_id)
+      from \<Psi>\<^sub>0(1) have "set \<Psi>\<^sub>0 \<subseteq> set (\<VV> \<Xi>)"
+        by (metis (no_types, lifting) \<open>remdups (\<VV> \<Xi>) = \<VV> \<Xi>\<close> 
+                                      mset_remdups_set_sub_iff 
+                                      mset_remdups_subset_eq 
+                                      subset_mset.dual_order.trans) 
+      hence "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). set \<sigma> \<subseteq> set (\<VV> \<Xi>)"
+      proof (induct \<Psi>\<^sub>0)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons \<psi> \<Psi>\<^sub>0)
+        hence "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). set \<sigma> \<subseteq> set (\<VV> \<Xi>)" by auto
+        obtain \<Delta> \<delta> where "\<psi> = (\<Delta>,\<delta>)" by fastforce
+        hence "(\<Delta>, \<delta>) \<in> set (\<VV> \<Xi>)" using Cons by simp
+        {
+          fix \<sigma> :: "('a list \<times> 'a) list"
+          assume \<star>: "\<sigma> \<in> op # (\<Delta>, \<delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0) \<union> op @ (\<VV> \<Delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)"
+          have "set \<sigma> \<subseteq> set (\<VV> \<Xi>)"
+          proof (cases "\<sigma> \<in> op # (\<Delta>, \<delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)")
+            case True
+            then show ?thesis 
+              using \<open>\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). set \<sigma> \<subseteq> set (\<VV> \<Xi>)\<close> \<open>(\<Delta>, \<delta>) \<in> set (\<VV> \<Xi>)\<close>
+              by fastforce
+          next
+            case False
+            hence "\<sigma> \<in> op @ (\<VV> \<Delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0)" using \<star> by simp
+            moreover have "set (\<VV> \<Delta>) \<subseteq> set (\<VV> \<Xi>)"
+              using core_optimal_pre_witness_element_inclusion \<open>(\<Delta>, \<delta>) \<in> set (\<VV> \<Xi>)\<close>
+              by fastforce
+            ultimately show ?thesis 
+              using \<open>\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). set \<sigma> \<subseteq> set (\<VV> \<Xi>)\<close>
+              by force 
+          qed
+        }
+        hence "\<forall>\<sigma>\<in>op # (\<Delta>, \<delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0) \<union> op @ (\<VV> \<Delta>) ` set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). set \<sigma> \<subseteq> set (\<VV> \<Xi>)"
+          by auto
+        thus ?case using \<open>\<psi> = (\<Delta>, \<delta>)\<close> by simp
+      qed
+      hence "\<forall> \<sigma> \<in> set (?T\<^sub>\<Sigma> \<Psi>\<^sub>0). mset (remdups \<sigma>) \<subseteq># mset (remdups (\<VV> \<Xi>))"
+        using mset_remdups_set_sub_iff by blast 
+      hence "\<forall> \<sigma> \<in> set ?\<Sigma>. mset \<sigma> \<subseteq># mset (map snd (\<VV> \<Xi>))"
+        using map_monotonic \<open>remdups (\<VV> \<Xi>) = \<VV> \<Xi>\<close>
+        by auto
+      moreover have "map snd (\<VV> \<Xi>) = \<Xi>" by (induct \<Xi>, simp+)
+      ultimately show ?thesis by simp
+    qed
     show ?thesis using I II III by fastforce 
   qed
   from this obtain \<Sigma>\<^sub>0 where \<Sigma>\<^sub>0:
@@ -6330,7 +7121,8 @@ proof -
     have "length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>)" using \<Sigma>\<^sub>0(2) \<sigma>\<^sub>0 by simp
     ultimately have "mset \<sigma> \<subseteq># mset \<Gamma>" "length \<sigma> + 1 \<ge> length (\<Phi> @ \<Psi>)" by auto
   }    
-  ultimately show ?thesis by blast 
+  ultimately 
+  show ?thesis by blast 
 qed
     
 lemma (in Classical_Propositional_Logic) unproving_core_optimal_witness:
@@ -6406,8 +7198,9 @@ proof (rule iffI)
             using \<Psi>(2)
             by linarith
           have "length \<Psi> = length (\<Psi> \<ominus> ?\<Sigma>\<^sub>B) + length (\<Psi> \<^bold>\<inter> ?\<Sigma>\<^sub>B)"
-            (is "length \<Psi> = length ?A + length ?B")
-            by (metis length_append
+            (is "length \<Psi> = length ?A + length ?B")                      
+            by (metis (no_types, lifting)
+                      length_append
                       list_diff_intersect_comp
                       mset_append
                       mset_eq_length)
@@ -6471,7 +7264,7 @@ proof (rule iffI)
         unfolding unproving_core_def
         by fastforce
     qed
-    have C: "\<forall>\<Xi> \<Gamma> \<phi>. \<Xi> \<notin> \<C> \<Gamma> \<phi> \<or> length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
+    have C: "\<forall>\<Xi> \<Gamma> \<phi>. \<Xi> \<in> \<C> \<Gamma> \<phi> \<longrightarrow> length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
       using core_size_intro by blast
     then have D: "length \<Xi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
       using \<open>\<Xi> \<in> \<C> \<Gamma> \<phi>\<close> by blast
@@ -6485,9 +7278,10 @@ proof (rule iffI)
     hence "1 + (\<parallel> map (uncurry op \<rightarrow>) ?\<Sigma> @ \<Gamma> \<ominus> map snd ?\<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
       using D E \<open>map snd (\<WW> \<phi> (\<psi> # \<Xi>)) = \<psi> # \<Xi>\<close> complement_core_size_def by force
   }
-  ultimately show "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
-                        map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
-                        1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
+  ultimately 
+   show "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
+              map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi> \<and>
+              1 + (\<parallel> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<parallel>\<^sub>\<phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
   by metis
 next
   assume "\<exists> \<Sigma>. mset (map snd \<Sigma>) \<subseteq># mset \<Gamma> \<and>
@@ -6670,7 +7464,7 @@ lemma (in Classical_Propositional_Logic) witness_core_size_increase:
   assumes "\<not> \<turnstile> \<phi>"
       and "mset (map snd \<Sigma>) \<subseteq># mset \<Gamma>"
       and "map (uncurry op \<squnion>) \<Sigma> :\<turnstile> \<phi>"
-    shows "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) < \<bar> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<bar>\<^sub>\<phi>"
+    shows "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) < (\<bar> map (uncurry op \<rightarrow>) \<Sigma> @ \<Gamma> \<ominus> map snd \<Sigma> \<bar>\<^sub>\<phi>)"
 proof -
   from \<open>\<not> \<turnstile> \<phi>\<close> obtain \<Xi> where \<Xi>: "\<Xi> \<in> \<C> \<Gamma> \<phi>"
     using unproving_core_existence by blast
@@ -7251,7 +8045,31 @@ proof -
   }
   then show ?thesis by auto
 qed
-    
+  
+lemma (in Classical_Propositional_Logic) binary_integer_probability:
+  assumes "pr \<in> Binary_Probabilities"
+  shows "\<exists>n :: nat. real n = (\<Sum>\<phi>\<leftarrow>\<Phi>. pr \<phi>)"
+  using assms
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<phi> \<Phi>)
+  from this obtain n where "real n = sum_list (map pr \<Phi>)" by fastforce
+  hence \<star>: "sum_list (map pr \<Phi>) = real n" by simp
+  have "\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> = 1 \<or> Pr \<phi> = 0"
+    unfolding Binary_Probabilities_def by auto
+  show ?case 
+  proof(cases "pr \<phi> = 1")
+    case True
+    then show ?thesis 
+      by (simp add: \<star>, metis of_nat_Suc)
+  next
+    case False
+    hence "pr \<phi> = 0" using Cons.prems Binary_Probabilities_def by auto
+    then show ?thesis using Cons by auto
+  qed
+qed
   
 (*
 lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:
