@@ -7776,7 +7776,7 @@ next
   then show ?case by simp
 qed
 
-theorem (in Classical_Propositional_Logic) limited_stratified_deduction_completeness:
+theorem (in Classical_Propositional_Logic) binary_limited_stratified_deduction_completeness:
   "(\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
 proof -
   {
@@ -7911,7 +7911,7 @@ proof -
   ultimately show ?thesis by fastforce
 qed
 
-theorem (in Classical_Propositional_Logic) segmented_deduction_completeness:
+lemma (in Classical_Propositional_Logic) binary_segmented_deduction_completeness:
   "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
 proof -
   {
@@ -7942,7 +7942,7 @@ proof -
       from this obtain Pr where Pr:
         "Pr \<in> Binary_Probabilities"
         "real (length \<Phi>) * Pr \<top> > (\<Sum>\<gamma>\<leftarrow> (\<^bold>\<sim> \<Phi> @ \<Gamma>). Pr \<gamma>)"
-        using limited_stratified_deduction_completeness
+        using binary_limited_stratified_deduction_completeness
         by fastforce
       from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
         unfolding Binary_Probabilities_def
@@ -7958,6 +7958,31 @@ proof -
   }
   ultimately show ?thesis by fastforce
 qed
+
+theorem (in Classical_Propositional_Logic) segmented_deduction_completeness:
+  "(\<forall> Pr \<in> Weakly_Additive_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+proof -
+  {
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Weakly_Additive_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(op \<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Weakly_Additive_Probabilities_def
+      by auto
+    assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using segmented_deduction_summation_introduction
+      by blast
+  }
+  thus ?thesis
+    using Binary_Probabilities_subset binary_segmented_deduction_completeness
+    by fastforce
+qed
+
+theorem (in Classical_Propositional_Logic) weakly_additive_completeness_collapse:
+  "  (\<forall> Pr \<in> Weakly_Additive_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+   = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  by (simp add: binary_segmented_deduction_completeness 
+                segmented_deduction_completeness)
 
 lemma (in Classical_Propositional_Logic) stronger_theory_double_negation_right:
   "\<Phi> \<preceq> \<^bold>\<sim> (\<^bold>\<sim> \<Phi>)"
@@ -7984,7 +8009,7 @@ lemma (in Classical_Propositional_Logic) stratified_deduction_completeness:
 proof -
   have "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
             = \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length (\<^bold>\<sim> \<Phi>)) \<bottom>"
-    using segmented_deduction_completeness segmented_stratified_falsum_equiv by blast
+    using binary_segmented_deduction_completeness segmented_stratified_falsum_equiv by blast
   also have "... = \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length \<Phi>) \<bottom>" by (induct \<Phi>, auto)
   also have "... = \<^bold>\<sim> \<Gamma> @ \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) #\<turnstile> (length \<Phi>) \<bottom>"
     by (simp add: segmented_left_commute stratified_segmented_deduction_replicate) 
@@ -8013,14 +8038,14 @@ next
   case False
   then show ?thesis
     using stratified_deduction_completeness unproving_core_stratified_deduction_lower_bound 
-    by blast 
+    by blast
 qed
 
-lemma (in Classical_Propositional_Logic) core_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>)"  
+lemma (in Classical_Propositional_Logic) binary_core_partial_completeness:
+  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>)"
 proof -
   { 
-    fix \<mu> :: "'a \<Rightarrow> real"
+    fix Pr :: "'a \<Rightarrow> real"
     obtain \<rho> :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a \<Rightarrow> real" where
         " (\<forall>\<Phi> \<Gamma>. \<rho> \<Phi> \<Gamma> \<in> Binary_Probabilities \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. (\<rho> \<Phi> \<Gamma>) \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. (\<rho> \<Phi> \<Gamma>) \<gamma>) 
                  \<or> length \<Phi> \<le> \<parallel> \<^bold>\<sim> \<Gamma> @ \<Phi> \<parallel>\<^sub>\<bottom>) 
@@ -8034,7 +8059,7 @@ proof -
   moreover have "\<forall> \<Gamma> \<Phi> n. length (\<Gamma> @ \<Phi>) - n \<le> length \<Gamma> \<or> length \<Phi> - n \<noteq> 0"
     by force
   ultimately have 
-    "      (\<mu> \<in> Binary_Probabilities \<longrightarrow> (\<Sum>\<phi>\<leftarrow>\<Phi>. \<mu> \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<mu> \<gamma>)) 
+    "      (Pr \<in> Binary_Probabilities \<longrightarrow> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
          \<and> (\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (\<^bold>\<sim> \<Gamma>) 
     \<or>      \<not> (\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (\<^bold>\<sim> \<Gamma>) 
          \<and> (\<exists>Pr. Pr \<in> Binary_Probabilities \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
@@ -8046,31 +8071,463 @@ proof -
   then show ?thesis by auto
 qed
   
-lemma (in Classical_Propositional_Logic) binary_integer_probability:
-  assumes "pr \<in> Binary_Probabilities"
-  shows "\<exists>n :: nat. real n = (\<Sum>\<phi>\<leftarrow>\<Phi>. pr \<phi>)"
-  using assms
+lemma (in Classical_Propositional_Logic) nat_binary_probability:
+  "\<forall> Pr \<in> Binary_Probabilities. \<exists>n :: nat. real n = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
   then show ?case by simp
 next
   case (Cons \<phi> \<Phi>)
-  from this obtain n where "real n = sum_list (map pr \<Phi>)" by fastforce
-  hence \<star>: "sum_list (map pr \<Phi>) = real n" by simp
-  have "\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> = 1 \<or> Pr \<phi> = 0"
-    unfolding Binary_Probabilities_def by auto
-  show ?case 
-  proof(cases "pr \<phi> = 1")
+  {
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Binary_Probabilities"
+    from Cons this obtain n where "real n = (\<Sum>\<phi>'\<leftarrow>\<Phi>. Pr \<phi>')" by fastforce
+    hence \<star>: "(\<Sum>\<phi>'\<leftarrow>\<Phi>. Pr \<phi>') = real n" by simp
+    have "\<exists> n. real n = (\<Sum>\<phi>'\<leftarrow>(\<phi> # \<Phi>). Pr \<phi>')"
+    proof (cases "Pr \<phi> = 1")
+      case True
+      then show ?thesis 
+        by (simp add: \<star>, metis of_nat_Suc)
+    next
+      case False
+      hence "Pr \<phi> = 0" using \<open>Pr \<in> Binary_Probabilities\<close> Binary_Probabilities_def by auto
+      then show ?thesis using \<star> 
+        by simp 
+    qed
+  }
+  thus ?case by blast
+qed
+
+lemma (in Classical_Propositional_Logic) binary_ceiling_inequality:
+  "\<forall> Pr \<in> Binary_Probabilities. 
+      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof -
+  {
+    fix Pr
+    assume "Pr \<in> Binary_Probabilities"
+    have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+    proof (rule iffI)
+      assume assm: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      proof (rule ccontr)
+        assume "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        moreover
+        obtain x :: int 
+          and  y :: int
+          and  z :: int
+          where xyz: "x = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
+                     "y = \<lceil>c\<rceil>"
+                     "z = (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+          using nat_binary_probability
+          by (metis \<open>Pr \<in> Binary_Probabilities\<close> of_int_of_nat_eq)
+        ultimately have "x + y - 1 \<ge> z" by linarith
+        hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)" using xyz by linarith 
+        thus "False" using assm by simp
+      qed
+    next
+      assume "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      thus "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        by linarith 
+    qed
+  }
+  thus ?thesis by blast
+qed
+
+lemma (in Weakly_Additive_Logical_Probability) probability_replicate_verum:
+  fixes n :: nat
+  shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n = (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>)"
+  using Unity
+  by (induct n, auto)
+
+lemma (in Classical_Propositional_Logic) weakly_additive_collapse:
+  "  (\<forall> Pr \<in> Weakly_Additive_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
+   = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof (rule iffI)
+  assume "\<forall> Pr \<in> Weakly_Additive_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    using Binary_Probabilities_subset by fastforce
+  thus "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    using binary_ceiling_inequality by blast
+next
+  assume assm: "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  show "\<forall> Pr \<in> Weakly_Additive_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  proof (cases "c \<ge> 0")
     case True
-    then show ?thesis 
-      by (simp add: \<star>, metis of_nat_Suc)
+    from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
+      by (metis (full_types) 
+                antisym_conv 
+                ceiling_le_zero 
+                ceiling_zero 
+                nat_0_iff 
+                nat_eq_iff2 
+                of_nat_nat)
+    {
+      fix Pr
+      assume "Pr \<in> Binary_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using assm \<open>Pr \<in> Binary_Probabilities\<close> by blast
+      hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<open>real n = \<lceil>c\<rceil>\<close>
+              probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
+        by metis
+    }
+    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      by blast
+    hence \<dagger>: "\<forall> Pr \<in> Weakly_Additive_Probabilities.
+              (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using weakly_additive_completeness_collapse by blast
+    {
+      fix Pr
+      assume "Pr \<in> Weakly_Additive_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Weakly_Additive_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<dagger> \<open>Pr \<in> Weakly_Additive_Probabilities\<close> by blast
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<open>real n = \<lceil>c\<rceil>\<close>
+              probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
+        by linarith
+    }  
+    then show ?thesis by blast
   next
     case False
-    hence "pr \<phi> = 0" using Cons.prems Binary_Probabilities_def by auto
-    then show ?thesis using Cons by auto
+    hence "\<lceil>c\<rceil> \<le> 0" by auto
+    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
+    {
+      fix Pr
+      assume "Pr \<in> Binary_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using assm \<open>Pr \<in> Binary_Probabilities\<close> by blast
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+        using \<open>real n = - \<lceil>c\<rceil>\<close>
+              probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
+        by linarith
+    }
+    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+      by blast
+    hence \<ddagger>: "\<forall> Pr \<in> Weakly_Additive_Probabilities.
+              (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+      using weakly_additive_completeness_collapse by blast
+    {
+      fix Pr
+      assume "Pr \<in> Weakly_Additive_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Weakly_Additive_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+        using \<ddagger> \<open>Pr \<in> Weakly_Additive_Probabilities\<close> by blast
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<open>real n = - \<lceil>c\<rceil>\<close>
+              probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
+        by linarith
+    }
+    then show ?thesis by blast
   qed
 qed
+
+lemma (in Classical_Propositional_Logic) unproving_core_verum_extract:
+  assumes "\<not> \<turnstile> \<phi>"
+  shows "(\<bar> replicate n \<top> @ \<Phi> \<bar>\<^sub>\<phi>) = n + (\<bar> \<Phi> \<bar>\<^sub>\<phi>)"
+proof (induct n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  {
+    fix \<Phi>
+    obtain \<Sigma> where "\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>" 
+      using assms unproving_core_existence by fastforce
+    hence "\<top> \<in> set \<Sigma>"
+      by (metis (no_types, lifting) 
+                list.set_intros(1) 
+                list_deduction_modus_ponens 
+                list_deduction_weaken 
+                unproving_core_complement_equiv 
+                unproving_core_def 
+                verum_tautology 
+                mem_Collect_eq)
+    hence "\<not> (remove1 \<top> \<Sigma> :\<turnstile> \<phi>)"
+      by (meson \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close> 
+                list.set_intros(1) 
+                Axiom_1 
+                list_deduction_modus_ponens 
+                list_deduction_monotonic 
+                list_deduction_weaken 
+                unproving_core_complement_equiv 
+                set_remove1_subset)
+    moreover 
+    have "mset \<Sigma> \<subseteq># mset (\<top> # \<Phi>)"
+      using \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close> unproving_core_def by blast
+    hence "mset (remove1 \<top> \<Sigma>) \<subseteq># mset \<Phi>"
+      using subset_eq_diff_conv by fastforce
+    ultimately have "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) \<ge> length (remove1 \<top> \<Sigma>)"
+      by (metis (no_types, lifting) 
+                core_size_intro 
+                list_deduction_weaken 
+                unproving_core_def
+                unproving_core_existence 
+                mem_Collect_eq)
+    hence "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) + 1 \<ge> length \<Sigma>"
+      by (simp add: \<open>\<top> \<in> set \<Sigma>\<close> length_remove1)
+    moreover have "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) < length \<Sigma>"
+    proof (rule ccontr)
+      assume "\<not> (\<bar> \<Phi> \<bar>\<^sub>\<phi>) < length \<Sigma>"
+      hence "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) \<ge> length \<Sigma>" by linarith
+      from this obtain \<Delta> where "\<Delta> \<in> \<C> \<Phi> \<phi>" "length \<Delta> \<ge> length \<Sigma>"
+        using assms core_size_intro unproving_core_existence by fastforce
+      hence "\<not> (\<top> # \<Delta>) :\<turnstile> \<phi>"
+        using list_deduction_modus_ponens 
+              list_deduction_theorem 
+              list_deduction_weaken 
+              unproving_core_def 
+              verum_tautology 
+        by blast
+      moreover have "mset (\<top> # \<Delta>) \<subseteq># mset (\<top> # \<Phi>)"
+        using \<open>\<Delta> \<in> \<C> \<Phi> \<phi>\<close> unproving_core_def by auto
+      ultimately have "length \<Sigma> \<ge> length (\<top> # \<Delta>)"
+        using \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close> unproving_core_def by blast
+      hence "length \<Delta> \<ge> length (\<top> # \<Delta>)"
+        using \<open>length \<Sigma> \<le> length \<Delta>\<close> dual_order.trans by blast
+      thus "False" by simp
+    qed
+    ultimately have "(\<bar> \<top> # \<Phi> \<bar>\<^sub>\<phi>) = (1 + \<bar> \<Phi> \<bar>\<^sub>\<phi>)"
+      by (metis Suc_eq_plus1 Suc_le_eq \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close> add.commute le_antisym core_size_intro)
+  }
+  thus ?case using Suc by simp
+qed
+
+
+lemma (in Classical_Propositional_Logic) unproving_core_neg_verum_elim:
+  "(\<bar> replicate n (\<sim> \<top>) @ \<Phi> \<bar>\<^sub>\<phi>) = (\<bar> \<Phi> \<bar>\<^sub>\<phi>)"
+proof (induct n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  {
+    fix \<Phi>
+    have "(\<bar> (\<sim> \<top>) # \<Phi> \<bar>\<^sub>\<phi>) = (\<bar> \<Phi> \<bar>\<^sub>\<phi>)"
+    proof (cases "\<turnstile> \<phi>")
+      case True
+      then show ?thesis 
+        unfolding core_size_def unproving_core_def 
+        by (simp add: list_deduction_weaken)
+    next
+      case False
+      from this obtain \<Sigma> where "\<Sigma> \<in> \<C> ((\<sim> \<top>) # \<Phi>) \<phi>" 
+        using unproving_core_existence by fastforce
+      have "[(\<sim> \<top>)] :\<turnstile> \<phi>"
+        by (metis Modus_Ponens 
+                  Peirces_law 
+                  The_Principle_of_Pseudo_Scotus 
+                  list_deduction_theorem 
+                  list_deduction_weaken 
+                  negation_def 
+                  verum_def)
+      hence "\<sim> \<top> \<notin> set \<Sigma>"
+        by (meson \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> 
+                  list.set_intros(1) 
+                  list_deduction_base_theory 
+                  list_deduction_theorem 
+                  list_deduction_weaken 
+                  unproving_core_complement_equiv)
+      hence "remove1 (\<sim> \<top>) \<Sigma> = \<Sigma>"
+        by (simp add: remove1_idem)
+      moreover have "mset \<Sigma> \<subseteq># mset ((\<sim> \<top>) # \<Phi>)"
+        using \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> unproving_core_def by blast
+      ultimately have "mset \<Sigma> \<subseteq># mset \<Phi>"
+        by (metis add_mset_add_single mset.simps(2) mset_remove1 subset_eq_diff_conv)
+      moreover have "\<not> (\<Sigma> :\<turnstile> \<phi>)"
+        using \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> unproving_core_def by blast
+      ultimately have "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) \<ge> length \<Sigma>"
+        by (metis (no_types, lifting) 
+                  core_size_intro 
+                  list_deduction_weaken 
+                  unproving_core_def 
+                  unproving_core_existence 
+                  mem_Collect_eq)
+      hence "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) \<ge> (\<bar> (\<sim> \<top>) # \<Phi> \<bar>\<^sub>\<phi>)"
+        using \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> core_size_intro by auto
+      moreover 
+      have "(\<bar> \<Phi> \<bar>\<^sub>\<phi>) \<le> (\<bar> (\<sim> \<top>) # \<Phi> \<bar>\<^sub>\<phi>)"
+      proof -
+        obtain \<Delta> where "\<Delta> \<in> \<C> \<Phi> \<phi>"
+          using False unproving_core_existence by blast
+        hence 
+          "\<not> \<Delta> :\<turnstile> \<phi>"
+          "mset \<Delta> \<subseteq># mset ((\<sim> \<top>) # \<Phi>)"
+          unfolding unproving_core_def 
+          by (simp, 
+              metis (mono_tags, lifting) 
+                    Diff_eq_empty_iff_mset 
+                    listSubtract.simps(2) 
+                    listSubtract_mset_homomorphism 
+                    unproving_core_def 
+                    mem_Collect_eq 
+                    mset_zero_iff 
+                    remove1.simps(1))
+        hence "length \<Delta> \<le> length \<Sigma>"
+          using \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> unproving_core_def by blast
+        thus ?thesis
+          using \<open>\<Delta> \<in> \<C> \<Phi> \<phi>\<close> \<open>\<Sigma> \<in> \<C> (\<sim> \<top> # \<Phi>) \<phi>\<close> core_size_intro by auto 
+      qed
+      ultimately show ?thesis
+        using le_antisym by blast
+    qed
+  }
+  thus ?case using Suc by simp
+qed
+
+lemma (in Classical_Propositional_Logic) binary_inequality_elim:
+  assumes "\<not> \<turnstile> \<bottom>"
+      and "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    shows "((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
+proof (cases "c \<ge> 0")
+  case True
+  from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
+    by (metis ceiling_mono ceiling_zero of_nat_nat)
+  {
+    fix Pr
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      by (metis assms(2) \<open>Pr \<in> Binary_Probabilities\<close> \<open>real n = \<lceil>c\<rceil>\<close> binary_ceiling_inequality)
+    hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
+      by metis
+  }
+  hence "(\<bar> \<^bold>\<sim> \<Gamma> @ replicate n \<top> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
+    using binary_core_partial_completeness by blast
+  moreover have "mset (\<^bold>\<sim> \<Gamma> @ replicate n \<top> @ \<Phi>) = mset (replicate n \<top> @ \<^bold>\<sim> \<Gamma> @ \<Phi>)"
+    by simp
+  ultimately have "(\<bar> replicate n \<top> @ \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
+    unfolding core_size_def unproving_core_def
+    by metis
+  hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + \<lceil>c\<rceil> \<le> length \<Gamma>"
+    using \<open>real n = \<lceil>c\<rceil>\<close> assms(1) unproving_core_verum_extract
+    by auto
+  then show ?thesis by linarith
+next
+  case False
+  hence "\<lceil>c\<rceil> \<le> 0" by auto
+  from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
+  {
+    fix Pr
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using assms(2) \<open>Pr \<in> Binary_Probabilities\<close> binary_ceiling_inequality 
+      by blast
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) + n"
+      using \<open>real n = - \<lceil>c\<rceil>\<close> by linarith
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+      using probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
+      by metis
+  }
+  hence "(\<bar> \<^bold>\<sim> (replicate n \<top> @ \<Gamma>) @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (replicate n \<top> @ \<Gamma>)"
+    using binary_core_partial_completeness [where \<Phi>=\<Phi> and \<Gamma>="replicate n \<top> @ \<Gamma>"]
+    by metis
+  hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> n + length \<Gamma>"
+    by (simp add: unproving_core_neg_verum_elim)
+  then show ?thesis using \<open>real n = - \<lceil>c\<rceil>\<close> by linarith
+qed
+
+lemma (in Classical_Propositional_Logic) binary_inequality_intro:
+  assumes "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>"
+  shows "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+proof (cases "\<turnstile> \<bottom>")
+  assume "\<turnstile> \<bottom>"
+  {
+    fix Pr
+    assume "Pr \<in> Binary_Probabilities"
+    from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+      unfolding Binary_Probabilities_def
+      by auto
+    have "False"
+      using \<open>\<turnstile> \<bottom>\<close> consistency by blast  
+  }
+  then show ?thesis by blast
+next
+  assume "\<not> \<turnstile> \<bottom>"
+  then show ?thesis
+  proof (cases "c \<ge> 0")
+    assume "c \<ge> 0"
+    from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
+      by (metis ceiling_mono ceiling_zero of_nat_nat)
+    hence "n + (\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
+      using assms by linarith
+    hence "(\<bar> replicate n \<top> @ \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
+      by (simp add: \<open>\<not> \<turnstile> \<bottom>\<close> unproving_core_verum_extract)
+    moreover have "mset (replicate n \<top> @ \<^bold>\<sim> \<Gamma> @ \<Phi>) = mset (\<^bold>\<sim> \<Gamma> @ replicate n \<top> @ \<Phi>)"
+      by simp
+    ultimately have "(\<bar> \<^bold>\<sim> \<Gamma> @ replicate n \<top> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
+      unfolding core_size_def unproving_core_def
+      by metis
+    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      using binary_core_partial_completeness by blast
+    {
+      fix Pr
+      assume "Pr \<in> Binary_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<open>Pr \<in> Binary_Probabilities\<close> 
+              \<open>\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)\<close>
+        by blast
+      hence "(\<Sum>\<phi>\<leftarrow> \<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        by (simp add: probability_replicate_verum)
+      hence "(\<Sum>\<phi>\<leftarrow> \<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+        using \<open>real n = real_of_int \<lceil>c\<rceil>\<close> by linarith
+    }
+    then show ?thesis by blast
+  next
+    assume "\<not> (c \<ge> 0)"
+    hence "\<lceil>c\<rceil> \<le> 0" by auto
+    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
+    hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> n + length \<Gamma>"
+      using assms by linarith
+    hence "(\<bar> \<^bold>\<sim> (replicate n \<top> @ \<Gamma>) @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (replicate n \<top> @ \<Gamma>)"
+      by (simp add: unproving_core_neg_verum_elim)
+    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+      using binary_core_partial_completeness by blast
+    {
+      fix Pr
+      assume "Pr \<in> Binary_Probabilities"
+      from this interpret Weakly_Additive_Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "op \<rightarrow>" "\<bottom>" "Pr"
+        unfolding Binary_Probabilities_def
+        by auto
+      have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+        using \<open>Pr \<in> Binary_Probabilities\<close>
+              \<open>\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
+        by blast
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
+        using \<open>real n = - \<lceil>c\<rceil>\<close> probability_replicate_verum by auto
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
+        by linarith
+    }
+    then show ?thesis by blast
+  qed
+qed
+
+lemma (in Classical_Propositional_Logic) binary_inequality_equiv:
+  assumes "\<not> \<turnstile> \<bottom>"
+  shows "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = 
+         ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
+  using assms binary_inequality_elim binary_inequality_intro by auto
   
+
 (*
 lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:
   "(\<phi> \<sqinter> \<psi>) # \<Phi> :\<turnstile> \<chi> = \<phi> # \<psi> # \<Phi> :\<turnstile> \<chi>"

@@ -211,11 +211,20 @@ lemma (in Weakly_Additive_Logical_Probability) implication_set_summation_inequal
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans 
   by blast  
-  
-definition (in Minimal_Logic_With_Falsum) Binary_Probabilities :: "('a \<Rightarrow> real) set"
+
+definition (in Classical_Propositional_Logic) Weakly_Additive_Probabilities :: "('a \<Rightarrow> real) set"
+  where "Weakly_Additive_Probabilities = 
+         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr }"
+
+definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities = 
-         {Pr. class.Weakly_Additive_Logical_Probability 
-              (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
+         {Pr.   class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr 
+              \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
+
+lemma (in Classical_Propositional_Logic) Binary_Probabilities_subset: 
+  "Binary_Probabilities \<subseteq> Weakly_Additive_Probabilities"
+  unfolding Weakly_Additive_Probabilities_def Binary_Probabilities_def
+  by fastforce
 
 lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Probability:
   assumes "MCS \<Omega>"
