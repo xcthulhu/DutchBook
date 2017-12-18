@@ -8392,7 +8392,7 @@ lemma (in Classical_Propositional_Logic) binary_inequality_elim:
 proof (cases "c \<ge> 0")
   case True
   from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
-    by (metis ceiling_mono ceiling_zero of_nat_nat)
+    by simp
   {
     fix Pr
     assume "Pr \<in> Binary_Probabilities"
@@ -8526,7 +8526,7 @@ lemma (in Classical_Propositional_Logic) binary_inequality_equiv:
   shows "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = 
          ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
   using assms binary_inequality_elim binary_inequality_intro by auto
-  
+
 
 (*
 lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:
