@@ -4,7 +4,232 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-subsection {* Permutations and List Counts *}
+subsection {* Multiset Coercion *}
+
+lemma length_sub_mset:
+  assumes "mset \<Psi> \<subseteq># mset \<Gamma>"
+      and "length \<Psi> >= length \<Gamma>"
+    shows "mset \<Psi> = mset \<Gamma>"
+  using assms
+proof -
+  have "\<forall> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<longrightarrow> length \<Psi> >= length \<Gamma> \<longrightarrow> mset \<Psi> = mset \<Gamma>"
+  proof (induct \<Gamma>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<gamma> \<Gamma>)
+    {
+      fix \<Psi>
+      assume "mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)" "length \<Psi> >= length (\<gamma> # \<Gamma>)"
+      have "\<gamma> \<in> set \<Psi>"
+      proof (rule ccontr)
+        assume "\<gamma> \<notin> set \<Psi>"
+        hence \<diamondsuit>: "remove1 \<gamma> \<Psi> = \<Psi>"
+          by (simp add: remove1_idem)
+        have "mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)"
+          using \<open>mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)\<close> by auto
+        hence "mset \<Psi> \<subseteq># mset (remove1 \<gamma> (\<gamma> # \<Gamma>))"
+          by (metis \<diamondsuit> mset_le_perm_append perm_remove_perm remove1_append)
+        hence "mset \<Psi> \<subseteq># mset \<Gamma>"
+          by simp
+        hence "mset \<Psi> = mset \<Gamma>"
+          using \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close> size_mset_mono by fastforce
+        hence "length \<Psi> = length \<Gamma>"
+          by (metis size_mset)
+        hence "length \<Gamma> \<ge> length (\<gamma> # \<Gamma>)"
+          using \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close> by auto
+        thus "False" by simp
+      qed
+      hence \<heartsuit>: "mset \<Psi> = mset (\<gamma> # (remove1 \<gamma> \<Psi>))"
+        by simp
+      hence "length (remove1 \<gamma> \<Psi>) >= length \<Gamma>"
+        by (metis \<open>length (\<gamma> # \<Gamma>) \<le> length \<Psi>\<close>
+                  drop_Suc_Cons
+                  drop_eq_Nil
+                  length_Cons
+                  mset_eq_length)
+      moreover have "mset (remove1 \<gamma> \<Psi>) \<subseteq># mset \<Gamma>"
+        by (simp,
+            metis \<heartsuit>
+                  \<open>mset \<Psi> \<subseteq># mset (\<gamma> # \<Gamma>)\<close>
+                  mset.simps(2)
+                  mset_remove1
+                  mset_subset_eq_add_mset_cancel)
+      ultimately have "mset (remove1 \<gamma> \<Psi>) = mset \<Gamma>" using Cons by blast
+      with \<heartsuit> have "mset \<Psi> = mset (\<gamma> # \<Gamma>)" by simp
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
+
+lemma set_exclusion_mset_simplify:
+  assumes "\<not> (\<exists> \<psi> \<in> set \<Psi>. \<psi> \<in> set \<Sigma>)"
+      and "mset \<Psi> \<subseteq># mset (\<Sigma> @ \<Gamma>)"
+    shows "mset \<Psi> \<subseteq># mset \<Gamma>"
+using assms
+proof (induct \<Sigma>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<sigma> \<Sigma>)
+  then show ?case
+    by (cases "\<sigma> \<in> set \<Psi>",
+        fastforce,
+        metis add.commute
+              add_mset_add_single
+              diff_single_trivial
+              in_multiset_in_set
+              mset.simps(2)
+              notin_set_remove1
+              remove_hd
+              subset_eq_diff_conv
+              union_code
+              append_Cons)
+qed
+
+subsection {* List Mapping *}
+
+lemma map_perm:
+  assumes "A <~~> B"
+  shows "map f A <~~> map f B"
+  by (metis assms mset_eq_perm mset_map)
+
+lemma map_monotonic:
+  assumes "mset A \<subseteq># mset B"
+  shows "mset (map f A) \<subseteq># mset (map f B)"
+  by (simp add: assms image_mset_subseteq_mono)
+
+lemma perm_map_perm_list_exists:
+  assumes "A <~~> map f B"
+  shows "\<exists> B'. A = map f B' \<and> B' <~~> B"
+proof -
+  have "\<forall>B. A <~~> map f B \<longrightarrow> (\<exists> B'. A = map f B' \<and> B' <~~> B)"
+  proof (induct A)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons a A)
+    {
+      fix B
+      assume "a # A <~~> map f B"
+      from this obtain b where b:
+        "b \<in> set B"
+        "f b = a"
+        by (metis (full_types) imageE list.set_intros(1) mset_eq_perm set_map set_mset_mset)
+      hence "A <~~> (remove1 (f b) (map f B))"
+            "B <~~> b # remove1 b B"
+        by (metis \<open>a # A <~~> map f B\<close> perm_remove_perm remove_hd,
+            meson b(1) perm_remove)
+      hence "A <~~> (map f (remove1 b B))"
+        by (metis (no_types) list.simps(9) mset_eq_perm mset_map mset_remove1 remove_hd)
+      from this obtain B' where B':
+        "A = map f B'"
+        "B' <~~> (remove1 b B)"
+        using Cons.hyps by blast
+      with b have "a # A = map f (b # B')"
+        by simp
+      moreover have "B <~~> b # B'"
+        by (meson B'(2) b(1) cons_perm_eq perm.trans perm_remove perm_sym)
+      ultimately have "\<exists>B'. a # A = map f B' \<and> B' <~~> B"
+        by (meson perm_sym)
+    }
+    thus ?case by blast
+  qed
+  with assms show ?thesis by blast
+qed
+
+lemma mset_sub_map_list_exists:
+  assumes "mset \<Phi> \<subseteq># mset (map f \<Gamma>)"
+  shows "\<exists> \<Phi>'. mset \<Phi>' \<subseteq># mset \<Gamma> \<and> \<Phi> = (map f \<Phi>')"
+proof -
+  have "\<forall> \<Phi>. mset \<Phi> \<subseteq># mset (map f \<Gamma>) \<longrightarrow> (\<exists> \<Phi>'. mset \<Phi>' \<subseteq># mset \<Gamma> \<and> \<Phi> = (map f \<Phi>'))"
+  proof (induct \<Gamma>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<gamma> \<Gamma>)
+    {
+      fix \<Phi>
+      assume "mset \<Phi> \<subseteq># mset (map f (\<gamma> # \<Gamma>))"
+      have "\<exists>\<Phi>'. mset \<Phi>' \<subseteq># mset (\<gamma> # \<Gamma>) \<and> \<Phi> = map f \<Phi>'"
+      proof cases
+        assume "f \<gamma> \<in> set \<Phi>"
+        hence "f \<gamma> # (remove1 (f \<gamma>) \<Phi>) <~~> \<Phi>"
+          by (simp add: perm_remove perm_sym)
+        with \<open>mset \<Phi> \<subseteq># mset (map f (\<gamma> # \<Gamma>))\<close>
+        have "mset (remove1 (f \<gamma>) \<Phi>) \<subseteq># mset (map f \<Gamma>)"
+          by (metis insert_subset_eq_iff
+                    list.simps(9)
+                    mset.simps(2)
+                    mset_eq_perm
+                    mset_remove1
+                    remove_hd)
+        from this Cons obtain \<Phi>' where \<Phi>':
+          "mset \<Phi>' \<subseteq># mset \<Gamma>"
+          "remove1 (f \<gamma>) \<Phi> = map f \<Phi>'"
+          by blast
+        hence "mset (\<gamma> # \<Phi>') \<subseteq># mset (\<gamma> # \<Gamma>)"
+          and "f \<gamma> # (remove1 (f \<gamma>) \<Phi>) = map f (\<gamma> # \<Phi>')"
+          by simp+
+        hence "\<Phi> <~~> map f (\<gamma> # \<Phi>')"
+          using \<open>f \<gamma> \<in> set \<Phi>\<close> perm_remove by force
+        from this obtain \<Phi>'' where \<Phi>'':
+          "\<Phi> = map f \<Phi>''"
+          "\<Phi>'' <~~> \<gamma> # \<Phi>'"
+          using perm_map_perm_list_exists
+          by blast
+        hence "mset \<Phi>'' \<subseteq># mset (\<gamma> # \<Gamma>)"
+          by (metis \<open>mset (\<gamma> # \<Phi>') \<subseteq># mset (\<gamma> # \<Gamma>)\<close> mset_eq_perm)
+        thus ?thesis using \<Phi>'' by blast
+      next
+        assume "f \<gamma> \<notin> set \<Phi>"
+        have "mset \<Phi> - {#f \<gamma>#} = mset \<Phi>"
+            by (metis (no_types) \<open>f \<gamma> \<notin> set \<Phi>\<close> diff_single_trivial set_mset_mset)
+        moreover have "mset (map f (\<gamma> # \<Gamma>)) = add_mset (f \<gamma>) (image_mset f (mset \<Gamma>))"
+          by simp
+        ultimately have "mset \<Phi> \<subseteq># mset (map f \<Gamma>)"
+          by (metis (no_types) Diff_eq_empty_iff_mset
+                               \<open>mset \<Phi> \<subseteq># mset (map f (\<gamma> # \<Gamma>))\<close>
+                               add_mset_add_single
+                               cancel_ab_semigroup_add_class.diff_right_commute
+                               diff_diff_add mset_map)
+        with Cons show ?thesis
+          by (metis diff_subset_eq_self mset_remove1 remove_hd subset_mset.order.trans)
+      qed
+    }
+    thus ?case using Cons by blast
+  qed
+  thus ?thesis using assms by blast
+qed
+
+subsection {* Laws for Searching a List *}
+
+lemma find_Some_predicate:
+  assumes "find P \<Psi> = Some \<psi>"
+  shows "P \<psi>"
+  using assms
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<omega> \<Psi>)
+  then show ?case by (cases "P \<omega>", fastforce+)
+qed
+
+lemma find_Some_set_membership:
+  assumes "find P \<Psi> = Some \<psi>"
+  shows "\<psi> \<in> set \<Psi>"
+  using assms
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<omega> \<Psi>)
+  then show ?case by (cases "P \<omega>", fastforce+)
+qed
+
+subsection {* Permutations *}
 
 (* TODO the converse of this is also true, is that useful for anything? *)
 lemma perm_count_list:
@@ -53,6 +278,88 @@ proof -
   with assms show ?thesis by blast
 qed
 
+lemma count_list_append:
+  "count_list (A @ B) a = count_list A a + count_list B a"
+  by (induct A, simp, simp)
+
+lemma append_set_containment:
+  assumes "a \<in> set A"
+      and "A <~~> B @ C"
+    shows "a \<in> set B \<or> a \<in> set C"
+  using assms
+  by (simp add: perm_set_eq)
+
+lemma concat_remove1:
+  assumes "\<Psi> \<in> set \<L>"
+  shows "concat \<L> <~~> \<Psi> @ concat (remove1 \<Psi> \<L>)"
+    using assms
+    by (induct \<L>,
+        simp,
+        simp,
+        metis append.assoc
+              perm.trans
+              perm_append1
+              perm_append_swap)
+
+lemma concat_set_membership_mset_containment:
+  assumes "concat \<Gamma> <~~> \<Lambda>"
+  and     "\<Phi> \<in> set \<Gamma>"
+  shows   "mset \<Phi> \<subseteq># mset \<Lambda>"
+  using assms
+  by (induct \<Gamma>, simp, meson concat_remove1 mset_le_perm_append perm.trans perm_sym)
+
+lemma (in comm_monoid_add) perm_list_summation:
+  assumes "\<Psi> <~~> \<Phi>"
+  shows "(\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+proof -
+  have "\<forall> \<Phi>. \<Psi> <~~> \<Phi> \<longrightarrow> (\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+  proof (induct \<Psi>)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons \<psi> \<Psi>)
+    {
+      fix \<Phi>
+      assume hypothesis: "\<psi> # \<Psi> <~~> \<Phi>"
+      hence "\<Psi> <~~> (remove1 \<psi> \<Phi>)"
+        by (metis perm_remove_perm remove_hd)
+      hence "(\<Sum>\<psi>' \<leftarrow> \<Psi>. f \<psi>') = (\<Sum>\<phi>' \<leftarrow> (remove1 \<psi> \<Phi>). f \<phi>')"
+        using Cons.hyps by blast
+      moreover have "\<psi> \<in> set \<Phi>"
+        using hypothesis perm_set_eq by fastforce
+      hence "(\<Sum>\<phi>' \<leftarrow> (\<psi> # (remove1 \<psi> \<Phi>)). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+      proof (induct \<Phi>)
+        case Nil
+        then show ?case by simp
+      next
+        case (Cons \<phi> \<Phi>)
+        show ?case
+        proof cases
+          assume "\<phi> = \<psi>"
+          then show ?thesis by simp
+        next
+          assume "\<phi> \<noteq> \<psi>"
+          hence "\<psi> \<in> set \<Phi>"
+            using Cons.prems by auto
+          hence "(\<Sum>\<phi>' \<leftarrow> (\<psi> # (remove1 \<psi> \<Phi>)). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+            using Cons.hyps by blast
+          hence "(\<Sum>\<phi>'\<leftarrow>(\<phi> # \<Phi>). f \<phi>') = (\<Sum>\<phi>' \<leftarrow> (\<psi> # \<phi> # (remove1 \<psi> \<Phi>)). f \<phi>')"
+            by (simp add: add.left_commute)
+          moreover
+          have "(\<psi> # (\<phi> # (remove1 \<psi> \<Phi>))) = (\<psi> # (remove1 \<psi> (\<phi> # \<Phi>)))"
+            using \<open>\<phi> \<noteq> \<psi>\<close> by simp
+          ultimately show ?thesis
+            by simp
+        qed
+      qed
+      ultimately have "(\<Sum>\<psi>'\<leftarrow>(\<psi> # \<Psi>). f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+        by simp
+    }
+    then show ?case by blast
+  qed
+  with assms show ?thesis by blast
+qed
+
 subsection {* List Duplicates *}
 
 primrec duplicates :: "'a list \<Rightarrow> 'a set"
@@ -96,6 +403,10 @@ primrec listSubtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (i
   where
       "xs \<ominus> [] = xs"
     | "xs \<ominus> (y # ys) = (remove1 y (xs \<ominus> ys))"
+
+lemma listSubtract_mset_homomorphism [simp]:
+  "mset (A \<ominus> B) = mset A - mset B"
+  by (induct B, simp, simp)
 
 lemma listSubtract_empty [simp]:
   "[] \<ominus> \<Phi> = []"
@@ -199,34 +510,12 @@ qed
 lemma listSubtract_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
   shows  "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
-  using assms
-proof (induct \<Lambda>)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons \<psi> \<Lambda>)
-  assume "\<phi> \<in> set (\<psi> # \<Lambda>)"
-  show "\<Phi> \<ominus> (\<psi> # \<Lambda>) <~~> remove1 \<phi> \<Phi> \<ominus> remove1 \<phi> (\<psi> # \<Lambda>)"
-  proof cases
-    assume "\<phi> = \<psi>"
-    hence "\<Phi> \<ominus> (\<psi> # \<Lambda>) = remove1 \<phi> (\<Phi> \<ominus> \<Lambda>)" and
-          "remove1 \<phi> \<Phi> \<ominus> remove1 \<phi> (\<psi> # \<Lambda>) = (remove1 \<phi> \<Phi>) \<ominus> \<Lambda>" by auto
-    then show ?thesis using listSubtract_remove1_cons_perm by auto
-  next
-    assume "\<phi> \<noteq> \<psi>"
-    hence "\<phi> \<in> set \<Lambda>" using \<open>\<phi> \<in> set (\<psi> # \<Lambda>)\<close> by auto
-    hence "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
-      using Cons.hyps
-      by auto
-    hence "\<Phi> \<ominus> (\<psi> # \<Lambda>) <~~> (remove1 \<psi> ((remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)))"
-      by (simp add: perm_remove_perm)
-    moreover have "(remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> (\<psi> # \<Lambda>)) =
-                   (remove1 \<psi> ((remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)))"
-      using \<open>\<phi> \<noteq> \<psi>\<close>
-        by simp
-    ultimately show ?thesis
-      by simp
-    qed
+proof -
+  from \<open>\<phi> \<in> set \<Lambda>\<close> 
+  have "mset (\<Phi> \<ominus> \<Lambda>) = mset ((remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>))"
+    by simp
+  thus ?thesis
+    using mset_eq_perm by blast
 qed
 
 lemma listSubtract_cons_remove1_perm:
@@ -316,216 +605,35 @@ lemma listSubtract_permute:
   assumes "\<Phi> <~~> \<Psi>"
   shows "\<Phi> \<ominus> \<Lambda> <~~> \<Psi> \<ominus> \<Lambda>"
 proof -
-  {
-    fix \<Phi> \<Psi> :: "'a list"
-    fix \<phi> :: "'a"
-    assume "\<phi> \<in> set \<Phi>"
-    hence "\<Phi> \<ominus> \<Psi> <~~> (\<phi> # (remove1 \<phi> \<Phi>)) \<ominus> \<Psi>"
-    proof (induct \<Psi>)
-      case Nil
-      then show ?case
-        by (simp, meson perm_remove)
-    next
-      case (Cons \<psi> \<Psi>)
-      hence "\<Phi> \<ominus> \<Psi> <~~> (\<phi> # remove1 \<phi> \<Phi>) \<ominus> \<Psi>"
-        by blast
-      hence "remove1 \<psi> (\<Phi> \<ominus> \<Psi>) <~~> remove1 \<psi> ((\<phi> # remove1 \<phi> \<Phi>) \<ominus> \<Psi>)"
-        by (simp add: perm_remove_perm)
-      then show ?case
-        by simp
-    qed
-  } note listSubtract_perm_remove = this
-  have "\<forall>\<Psi>. \<Phi> <~~> \<Psi> \<longrightarrow> \<Phi> \<ominus> \<Lambda> <~~> \<Psi> \<ominus> \<Lambda>"
-  proof (induct \<Phi>)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons \<phi> \<Phi>)
-    {
-      fix \<Psi>
-      assume "\<phi> # \<Phi> <~~> \<Psi>"
-      moreover from this have "\<phi> \<in> set \<Psi>"
-        using perm_set_eq by fastforce
-      hence "\<Psi> <~~> \<phi> # (remove1 \<phi> \<Psi>)"
-        by (simp add: perm_remove)
-      ultimately have \<diamondsuit>: "\<Phi> <~~> (remove1 \<phi> \<Psi>)"
-        using perm.trans by auto
-      have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Psi> \<ominus> \<Lambda>"
-      proof cases
-        assume A: "count_list \<Phi> \<phi> \<ge> count_list \<Lambda> \<phi>"
-        hence B: "count_list (remove1 \<phi> \<Psi>) \<phi> \<ge> count_list \<Lambda> \<phi>"
-          using \<diamondsuit> perm_count_list by fastforce
-        from \<diamondsuit> have "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Psi>) \<ominus> \<Lambda>"
-          by (simp add: Cons.hyps)
-        hence "\<phi> # (\<Phi> \<ominus> \<Lambda>) <~~> \<phi> # ((remove1 \<phi> \<Psi>) \<ominus> \<Lambda>)"
-          by simp
-        with A B listSubtract_cons_absorb
-        have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (\<phi> # (remove1 \<phi> \<Psi>)) \<ominus> \<Lambda>"
-          by (metis perm.trans perm_sym)
-        thus ?thesis
-          by (meson listSubtract_perm_remove perm.trans perm_sym \<open>\<phi> \<in> set \<Psi>\<close>)
-      next
-        assume "\<not> (count_list \<Phi> \<phi> \<ge> count_list \<Lambda> \<phi>)"
-        hence "count_list \<Phi> \<phi> < count_list \<Lambda> \<phi>"
-          using not_le by blast
-        hence A: "count_list (\<phi> # \<Phi>) \<phi> \<le> count_list \<Lambda> \<phi>"
-          by simp
-        hence B: "count_list \<Psi> \<phi> \<le> count_list \<Lambda> \<phi>"
-          by (metis \<open>\<phi> # \<Phi> <~~> \<Psi>\<close> perm_count_list)
-        from A have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> (\<phi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
-          using listSubtract_removeAll_perm
-          by metis
-        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
-          by simp
-        moreover from \<open>count_list \<Phi> \<phi> < count_list \<Lambda> \<phi>\<close>
-        have "\<Phi> \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
-          using listSubtract_removeAll_perm
-          by (simp add: listSubtract_removeAll_perm)
-        ultimately have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> \<Lambda>"
-          by (metis mset_eq_perm)
-        with \<diamondsuit> have "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Psi>) \<ominus> \<Lambda>"
-          using Cons.hyps by blast
-        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> (remove1 \<phi> \<Psi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
-          using \<diamondsuit> \<open>count_list \<Phi> \<phi> < count_list \<Lambda> \<phi>\<close> listSubtract_removeAll_perm
-          by (metis less_imp_le perm.trans perm_count_list)
-        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Psi>) \<ominus> (removeAll \<phi> \<Lambda>)"
-          by (simp add: filter_remove1 removeAll_filter_not_eq)
-        with B show ?thesis
-          using listSubtract_removeAll_perm
-          by (metis perm.trans perm_sym)
-      qed
-    }
-    thus ?case by blast
-  qed
-  with assms show ?thesis by blast
+  from \<open>\<Phi> <~~> \<Psi>\<close> have "mset \<Phi> = mset \<Psi>"
+    by (simp add: mset_eq_perm)
+  hence "mset (\<Phi> \<ominus> \<Lambda>) = mset (\<Psi> \<ominus> \<Lambda>)"
+    by simp
+  thus ?thesis
+    using mset_eq_perm by blast 
 qed
-
-lemma concat_remove1:
-  assumes "\<Psi> \<in> set \<L>"
-  shows "concat \<L> <~~> \<Psi> @ concat (\<L> \<ominus> [\<Psi>])"
-    using assms
-    by (induct \<L>,
-        simp,
-        simp,
-        metis append.assoc
-              perm.trans
-              perm_append1
-              perm_append_swap)
-
-lemma append_set_containment:
-  assumes "a \<in> set A"
-      and "A <~~> B @ C"
-    shows "a \<in> set B \<or> a \<in> set C"
-  using assms
-  by (simp add: perm_set_eq)
-
-lemma count_list_append:
-  "count_list (A @ B) a = count_list A a + count_list B a"
-  by (induct A, simp, simp)
 
 lemma append_perm_listSubtract_intro:
   assumes "A <~~> B @ C"
   shows "A \<ominus> C <~~> B"
 proof -
-  have "\<forall>B C. A <~~> B @ C \<longrightarrow> A \<ominus> C <~~> B"
-  proof (induct A)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons a A)
-    {
-      fix B C
-      assume "a # A <~~> B @ C"
-             "a \<in> set B"
-      hence "a # A <~~> a # (remove1 a B) @ C"
-        by (metis perm.Cons perm_remove_perm remove1_append remove_hd)
-      hence "A <~~> (remove1 a B) @ C"
-        by blast
-      hence "A \<ominus> C <~~> remove1 a B"
-        by (simp add: Cons.hyps)
-      hence "a # (A \<ominus> C) <~~> a # (remove1 a B)"
-        by simp
-      with \<open>a \<in> set B\<close> have "a # (A \<ominus> C) <~~> B"
-        by (meson perm.trans perm_remove perm_sym)
-      moreover
-      have "count_list A a \<ge> count_list C a"
-        using \<open>A <~~> (remove1 a B) @ C\<close>
-              count_list_append
-        by (metis add.commute le_add_same_cancel1 less_eq_nat.simps(1) perm_count_list)
-      ultimately have "(a # A) \<ominus> C <~~> B"
-        by (meson listSubtract_cons_absorb perm.trans perm_sym)
-    }
-    then show ?case
-      using append_set_containment
-            listSubtract_cons_remove1_perm
-            Cons
-            perm.trans
-            perm_remove_perm
-            remove1_append
-            remove1_idem
-            remove_hd
-      by (metis (mono_tags, lifting))
-  qed
-  thus ?thesis using assms by blast
+  from \<open>A <~~> B @ C\<close> have "mset A = mset (B @ C)"
+    using mset_eq_perm by blast
+  hence "mset (A \<ominus> C) = mset B"
+    by simp
+  thus ?thesis using mset_eq_perm by blast
 qed
 
 lemma listSubtract_concat:
   assumes "\<Psi> \<in> set \<L>"
   shows "concat (\<L> \<ominus> [\<Psi>]) <~~> (concat \<L>) \<ominus> \<Psi>"
   using assms
-  by (meson append_perm_listSubtract_intro concat_remove1 perm.trans perm_append_swap perm_sym)
-
-lemma (in comm_monoid_add) perm_list_summation:
-  assumes "\<Psi> <~~> \<Phi>"
-  shows "(\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
-proof -
-  have "\<forall> \<Phi>. \<Psi> <~~> \<Phi> \<longrightarrow> (\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
-  proof (induct \<Psi>)
-    case Nil
-    then show ?case by simp
-  next
-    case (Cons \<psi> \<Psi>)
-    {
-      fix \<Phi>
-      assume hypothesis: "\<psi> # \<Psi> <~~> \<Phi>"
-      hence "\<Psi> <~~> (remove1 \<psi> \<Phi>)"
-        by (metis perm_remove_perm remove_hd)
-      hence "(\<Sum>\<psi>' \<leftarrow> \<Psi>. f \<psi>') = (\<Sum>\<phi>' \<leftarrow> (remove1 \<psi> \<Phi>). f \<phi>')"
-        using Cons.hyps by blast
-      moreover have "\<psi> \<in> set \<Phi>"
-        using hypothesis perm_set_eq by fastforce
-      hence "(\<Sum>\<phi>' \<leftarrow> (\<psi> # (remove1 \<psi> \<Phi>)). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
-      proof (induct \<Phi>)
-        case Nil
-        then show ?case by simp
-      next
-        case (Cons \<phi> \<Phi>)
-        show ?case
-        proof cases
-          assume "\<phi> = \<psi>"
-          then show ?thesis by simp
-        next
-          assume "\<phi> \<noteq> \<psi>"
-          hence "\<psi> \<in> set \<Phi>"
-            using Cons.prems by auto
-          hence "(\<Sum>\<phi>' \<leftarrow> (\<psi> # (remove1 \<psi> \<Phi>)). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
-            using Cons.hyps by blast
-          hence "(\<Sum>\<phi>'\<leftarrow>(\<phi> # \<Phi>). f \<phi>') = (\<Sum>\<phi>' \<leftarrow> (\<psi> # \<phi> # (remove1 \<psi> \<Phi>)). f \<phi>')"
-            by (simp add: add.left_commute)
-          moreover
-          have "(\<psi> # (\<phi> # (remove1 \<psi> \<Phi>))) = (\<psi> # (remove1 \<psi> (\<phi> # \<Phi>)))"
-            using \<open>\<phi> \<noteq> \<psi>\<close> by simp
-          ultimately show ?thesis
-            by simp
-        qed
-      qed
-      ultimately have "(\<Sum>\<psi>'\<leftarrow>(\<psi> # \<Psi>). f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
-        by simp
-    }
-    then show ?case by blast
-  qed
-  with assms show ?thesis by blast
-qed
+  by (simp, 
+      meson append_perm_listSubtract_intro
+            concat_remove1
+            perm.trans
+            perm_append_swap
+            perm_sym)
 
 lemma (in comm_monoid_add) listSubstract_multisubset_list_summation:
   assumes "mset \<Psi> \<subseteq># mset \<Phi>"
@@ -572,5 +680,327 @@ proof -
   qed
   with assms show ?thesis by blast
 qed
+
+lemma listSubtract_set_difference_lower_bound:
+  "set \<Gamma> - set \<Phi> \<subseteq> set (\<Gamma> \<ominus> \<Phi>)"
+  using subset_Diff_insert
+  by (induct \<Phi>, simp, fastforce)
+
+lemma listSubtract_set_trivial_upper_bound:
+  "set (\<Gamma> \<ominus> \<Phi>) \<subseteq> set \<Gamma>"
+      by (induct \<Phi>,
+          simp,
+          simp,
+          meson dual_order.trans
+                set_remove1_subset)
+
+lemma listSubtract_msub_eq:
+  assumes "mset Φ ⊆# mset Γ"
+      and "length (Γ ⊖ Φ) = m"
+    shows "length Γ = m + length Φ"
+  using assms
+proof -
+  have "∀ Γ. mset Φ ⊆# mset Γ ⟶ length (Γ ⊖ Φ) = m ⟶ length Γ = m + length Φ"
+  proof (induct Φ)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons φ Φ)
+    {
+      fix Γ :: "'a list"
+      assume "mset (φ # Φ) ⊆# mset Γ"
+             "length (Γ ⊖ (φ # Φ)) = m"
+      moreover from this have "mset Φ ⊆# mset (remove1 φ Γ)"
+                              "mset (Γ ⊖ (φ # Φ)) = mset ((remove1 φ Γ) ⊖ Φ)"
+        by (metis append_Cons mset_le_perm_append perm_remove_perm remove_hd, simp)
+      ultimately have "length (remove1 φ Γ) = m + length Φ"
+        using Cons.hyps
+        by (metis mset_eq_length)
+      hence "length (φ # (remove1 φ Γ)) = m + length (φ # Φ)"
+        by simp
+      moreover have "φ ∈ set Γ"
+        by (metis ‹mset (Γ ⊖ (φ # Φ)) = mset (remove1 φ Γ ⊖ Φ)›
+                  ‹mset (φ # Φ) ⊆# mset Γ›
+                  ‹mset Φ ⊆# mset (remove1 φ Γ)›
+                  add_diff_cancel_left'
+                  add_right_cancel
+                  eq_iff
+                  impossible_Cons
+                  listSubtract_mset_homomorphism
+                  mset_subset_eq_exists_conv
+                  remove1_idem size_mset)
+      hence "length (φ # (remove1 φ Γ)) = length Γ"
+        by (metis One_nat_def Suc_pred length_Cons length_pos_if_in_set length_remove1)
+      ultimately have "length Γ = m + length (φ # Φ)" by simp
+    }
+    thus ?case by blast
+  qed
+  thus ?thesis using assms by blast
+qed
+
+lemma listSubtract_not_member:
+  assumes "b ∉ set A"
+  shows "A ⊖ B = A ⊖ (remove1 b B)"
+  using assms
+  by (induct B,
+      simp,
+      simp,
+      metis add_mset_add_single
+            diff_subset_eq_self
+            insert_DiffM2
+            insert_subset_eq_iff
+            listSubtract_mset_homomorphism
+            remove1_idem set_mset_mset)
+
+lemma listSubtract_monotonic:
+  assumes "mset A ⊆# mset B"
+  shows "mset (A ⊖ C) ⊆# mset (B ⊖ C)"
+  by (simp, meson assms subset_eq_diff_conv subset_mset.dual_order.refl subset_mset.order_trans)
+
+lemma map_listSubtract_mset_containment:
+  "mset ((map f A) ⊖ (map f B)) ⊆# mset (map f (A ⊖ B))"
+  by (induct B, simp, simp,
+      metis diff_subset_eq_self
+            diff_zero
+            image_mset_add_mset
+            image_mset_subseteq_mono
+            image_mset_union
+            subset_eq_diff_conv
+            subset_eq_diff_conv)
+
+lemma map_listSubtract_mset_equivalence:
+  assumes "mset B ⊆# mset A"
+  shows "mset ((map f A) ⊖ (map f B)) = mset (map f (A ⊖ B))"
+  using assms
+  by (induct B, simp, simp add: image_mset_Diff)
+
+lemma msub_listSubtract_elem_cons_msub:
+  assumes "mset Ξ ⊆# mset Γ"
+      and "ψ ∈ set (Γ ⊖ Ξ)"
+    shows "mset (ψ # Ξ) ⊆# mset Γ"
+proof -
+  have "∀ Γ. mset Ξ ⊆# mset Γ ⟶ ψ ∈ set (Γ ⊖ Ξ) ⟶ mset (ψ # Ξ) ⊆# mset Γ"
+  proof(induct Ξ)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons ξ Ξ)
+    {
+      fix Γ
+      assume "mset (ξ # Ξ) ⊆# mset Γ"
+             "ψ ∈ set (Γ ⊖ (ξ # Ξ))"
+      hence "ξ ∈ set Γ"
+            "mset Ξ ⊆# mset (remove1 ξ Γ)"
+            "ψ ∈ set ((remove1 ξ Γ) ⊖ Ξ)"
+        by (simp, metis ex_mset
+                        list.set_intros(1)
+                        mset.simps(2)
+                        mset_eq_setD
+                        subset_mset.le_iff_add
+                        union_mset_add_mset_left,
+            metis listSubtract.simps(1)
+                  listSubtract.simps(2)
+                  listSubtract_monotonic
+                  remove_hd,
+            simp, metis listSubtract_remove1_cons_perm
+                        perm_set_eq)
+      with Cons.hyps have "mset Γ = mset (ξ # (remove1 ξ Γ))"
+                          "mset (ψ # Ξ) ⊆# mset (remove1 ξ Γ)"
+        by (simp, blast)
+      hence "mset (ψ # ξ # Ξ) ⊆# mset Γ"
+        by (simp, metis add_mset_commute
+                        mset_subset_eq_add_mset_cancel)
+    }
+    then show ?case by auto
+  qed
+  thus ?thesis using assms by blast
+qed
+
+subsection {* Tuple Lists *}
+
+lemma remove1_pairs_list_projections_fst:
+  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
+  shows "mset (map fst (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map fst \<Phi>) - {# \<gamma> #}"
+using assms
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<phi> \<Phi>)
+  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
+  show ?case
+  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
+    assume "\<phi> = (\<gamma>, \<sigma>)"
+    then show ?thesis by simp
+  next
+    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
+    then have "add_mset \<phi> (mset \<Phi> - {#(\<gamma>, \<sigma>)#}) = add_mset \<phi> (mset \<Phi>) - {#(\<gamma>, \<sigma>)#}"
+        by force
+    then have "add_mset (fst \<phi>) (image_mset fst (mset \<Phi> - {#(\<gamma>, \<sigma>)#}))
+             = add_mset (fst \<phi>) (image_mset fst (mset \<Phi>)) - {#\<gamma>#}"
+      by (metis (no_types) Cons.prems
+                           add_mset_remove_trivial
+                           fst_conv
+                           image_mset_add_mset
+                           insert_DiffM mset.simps(2))
+    with \<open>\<phi> \<noteq> (\<gamma>, \<sigma>)\<close> show ?thesis
+      by simp
+  qed
+qed
+
+lemma remove1_pairs_list_projections_snd:
+  assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
+  shows "mset (map snd (remove1 (\<gamma>, \<sigma>) \<Phi>)) = mset (map snd \<Phi>) - {# \<sigma> #}"
+using assms
+proof (induct \<Phi>)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons \<phi> \<Phi>)
+  assume "(\<gamma>, \<sigma>) \<in># mset (\<phi> # \<Phi>)"
+  show ?case
+  proof (cases "\<phi> = (\<gamma>, \<sigma>)")
+    assume "\<phi> = (\<gamma>, \<sigma>)"
+    then show ?thesis by simp
+  next
+    assume "\<phi> \<noteq> (\<gamma>, \<sigma>)"
+    then have "add_mset (snd \<phi>) (image_mset snd (mset \<Phi> - {#(\<gamma>, \<sigma>)#}))
+             = image_mset snd (mset (\<phi> # \<Phi>) - {#(\<gamma>, \<sigma>)#})"
+      by auto
+    moreover have "add_mset (snd \<phi>) (image_mset snd (mset \<Phi>))
+                 = add_mset \<sigma> (image_mset snd (mset (\<phi> # \<Phi>) - {#(\<gamma>, \<sigma>)#}))"
+      by (metis (no_types) Cons.prems
+                           image_mset_add_mset
+                           insert_DiffM
+                           mset.simps(2)
+                           snd_conv)
+    ultimately have "add_mset (snd \<phi>) (image_mset snd (mset \<Phi> - {#(\<gamma>, \<sigma>)#}))
+                   = add_mset (snd \<phi>) (image_mset snd (mset \<Phi>)) - {#\<sigma>#}"
+      by simp
+    with \<open>\<phi> \<noteq> (\<gamma>, \<sigma>)\<close> show ?thesis
+      by simp
+  qed
+qed
+
+lemma triple_list_exists:
+  assumes "mset (map snd \<Psi>) \<subseteq># mset \<Sigma>"
+      and "mset \<Sigma> \<subseteq># mset (map snd \<Delta>)"
+    shows "\<exists> \<Omega>. map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi> \<and>
+                mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
+  using assms(1)
+proof (induct \<Psi>)
+  case Nil
+  then show ?case by fastforce
+next
+  case (Cons \<psi> \<Psi>)
+  from Cons obtain \<Omega> where \<Omega>:
+    "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi>"
+    "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
+    by (metis (no_types, lifting)
+              diff_subset_eq_self
+              list.set_intros(1)
+              remove1_pairs_list_projections_snd
+              remove_hd
+              set_mset_mset
+              subset_mset.dual_order.trans
+              surjective_pairing)
+  let ?\<Delta>\<^sub>\<Omega> = "map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>"
+  let ?\<psi> = "fst \<psi>"
+  let ?\<sigma> = "snd \<psi>"
+  from Cons.prems have "add_mset ?\<sigma> (image_mset snd (mset \<Psi>)) \<subseteq># mset \<Sigma>" by simp
+  then have "mset \<Sigma> - {#?\<sigma>#} - image_mset snd (mset \<Psi>) \<noteq> mset \<Sigma> - image_mset snd (mset \<Psi>)"
+    by (metis (no_types) insert_subset_eq_iff
+                         mset_subset_eq_insertD
+                         multi_drop_mem_not_eq
+                         subset_mset.diff_add
+                         subset_mset_def)
+  hence "?\<sigma> \<in># mset \<Sigma> - mset (map snd \<Psi>)"
+    using diff_single_trivial by fastforce
+  have "mset (map snd (\<psi> # \<Psi>)) \<subseteq># mset (map snd \<Delta>)"
+    by (meson Cons.prems \<open>mset \<Sigma> \<subseteq># mset (map snd \<Delta>)\<close> subset_mset.dual_order.trans)
+  then have "mset (map snd \<Delta>) - mset (map snd (\<psi> # \<Psi>)) + ({#} + {#snd \<psi>#})
+           = mset (map snd \<Delta>) + ({#} + {#snd \<psi>#}) - add_mset (snd \<psi>) (mset (map snd \<Psi>))"
+    by (metis (no_types) list.simps(9) mset.simps(2) mset_subset_eq_multiset_union_diff_commute)
+  then have "mset (map snd \<Delta>) - mset (map snd (\<psi> # \<Psi>)) + ({#} + {#snd \<psi>#})
+           = mset (map snd \<Delta>) - mset (map snd \<Psi>)"
+    by auto
+  hence "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd \<Psi>)"
+    using add_mset_remove_trivial_eq by fastforce
+  moreover have "snd \<circ> (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) = snd \<circ> (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>))" by auto
+  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd (map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega>)"
+    by fastforce
+  hence "map snd (?\<Delta>\<^sub>\<Omega>) = map snd \<Psi>"
+    using \<Omega>(1) by simp
+  ultimately have "?\<sigma> \<in># mset (map snd \<Delta>) - mset (map snd ?\<Delta>\<^sub>\<Omega>)"
+    by simp
+  hence "?\<sigma> \<in># image_mset snd (mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>)"
+    using \<Omega>(2) by (metis image_mset_Diff mset_map)
+  hence "?\<sigma> \<in> snd ` set_mset (mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>)"
+    by (metis in_image_mset)
+  from this obtain \<rho> where \<rho>:
+    "snd \<rho> = ?\<sigma>" "\<rho> \<in># mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>"
+    using imageE by auto
+  from this obtain \<gamma> where
+    "(\<gamma>, ?\<sigma>) = \<rho>"
+    by (metis prod.collapse)
+  with \<rho>(2) have \<gamma>: "(\<gamma>, ?\<sigma>) \<in># mset \<Delta> - mset ?\<Delta>\<^sub>\<Omega>" by auto
+  let ?\<Omega> = "(?\<psi>, ?\<sigma>, \<gamma>) # \<Omega>"
+  have "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) ?\<Omega> = \<psi> # \<Psi>"
+    using \<Omega>(1) by simp
+  moreover
+  have A: "(\<gamma>, snd \<psi>) = (case (snd \<psi>, \<gamma>) of (a, c) \<Rightarrow> (c, a))"
+    by auto
+  have B: "mset (map (\<lambda>(b, a, c). (c, a)) \<Omega>) + {#case (snd \<psi>, \<gamma>) of (a, c) \<Rightarrow> (c, a)#}
+         = mset (map (\<lambda>(b, a, c). (c, a)) ((fst \<psi>, snd \<psi>, \<gamma>) # \<Omega>))"
+    by simp
+  obtain mm :: "('c \<times> 'a) multiset \<Rightarrow> ('c \<times> 'a) multiset \<Rightarrow> ('c \<times> 'a) multiset" where
+    "\<forall>x0 x1. (\<exists>v2. x0 = x1 + v2) = (x0 = x1 + mm x0 x1)"
+    by moura
+  then have "mset \<Delta> = mset (map (\<lambda>(b, a, c). (c, a)) \<Omega>) + mm (mset \<Delta>) (mset (map (\<lambda>(b, a, c). (c, a)) \<Omega>))"
+    by (metis \<Omega>(2) subset_mset.le_iff_add)
+  then have "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) ?\<Omega>) \<subseteq># mset \<Delta>"
+    using A B by (metis \<gamma> add_diff_cancel_left' single_subset_iff subset_mset.add_le_cancel_left)
+  ultimately show ?case by meson
+qed
+
+subsection {* List Intersection *}
+
+primrec list_intersect :: "'a list ⇒ 'a list ⇒ 'a list"  (infixl "❙∩" 60)
+  where
+    "_ ❙∩ [] = []"
+  | "xs ❙∩ (y # ys) = (if (y ∈ set xs) then (y # (remove1 y xs ❙∩ ys)) else (xs ❙∩ ys))"
+
+lemma list_intersect_mset_homomorphism [simp]: "mset (Φ ❙∩ Ψ) = mset Φ ∩# mset Ψ"
+proof -
+  have "∀ Φ. mset (Φ ❙∩ Ψ) = mset Φ ∩# mset Ψ"
+  proof (induct Ψ)
+    case Nil
+    then show ?case by simp
+  next
+    case (Cons ψ Ψ)
+    {
+      fix Φ
+      have "mset (Φ ❙∩ ψ # Ψ) = mset Φ ∩# mset (ψ # Ψ)"
+        using Cons.hyps
+        by (cases "ψ ∈ set Φ", 
+            simp add: inter_add_right2,
+            simp add: inter_add_right1)
+    }
+    then show ?case by blast 
+  qed
+  thus ?thesis by simp
+qed
+    
+lemma list_intersect_left_empty [simp]: "[] ❙∩ Φ = []" by (induct Φ, simp+)
+    
+lemma list_diff_intersect_comp:
+  "mset Φ = mset (Φ ⊖ Ψ) + mset (Φ ❙∩ Ψ)"
+  by (simp add: multiset_inter_def)
+  
+lemma list_intersect_left_project: "mset (Φ ❙∩ Ψ) ⊆# mset Φ"
+  by simp
+
+lemma list_intersect_right_project: "mset (Φ ❙∩ Ψ) ⊆# mset Ψ"
+  by simp
 
 end
