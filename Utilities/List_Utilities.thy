@@ -695,33 +695,33 @@ lemma listSubtract_set_trivial_upper_bound:
                 set_remove1_subset)
 
 lemma listSubtract_msub_eq:
-  assumes "mset Φ ⊆# mset Γ"
-      and "length (Γ ⊖ Φ) = m"
-    shows "length Γ = m + length Φ"
+  assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
+      and "length (\<Gamma> \<ominus> \<Phi>) = m"
+    shows "length \<Gamma> = m + length \<Phi>"
   using assms
 proof -
-  have "∀ Γ. mset Φ ⊆# mset Γ ⟶ length (Γ ⊖ Φ) = m ⟶ length Γ = m + length Φ"
-  proof (induct Φ)
+  have "\<forall> \<Gamma>. mset \<Phi> \<subseteq># mset \<Gamma> --> length (\<Gamma> \<ominus> \<Phi>) = m --> length \<Gamma> = m + length \<Phi>"
+  proof (induct \<Phi>)
     case Nil
     then show ?case by simp
   next
-    case (Cons φ Φ)
+    case (Cons \<phi> \<Phi>)
     {
-      fix Γ :: "'a list"
-      assume "mset (φ # Φ) ⊆# mset Γ"
-             "length (Γ ⊖ (φ # Φ)) = m"
-      moreover from this have "mset Φ ⊆# mset (remove1 φ Γ)"
-                              "mset (Γ ⊖ (φ # Φ)) = mset ((remove1 φ Γ) ⊖ Φ)"
+      fix \<Gamma> :: "'a list"
+      assume "mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>"
+             "length (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = m"
+      moreover from this have "mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)"
+                              "mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset ((remove1 \<phi> \<Gamma>) \<ominus> \<Phi>)"
         by (metis append_Cons mset_le_perm_append perm_remove_perm remove_hd, simp)
-      ultimately have "length (remove1 φ Γ) = m + length Φ"
+      ultimately have "length (remove1 \<phi> \<Gamma>) = m + length \<Phi>"
         using Cons.hyps
         by (metis mset_eq_length)
-      hence "length (φ # (remove1 φ Γ)) = m + length (φ # Φ)"
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = m + length (\<phi> # \<Phi>)"
         by simp
-      moreover have "φ ∈ set Γ"
-        by (metis ‹mset (Γ ⊖ (φ # Φ)) = mset (remove1 φ Γ ⊖ Φ)›
-                  ‹mset (φ # Φ) ⊆# mset Γ›
-                  ‹mset Φ ⊆# mset (remove1 φ Γ)›
+      moreover have "\<phi> \<in> set \<Gamma>"
+        by (metis \<open>mset (\<Gamma> \<ominus> (\<phi> # \<Phi>)) = mset (remove1 \<phi> \<Gamma> \<ominus> \<Phi>)\<close>
+                  \<open>mset (\<phi> # \<Phi>) \<subseteq># mset \<Gamma>\<close>
+                  \<open>mset \<Phi> \<subseteq># mset (remove1 \<phi> \<Gamma>)\<close>
                   add_diff_cancel_left'
                   add_right_cancel
                   eq_iff
@@ -729,9 +729,9 @@ proof -
                   listSubtract_mset_homomorphism
                   mset_subset_eq_exists_conv
                   remove1_idem size_mset)
-      hence "length (φ # (remove1 φ Γ)) = length Γ"
+      hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = length \<Gamma>"
         by (metis One_nat_def Suc_pred length_Cons length_pos_if_in_set length_remove1)
-      ultimately have "length Γ = m + length (φ # Φ)" by simp
+      ultimately have "length \<Gamma> = m + length (\<phi> # \<Phi>)" by simp
     }
     thus ?case by blast
   qed
@@ -739,8 +739,8 @@ proof -
 qed
 
 lemma listSubtract_not_member:
-  assumes "b ∉ set A"
-  shows "A ⊖ B = A ⊖ (remove1 b B)"
+  assumes "b \<notin> set A"
+  shows "A \<ominus> B = A \<ominus> (remove1 b B)"
   using assms
   by (induct B,
       simp,
@@ -753,12 +753,12 @@ lemma listSubtract_not_member:
             remove1_idem set_mset_mset)
 
 lemma listSubtract_monotonic:
-  assumes "mset A ⊆# mset B"
-  shows "mset (A ⊖ C) ⊆# mset (B ⊖ C)"
+  assumes "mset A \<subseteq># mset B"
+  shows "mset (A \<ominus> C) \<subseteq># mset (B \<ominus> C)"
   by (simp, meson assms subset_eq_diff_conv subset_mset.dual_order.refl subset_mset.order_trans)
 
 lemma map_listSubtract_mset_containment:
-  "mset ((map f A) ⊖ (map f B)) ⊆# mset (map f (A ⊖ B))"
+  "mset ((map f A) \<ominus> (map f B)) \<subseteq># mset (map f (A \<ominus> B))"
   by (induct B, simp, simp,
       metis diff_subset_eq_self
             diff_zero
@@ -769,29 +769,29 @@ lemma map_listSubtract_mset_containment:
             subset_eq_diff_conv)
 
 lemma map_listSubtract_mset_equivalence:
-  assumes "mset B ⊆# mset A"
-  shows "mset ((map f A) ⊖ (map f B)) = mset (map f (A ⊖ B))"
+  assumes "mset B \<subseteq># mset A"
+  shows "mset ((map f A) \<ominus> (map f B)) = mset (map f (A \<ominus> B))"
   using assms
   by (induct B, simp, simp add: image_mset_Diff)
 
 lemma msub_listSubtract_elem_cons_msub:
-  assumes "mset Ξ ⊆# mset Γ"
-      and "ψ ∈ set (Γ ⊖ Ξ)"
-    shows "mset (ψ # Ξ) ⊆# mset Γ"
+  assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
+      and "\<psi> \<in> set (\<Gamma> \<ominus> \<Xi>)"
+    shows "mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
 proof -
-  have "∀ Γ. mset Ξ ⊆# mset Γ ⟶ ψ ∈ set (Γ ⊖ Ξ) ⟶ mset (ψ # Ξ) ⊆# mset Γ"
-  proof(induct Ξ)
+  have "\<forall> \<Gamma>. mset \<Xi> \<subseteq># mset \<Gamma> --> \<psi> \<in> set (\<Gamma> \<ominus> \<Xi>) --> mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
+  proof(induct \<Xi>)
     case Nil
     then show ?case by simp
   next
-    case (Cons ξ Ξ)
+    case (Cons \<xi> \<Xi>)
     {
-      fix Γ
-      assume "mset (ξ # Ξ) ⊆# mset Γ"
-             "ψ ∈ set (Γ ⊖ (ξ # Ξ))"
-      hence "ξ ∈ set Γ"
-            "mset Ξ ⊆# mset (remove1 ξ Γ)"
-            "ψ ∈ set ((remove1 ξ Γ) ⊖ Ξ)"
+      fix \<Gamma>
+      assume "mset (\<xi> # \<Xi>) \<subseteq># mset \<Gamma>"
+             "\<psi> \<in> set (\<Gamma> \<ominus> (\<xi> # \<Xi>))"
+      hence "\<xi> \<in> set \<Gamma>"
+            "mset \<Xi> \<subseteq># mset (remove1 \<xi> \<Gamma>)"
+            "\<psi> \<in> set ((remove1 \<xi> \<Gamma>) \<ominus> \<Xi>)"
         by (simp, metis ex_mset
                         list.set_intros(1)
                         mset.simps(2)
@@ -804,10 +804,10 @@ proof -
                   remove_hd,
             simp, metis listSubtract_remove1_cons_perm
                         perm_set_eq)
-      with Cons.hyps have "mset Γ = mset (ξ # (remove1 ξ Γ))"
-                          "mset (ψ # Ξ) ⊆# mset (remove1 ξ Γ)"
+      with Cons.hyps have "mset \<Gamma> = mset (\<xi> # (remove1 \<xi> \<Gamma>))"
+                          "mset (\<psi> # \<Xi>) \<subseteq># mset (remove1 \<xi> \<Gamma>)"
         by (simp, blast)
-      hence "mset (ψ # ξ # Ξ) ⊆# mset Γ"
+      hence "mset (\<psi> # \<xi> # \<Xi>) \<subseteq># mset \<Gamma>"
         by (simp, metis add_mset_commute
                         mset_subset_eq_add_mset_cancel)
     }
@@ -965,24 +965,24 @@ qed
 
 subsection {* List Intersection *}
 
-primrec list_intersect :: "'a list ⇒ 'a list ⇒ 'a list"  (infixl "❙∩" 60)
+primrec list_intersect :: "'a list => 'a list => 'a list"  (infixl "\<bold>\<inter>" 60)
   where
-    "_ ❙∩ [] = []"
-  | "xs ❙∩ (y # ys) = (if (y ∈ set xs) then (y # (remove1 y xs ❙∩ ys)) else (xs ❙∩ ys))"
+    "_ \<bold>\<inter> [] = []"
+  | "xs \<bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<bold>\<inter> ys)) else (xs \<bold>\<inter> ys))"
 
-lemma list_intersect_mset_homomorphism [simp]: "mset (Φ ❙∩ Ψ) = mset Φ ∩# mset Ψ"
+lemma list_intersect_mset_homomorphism [simp]: "mset (\<Phi> \<bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
 proof -
-  have "∀ Φ. mset (Φ ❙∩ Ψ) = mset Φ ∩# mset Ψ"
-  proof (induct Ψ)
+  have "\<forall> \<Phi>. mset (\<Phi> \<bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
+  proof (induct \<Psi>)
     case Nil
     then show ?case by simp
   next
-    case (Cons ψ Ψ)
+    case (Cons \<psi> \<Psi>)
     {
-      fix Φ
-      have "mset (Φ ❙∩ ψ # Ψ) = mset Φ ∩# mset (ψ # Ψ)"
+      fix \<Phi>
+      have "mset (\<Phi> \<bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
         using Cons.hyps
-        by (cases "ψ ∈ set Φ", 
+        by (cases "\<psi> \<in> set \<Phi>", 
             simp add: inter_add_right2,
             simp add: inter_add_right1)
     }
@@ -991,16 +991,16 @@ proof -
   thus ?thesis by simp
 qed
     
-lemma list_intersect_left_empty [simp]: "[] ❙∩ Φ = []" by (induct Φ, simp+)
+lemma list_intersect_left_empty [simp]: "[] \<bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
     
 lemma list_diff_intersect_comp:
-  "mset Φ = mset (Φ ⊖ Ψ) + mset (Φ ❙∩ Ψ)"
+  "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<bold>\<inter> \<Psi>)"
   by (simp add: multiset_inter_def)
   
-lemma list_intersect_left_project: "mset (Φ ❙∩ Ψ) ⊆# mset Φ"
+lemma list_intersect_left_project: "mset (\<Phi> \<bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
   by simp
 
-lemma list_intersect_right_project: "mset (Φ ❙∩ Ψ) ⊆# mset Ψ"
+lemma list_intersect_right_project: "mset (\<Phi> \<bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
   by simp
 
 end
