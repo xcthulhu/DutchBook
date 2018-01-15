@@ -8,5 +8,12 @@ session "Extra_Theories" = "HOL" +
   theories
     "Logic/Functional/Combinators"
     "Logic/Proof/Intuitionistic/Intuitionistic_Logic"
-    "Logic/Proof/Classical/Extended/Extended_Classical_Propositional_Logic"
-    "Logic/Proof/Classical/Extended/Extended_Classical_Propositional_Calculus"
+
+session "Snippets" = "HOL" +
+   options [document = "pdf",
+            document_output = "generated",
+            show_question_marks = false]
+   theories
+    "Logic/Proof/Intuitionistic/Minimal/Minimal_Logic"
+   document_files
+     build

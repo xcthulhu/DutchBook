@@ -1,0 +1,195 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% LaTeX book template                           %%
+%% Author:  Amber Jain (http://amberj.devio.us/) %%
+%% License: ISC license                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,11pt]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+% Bibtex
+\usepackage[round,authoryear]{natbib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Source: http://en.wikibooks.org/wiki/LaTeX/Hyperlinks %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage[english]{babel}
+% https://tex.stackexchange.com/a/26530
+\usepackage[pdftex,
+            pdfauthor={Matthew Doty},
+            pdftitle={Probability, Complexity and Arbitrage},
+            pdfsubject={Formal methods for trading algorithms},
+            pdfkeywords={Probability, Logic, Finance}]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Source: https://isabelle.in.tum.de/community/Generate_TeX_Snippets %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{generated/document/comment}
+\usepackage{generated/document/isabelle}
+\usepackage{generated/document/isabellesym}
+\usepackage{generated/document/isabelletags}
+\usepackage{ifthen}
+
+\newcommand{\DefineSnippet}[2]{%
+   \expandafter\newcommand\csname snippet--#1\endcsname{%
+     %\begin{quote}
+     \begin{isabelle}
+     #2
+     \end{isabelle}
+     %\end{quote}
+     }}
+\newcommand{\Snippet}[1]{ \ifcsname snippet--#1\endcsname {\csname snippet--#1\endcsname} \else
+  +++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
+ 
+\input{generated/snippets}
+
+% https://www.cl.cam.ac.uk/research/hvg/Isabelle/dist/Isabelle2017/doc/sugar.pdf
+\usepackage{mathpartir}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 'dedication' environment: To add a dedication paragraph at the start of book %
+% Source: http://www.tug.org/pipermail/texhax/2010-June/015184.html            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{dedication}
+{
+   \cleardoublepage
+   \thispagestyle{empty}
+   \vspace*{\stretch{1}}
+   \hfill\begin{minipage}[t]{0.66\textwidth}
+   \raggedright
+}
+{
+   \end{minipage}
+   \vspace*{\stretch{3}}
+   \clearpage
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Chapter quote at the start of chapter        %
+% Source: http://tex.stackexchange.com/a/53380 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\renewcommand{\@chapapp}{}% Not necessary...
+\newenvironment{chapquote}[2][2em]
+  {\setlength{\@tempdima}{#1}%
+   \def\chapquote@author{#2}%
+   \parshape 1 \@tempdima \dimexpr\textwidth-2\@tempdima\relax%
+   \itshape}
+  {\par\normalfont\hfill--\ \chapquote@author\hspace*{\@tempdima}\par\bigskip}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% First page of book which contains 'stuff' like: %
+%  - Book title, subtitle                         %
+%  - Book author name                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Book's title and subtitle
+\title{\Huge \textbf{Probability, Complexity and Arbitrage}}
+% Author
+\author{\textsc{Matthew Doty}}
+\date{}
+
+
+\begin{document}
+
+\frontmatter
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add a dedication paragraph to dedicate your book to someone %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{dedication}
+To Somayeh.
+\end{dedication}
+
+
+\tableofcontents
+% \listoffigures cC
+% \listoftables
+
+\mainmatter
+
+%%%%%%%%%%%
+% Preface %
+%%%%%%%%%%%
+\chapter*{Preface}
+The purpose of this book is to investigate the duality between \emph{arbitrage}
+and probability.
+
+\section*{Acknowledgments}
+I am deeply indepted to my parents, colleagues and friends for their
+  support and encouragement.
+
+\chapter{Preliminaries}
+\section{Arbitrage}
+\subsection{Foreign Exchange Arbitrage}
+\subsection{Options Trading}
+\subsection{The Massachusetts State Lottery}
+\section{Duality}
+\subsection{Projective Geometry}
+\subsection{Zero Sum Games \& Linear Programming}
+\subsection{Random Numbers \& Distributions}
+
+\chapter{Logic}
+\section{Minimal Logic}
+\subsection{Axiom System}
+\citet{JohanssonMinimal1936}
+\Snippet{Axiom 1}
+\Snippet{Axiom 2}
+\Snippet{MP}
+\subsection{The Deduction Theorem}
+\subsection{Connectives}
+\subsubsection{Conjunction}
+\subsubsection{Disjunction}
+\subsubsection{Biconditional}
+\subsubsection{Complementation}
+\subsubsection{Exclusive Or}
+\subsection{Maximally Complete Sets}
+\section{Classical Logic}
+\subsection{Axiom System}
+\subsection{Ultrafilters}
+\subsection{Completeness}
+  
+\chapter{Probability}
+\section{Kolmogorov Axioms}
+\section{Probabilistic Semantics}
+\section{Stone Duality}
+\section{Elementary Completeness}
+\subsection{Suppes-Adams Completeness Theorem}
+\subsection{Reverse Suppes-Adams Completeness Theorem}
+\section{Segmented Deduction}
+\subsection{Soundness}
+\subsection{Cancellation}
+\subsection{Transitivity}
+\section{MAX-SAT}
+\section{Completeness}
+\subsection{Optimal Witness}
+\subsection{Equivalence}
+\subsection{Conditionalization}
+\section{Dutch Book Duality}
+
+\chapter{Trading Algorithms}
+\section{Classical Logic Formulae}
+\section{Answer Set Programming}
+\subsection{Conjunctive Normal Form}
+\subsection{Tseitin Transformation}
+\subsubsection{Referential Transparency}
+\subsection{Davis–Putnam–Logemann–Loveland Algorithm}
+\subsection{MAX-SAT}
+\section{Inference Engines}
+\subsection{Linear Temporal Logic}
+\subsection{Linear Arithmetic}
+\subsection{Free Variables}
+\section{Decision Algorithms for Trading}
+\subsection{Arbitrage Testing}
+\subsection{Maximal Profit}
+\subsection{Minimal Profit}
+
+\bibliographystyle{abbrvnat}
+\bibliography{bibliography}
+
+\end{document}

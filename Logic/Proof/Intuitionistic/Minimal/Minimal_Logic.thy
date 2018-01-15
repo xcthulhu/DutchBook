@@ -1,7 +1,7 @@
 section {* Minimal Logic *}
 
 theory Minimal_Logic
-  imports Main
+  imports Main "~~/src/HOL/Library/LaTeXsugar"
 begin
 
 text {* This theory presents \emph{minimal logic}, the implicational fragment of
@@ -12,15 +12,28 @@ subsection {* Axiomatization *}
 text {* Minimal logic is given by the following Hilbert-style axiom system: *}
 
 class Minimal_Logic =
-  fixes proves :: "'a \<Rightarrow> bool"             ("\<turnstile> _" [60] 55)
+  fixes deduction :: "'a \<Rightarrow> bool"             ("\<turnstile> _" [60] 55)
   fixes implication :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"    (infixr "\<rightarrow>" 70)
   assumes Axiom_1: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
   assumes Axiom_2: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi>  \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
+ text (in Minimal_Logic) {*
+ \DefineSnippet{Axiom 1}{
+   @{thm [display] Axiom_1}
+ }%EndSnippet
+ \DefineSnippet{Axiom 2}{
+   @{thm [display] Axiom_2}
+ }%EndSnippet
+ \DefineSnippet{MP}{
+   @{thm [mode=Rule] Modus_Ponens} {\sc MP}
+ }%EndSnippet
+*}
+
 text {* A convenience class to have is @{class "Minimal_Logic"} extended with a single named
         constant, intended to be \emph{falsum}.  Other classes extending this class will provide
-        rules for how this constant interacts with other terms. *}
+        rules for how this constant interacts with other terms.
+ *}
 
 class Minimal_Logic_With_Falsum = Minimal_Logic +
   fixes falsum :: "'a"                      ("\<bottom>")

@@ -153,7 +153,7 @@ theorem Classical_Propositional_Calculus_Soundness_And_Completeness:
                                                                               and \<Gamma>="{}"]
         Strong_Classical_Propositional_Deduction_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
         Strong_Classical_Propositional_Models_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        proves_Classical_Propositional_Formula_def [where \<phi>="\<phi>"]
+        deduction_Classical_Propositional_Formula_def [where \<phi>="\<phi>"]
         set_deduction_base_theory [where \<phi>="\<phi>"]
   by metis
 
