@@ -965,14 +965,14 @@ qed
 
 subsection {* List Intersection *}
 
-primrec list_intersect :: "'a list => 'a list => 'a list"  (infixl "\<bold>\<inter>" 60)
+primrec list_intersect :: "'a list => 'a list => 'a list"  (infixl "\<^bold>\<inter>" 60)
   where
-    "_ \<bold>\<inter> [] = []"
-  | "xs \<bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<bold>\<inter> ys)) else (xs \<bold>\<inter> ys))"
+    "_ \<^bold>\<inter> [] = []"
+  | "xs \<^bold>\<inter> (y # ys) = (if (y \<in> set xs) then (y # (remove1 y xs \<^bold>\<inter> ys)) else (xs \<^bold>\<inter> ys))"
 
-lemma list_intersect_mset_homomorphism [simp]: "mset (\<Phi> \<bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
+lemma list_intersect_mset_homomorphism [simp]: "mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
 proof -
-  have "\<forall> \<Phi>. mset (\<Phi> \<bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
+  have "\<forall> \<Phi>. mset (\<Phi> \<^bold>\<inter> \<Psi>) = mset \<Phi> \<inter># mset \<Psi>"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -980,7 +980,7 @@ proof -
     case (Cons \<psi> \<Psi>)
     {
       fix \<Phi>
-      have "mset (\<Phi> \<bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
+      have "mset (\<Phi> \<^bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
         using Cons.hyps
         by (cases "\<psi> \<in> set \<Phi>", 
             simp add: inter_add_right2,
@@ -991,16 +991,16 @@ proof -
   thus ?thesis by simp
 qed
     
-lemma list_intersect_left_empty [simp]: "[] \<bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
+lemma list_intersect_left_empty [simp]: "[] \<^bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
     
 lemma list_diff_intersect_comp:
-  "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<bold>\<inter> \<Psi>)"
+  "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<^bold>\<inter> \<Psi>)"
   by (simp add: multiset_inter_def)
   
-lemma list_intersect_left_project: "mset (\<Phi> \<bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
+lemma list_intersect_left_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
   by simp
 
-lemma list_intersect_right_project: "mset (\<Phi> \<bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
+lemma list_intersect_right_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Psi>"
   by simp
 
 end
