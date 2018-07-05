@@ -2,3 +2,6 @@
 \#*\#
 *~
 generated/
+
+*.bbl
+*.blg
