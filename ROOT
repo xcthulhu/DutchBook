@@ -2,6 +2,7 @@ session "DutchBook" = "HOL" +
   options [document = false]
   theories
     "Probability/Logical/Completeness/Logical_Probability_Elementary_Completeness"
+    "Probability/Logical/Completeness/Logical_Probability_Full_Completeness"
 
 session "Extra_Theories" = "HOL" +
   options [document = false]

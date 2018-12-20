@@ -391,20 +391,16 @@ proof -
                      \<open>\<phi> = \<chi>\<close>
                 have "\<turnstile> (\<chi> \<sqinter> \<Sqinter> (removeAll \<chi> \<Phi>)) \<rightarrow> (\<chi> \<sqinter> \<Sqinter> \<Phi>)"
                   unfolding biconditional_def
-                  apply simp
-                  using tautology hypothetical_syllogism Modus_Ponens
-                  by blast
+                  by (simp, metis tautology hypothetical_syllogism Modus_Ponens)
                 moreover
                 from \<open>\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))\<close>
                      \<open>\<phi> = \<chi>\<close>
                 have "\<turnstile> (\<chi> \<sqinter> \<Sqinter> \<Phi>) \<rightarrow> (\<chi> \<sqinter> \<Sqinter> (removeAll \<chi> \<Phi>))"
                   unfolding biconditional_def
-                  apply simp
-                  using conjunction_def
-                        conjunction_right_elimination
-                        hypothetical_syllogism
-                        Modus_Ponens
-                  by blast
+                  by (simp,
+                      metis conjunction_right_elimination
+                            hypothetical_syllogism
+                            Modus_Ponens)
                 ultimately show ?thesis
                   unfolding biconditional_def
                   by simp
@@ -746,9 +742,8 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     unfolding disjunction_def biconditional_def
-    apply simp
     using Axiom_1 Modus_Ponens verum_tautology
-    by blast
+    by (simp, blast)
 next
   case (Cons \<psi> \<Psi>)
   have "\<turnstile> (\<phi> \<squnion> \<Sqinter> (\<psi> # \<Psi>)) \<leftrightarrow> ((\<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<Sqinter> \<Psi>))"
@@ -756,7 +751,7 @@ next
   moreover
   from biconditional_conjunction_weaken_rule
        Cons
-  have " \<turnstile> ((\<phi> \<squnion> \<psi>) \<sqinter> \<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> (map (op \<squnion> \<phi>) (\<psi> # \<Psi>))"
+  have " \<turnstile> ((\<phi> \<squnion> \<psi>) \<sqinter> \<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> (map (\<lambda> \<chi> . \<phi> \<squnion> \<chi>) (\<psi> # \<Psi>))"
     by simp
   ultimately show ?case
     by (metis biconditional_transitivity_rule)

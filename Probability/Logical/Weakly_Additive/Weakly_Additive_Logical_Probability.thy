@@ -1,5 +1,6 @@
 theory Weakly_Additive_Logical_Probability
   imports "../../../Logic/Proof/Classical/Classical_Propositional_Connectives"
+          "~~/src/HOL/Real"
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -213,11 +214,11 @@ lemma (in Weakly_Additive_Logical_Probability) implication_set_summation_inequal
 
 definition (in Classical_Propositional_Logic) Weakly_Additive_Probabilities :: "('a \<Rightarrow> real) set"
   where "Weakly_Additive_Probabilities =
-         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr }"
+         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities =
-         {Pr.   class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> Pr
+         {Pr.   class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
               \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
 
 lemma (in Classical_Propositional_Logic) Binary_Probabilities_subset:
@@ -230,7 +231,7 @@ lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Prob
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
       (is "?Pr \<in> Binary_Probabilities")
 proof -
-  have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (op \<rightarrow>) \<bottom> ?Pr"
+  have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
          meson assms
                Formula_Maximally_Consistent_Set_reflection
