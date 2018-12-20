@@ -68,14 +68,14 @@ primrec (in Minimal_Logic) list_implication :: "'a list \<Rightarrow> 'a \<Right
 
 subsubsection {* Definition of Deduction *}
 
-text {* Deduction from a list of assumptions can be expressed in terms of @{term "op :\<rightarrow>"}. *}
+text {* Deduction from a list of assumptions can be expressed in terms of @{term "(:\<rightarrow>)"}. *}
 
 definition (in Minimal_Logic) list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
   "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
 
 subsubsection {* Interpretation as Minimal Logic *}
 
-text {* The relation @{term "op :\<turnstile>"} may naturally be interpreted as a @{term "proves"}
+text {* The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a @{term "proves"}
         predicate for an instance of minimal logic for a fixed list of assumptions @{term "\<Gamma>"}. *}
 
 text {* Analogues of the two axioms of minimal logic can be naturally stated using
@@ -89,10 +89,10 @@ lemma (in Minimal_Logic) list_implication_Axiom_2: "\<turnstile> \<Gamma> :\<rig
 
 text {* The lemmas @{thm list_implication_Axiom_1} and  @{thm list_implication_Axiom_2} jointly
         give rise to an interpretation of minimal logic, where a list of assumptions
-        @{term "\<Gamma>"} plays the role of a \emph{background theory} of @{term "op :\<turnstile>"}. *}
+        @{term "\<Gamma>"} plays the role of a \emph{background theory} of @{term "(:\<turnstile>)"}. *}
 
 context Minimal_Logic begin
-interpretation List_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "op \<rightarrow>"
+interpretation List_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed (meson list_deduction_def
                  Axiom_1
                  Axiom_2
@@ -344,19 +344,19 @@ text {* While deduction in terms of lists of assumptions is straight-forward to 
         and compactness theorems. *}
 
 text {* The presentation of deduction from a set follows the presentation of list deduction given
-        for @{term "op :\<turnstile>"}. *}
+        for @{term "(:\<turnstile>)"}. *}
 
 subsection {* Definition of Deduction *}
 
-text {* Just as deduction from a list @{term "op :\<turnstile>"} can be defined in terms of @{term "op :\<rightarrow>"},
-        deduction from a \emph{set} of assumptions can be expressed in terms of @{term "op :\<turnstile>"}. *}
+text {* Just as deduction from a list @{term "(:\<turnstile>)"} can be defined in terms of @{term "(:\<rightarrow>)"},
+        deduction from a \emph{set} of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. *}
 
 definition (in Minimal_Logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
   "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
 
 subsubsection {* Interpretation as Minimal Logic *}
 
-text {* As in the case of @{term "op :\<turnstile>"}, the relation @{term "op \<tturnstile>"} may be interpreted as
+text {* As in the case of @{term "(:\<turnstile>)"}, the relation @{term "(\<tturnstile>)"} may be interpreted as
         a @{term "proves"} predicate for a fixed set of assumptions @{term "\<Gamma>"}. *}
 
 text {* The following lemma is given in order to establish this, which asserts that
@@ -370,7 +370,7 @@ text {* In the case of the empty set, the converse may be established. *}
 lemma (in Minimal_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
-text {* Next, a form of \emph{modus ponens} is provided for @{term "op \<tturnstile>"}. *}
+text {* Next, a form of \emph{modus ponens} is provided for @{term "(\<tturnstile>)"}. *}
 
 lemma (in Minimal_Logic) set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
 proof -
@@ -388,7 +388,7 @@ proof -
 qed
 
 context Minimal_Logic begin
-interpretation Set_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "op \<rightarrow>"
+interpretation Set_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
 proof
    fix \<phi> \<psi>
    show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis Axiom_1 set_deduction_weaken)
@@ -403,7 +403,7 @@ end
 
 subsection {* The Deduction Theorem *}
 
-text {* The next result gives the deduction theorem for @{term "op \<tturnstile>"}. *}
+text {* The next result gives the deduction theorem for @{term "(\<tturnstile>)"}. *}
 
 theorem (in Minimal_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
 proof -
@@ -425,8 +425,8 @@ qed
 
 subsection {* Monotonic Growth in Deductive Power *}
 
-text {* In contrast to the @{term "op :\<turnstile>"} relation, the proof that the deductive power
-        of @{term "op \<tturnstile>"} grows monotonically with its assumptions may be fully automated. *}
+text {* In contrast to the @{term "(:\<turnstile>)"} relation, the proof that the deductive power
+        of @{term "(\<tturnstile>)"} grows monotonically with its assumptions may be fully automated. *}
 
 theorem set_deduction_monotonic: "\<Sigma> \<subseteq> \<Gamma> \<Longrightarrow> \<Sigma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (meson dual_order.trans set_deduction_def)
@@ -444,7 +444,7 @@ theorem (in Minimal_Logic) alternate_set_deduction_theorem:
 
 subsection {* Reflection *}
 
-text {* Just as in the case of @{term "op :\<turnstile>"}, deduction from sets of assumptions
+text {* Just as in the case of @{term "(:\<turnstile>)"}, deduction from sets of assumptions
         makes true the \emph{reflection principle} and is automatically provable. *}
 
 theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
@@ -456,7 +456,7 @@ theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Lo
 
 subsection {* The Cut Rule *}
 
-text {* The final principle of @{term "op \<tturnstile>"} presented is the \emph{cut rule}. *}
+text {* The final principle of @{term "(\<tturnstile>)"} presented is the \emph{cut rule}. *}
 
 text {* First, the weak form of the rule is established. *}
 
