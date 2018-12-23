@@ -1,5 +1,5 @@
 theory Weakly_Additive_Logical_Probability
-  imports "../../../Logic/Proof/Classical/Classical_Propositional_Connectives"
+  imports "../../../Logic/Classical/Classical_Propositional_Connectives"
           "~~/src/HOL/Real"
 begin
 

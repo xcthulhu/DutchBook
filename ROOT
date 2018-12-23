@@ -7,14 +7,14 @@ session "DutchBook" = "HOL" +
 session "Extra_Theories" = "HOL" +
   options [document = false]
   theories
-    "Logic/Functional/Combinators"
-    "Logic/Proof/Intuitionistic/Intuitionistic_Logic"
+    "Logic/Intuitionistic/Minimal/Combinators"
+    "Logic/Intuitionistic/Intuitionistic_Logic"
 
 session "Snippets" = "HOL" +
    options [document = "pdf",
             document_output = "generated",
             show_question_marks = false]
    theories
-    "Logic/Proof/Intuitionistic/Minimal/Minimal_Logic"
+    "Logic/Intuitionistic/Minimal/Minimal_Logic"
    document_files
      build

@@ -1,8 +1,9 @@
 THEORIES := $(shell find .. -name \*.thy -print)
 book.pdf: book.tex generated/snippets.tex $(THEORIES) bibliography.bib
+	rm -f $@
 	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode" -use-make $<
 
-book.bbl: book.tex book.aux
+book.bbl: book.tex book.aux 
 	bibtex book
 
 generated/snippets.tex: generated $(THEORIES)

@@ -18,17 +18,18 @@ class Minimal_Logic =
   assumes Axiom_2: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi>  \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
- text (in Minimal_Logic) {*
- \DefineSnippet{Axiom 1}{
+text (in Minimal_Logic) {*
+ \DefineSnippet{Axiom K}{
    @{thm [display] Axiom_1}
  }%EndSnippet
- \DefineSnippet{Axiom 2}{
+ \DefineSnippet{Axiom S}{
    @{thm [display] Axiom_2}
  }%EndSnippet
- \DefineSnippet{MP}{
+ \DefineSnippet{Modus Ponens}{
    @{thm [mode=Rule] Modus_Ponens} {\sc MP}
  }%EndSnippet
 *}
+
 
 text {* A convenience class to have is @{class "Minimal_Logic"} extended with a single named
         constant, intended to be \emph{falsum}.  Other classes extending this class will provide
