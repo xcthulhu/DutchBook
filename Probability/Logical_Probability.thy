@@ -1,17 +1,17 @@
-theory Weakly_Additive_Logical_Probability
-  imports "../../../Logic/Classical/Classical_Propositional_Connectives"
+theory Logical_Probability
+  imports "../Logic/Classical/Classical_Propositional_Connectives"
           "~~/src/HOL/Real"
 begin
 
 sledgehammer_params [smt_proofs = false]
 
-class Weakly_Additive_Logical_Probability = Classical_Propositional_Logic +
+class Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes Additivity: "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
 
-lemma (in Weakly_Additive_Logical_Probability) Alternate_Additivity:
+lemma (in Logical_Probability) Alternate_Additivity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   by (metis Additivity
             Double_Negation_converse
@@ -19,7 +19,7 @@ lemma (in Weakly_Additive_Logical_Probability) Alternate_Additivity:
             conjunction_def
             negation_def)
 
-lemma (in Weakly_Additive_Logical_Probability) falsum_zero_probability:
+lemma (in Logical_Probability) falsum_zero_probability:
   "Pr \<bottom> = 0"
   by (metis add_cancel_left_right
             Additivity
@@ -29,10 +29,10 @@ lemma (in Weakly_Additive_Logical_Probability) falsum_zero_probability:
             conjunction_right_elimination
             negation_def)
 
-lemma (in Weakly_Additive_Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
+lemma (in Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
   using Unity falsum_zero_probability by auto
 
-lemma (in Weakly_Additive_Logical_Probability) falsum_implication_zero_probability:
+lemma (in Logical_Probability) falsum_implication_zero_probability:
   "\<turnstile> \<phi> \<rightarrow> \<bottom> \<Longrightarrow> Pr \<phi> = 0"
 proof -
   assume "\<turnstile> \<phi> \<rightarrow> \<bottom>"
@@ -44,7 +44,7 @@ proof -
     using Unity bivalence negation_def by auto
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) complementation:
+lemma (in Logical_Probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis Alternate_Additivity
             Unity
@@ -53,11 +53,11 @@ lemma (in Weakly_Additive_Logical_Probability) complementation:
             add.commute
             add_diff_cancel_left')
 
-lemma (in Weakly_Additive_Logical_Probability) unity_upper_bound:
+lemma (in Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
 
-lemma (in Weakly_Additive_Logical_Probability) monotonicity:
+lemma (in Logical_Probability) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
 proof -
   assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -76,7 +76,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) biconditional_equivalence:
+lemma (in Logical_Probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
   by (meson eq_iff
             Modus_Ponens
@@ -84,7 +84,7 @@ lemma (in Weakly_Additive_Logical_Probability) biconditional_equivalence:
             biconditional_right_elimination
             monotonicity)
 
-lemma (in Weakly_Additive_Logical_Probability) sum_rule:
+lemma (in Logical_Probability) sum_rule:
   "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
 proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
@@ -134,7 +134,7 @@ proof -
     by simp
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) subtraction_identity:
+lemma (in Logical_Probability) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
 proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
@@ -170,7 +170,7 @@ proof -
     by auto
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) disjunction_sum_inequality:
+lemma (in Logical_Probability) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
 proof -
   have "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
@@ -179,7 +179,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_list_summation_inequality:
+lemma (in Logical_Probability) arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
@@ -193,45 +193,45 @@ next
   then show ?case by simp
 qed
 
-lemma (in Weakly_Additive_Logical_Probability) implication_list_summation_inequality:
+lemma (in Logical_Probability) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_list_summation_inequality monotonicity order_trans
   by blast
 
-lemma (in Weakly_Additive_Logical_Probability) arbitrary_disjunction_set_summation_inequality:
+lemma (in Logical_Probability) arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (metis arbitrary_disjunction_list_summation_inequality
             arbitrary_disjunction_remdups
             biconditional_equivalence
             sum.set_conv_list)
 
-lemma (in Weakly_Additive_Logical_Probability) implication_set_summation_inequality:
+lemma (in Logical_Probability) implication_set_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans
   by blast
 
-definition (in Classical_Propositional_Logic) Weakly_Additive_Probabilities :: "('a \<Rightarrow> real) set"
-  where "Weakly_Additive_Probabilities =
-         {Pr. class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
+definition (in Classical_Propositional_Logic) Finitely_Additive_Probabilities :: "('a \<Rightarrow> real) set"
+  where "Finitely_Additive_Probabilities =
+         {Pr. class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
   where "Binary_Probabilities =
-         {Pr.   class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
+         {Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
               \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
 
 lemma (in Classical_Propositional_Logic) Binary_Probabilities_subset:
-  "Binary_Probabilities \<subseteq> Weakly_Additive_Probabilities"
-  unfolding Weakly_Additive_Probabilities_def Binary_Probabilities_def
+  "Binary_Probabilities \<subseteq> Finitely_Additive_Probabilities"
+  unfolding Finitely_Additive_Probabilities_def Binary_Probabilities_def
   by fastforce
 
-lemma (in Classical_Propositional_Logic) MCS_Binary_Weakly_Additive_Logical_Probability:
+lemma (in Classical_Propositional_Logic) MCS_Binary_Logical_Probability:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
       (is "?Pr \<in> Binary_Probabilities")
 proof -
-  have "class.Weakly_Additive_Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
+  have "class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
          meson assms
                Formula_Maximally_Consistent_Set_reflection
