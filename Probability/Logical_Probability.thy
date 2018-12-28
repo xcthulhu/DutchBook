@@ -212,8 +212,8 @@ lemma (in Logical_Probability) implication_set_summation_inequality:
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans
   by blast
 
-definition (in Classical_Propositional_Logic) Finitely_Additive_Probabilities :: "('a \<Rightarrow> real) set"
-  where "Finitely_Additive_Probabilities =
+definition (in Classical_Propositional_Logic) Logical_Probabilities :: "('a \<Rightarrow> real) set"
+  where "Logical_Probabilities =
          {Pr. class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
@@ -222,8 +222,8 @@ definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rig
               \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
 
 lemma (in Classical_Propositional_Logic) Binary_Probabilities_subset:
-  "Binary_Probabilities \<subseteq> Finitely_Additive_Probabilities"
-  unfolding Finitely_Additive_Probabilities_def Binary_Probabilities_def
+  "Binary_Probabilities \<subseteq> Logical_Probabilities"
+  unfolding Logical_Probabilities_def Binary_Probabilities_def
   by fastforce
 
 lemma (in Classical_Propositional_Logic) MCS_Binary_Logical_Probability:
