@@ -5,13 +5,13 @@ begin
 sledgehammer_params [smt_proofs = false]
 
 theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> Pr \<in> Dirac_Measures. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     assume "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
     hence "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
@@ -37,14 +37,14 @@ proof -
     hence "\<not> ?Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. ?Pr \<psi>)"
       by (simp add: \<Omega>(2))
     hence
-      "\<exists> Pr \<in> Binary_Probabilities. \<not> (Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
-      using \<Omega>(1) MCS_Binary_Logical_Probability by auto
+      "\<exists> Pr \<in> Dirac_Measures. \<not> (Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))"
+      using \<Omega>(1) MCS_Dirac_Measure by auto
   }
   ultimately show ?thesis by blast
 qed
 
 theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> Pr \<in> Dirac_Measures. Pr \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis List_Summation_Completeness
             Modus_Ponens
             arbitrary_disjunction_remdups
@@ -136,13 +136,13 @@ lemma count_remove_all_sum_list:
             add.left_commute)
 
 theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
     fix Pr
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by simp
     assume "\<turnstile> \<Coprod> \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
@@ -153,7 +153,7 @@ proof -
     assume "\<not> \<turnstile> \<Coprod> \<Phi>"
     hence "(\<exists> \<phi> \<in> set \<Phi>. \<exists> \<psi> \<in> set \<Phi>. \<phi> \<noteq> \<psi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)) \<or> (\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>)"
       using exclusive_equivalence set_deduction_base_theory by blast
-    hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
+    hence "\<not> (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
     proof (elim disjE)
       assume "\<exists> \<phi> \<in> set \<Phi>. \<exists> \<chi> \<in> set \<Phi>. \<phi> \<noteq> \<chi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
       from this obtain \<phi> and \<chi>
@@ -182,7 +182,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 2" using sum_list_monotone by metis
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Binary_Logical_Probability
+        using \<Omega>(1) MCS_Dirac_Measure
         by auto
     next
       assume "\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>"
@@ -216,7 +216,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Binary_Logical_Probability
+        using \<Omega>(1) MCS_Dirac_Measure
         by auto
     qed
   }
@@ -251,15 +251,15 @@ proof -
         by (simp, metis Cons.hyps Cons.prems(1) \<phi>(2) set_ConsD)
     qed
     hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr \<phi>) \<le> ?Pr (\<psi>)" using \<psi> by auto
-    hence "\<not> (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
-      using \<Omega>(1) MCS_Binary_Logical_Probability
+    hence "\<not> (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>)"
+      using \<Omega>(1) MCS_Dirac_Measure
       by auto
   }
   ultimately show ?thesis by blast
 qed
 
 theorem (in Classical_Propositional_Logic) Inequality_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+  "(\<forall> Pr \<in> Dirac_Measures. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
@@ -275,20 +275,20 @@ proof -
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  "(\<forall> Pr \<in> Dirac_Measures. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
 proof -
   have "\<turnstile> \<Coprod> \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> \<Coprod> \<Phi>"
     by (simp add: trivial_implication)
-  hence "\<turnstile> \<Coprod> \<Phi> \<equiv> \<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
+  hence "\<turnstile> \<Coprod> \<Phi> \<equiv> \<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr (\<Squnion> \<Phi>)"
     by (simp add: Exclusive_Implication_Completeness)
-  moreover have "\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
+  moreover have "\<forall> Pr \<in> Dirac_Measures. Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
     using Inequality_Completeness List_Summation_Completeness by blast
   ultimately show ?thesis
     by fastforce
 qed
 
 theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  "(\<forall> Pr \<in> Dirac_Measures. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             Exclusive_Implication_Completeness

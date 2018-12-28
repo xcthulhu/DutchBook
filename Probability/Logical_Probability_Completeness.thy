@@ -7224,13 +7224,13 @@ next
 qed
 
 theorem (in Classical_Propositional_Logic) binary_limited_stratified_deduction_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
+  "(\<forall> Pr \<in> Dirac_Measures. real n * Pr \<phi> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
     moreover have "replicate n (\<sim> \<phi>) = \<^bold>\<sim> (replicate n \<phi>)"
@@ -7248,7 +7248,7 @@ proof -
   moreover
   {
     assume "\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
-    have "\<exists> Pr \<in> Binary_Probabilities. real n * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    have "\<exists> Pr \<in> Dirac_Measures. real n * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     proof -
       have "\<exists>\<Phi>. \<Phi> \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
         using \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close>
@@ -7277,11 +7277,11 @@ proof -
                   set_deduction_reflection
                   set_deduction_theorem)
       let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
-      from \<Omega> have "?Pr \<in> Binary_Probabilities"
-        using MCS_Binary_Logical_Probability by blast
+      from \<Omega> have "?Pr \<in> Dirac_Measures"
+        using MCS_Dirac_Measure by blast
       moreover
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       have "\<forall> \<phi> \<in> set \<Phi>. ?Pr \<phi> = 0"
         using \<Phi>(1) \<Omega>(1) \<Omega>(3) arbitrary_disjunction_exclusion_MCS by auto
@@ -7359,13 +7359,13 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) binary_segmented_deduction_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+  "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7375,7 +7375,7 @@ proof -
   moreover
   {
     assume "\<not> \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
-    have "\<exists> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    have "\<exists> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     proof -
       from \<open>\<not> \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>\<close> have "\<not> \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length (\<^bold>\<sim> \<Phi>)) \<bottom>"
         using segmented_stratified_falsum_equiv by blast
@@ -7387,12 +7387,12 @@ proof -
       ultimately have "\<not> \<^bold>\<sim> (\<^bold>\<sim> \<Phi> @ \<Gamma>) #\<turnstile> (length \<Phi>) (\<sim> \<top>)"
         using stratified_deduction_implication by fastforce
       from this obtain Pr where Pr:
-        "Pr \<in> Binary_Probabilities"
+        "Pr \<in> Dirac_Measures"
         "real (length \<Phi>) * Pr \<top> > (\<Sum>\<gamma>\<leftarrow> (\<^bold>\<sim> \<Phi> @ \<Gamma>). Pr \<gamma>)"
         using binary_limited_stratified_deduction_completeness
         by fastforce
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       from Pr(2) have "real (length \<Phi>) > (\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) + (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
         by (simp add: Unity)
@@ -7421,13 +7421,13 @@ proof -
       by blast
   }
   thus ?thesis
-    using Binary_Probabilities_subset binary_segmented_deduction_completeness
+    using Dirac_Measures_subset binary_segmented_deduction_completeness
     by fastforce
 qed
 
 theorem (in Classical_Propositional_Logic) weakly_additive_completeness_collapse:
   "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-   = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+   = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   by (simp add: binary_segmented_deduction_completeness
                 segmented_deduction_completeness)
 
@@ -7452,9 +7452,9 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) stratified_deduction_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = (\<^bold>\<sim> \<Gamma> @ \<Phi>) #\<turnstile> (length \<Phi>) \<bottom>"
+  "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = (\<^bold>\<sim> \<Gamma> @ \<Phi>) #\<turnstile> (length \<Phi>) \<bottom>"
 proof -
-  have "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  have "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
             = \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length (\<^bold>\<sim> \<Phi>)) \<bottom>"
     using binary_segmented_deduction_completeness segmented_stratified_falsum_equiv by blast
   also have "... = \<^bold>\<sim> (\<^bold>\<sim> \<Phi>) @ \<^bold>\<sim> \<Gamma> #\<turnstile> (length \<Phi>) \<bottom>" by (induct \<Phi>, auto)
@@ -7471,7 +7471,7 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) complement_core_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = (length \<Phi> \<le> \<parallel> \<^bold>\<sim> \<Gamma> @ \<Phi> \<parallel>\<^sub>\<bottom>)"
+  "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = (length \<Phi> \<le> \<parallel> \<^bold>\<sim> \<Gamma> @ \<Phi> \<parallel>\<^sub>\<bottom>)"
 proof (cases "\<turnstile> \<bottom>")
   case True
   hence "\<C> (\<^bold>\<sim> \<Gamma> @ \<Phi>) \<bottom> = {}"
@@ -7489,15 +7489,15 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) binary_core_partial_completeness:
-  "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>)"
+  "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>)"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     obtain \<rho> :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a \<Rightarrow> real" where
-        " (\<forall>\<Phi> \<Gamma>. \<rho> \<Phi> \<Gamma> \<in> Binary_Probabilities \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. (\<rho> \<Phi> \<Gamma>) \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. (\<rho> \<Phi> \<Gamma>) \<gamma>)
+        " (\<forall>\<Phi> \<Gamma>. \<rho> \<Phi> \<Gamma> \<in> Dirac_Measures \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. (\<rho> \<Phi> \<Gamma>) \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. (\<rho> \<Phi> \<Gamma>) \<gamma>)
                  \<or> length \<Phi> \<le> \<parallel> \<^bold>\<sim> \<Gamma> @ \<Phi> \<parallel>\<^sub>\<bottom>)
         \<and> (\<forall>\<Phi> \<Gamma>. length \<Phi> \<le> (\<parallel> \<^bold>\<sim> \<Gamma> @ \<Phi> \<parallel>\<^sub>\<bottom>)
-                   \<longrightarrow> (\<forall>Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)))"
+                   \<longrightarrow> (\<forall>Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)))"
     using complement_core_completeness by moura
   moreover have "\<forall>\<Gamma> \<phi> n. length \<Gamma> - n \<le> (\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) \<or> (\<bar> \<Gamma> \<bar>\<^sub>\<phi>) - n \<noteq> 0"
     by (metis add_diff_cancel_right'
@@ -7506,10 +7506,10 @@ proof -
   moreover have "\<forall> \<Gamma> \<Phi> n. length (\<Gamma> @ \<Phi>) - n \<le> length \<Gamma> \<or> length \<Phi> - n \<noteq> 0"
     by force
   ultimately have
-    "      (Pr \<in> Binary_Probabilities \<longrightarrow> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+    "      (Pr \<in> Dirac_Measures \<longrightarrow> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
          \<and> (\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (\<^bold>\<sim> \<Gamma>)
     \<or>      \<not> (\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (\<^bold>\<sim> \<Gamma>)
-         \<and> (\<exists>Pr. Pr \<in> Binary_Probabilities \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+         \<and> (\<exists>Pr. Pr \<in> Dirac_Measures \<and> \<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
     by (metis (no_types) add_diff_cancel_left'
                          add_diff_cancel_right'
                          diff_is_0_eq length_append
@@ -7519,7 +7519,7 @@ proof -
 qed
 
 lemma (in Classical_Propositional_Logic) nat_binary_probability:
-  "\<forall> Pr \<in> Binary_Probabilities. \<exists>n :: nat. real n = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
+  "\<forall> Pr \<in> Dirac_Measures. \<exists>n :: nat. real n = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
   then show ?case by simp
@@ -7527,7 +7527,7 @@ next
   case (Cons \<phi> \<Phi>)
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from Cons this obtain n where "real n = (\<Sum>\<phi>'\<leftarrow>\<Phi>. Pr \<phi>')" by fastforce
     hence \<star>: "(\<Sum>\<phi>'\<leftarrow>\<Phi>. Pr \<phi>') = real n" by simp
     have "\<exists> n. real n = (\<Sum>\<phi>'\<leftarrow>(\<phi> # \<Phi>). Pr \<phi>')"
@@ -7537,7 +7537,7 @@ next
         by (simp add: \<star>, metis of_nat_Suc)
     next
       case False
-      hence "Pr \<phi> = 0" using \<open>Pr \<in> Binary_Probabilities\<close> Binary_Probabilities_def by auto
+      hence "Pr \<phi> = 0" using \<open>Pr \<in> Dirac_Measures\<close> Dirac_Measures_def by auto
       then show ?thesis using \<star>
         by simp
     qed
@@ -7546,12 +7546,12 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) binary_ceiling_inequality:
-  "\<forall> Pr \<in> Binary_Probabilities.
+  "\<forall> Pr \<in> Dirac_Measures.
       ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof -
   {
     fix Pr
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
     proof (rule iffI)
       assume assm: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7566,7 +7566,7 @@ proof -
                      "y = \<lceil>c\<rceil>"
                      "z = (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
           using nat_binary_probability
-          by (metis \<open>Pr \<in> Binary_Probabilities\<close> of_int_of_nat_eq)
+          by (metis \<open>Pr \<in> Dirac_Measures\<close> of_int_of_nat_eq)
         ultimately have "x + y - 1 \<ge> z" by linarith
         hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)" using xyz by linarith
         thus "False" using assm by simp
@@ -7588,15 +7588,15 @@ lemma (in Logical_Probability) probability_replicate_verum:
 
 lemma (in Classical_Propositional_Logic) weakly_additive_collapse:
   "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-   = (\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+   = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof (rule iffI)
   assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-  hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-    using Binary_Probabilities_subset by fastforce
-  thus "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    using Dirac_Measures_subset by fastforce
+  thus "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using binary_ceiling_inequality by blast
 next
-  assume assm: "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  assume assm: "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   show "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   proof (cases "c \<ge> 0")
     case True
@@ -7610,18 +7610,18 @@ next
                 of_nat_nat)
     {
       fix Pr
-      assume "Pr \<in> Binary_Probabilities"
+      assume "Pr \<in> Dirac_Measures"
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-        using assm \<open>Pr \<in> Binary_Probabilities\<close> by blast
+        using assm \<open>Pr \<in> Dirac_Measures\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         using \<open>real n = \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
         by metis
     }
-    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       by blast
     hence \<dagger>: "\<forall> Pr \<in> Logical_Probabilities.
               (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7646,18 +7646,18 @@ next
     from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
     {
       fix Pr
-      assume "Pr \<in> Binary_Probabilities"
+      assume "Pr \<in> Dirac_Measures"
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-        using assm \<open>Pr \<in> Binary_Probabilities\<close> by blast
+        using assm \<open>Pr \<in> Dirac_Measures\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
         using \<open>real n = - \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
         by linarith
     }
-    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+    hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       by blast
     hence \<ddagger>: "\<forall> Pr \<in> Logical_Probabilities.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
@@ -7834,7 +7834,7 @@ qed
 
 lemma (in Classical_Propositional_Logic) binary_inequality_elim:
   assumes "\<not> \<turnstile> \<bottom>"
-      and "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      and "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     shows "((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
 proof (cases "c \<ge> 0")
   case True
@@ -7842,12 +7842,12 @@ proof (cases "c \<ge> 0")
     by simp
   {
     fix Pr
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-      by (metis assms(2) \<open>Pr \<in> Binary_Probabilities\<close> \<open>real n = \<lceil>c\<rceil>\<close> binary_ceiling_inequality)
+      by (metis assms(2) \<open>Pr \<in> Dirac_Measures\<close> \<open>real n = \<lceil>c\<rceil>\<close> binary_ceiling_inequality)
     hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
       by metis
@@ -7869,12 +7869,12 @@ next
   from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
   {
     fix Pr
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-      using assms(2) \<open>Pr \<in> Binary_Probabilities\<close> binary_ceiling_inequality
+      using assms(2) \<open>Pr \<in> Dirac_Measures\<close> binary_ceiling_inequality
       by blast
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) + n"
       using \<open>real n = - \<lceil>c\<rceil>\<close> by linarith
@@ -7892,14 +7892,14 @@ qed
 
 lemma (in Classical_Propositional_Logic) binary_inequality_intro:
   assumes "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>"
-  shows "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  shows "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof (cases "\<turnstile> \<bottom>")
   assume "\<turnstile> \<bottom>"
   {
     fix Pr
-    assume "Pr \<in> Binary_Probabilities"
+    assume "Pr \<in> Dirac_Measures"
     from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Binary_Probabilities_def
+      unfolding Dirac_Measures_def
       by auto
     have "False"
       using \<open>\<turnstile> \<bottom>\<close> consistency by blast
@@ -7921,17 +7921,17 @@ next
     ultimately have "(\<bar> \<^bold>\<sim> \<Gamma> @ replicate n \<top> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length \<Gamma>"
       unfolding core_size_def unproving_core_def
       by metis
-    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using binary_core_partial_completeness by blast
     {
       fix Pr
-      assume "Pr \<in> Binary_Probabilities"
+      assume "Pr \<in> Dirac_Measures"
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-        using \<open>Pr \<in> Binary_Probabilities\<close>
-              \<open>\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)\<close>
+        using \<open>Pr \<in> Dirac_Measures\<close>
+              \<open>\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)\<close>
         by blast
       hence "(\<Sum>\<phi>\<leftarrow> \<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         by (simp add: probability_replicate_verum)
@@ -7947,17 +7947,17 @@ next
       using assms by linarith
     hence "(\<bar> \<^bold>\<sim> (replicate n \<top> @ \<Gamma>) @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (replicate n \<top> @ \<Gamma>)"
       by (simp add: unproving_core_neg_verum_elim)
-    hence "\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+    hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       using binary_core_partial_completeness by blast
     {
       fix Pr
-      assume "Pr \<in> Binary_Probabilities"
+      assume "Pr \<in> Dirac_Measures"
       from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Binary_Probabilities_def
+        unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
-        using \<open>Pr \<in> Binary_Probabilities\<close>
-              \<open>\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
+        using \<open>Pr \<in> Dirac_Measures\<close>
+              \<open>\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
         by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
         using \<open>real n = - \<lceil>c\<rceil>\<close> probability_replicate_verum by auto
@@ -7970,7 +7970,7 @@ qed
 
 lemma (in Classical_Propositional_Logic) binary_inequality_equiv:
   assumes "\<not> \<turnstile> \<bottom>"
-  shows "(\<forall> Pr \<in> Binary_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) =
+  shows "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) =
          ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
   using assms binary_inequality_elim binary_inequality_intro by auto
 

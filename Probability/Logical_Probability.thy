@@ -216,20 +216,20 @@ definition (in Classical_Propositional_Logic) Logical_Probabilities :: "('a \<Ri
   where "Logical_Probabilities =
          {Pr. class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
-definition (in Classical_Propositional_Logic) Binary_Probabilities :: "('a \<Rightarrow> real) set"
-  where "Binary_Probabilities =
+definition (in Classical_Propositional_Logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
+  where "Dirac_Measures =
          {Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
               \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
 
-lemma (in Classical_Propositional_Logic) Binary_Probabilities_subset:
-  "Binary_Probabilities \<subseteq> Logical_Probabilities"
-  unfolding Logical_Probabilities_def Binary_Probabilities_def
+lemma (in Classical_Propositional_Logic) Dirac_Measures_subset:
+  "Dirac_Measures \<subseteq> Logical_Probabilities"
+  unfolding Logical_Probabilities_def Dirac_Measures_def
   by fastforce
 
-lemma (in Classical_Propositional_Logic) MCS_Binary_Logical_Probability:
+lemma (in Classical_Propositional_Logic) MCS_Dirac_Measure:
   assumes "MCS \<Omega>"
-    shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Binary_Probabilities"
-      (is "?Pr \<in> Binary_Probabilities")
+    shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Dirac_Measures"
+      (is "?Pr \<in> Dirac_Measures")
 proof -
   have "class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
@@ -299,7 +299,7 @@ proof -
      qed
   qed
   thus ?thesis
-    unfolding Binary_Probabilities_def
+    unfolding Dirac_Measures_def
     by simp
 qed
 
