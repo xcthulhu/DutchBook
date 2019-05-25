@@ -1,5 +1,5 @@
 theory Logical_Probability_Completeness
-  imports "Logical_Probability"
+  imports Logical_Probability
 begin
 
 sledgehammer_params [smt_proofs = false]

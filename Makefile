@@ -8,10 +8,10 @@ book/book.pdf: generated/snippets.tex
 test: test-Dutchbook test-Extra
 
 test-Dutchbook:
-	isabelle build -o document=false -d . DutchBook
+	isabelle build -c -o document=false -d . DutchBook
 
 test-Extra:
-	isabelle build -o document=false -d . Extra_Theories
+	isabelle build -c -o document=false -d . Extra_Theories
 
 THEORIES := $(shell find . -name \*.thy -print)
 generated/snippets.tex: $(THEORIES)

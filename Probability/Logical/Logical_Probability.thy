@@ -1,48 +1,37 @@
 theory Logical_Probability
-  imports "../Logic/Classical/Classical_Propositional_Connectives"
+  imports "../../Logic/Classical/Classical_Propositional_Connectives"
           "~~/src/HOL/Real"
 begin
 
 sledgehammer_params [smt_proofs = false]
 
+text {* TODO: Cite Hajek PROBABILITY, LOGIC, AND PROBABILITY LOGIC *}
+
 class Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
-  assumes Additivity: "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
+  assumes Implicational_Additivity: 
+    "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
+
+lemma (in Logical_Probability) Additivity:
+  assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
+  shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
+  using assms
+  unfolding disjunction_def
+            conjunction_def
+            negation_def
+  by (simp add: Implicational_Additivity)
 
 lemma (in Logical_Probability) Alternate_Additivity:
-  "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
+  assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
+  shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
+  using assms
   by (metis Additivity
             Double_Negation_converse
             Modus_Ponens
             conjunction_def
             negation_def)
-
-lemma (in Logical_Probability) falsum_zero_probability:
-  "Pr \<bottom> = 0"
-  by (metis add_cancel_left_right
-            Additivity
-            Ex_Falso_Quodlibet
-            Unity
-            bivalence
-            conjunction_right_elimination
-            negation_def)
-
-lemma (in Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
-  using Unity falsum_zero_probability by auto
-
-lemma (in Logical_Probability) falsum_implication_zero_probability:
-  "\<turnstile> \<phi> \<rightarrow> \<bottom> \<Longrightarrow> Pr \<phi> = 0"
-proof -
-  assume "\<turnstile> \<phi> \<rightarrow> \<bottom>"
-  moreover have "\<forall>\<phi> \<psi>. \<not> \<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<or> Pr \<psi> + - 1 * Pr (\<phi> \<squnion> \<psi>) + Pr \<phi> = 0"
-    by (simp add: Alternate_Additivity)
-  then have "Pr \<phi> + - 1 * Pr (\<sim> \<phi> \<squnion> \<phi>) + Pr (\<sim> \<phi>) = 0"
-    by (meson Alternate_Additivity negation_elimination)
-  ultimately show ?thesis
-    using Unity bivalence negation_def by auto
-qed
 
 lemma (in Logical_Probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
@@ -56,6 +45,50 @@ lemma (in Logical_Probability) complementation:
 lemma (in Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
+
+text {* Alternate axiomatization of logical probability following Brian Weatherson in 
+        https://doi.org/10.1305/ndjfl/1082637807 *}
+
+class Weatherson_Probability = Classical_Propositional_Logic +
+  fixes Pr :: "'a \<Rightarrow> real"
+  assumes Thesis: "Pr \<top> = 1"
+  assumes Antithesis: "Pr \<bottom> = 0"
+  assumes Monotonicity: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
+  assumes Sum_Rule: "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
+
+sublocale Weatherson_Probability \<subseteq> Logical_Probability
+proof
+  fix \<phi>
+  have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
+    by (simp add: Ex_Falso_Quodlibet)
+  thus "0 \<le> Pr \<phi>"
+    using Antithesis Monotonicity by fastforce 
+next
+  fix \<phi>
+  assume "\<turnstile> \<phi>"
+  thus "Pr \<phi> = 1"
+    by (metis Thesis 
+              Monotonicity
+              eq_iff 
+              Axiom_1 
+              Ex_Falso_Quodlibet 
+              Modus_Ponens 
+              verum_def) 
+next
+  fix \<phi> \<psi>
+  assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
+  thus "Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
+    by (metis add.left_neutral 
+              eq_iff 
+              Antithesis 
+              Ex_Falso_Quodlibet 
+              Monotonicity 
+              Sum_Rule 
+              conjunction_negation_identity 
+              disjunction_def 
+              negation_def 
+              weak_biconditional_weaken)
+qed
 
 lemma (in Logical_Probability) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
@@ -134,6 +167,34 @@ proof -
     by simp
 qed
 
+sublocale Logical_Probability \<subseteq> Weatherson_Probability
+proof
+  show "Pr \<top> = 1"
+    by (simp add: Unity)
+next
+  show "Pr \<bottom> = 0"
+    by (metis add_cancel_left_right
+            Additivity
+            Ex_Falso_Quodlibet
+            Unity
+            bivalence
+            conjunction_right_elimination
+            negation_def)
+next
+  fix \<phi> \<psi>
+  assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
+  thus "Pr \<phi> \<le> Pr \<psi>" 
+    using monotonicity 
+    by auto
+next
+  fix \<phi> \<psi>
+  show "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
+    by (metis sum_rule add.commute) 
+qed
+
+lemma (in Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
+  using Unity Antithesis by auto 
+
 lemma (in Logical_Probability) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
 proof -
@@ -183,7 +244,7 @@ lemma (in Logical_Probability) arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
-  then show ?case by (simp add: falsum_zero_probability)
+  then show ?case by (simp add: Antithesis)
 next
   case (Cons \<phi> \<Phi>)
   have "Pr (\<Squnion> (\<phi> # \<Phi>)) \<le> Pr \<phi> + Pr (\<Squnion> \<Phi>)"
@@ -218,8 +279,8 @@ definition (in Classical_Propositional_Logic) Logical_Probabilities :: "('a \<Ri
 
 definition (in Classical_Propositional_Logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
   where "Dirac_Measures =
-         {Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
-              \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1)}"
+         { Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
+               \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
 lemma (in Classical_Propositional_Logic) Dirac_Measures_subset:
   "Dirac_Measures \<subseteq> Logical_Probabilities"
@@ -238,7 +299,9 @@ proof -
                Maximally_Consistent_Set_def
                set_deduction_weaken)
      fix \<phi> \<psi>
-     assume "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
+     assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
+     hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
+       by (simp add: conjunction_def negation_def)
      hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
        by (metis assms
                  Formula_Consistent_def
@@ -264,20 +327,19 @@ proof -
                  Maximally_Consistent_Set_def
                  conjunction_def
                  disjunction_def)
-     show "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then (1::real) else 0)
-         = (if \<phi> \<in> \<Omega> then (1::real) else 0) + (if \<psi> \<in> \<Omega> then (1::real) else 0)"
+     have "?Pr (\<phi> \<squnion> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
      proof (cases "\<phi> \<squnion> \<psi> \<in> \<Omega>")
        case True
-       hence \<diamondsuit>: "1 = (if \<phi> \<squnion> \<psi> \<in> \<Omega> then (1::real) else 0)" by simp
+       hence \<diamondsuit>: "1 = ?Pr (\<phi> \<squnion> \<psi>)" by simp
        show ?thesis
        proof (cases "\<phi> \<in> \<Omega>")
          case True
          hence "\<psi> \<notin> \<Omega>"
            using \<open>\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>\<close>
            by blast
-         have "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then 1 else 0) = (1::real)" using \<diamondsuit> by simp
+         have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
          also have "... = 1 + (0::real)" by linarith
-         also have "... = (if \<phi> \<in> \<Omega> then 1 else 0) + (if \<psi> \<in> \<Omega> then 1 else 0)"
+         also have "... = ?Pr \<phi> + ?Pr \<psi>"
            using \<open>\<psi> \<notin> \<Omega>\<close> \<open>\<phi> \<in> \<Omega>\<close> by simp
          finally show ?thesis .
        next
@@ -285,9 +347,9 @@ proof -
          hence "\<psi> \<in> \<Omega>"
            using \<open>\<phi> \<squnion> \<psi> \<in> \<Omega>\<close> \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close>
            by blast
-         have "(if \<phi> \<squnion> \<psi> \<in> \<Omega> then 1 else 0) = (1::real)" using \<diamondsuit> by simp
+         have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
          also have "... = (0::real) + 1" by linarith
-         also have "... = (if \<phi> \<in> \<Omega> then 1 else 0) + (if \<psi> \<in> \<Omega> then 1 else 0)"
+         also have "... = ?Pr \<phi> + ?Pr \<psi>"
            using \<open>\<psi> \<in> \<Omega>\<close> \<open>\<phi> \<notin> \<Omega>\<close> by simp
          finally show ?thesis .
        qed
@@ -297,6 +359,8 @@ proof -
          using \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close> by blast+
        ultimately show ?thesis by simp
      qed
+     thus "?Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
+       unfolding disjunction_def .
   qed
   thus ?thesis
     unfolding Dirac_Measures_def
