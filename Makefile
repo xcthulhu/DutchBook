@@ -13,12 +13,6 @@ test-Dutchbook:
 test-Extra:
 	isabelle build -c -o document=false -d . Extra_Theories
 
-THEORIES := $(shell find . -name \*.thy -print)
-generated/snippets.tex: $(THEORIES)
-	isabelle build -c -v -d . Snippets
-	touch $@
-
 clean:
 	$(CURDIR)/util/trash_heap.sh
 	make -C book clean
-	rm -rf generated/
