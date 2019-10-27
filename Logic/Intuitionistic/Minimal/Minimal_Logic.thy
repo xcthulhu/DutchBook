@@ -1,15 +1,15 @@
-section {* Minimal Logic *}
+section \<open> Minimal Logic \<close>
 
 theory Minimal_Logic
   imports Main "~~/src/HOL/Library/LaTeXsugar"
 begin
 
-text {* This theory presents \emph{minimal logic}, the implicational fragment of
-        intuitionistic logic. *}
+text \<open> This theory presents \emph{minimal logic}, the implicational fragment of
+        intuitionistic logic. \<close>
 
-subsection {* Axiomatization *}
+subsection \<open> Axiomatization \<close>
 
-text {* Minimal logic is given by the following Hilbert-style axiom system: *}
+text \<open> Minimal logic is given by the following Hilbert-style axiom system: \<close>
 
 class Minimal_Logic =
   fixes deduction :: "'a \<Rightarrow> bool"             ("\<turnstile> _" [60] 55)
@@ -18,7 +18,7 @@ class Minimal_Logic =
   assumes Axiom_2: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi>  \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
-text (in Minimal_Logic) {*
+text (in Minimal_Logic) \<open>
  \DefineSnippet{Axiom K}{
    @{thm [display] Axiom_1}
  }%EndSnippet
@@ -28,18 +28,18 @@ text (in Minimal_Logic) {*
  \DefineSnippet{Modus Ponens}{
    @{thm [mode=Rule] Modus_Ponens} {\sc MP}
  }%EndSnippet
-*}
+\<close>
 
 
-text {* A convenience class to have is @{class "Minimal_Logic"} extended with a single named
+text \<open> A convenience class to have is @{class "Minimal_Logic"} extended with a single named
         constant, intended to be \emph{falsum}.  Other classes extending this class will provide
         rules for how this constant interacts with other terms.
- *}
+ \<close>
 
 class Minimal_Logic_With_Falsum = Minimal_Logic +
   fixes falsum :: "'a"                      ("\<bottom>")
 
-subsection {* Common Rules *}
+subsection \<open> Common Rules \<close>
 
 lemma (in Minimal_Logic) trivial_implication: "\<turnstile> \<phi> \<rightarrow> \<phi>"
   by (meson Axiom_1 Axiom_2 Modus_Ponens)
@@ -57,30 +57,30 @@ lemma (in Minimal_Logic) flip_hypothetical_syllogism:
 lemma (in Minimal_Logic) implication_absorption: "\<turnstile> (\<phi> \<rightarrow> \<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   by (meson Axiom_1 Axiom_2 Modus_Ponens)
 
-subsection {* Lists of Assumptions *}
+subsection \<open> Lists of Assumptions \<close>
 
-subsubsection {* List Implication *}
+subsubsection \<open> List Implication \<close>
 
-text {* Implication given a list of assumptions can be expressed recursively *}
+text \<open> Implication given a list of assumptions can be expressed recursively \<close>
 
 primrec (in Minimal_Logic) list_implication :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a" (infix ":\<rightarrow>" 80) where
     "[] :\<rightarrow> \<phi> = \<phi>"
   | "(\<psi> # \<Psi>) :\<rightarrow> \<phi> = \<psi> \<rightarrow> \<Psi> :\<rightarrow> \<phi>"
 
-subsubsection {* Definition of Deduction *}
+subsubsection \<open> Definition of Deduction \<close>
 
-text {* Deduction from a list of assumptions can be expressed in terms of @{term "(:\<rightarrow>)"}. *}
+text \<open> Deduction from a list of assumptions can be expressed in terms of @{term "(:\<rightarrow>)"}. \<close>
 
 definition (in Minimal_Logic) list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
   "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
 
-subsubsection {* Interpretation as Minimal Logic *}
+subsubsection \<open> Interpretation as Minimal Logic \<close>
 
-text {* The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a @{term "proves"}
-        predicate for an instance of minimal logic for a fixed list of assumptions @{term "\<Gamma>"}. *}
+text \<open> The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a @{term "proves"}
+        predicate for an instance of minimal logic for a fixed list of assumptions @{term "\<Gamma>"}. \<close>
 
-text {* Analogues of the two axioms of minimal logic can be naturally stated using
-        list implication. *}
+text \<open> Analogues of the two axioms of minimal logic can be naturally stated using
+        list implication. \<close>
 
 lemma (in Minimal_Logic) list_implication_Axiom_1: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
   by (induct \<Gamma>, (simp, meson Axiom_1 Axiom_2 Modus_Ponens)+)
@@ -88,9 +88,9 @@ lemma (in Minimal_Logic) list_implication_Axiom_1: "\<turnstile> \<phi> \<righta
 lemma (in Minimal_Logic) list_implication_Axiom_2: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<Gamma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<psi>"
   by (induct \<Gamma>, (simp, meson Axiom_1 Axiom_2 Modus_Ponens hypothetical_syllogism)+)
 
-text {* The lemmas @{thm list_implication_Axiom_1} and  @{thm list_implication_Axiom_2} jointly
+text \<open> The lemmas @{thm list_implication_Axiom_1} and  @{thm list_implication_Axiom_2} jointly
         give rise to an interpretation of minimal logic, where a list of assumptions
-        @{term "\<Gamma>"} plays the role of a \emph{background theory} of @{term "(:\<turnstile>)"}. *}
+        @{term "\<Gamma>"} plays the role of a \emph{background theory} of @{term "(:\<turnstile>)"}. \<close>
 
 context Minimal_Logic begin
 interpretation List_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
@@ -102,14 +102,14 @@ proof qed (meson list_deduction_def
                  list_implication_Axiom_2)+
 end
 
-text {* The following \emph{weakening} rule can also be derived. *}
+text \<open> The following \emph{weakening} rule can also be derived. \<close>
 
 lemma (in Minimal_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
   using Modus_Ponens list_implication_Axiom_1
   by blast
 
-text {* In the case of the empty list, the converse may be established. *}
+text \<open> In the case of the empty list, the converse may be established. \<close>
 
 lemma (in Minimal_Logic) list_deduction_base_theory [simp]: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   unfolding list_deduction_def
@@ -120,14 +120,14 @@ lemma (in Minimal_Logic) list_deduction_modus_ponens: "\<Gamma> :\<turnstile> \<
   using Modus_Ponens list_implication_Axiom_2
   by blast
 
-subsection {* The Deduction Theorem *}
+subsection \<open> The Deduction Theorem \<close>
 
-text {* One result in the meta-theory of minimal logic is the \emph{deduction theorem},
+text \<open> One result in the meta-theory of minimal logic is the \emph{deduction theorem},
         which is a mechanism for moving antecedents back and forth from collections of
-        assumptions. *}
+        assumptions. \<close>
 
-text {* To develop the deduction theorem, the following two lemmas generalize
-        @{thm "flip_implication"}. *}
+text \<open> To develop the deduction theorem, the following two lemmas generalize
+        @{thm "flip_implication"}. \<close>
 
 lemma (in Minimal_Logic) list_flip_implication1: "\<turnstile> (\<phi> # \<Gamma>) :\<rightarrow> \<chi> \<rightarrow> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>)"
   by (induct \<Gamma>,
@@ -137,27 +137,27 @@ lemma (in Minimal_Logic) list_flip_implication2: "\<turnstile> \<Gamma> :\<right
   by (induct \<Gamma>,
       (simp, meson Axiom_1 Axiom_2 Modus_Ponens flip_implication hypothetical_syllogism)+)
 
-text {* Together the two lemmas above suffice to prove a form of the deduction theorem: *}
+text \<open> Together the two lemmas above suffice to prove a form of the deduction theorem: \<close>
 
 theorem (in Minimal_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
   unfolding list_deduction_def
   by (metis Modus_Ponens list_flip_implication1 list_flip_implication2)
 
-subsection {* Monotonic Growth in Deductive Power *}
+subsection \<open> Monotonic Growth in Deductive Power \<close>
 
-text {* In logic, for two sets of assumptions @{term "\<Phi>"} and @{term "\<Psi>"},
+text \<open> In logic, for two sets of assumptions @{term "\<Phi>"} and @{term "\<Psi>"},
         if @{term "\<Psi> \<subseteq> \<Phi>"} then the latter theory @{term "\<Phi>"} is said to be \emph{stronger}
         than former theory @{term "\<Psi>"}.  In principle, anything a weaker theory can prove a
         stronger theory can prove.  One way of saying this is that deductive power increases
-        monotonically with as the set of underlying assumptions grow. *}
+        monotonically with as the set of underlying assumptions grow. \<close>
 
-text {* The monotonic growth of deductive power can be expressed as a meta-theorem
-        in minimal logic. *}
+text \<open> The monotonic growth of deductive power can be expressed as a meta-theorem
+        in minimal logic. \<close>
 
-text {* The lemma @{thm "list_flip_implication2"} presents a means of \emph{introducing}
+text \<open> The lemma @{thm "list_flip_implication2"} presents a means of \emph{introducing}
         assumptions into a list of assumptions when those assumptions have arrived at an
         implication.  The next lemma presents a means of \emph{discharging} those assumptions,
-        which can be used in the monotonic growth theorem to be proved. *}
+        which can be used in the monotonic growth theorem to be proved. \<close>
 
 lemma (in Minimal_Logic) list_implication_removeAll:
   "\<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
@@ -192,8 +192,8 @@ proof -
   thus ?thesis by blast
 qed
 
-text {* From lemma above presents what is needed to prove that deductive power for lists is
-        monotonic. *}
+text \<open> From lemma above presents what is needed to prove that deductive power for lists is
+        monotonic. \<close>
 
 theorem (in Minimal_Logic) list_implication_monotonic:
   "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<turnstile> \<Sigma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
@@ -242,7 +242,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-text {* A direct consequence is that deduction from lists of assumptions is monotonic as well: *}
+text \<open> A direct consequence is that deduction from lists of assumptions is monotonic as well: \<close>
 
 theorem (in Minimal_Logic) list_deduction_monotonic:
   "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<Sigma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
@@ -250,11 +250,11 @@ theorem (in Minimal_Logic) list_deduction_monotonic:
   using Modus_Ponens list_implication_monotonic
   by blast
 
-subsection {* The Deduction Theorem Revisited *}
+subsection \<open> The Deduction Theorem Revisited \<close>
 
-text {* The monotonic nature of deduction allows us to prove another form of the deduction
+text \<open> The monotonic nature of deduction allows us to prove another form of the deduction
         theorem, where the assumption being discharged is completely removed from the list of
-        assumptions. *}
+        assumptions. \<close>
 
 theorem (in Minimal_Logic) alternate_list_deduction_theorem:
   "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -267,11 +267,11 @@ theorem (in Minimal_Logic) alternate_list_deduction_theorem:
             removeAll.simps(2)
             removeAll_filter_not_eq)
 
-subsection {* Reflection *}
+subsection \<open> Reflection \<close>
 
-text {* In logic the \emph{reflection} principle sometimes refers to when a collection of
+text \<open> In logic the \emph{reflection} principle sometimes refers to when a collection of
         assumptions can deduce any of its members. It is automatically derivable from
-        @{thm "list_deduction_monotonic"} among the other rules provided. *}
+        @{thm "list_deduction_monotonic"} among the other rules provided. \<close>
 
 lemma (in Minimal_Logic) list_deduction_reflection: "\<phi> \<in> set \<Gamma> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   by (metis list_deduction_def
@@ -282,17 +282,17 @@ lemma (in Minimal_Logic) list_deduction_reflection: "\<phi> \<in> set \<Gamma> \
             list_implication_Axiom_1
             order_refl)
 
-subsection {* The Cut Rule *}
+subsection \<open> The Cut Rule \<close>
 
-text {* \emph{Cut} is a rule commonly presented in sequent calculi, dating back to Gerhard
-        Gentzen's "Investigations in Logical Deduction" (1934) TODO: Cite me *}
+text \<open> \emph{Cut} is a rule commonly presented in sequent calculi, dating back to Gerhard
+        Gentzen's "Investigations in Logical Deduction" (1934) TODO: Cite me \<close>
 
-text {* The cut rule is not generally necessary in sequent calculi and it can often be shown
+text \<open> The cut rule is not generally necessary in sequent calculi and it can often be shown
         that the rule can be eliminated without reducing the power of the underlying logic.
         However, as demonstrated by George Boolos' "Don't Eliminate Cut" (1984) (TODO: Cite me),
-        removing the rule can often lead to very inefficient proof systems. *}
+        removing the rule can often lead to very inefficient proof systems. \<close>
 
-text {* Here the rule is presented just as a meta theorem. *}
+text \<open> Here the rule is presented just as a meta theorem. \<close>
 
 theorem (in Minimal_Logic) list_deduction_cut_rule: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
   by (metis (no_types, lifting)
@@ -303,7 +303,7 @@ theorem (in Minimal_Logic) list_deduction_cut_rule: "(\<phi> # \<Gamma>) :\<turn
              list_deduction_theorem
              set_append)
 
-text {* The cut rule can also be strengthened to entire lists of propositions. *}
+text \<open> The cut rule can also be strengthened to entire lists of propositions. \<close>
 
 theorem (in Minimal_Logic) strong_list_deduction_cut_rule:
   "(\<Phi> @ \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
@@ -337,41 +337,41 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-section {* Sets of Assumptions *}
+section \<open> Sets of Assumptions \<close>
 
-text {* While deduction in terms of lists of assumptions is straight-forward to define,
+text \<open> While deduction in terms of lists of assumptions is straight-forward to define,
         deduction (and the \emph{deduction theorem}) is commonly given in terms of \emph{sets}
         of propositions.  This formulation is suited to establishing strong completeness theorems
-        and compactness theorems. *}
+        and compactness theorems. \<close>
 
-text {* The presentation of deduction from a set follows the presentation of list deduction given
-        for @{term "(:\<turnstile>)"}. *}
+text \<open> The presentation of deduction from a set follows the presentation of list deduction given
+        for @{term "(:\<turnstile>)"}. \<close>
 
-subsection {* Definition of Deduction *}
+subsection \<open> Definition of Deduction \<close>
 
-text {* Just as deduction from a list @{term "(:\<turnstile>)"} can be defined in terms of @{term "(:\<rightarrow>)"},
-        deduction from a \emph{set} of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. *}
+text \<open> Just as deduction from a list @{term "(:\<turnstile>)"} can be defined in terms of @{term "(:\<rightarrow>)"},
+        deduction from a \emph{set} of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
 
 definition (in Minimal_Logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
   "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
 
-subsubsection {* Interpretation as Minimal Logic *}
+subsubsection \<open> Interpretation as Minimal Logic \<close>
 
-text {* As in the case of @{term "(:\<turnstile>)"}, the relation @{term "(\<tturnstile>)"} may be interpreted as
-        a @{term "proves"} predicate for a fixed set of assumptions @{term "\<Gamma>"}. *}
+text \<open> As in the case of @{term "(:\<turnstile>)"}, the relation @{term "(\<tturnstile>)"} may be interpreted as
+        a @{term "proves"} predicate for a fixed set of assumptions @{term "\<Gamma>"}. \<close>
 
-text {* The following lemma is given in order to establish this, which asserts that
-        every minimal logic tautology @{term "\<turnstile> \<phi>"} is also a tautology for @{term "\<Gamma> \<tturnstile> \<phi>"}. *}
+text \<open> The following lemma is given in order to establish this, which asserts that
+        every minimal logic tautology @{term "\<turnstile> \<phi>"} is also a tautology for @{term "\<Gamma> \<tturnstile> \<phi>"}. \<close>
 
 lemma (in Minimal_Logic) set_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by fastforce
 
-text {* In the case of the empty set, the converse may be established. *}
+text \<open> In the case of the empty set, the converse may be established. \<close>
 
 lemma (in Minimal_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
-text {* Next, a form of \emph{modus ponens} is provided for @{term "(\<tturnstile>)"}. *}
+text \<open> Next, a form of \emph{modus ponens} is provided for @{term "(\<tturnstile>)"}. \<close>
 
 lemma (in Minimal_Logic) set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
 proof -
@@ -402,9 +402,9 @@ next
 qed
 end
 
-subsection {* The Deduction Theorem *}
+subsection \<open> The Deduction Theorem \<close>
 
-text {* The next result gives the deduction theorem for @{term "(\<tturnstile>)"}. *}
+text \<open> The next result gives the deduction theorem for @{term "(\<tturnstile>)"}. \<close>
 
 theorem (in Minimal_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
 proof -
@@ -424,29 +424,29 @@ proof -
   ultimately show "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>" by metis
 qed
 
-subsection {* Monotonic Growth in Deductive Power *}
+subsection \<open> Monotonic Growth in Deductive Power \<close>
 
-text {* In contrast to the @{term "(:\<turnstile>)"} relation, the proof that the deductive power
-        of @{term "(\<tturnstile>)"} grows monotonically with its assumptions may be fully automated. *}
+text \<open> In contrast to the @{term "(:\<turnstile>)"} relation, the proof that the deductive power
+        of @{term "(\<tturnstile>)"} grows monotonically with its assumptions may be fully automated. \<close>
 
 theorem set_deduction_monotonic: "\<Sigma> \<subseteq> \<Gamma> \<Longrightarrow> \<Sigma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (meson dual_order.trans set_deduction_def)
 
-subsection {* The Deduction Theorem Revisited *}
+subsection \<open> The Deduction Theorem Revisited \<close>
 
-text {* As a consequence of the fact that @{thm "set_deduction_monotonic"} automatically provable,
+text \<open> As a consequence of the fact that @{thm "set_deduction_monotonic"} automatically provable,
         the alternate \emph{deduction theorem} where the discharged assumption is completely
         removed from the set of assumptions is just a consequence of the more conventional
-        @{thm "set_deduction_theorem"} and some basic set identities. *}
+        @{thm "set_deduction_theorem"} and some basic set identities. \<close>
 
 theorem (in Minimal_Logic) alternate_set_deduction_theorem:
   "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> - {\<phi>} \<tturnstile> \<phi> \<rightarrow> \<psi>"
   by (metis insert_Diff_single set_deduction_theorem)
 
-subsection {* Reflection *}
+subsection \<open> Reflection \<close>
 
-text {* Just as in the case of @{term "(:\<turnstile>)"}, deduction from sets of assumptions
-        makes true the \emph{reflection principle} and is automatically provable. *}
+text \<open> Just as in the case of @{term "(:\<turnstile>)"}, deduction from sets of assumptions
+        makes true the \emph{reflection principle} and is automatically provable. \<close>
 
 theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (metis Set.set_insert
@@ -455,11 +455,11 @@ theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Lo
             set_deduction_theorem
             set_deduction_weaken)
 
-subsection {* The Cut Rule *}
+subsection \<open> The Cut Rule \<close>
 
-text {* The final principle of @{term "(\<tturnstile>)"} presented is the \emph{cut rule}. *}
+text \<open> The final principle of @{term "(\<tturnstile>)"} presented is the \emph{cut rule}. \<close>
 
-text {* First, the weak form of the rule is established. *}
+text \<open> First, the weak form of the rule is established. \<close>
 
 theorem (in Minimal_Logic) set_deduction_cut_rule:
   "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
@@ -472,10 +472,10 @@ proof -
   ultimately show ?thesis using set_deduction_modus_ponens by metis
 qed
 
-text {* Another lemma is shown next in order to establish the strong form of the rule.
+text \<open> Another lemma is shown next in order to establish the strong form of the rule.
         The lemma shows the existence of a \emph{covering list} of assumptions @{term "\<Psi>"} in
         the event some set of assumptions @{term "\<Delta>"} proves everything in a finite set of
-        assumptions @{term "\<Phi>"}. *}
+        assumptions @{term "\<Phi>"}. \<close>
 
 lemma (in Minimal_Logic) finite_set_deduction_list_deduction:
   "finite \<Phi> \<Longrightarrow>
@@ -497,8 +497,8 @@ next
   ultimately show ?case by blast
 qed
 
-text {* With @{thm finite_set_deduction_list_deduction} the strengthened form of the cut
-        rule can be given. *}
+text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened form of the cut
+        rule can be given. \<close>
 
 theorem (in Minimal_Logic) strong_set_deduction_cut_rule:
   "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"

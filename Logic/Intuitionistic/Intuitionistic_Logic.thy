@@ -1,15 +1,15 @@
-subsection {* Intuitionistic Logic *}
+subsection \<open> Intuitionistic Logic \<close>
 
 theory Intuitionistic_Logic
   imports "../Classical/Classical_Propositional_Logic"
 begin
 
-text {* This theory presents extends minimal logic to \emph{intuitionistic logic}.
+text \<open> This theory presents extends minimal logic to \emph{intuitionistic logic}.
         Intuitionistic logic include binary logical connectives
         for \emph{conjunction} and \emph{disjunction} as well as \emph{negation},
-        \emph{falsum} and \emph{verum}. *}
+        \emph{falsum} and \emph{verum}. \<close>
 
-subsection {* Axiomatization *}
+subsection \<open> Axiomatization \<close>
 
 class Intuitionistic_Logic = Minimal_Logic_With_Falsum +
   fixes verum :: "'a"                                            ("\<top>")
@@ -31,7 +31,7 @@ class Intuitionistic_Logic = Minimal_Logic_With_Falsum +
   assumes Verum_Rule: "\<turnstile> \<phi> \<rightarrow> \<top>"
   assumes Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
 
-subsection {* Maximally Consistent Sets *}
+subsection \<open> Maximally Consistent Sets \<close>
 
 theorem (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_conjunction:
   assumes "\<phi>-MCS \<Omega>"

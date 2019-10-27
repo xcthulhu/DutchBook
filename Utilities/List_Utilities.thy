@@ -4,7 +4,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-subsection {* Multiset Coercion *}
+subsection \<open> Multiset Coercion \<close>
 
 lemma length_sub_mset:
   assumes "mset \<Psi> \<subseteq># mset \<Gamma>"
@@ -88,7 +88,7 @@ next
               append_Cons)
 qed
 
-subsection {* List Mapping *}
+subsection \<open> List Mapping \<close>
 
 lemma map_perm:
   assumes "A <~~> B"
@@ -203,7 +203,7 @@ proof -
   thus ?thesis using assms by blast
 qed
 
-subsection {* Laws for Searching a List *}
+subsection \<open> Laws for Searching a List \<close>
 
 lemma find_Some_predicate:
   assumes "find P \<Psi> = Some \<psi>"
@@ -229,7 +229,7 @@ next
   then show ?case by (cases "P \<omega>", fastforce+)
 qed
 
-subsection {* Permutations *}
+subsection \<open> Permutations \<close>
 
 (* TODO the converse of this is also true, is that useful for anything? *)
 lemma perm_count_list:
@@ -360,7 +360,7 @@ proof -
   with assms show ?thesis by blast
 qed
 
-subsection {* List Duplicates *}
+subsection \<open> List Duplicates \<close>
 
 primrec duplicates :: "'a list \<Rightarrow> 'a set"
   where
@@ -397,7 +397,7 @@ next
   qed
 qed
 
-subsection {* List Subtraction *}
+subsection \<open> List Subtraction \<close>
 
 primrec listSubtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixl "\<ominus>" 70)
   where
@@ -816,7 +816,7 @@ proof -
   thus ?thesis using assms by blast
 qed
 
-subsection {* Tuple Lists *}
+subsection \<open> Tuple Lists \<close>
 
 lemma remove1_pairs_list_projections_fst:
   assumes "(\<gamma>,\<sigma>) \<in># mset \<Phi>"
@@ -963,7 +963,7 @@ next
   ultimately show ?case by meson
 qed
 
-subsection {* List Intersection *}
+subsection \<open> List Intersection \<close>
 
 primrec list_intersect :: "'a list => 'a list => 'a list"  (infixl "\<^bold>\<inter>" 60)
   where

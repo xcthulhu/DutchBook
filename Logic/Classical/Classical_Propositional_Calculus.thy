@@ -1,10 +1,10 @@
-section {* Classical Propositional Calculus Soundness And Completeness *}
+section \<open> Classical Propositional Calculus Soundness And Completeness \<close>
 
 theory Classical_Propositional_Calculus
   imports Classical_Propositional_Logic
 begin
 
-subsection {* Syntax *}
+subsection \<open> Syntax \<close>
 
 datatype 'a Classical_Propositional_Formula =
       Falsum                                                                  ("\<^bold>\<bottom>")
@@ -12,7 +12,7 @@ datatype 'a Classical_Propositional_Formula =
     | Implication "'a Classical_Propositional_Formula"
                   "'a Classical_Propositional_Formula"                          (infixr "\<^bold>\<rightarrow>" 70)
 
-subsection {* Propositional Calculus *}
+subsection \<open> Propositional Calculus \<close>
 
 named_theorems Classical_Propositional_Calculus "Rules for the Propositional Calculus"
 
@@ -32,7 +32,7 @@ definition [simp]: "\<phi> \<rightarrow> \<psi> = \<phi> \<^bold>\<rightarrow> \
 instance by standard (simp add: Classical_Propositional_Calculus)+
 end
 
-subsection {* Propositional Semantics *}
+subsection \<open> Propositional Semantics \<close>
 
 primrec Classical_Propositional_Semantics ::
   "'a set \<Rightarrow> 'a Classical_Propositional_Formula \<Rightarrow> bool"
@@ -46,7 +46,7 @@ theorem Classical_Propositional_Calculus_Soundness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   by (induct rule: Classical_Propositional_Calculus.induct, simp+)
 
-subsection {* Propositional Soundness and Completeness *}
+subsection \<open> Propositional Soundness and Completeness \<close>
 
 definition Strong_Classical_Propositional_Deduction ::
   "'a Classical_Propositional_Formula set \<Rightarrow> 'a Classical_Propositional_Formula \<Rightarrow> bool"

@@ -1,4 +1,4 @@
-section {* Classical Propositional Connectives *}
+section \<open> Classical Propositional Connectives \<close>
 
 theory Classical_Propositional_Connectives
   imports Classical_Propositional_Calculus
@@ -7,7 +7,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-subsection {* Verum *}
+subsection \<open> Verum \<close>
 
 definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
   where
@@ -25,7 +25,7 @@ lemma (in Classical_Propositional_Logic) verum_embedding [simp]:
   unfolding verum_def Minimal_Logic_With_Falsum_class.verum_def
   by simp
 
-subsection {* Conjunction *}
+subsection \<open> Conjunction \<close>
 
 definition (in Classical_Propositional_Logic) conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<sqinter>" 67)
   where
@@ -72,7 +72,7 @@ lemma conjunction_semantics [simp]:
   "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<sqinter> \<psi> = (\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<and> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>)"
   unfolding conjunction_def by simp
 
-subsection {* Biconditional *}
+subsection \<open> Biconditional \<close>
 
 definition (in Classical_Propositional_Logic) biconditional :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<leftrightarrow>" 75)
   where
@@ -100,7 +100,7 @@ lemma biconditional_semantics [simp]:
   unfolding biconditional_def
   by (simp, blast)
 
-subsection {* Negation *}
+subsection \<open> Negation \<close>
 
 definition (in Minimal_Logic_With_Falsum) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
   where
@@ -126,7 +126,7 @@ lemma negation_semantics [simp]:
   unfolding negation_def
   by simp
 
-subsection {* Disjunction *}
+subsection \<open> Disjunction \<close>
 
 definition (in Classical_Propositional_Logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<squnion>" 67)
   where
@@ -184,14 +184,14 @@ lemma disjunction_semantics [simp]:
   unfolding disjunction_def
   by (simp, blast)
 
-subsection {* Mutual Exclusion *}
+subsection \<open> Mutual Exclusion \<close>
 
 primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a" ("\<Coprod>")
   where
       "\<Coprod> [] = \<top>"
     | "\<Coprod> (\<phi> # \<Phi>) = \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>) \<sqinter> \<Coprod> \<Phi>"
 
-subsection {* Subtraction *}
+subsection \<open> Subtraction \<close>
 
 definition (in Classical_Propositional_Logic) subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixl "\<setminus>" 69)
   where
@@ -202,9 +202,9 @@ lemma (in Classical_Propositional_Logic) subtraction_embedding [simp]:
   unfolding subtraction_def Classical_Propositional_Logic_class.subtraction_def
   by simp
 
-subsection {* Common Rules *}
+subsection \<open> Common Rules \<close>
 
-subsubsection {* Biconditional Equivalence Relation *}
+subsubsection \<open> Biconditional Equivalence Relation \<close>
 
 lemma (in Classical_Propositional_Logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
@@ -239,7 +239,7 @@ lemma (in Classical_Propositional_Logic) biconditional_transitivity_rule:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<chi> \<Longrightarrow> \<turnstile> \<phi> \<leftrightarrow> \<chi>"
   using Modus_Ponens biconditional_transitivity by blast
 
-subsubsection {* Biconditional Weakening *}
+subsubsection \<open> Biconditional Weakening \<close>
 
 lemma (in Classical_Propositional_Logic) biconditional_weaken:
   assumes "\<Gamma> \<tturnstile> \<phi> \<leftrightarrow> \<psi>"
@@ -267,7 +267,7 @@ lemma (in Classical_Propositional_Logic) weak_biconditional_weaken:
             biconditional_right_elimination
             Modus_Ponens)
 
-subsubsection {* Conjunction Identities *}
+subsubsection \<open> Conjunction Identities \<close>
 
 lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
   "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>)"
@@ -505,7 +505,7 @@ next
     by (simp, metis Modus_Ponens hypothetical_syllogism)
 qed
 
-subsubsection {* Disjunction Identities *}
+subsubsection \<open> Disjunction Identities \<close>
 
 lemma (in Classical_Propositional_Logic) bivalence:
   "\<turnstile> \<sim> \<phi> \<squnion> \<phi>"
@@ -641,7 +641,7 @@ lemma (in Classical_Propositional_Logic) arbitrary_disjunction_remdups:
   "\<turnstile> (\<Squnion> \<Phi>) \<leftrightarrow> \<Squnion> (remdups \<Phi>)"
   by (simp add: arbitrary_disjunction_monotone biconditional_def)
 
-subsubsection {* Distribution Identities *}
+subsubsection \<open> Distribution Identities \<close>
 
 lemma (in Classical_Propositional_Logic) conjunction_distribution:
   "\<turnstile> ((\<psi> \<squnion> \<chi>) \<sqinter> \<phi>) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> (\<chi> \<sqinter> \<phi>))"
@@ -786,7 +786,7 @@ lemma (in Classical_Propositional_Logic) implication_arbitrary_distribution:
   using list_implication_arbitrary_distribution [where ?\<Phi>="[\<phi>]"]
   by simp
 
-subsubsection {* Negation *}
+subsubsection \<open> Negation \<close>
 
 lemma (in Classical_Propositional_Logic) double_negation_biconditional:
   "\<turnstile> \<sim> (\<sim> \<phi>) \<leftrightarrow> \<phi>"
@@ -814,7 +814,7 @@ lemma (in Classical_Propositional_Logic) alt_base_double_negation_elimination [s
   unfolding negation_def
   by auto
 
-subsection {* Mutual Exclusion Identities *}
+subsection \<open> Mutual Exclusion Identities \<close>
 
 lemma (in Classical_Propositional_Logic) exclusion_contrapositive_equivalence:
   "\<turnstile> (\<phi> \<rightarrow> \<gamma>) \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<sim> \<gamma>)"

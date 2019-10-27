@@ -1,4 +1,4 @@
-section {* Classical Propositional Logic *}
+section \<open> Classical Propositional Logic \<close>
 
 theory Classical_Propositional_Logic
   imports "../Intuitionistic/Minimal/Minimal_Logic"
@@ -6,17 +6,17 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-text {* This theory presents \emph{Classical propositional logic}, which is
-        a classical logic without quantifiers. *}
+text \<open> This theory presents \emph{Classical propositional logic}, which is
+        a classical logic without quantifiers. \<close>
 
-subsection {* Axiomatization *}
+subsection \<open> Axiomatization \<close>
 
-text {* Minimal logic is given by the following Hilbert-style axiom system: *}
+text \<open> Minimal logic is given by the following Hilbert-style axiom system: \<close>
 
 class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
 
-subsection {* Common Rules *}
+subsection \<open> Common Rules \<close>
 
 lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism by blast
@@ -98,7 +98,7 @@ proof -
     by simp
 qed
 
-subsection {* Maximally Consistent Sets *}
+subsection \<open> Maximally Consistent Sets \<close>
 
 definition (in Minimal_Logic)
   Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100) where

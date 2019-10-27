@@ -5,7 +5,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-text {* TODO: Cite Hajek PROBABILITY, LOGIC, AND PROBABILITY LOGIC *}
+text \<open> TODO: Cite Hajek PROBABILITY, LOGIC, AND PROBABILITY LOGIC \<close>
 
 class Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -46,8 +46,8 @@ lemma (in Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
 
-text {* Alternate axiomatization of logical probability following Brian Weatherson in 
-        https://doi.org/10.1305/ndjfl/1082637807 *}
+text \<open> Alternate axiomatization of logical probability following Brian Weatherson in 
+        https://doi.org/10.1305/ndjfl/1082637807 \<close>
 
 class Weatherson_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
