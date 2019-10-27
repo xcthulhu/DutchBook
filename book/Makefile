@@ -12,7 +12,7 @@ book.bbl: book.tex book.aux
 	bibtex book
 
 generated/snippets.tex: $(THEORIES)
-	isabelle build -c -v -d . Snippets
+	isabelle build -c -v -d . LaTeX_Snippets
 	touch $@
 
 clean:

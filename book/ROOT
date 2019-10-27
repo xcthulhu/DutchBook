@@ -1,8 +1,8 @@
-session "Snippets" = "HOL" +
+session "LaTeX_Snippets" = "HOL" +
    options [document = "pdf",
             document_output = "generated",
             show_question_marks = false]
    theories
-    "../Logic/Intuitionistic/Minimal/Minimal_Logic"
+    "LaTeX_Snippets"
    document_files
      build

@@ -1,7 +1,7 @@
 section \<open> Minimal Logic \<close>
 
 theory Minimal_Logic
-  imports Main "~~/src/HOL/Library/LaTeXsugar"
+  imports Main
 begin
 
 text \<open> This theory presents \emph{minimal logic}, the implicational fragment of
@@ -18,23 +18,10 @@ class Minimal_Logic =
   assumes Axiom_2: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi>  \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
-text (in Minimal_Logic) \<open>
- \DefineSnippet{Axiom K}{
-   @{thm [display] Axiom_1}
- }%EndSnippet
- \DefineSnippet{Axiom S}{
-   @{thm [display] Axiom_2}
- }%EndSnippet
- \DefineSnippet{Modus Ponens}{
-   @{thm [mode=Rule] Modus_Ponens} {\sc MP}
- }%EndSnippet
-\<close>
-
 
 text \<open> A convenience class to have is @{class "Minimal_Logic"} extended with a single named
         constant, intended to be \emph{falsum}.  Other classes extending this class will provide
-        rules for how this constant interacts with other terms.
- \<close>
+        rules for how this constant interacts with other terms. \<close>
 
 class Minimal_Logic_With_Falsum = Minimal_Logic +
   fixes falsum :: "'a"                      ("\<bottom>")
