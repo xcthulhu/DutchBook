@@ -15,8 +15,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Source: http://en.wikibooks.org/wiki/LaTeX/Hyperlinks %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage{graphicx}
 \usepackage[english]{babel}
+
 % https://tex.stackexchange.com/a/26530
 \usepackage[pdftex,
             pdfauthor={Matthew Doty},
@@ -27,6 +29,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Source: https://isabelle.in.tum.de/community/Generate_TeX_Snippets %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage{generated/document/comment}
 \usepackage{generated/document/isabelle}
 \usepackage{generated/document/isabellesym}
@@ -43,7 +46,7 @@
      }}
 \newcommand{\Snippet}[1]{ \ifcsname snippet--#1\endcsname {\csname snippet--#1\endcsname} \else
   +++++++ERROR: Snippet ``#1 not defined+++++++ \fi}
- 
+
 \input{generated/snippets}
 
 % https://www.cl.cam.ac.uk/research/hvg/Isabelle/dist/Isabelle2017/doc/sugar.pdf
@@ -71,6 +74,7 @@
 % Chapter quote at the start of chapter        %
 % Source: http://tex.stackexchange.com/a/53380 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \makeatletter
 \renewcommand{\@chapapp}{}% Not necessary...
 \newenvironment{chapquote}[2][2em]
@@ -81,18 +85,11 @@
   {\par\normalfont\hfill--\ \chapquote@author\hspace*{\@tempdima}\par\bigskip}
 \makeatother
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% First page of book which contains 'stuff' like: %
-%  - Book title, subtitle                         %
-%  - Book author name                             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Book's title and subtitle
 \title{\Huge \textbf{Probability, Complexity and Arbitrage}}
 % Author
 \author{\textsc{Matthew Doty}}
 \date{}
-
 
 \begin{document}
 
@@ -121,8 +118,7 @@ The purpose of this book is to investigate the duality between \emph{arbitrage}
 and probability.
 
 \section*{Acknowledgments}
-I am deeply indepted to my parents, colleagues and friends for their
-  support and encouragement.
+I am deeply indepted to family, mentors, colleagues and friends for their support and encouragement.
 
 \chapter{Preliminaries}
 \section{Arbitrage}
@@ -155,15 +151,15 @@ I am deeply indepted to my parents, colleagues and friends for their
 \subsection{Axiom System}
 \subsection{Ultrafilters}
 \subsection{Completeness}
-  
+
 \chapter{Probability}
 \section{Kolmogorov Axioms}
 \section{Probabilistic Semantics}
 \section{Stone Duality}
-\section{Elementary Completeness}
+\section{Completeness}
 \subsection{Suppes-Adams Completeness Theorem}
-\subsection{Reverse Suppes-Adams Completeness Theorem}
-\section{Segmented Deduction}
+\subsection{Converse Suppes-Adams Completeness Theorem}
+\section{Dutch Book Deduction}
 \subsection{Soundness}
 \subsection{Cancellation}
 \subsection{Transitivity}
