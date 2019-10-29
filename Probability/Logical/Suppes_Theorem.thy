@@ -4,7 +4,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
+lemma (in Classical_Propositional_Logic) Dirac_List_Summation_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
@@ -43,14 +43,46 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
+theorem (in Classical_Propositional_Logic) List_Summation_Completeness:
+  "(\<forall> Pr \<in> Logical_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  (is "?lhs = ?rhs")
+proof
+  assume ?lhs
+  hence "\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
+    unfolding Dirac_Measures_def Logical_Probabilities_def
+    by blast
+  thus ?rhs
+    using Dirac_List_Summation_Completeness by blast
+next
+  assume ?rhs
+  show ?lhs
+  proof
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Logical_Probabilities"
+    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Logical_Probabilities_def
+      by auto
+    show "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
+      using \<open>?rhs\<close> implication_list_summation_inequality
+      by simp
+  qed
+qed
+
+lemma (in Classical_Propositional_Logic) Dirac_Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis List_Summation_Completeness
+  by (metis Dirac_List_Summation_Completeness
             Modus_Ponens
             arbitrary_disjunction_remdups
             biconditional_left_elimination
             biconditional_right_elimination
             hypothetical_syllogism
+            sum.set_conv_list)
+
+theorem (in Classical_Propositional_Logic) Set_Summation_Completeness:
+  "(\<forall> \<delta> \<in> Logical_Probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  by (metis Dirac_List_Summation_Completeness
+            Dirac_Set_Summation_Completeness
+            List_Summation_Completeness
             sum.set_conv_list)
 
 lemma (in Logical_Probability) exclusive_sum_list_identity:
@@ -136,7 +168,7 @@ lemma count_remove_all_sum_list:
             add.commute
             add.left_commute)
 
-theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
+lemma (in Classical_Propositional_Logic) Dirac_Exclusive_Implication_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
@@ -211,9 +243,9 @@ proof -
         have "(\<Sum>\<phi>\<leftarrow>\<Psi>. ?\<delta> \<phi>) \<ge> 0" by (induct \<Psi>, simp, simp)
       }
       moreover have "(0::real) \<le> (\<Sum>a\<leftarrow>removeAll \<phi> \<Phi>. if a \<in> \<Omega> then 1 else 0)"
-          using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close> by presburger
+        using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close> by presburger
       ultimately have "real (count_list \<Phi> \<phi>) * ?\<delta> \<phi> + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?\<delta> \<phi>) \<ge> 2"
-          using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close> by linarith
+        using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close> by linarith
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" by auto
       thus ?thesis
@@ -259,7 +291,34 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-theorem (in Classical_Propositional_Logic) Inequality_Completeness:
+theorem (in Classical_Propositional_Logic) Exclusive_Implication_Completeness:
+  "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  (is "?lhs = ?rhs")
+proof
+  assume ?lhs
+  thus ?rhs
+    by (meson Dirac_Exclusive_Implication_Completeness
+              Dirac_Measures_subset
+              subset_eq)
+next
+  assume ?rhs
+  show ?lhs
+  proof
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Logical_Probabilities"
+    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      unfolding Logical_Probabilities_def
+      by simp
+    show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
+      using \<open>?rhs\<close> 
+            exclusive_sum_list_identity 
+            monotonicity 
+      by fastforce
+  qed
+qed
+
+
+lemma (in Classical_Propositional_Logic) Dirac_Inequality_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> \<delta> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
@@ -271,25 +330,52 @@ proof -
               negation_def
               weak_biconditional_weaken)
   thus ?thesis
-    using Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"]
+    using Dirac_Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"]
     by auto
 qed
 
-theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+theorem (in Classical_Propositional_Logic) Inequality_Completeness:
+  "(\<forall> Pr \<in> Logical_Probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
-  have "\<turnstile> \<Coprod> \<Phi> \<and> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Phi> \<equiv> \<turnstile> \<Coprod> \<Phi>"
-    by (simp add: trivial_implication)
-  hence "\<turnstile> \<Coprod> \<Phi> \<equiv> \<forall> \<delta> \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> (\<Squnion> \<Phi>)"
-    by (simp add: Exclusive_Implication_Completeness)
-  moreover have "\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)"
-    using Inequality_Completeness List_Summation_Completeness by blast
-  ultimately show ?thesis
-    by fastforce
+  have "\<turnstile> \<Coprod> [\<phi>]"
+    by (simp add: conjunction_right_elimination negation_def)
+  hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+    by (metis Arbitrary_Disjunction.simps(1)
+              Arbitrary_Disjunction.simps(2)
+              disjunction_def implication_equivalence
+              negation_def
+              weak_biconditional_weaken)
+  thus ?thesis
+    using Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"]
+    by simp
 qed
 
-theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
+lemma (in Classical_Propositional_Logic) Dirac_Exclusive_List_Summation_Completeness:
+  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  by (metis antisym_conv
+            Dirac_Exclusive_Implication_Completeness
+            Dirac_List_Summation_Completeness
+            trivial_implication)
+
+theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
+  "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  by (metis antisym_conv 
+            Exclusive_Implication_Completeness
+            List_Summation_Completeness
+            trivial_implication)
+
+lemma (in Classical_Propositional_Logic) Dirac_Exclusive_Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  by (metis (mono_tags, hide_lams)
+            eq_iff
+            Dirac_Exclusive_Implication_Completeness
+            Dirac_Set_Summation_Completeness
+            trivial_implication
+            set_remdups
+            sum.set_conv_list)
+
+theorem (in Classical_Propositional_Logic) Exclusive_Set_Summation_Completeness:
+  "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             Exclusive_Implication_Completeness
