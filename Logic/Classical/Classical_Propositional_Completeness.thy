@@ -1,6 +1,6 @@
 section \<open> Classical Propositional Calculus Soundness And Completeness \<close>
 
-theory Classical_Propositional_Calculus
+theory Classical_Propositional_Completeness
   imports Classical_Propositional_Logic
 begin
 

@@ -1,7 +1,7 @@
 section \<open> Classical Propositional Connectives \<close>
 
 theory Classical_Propositional_Connectives
-  imports Classical_Propositional_Calculus
+  imports Classical_Propositional_Completeness
           "../../Utilities/List_Utilities"
 begin
 
