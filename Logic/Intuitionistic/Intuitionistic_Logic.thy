@@ -4,10 +4,10 @@ theory Intuitionistic_Logic
   imports "../Classical/Classical_Propositional_Logic"
 begin
 
-text \<open> This theory presents extends minimal logic to \emph{intuitionistic logic}.
+text \<open> This theory presents extends minimal logic to \<^emph>\<open>intuitionistic logic\<close>.
         Intuitionistic logic include binary logical connectives
-        for \emph{conjunction} and \emph{disjunction} as well as \emph{negation},
-        \emph{falsum} and \emph{verum}. \<close>
+        for \<^emph>\<open>conjunction\<close> and \<^emph>\<open>disjunction\<close> as well as \<^emph>\<open>negation\<close>,
+        \<^emph>\<open>falsum\<close> and \<^emph>\<open>verum\<close>. \<close>
 
 subsection \<open> Axiomatization \<close>
 

@@ -4,7 +4,7 @@ theory Minimal_Logic
   imports Main
 begin
 
-text \<open> This theory presents \emph{minimal logic}, the implicational fragment of
+text \<open> This theory presents \<^emph>\<open>minimal logic\<close>, the implicational fragment of
         intuitionistic logic. \<close>
 
 subsection \<open> Axiomatization \<close>
@@ -20,7 +20,7 @@ class Minimal_Logic =
 
 
 text \<open> A convenience class to have is @{class "Minimal_Logic"} extended with a single named
-        constant, intended to be \emph{falsum}.  Other classes extending this class will provide
+        constant, intended to be \<^emph>\<open>falsum\<close>.  Other classes extending this class will provide
         rules for how this constant interacts with other terms. \<close>
 
 class Minimal_Logic_With_Falsum = Minimal_Logic +
@@ -77,7 +77,7 @@ lemma (in Minimal_Logic) list_implication_Axiom_2: "\<turnstile> \<Gamma> :\<rig
 
 text \<open> The lemmas @{thm list_implication_Axiom_1} and  @{thm list_implication_Axiom_2} jointly
         give rise to an interpretation of minimal logic, where a list of assumptions
-        @{term "\<Gamma>"} plays the role of a \emph{background theory} of @{term "(:\<turnstile>)"}. \<close>
+        @{term "\<Gamma>"} plays the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
 
 context Minimal_Logic begin
 interpretation List_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
@@ -89,7 +89,7 @@ proof qed (meson list_deduction_def
                  list_implication_Axiom_2)+
 end
 
-text \<open> The following \emph{weakening} rule can also be derived. \<close>
+text \<open> The following \<^emph>\<open>weakening\<close> rule can also be derived. \<close>
 
 lemma (in Minimal_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
@@ -109,7 +109,7 @@ lemma (in Minimal_Logic) list_deduction_modus_ponens: "\<Gamma> :\<turnstile> \<
 
 subsection \<open> The Deduction Theorem \<close>
 
-text \<open> One result in the meta-theory of minimal logic is the \emph{deduction theorem},
+text \<open> One result in the meta-theory of minimal logic is the \<^emph>\<open>deduction theorem\<close>,
         which is a mechanism for moving antecedents back and forth from collections of
         assumptions. \<close>
 
@@ -133,7 +133,7 @@ theorem (in Minimal_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turns
 subsection \<open> Monotonic Growth in Deductive Power \<close>
 
 text \<open> In logic, for two sets of assumptions @{term "\<Phi>"} and @{term "\<Psi>"},
-        if @{term "\<Psi> \<subseteq> \<Phi>"} then the latter theory @{term "\<Phi>"} is said to be \emph{stronger}
+        if @{term "\<Psi> \<subseteq> \<Phi>"} then the latter theory @{term "\<Phi>"} is said to be \<^emph>\<open>stronger\<close>
         than former theory @{term "\<Psi>"}.  In principle, anything a weaker theory can prove a
         stronger theory can prove.  One way of saying this is that deductive power increases
         monotonically with as the set of underlying assumptions grow. \<close>
@@ -141,9 +141,9 @@ text \<open> In logic, for two sets of assumptions @{term "\<Phi>"} and @{term "
 text \<open> The monotonic growth of deductive power can be expressed as a meta-theorem
         in minimal logic. \<close>
 
-text \<open> The lemma @{thm "list_flip_implication2"} presents a means of \emph{introducing}
+text \<open> The lemma @{thm "list_flip_implication2"} presents a means of \<^emph>\<open>introducing\<close>
         assumptions into a list of assumptions when those assumptions have arrived at an
-        implication.  The next lemma presents a means of \emph{discharging} those assumptions,
+        implication.  The next lemma presents a means of \<^emph>\<open>discharging\<close> those assumptions,
         which can be used in the monotonic growth theorem to be proved. \<close>
 
 lemma (in Minimal_Logic) list_implication_removeAll:
@@ -256,7 +256,7 @@ theorem (in Minimal_Logic) alternate_list_deduction_theorem:
 
 subsection \<open> Reflection \<close>
 
-text \<open> In logic the \emph{reflection} principle sometimes refers to when a collection of
+text \<open> In logic the \<^emph>\<open>reflection\<close> principle sometimes refers to when a collection of
         assumptions can deduce any of its members. It is automatically derivable from
         @{thm "list_deduction_monotonic"} among the other rules provided. \<close>
 
@@ -271,7 +271,7 @@ lemma (in Minimal_Logic) list_deduction_reflection: "\<phi> \<in> set \<Gamma> \
 
 subsection \<open> The Cut Rule \<close>
 
-text \<open> \emph{Cut} is a rule commonly presented in sequent calculi, dating back to Gerhard
+text \<open> \<^emph>\<open>Cut\<close> is a rule commonly presented in sequent calculi, dating back to Gerhard
         Gentzen's "Investigations in Logical Deduction" (1934) TODO: Cite me \<close>
 
 text \<open> The cut rule is not generally necessary in sequent calculi and it can often be shown
@@ -327,7 +327,7 @@ qed
 section \<open> Sets of Assumptions \<close>
 
 text \<open> While deduction in terms of lists of assumptions is straight-forward to define,
-        deduction (and the \emph{deduction theorem}) is commonly given in terms of \emph{sets}
+        deduction (and the \<^emph>\<open>deduction theorem\<close>) is commonly given in terms of \<^emph>\<open>sets\<close>
         of propositions.  This formulation is suited to establishing strong completeness theorems
         and compactness theorems. \<close>
 
@@ -337,7 +337,7 @@ text \<open> The presentation of deduction from a set follows the presentation o
 subsection \<open> Definition of Deduction \<close>
 
 text \<open> Just as deduction from a list @{term "(:\<turnstile>)"} can be defined in terms of @{term "(:\<rightarrow>)"},
-        deduction from a \emph{set} of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
+        deduction from a \<^emph>\<open>set\<close> of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
 
 definition (in Minimal_Logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
   "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
@@ -358,7 +358,7 @@ text \<open> In the case of the empty set, the converse may be established. \<cl
 lemma (in Minimal_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
-text \<open> Next, a form of \emph{modus ponens} is provided for @{term "(\<tturnstile>)"}. \<close>
+text \<open> Next, a form of \<^emph>\<open>modus ponens\<close> is provided for @{term "(\<tturnstile>)"}. \<close>
 
 lemma (in Minimal_Logic) set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
 proof -
@@ -422,7 +422,7 @@ theorem set_deduction_monotonic: "\<Sigma> \<subseteq> \<Gamma> \<Longrightarrow
 subsection \<open> The Deduction Theorem Revisited \<close>
 
 text \<open> As a consequence of the fact that @{thm "set_deduction_monotonic"} automatically provable,
-        the alternate \emph{deduction theorem} where the discharged assumption is completely
+        the alternate \<^emph>\<open>deduction theorem\<close> where the discharged assumption is completely
         removed from the set of assumptions is just a consequence of the more conventional
         @{thm "set_deduction_theorem"} and some basic set identities. \<close>
 
@@ -433,7 +433,7 @@ theorem (in Minimal_Logic) alternate_set_deduction_theorem:
 subsection \<open> Reflection \<close>
 
 text \<open> Just as in the case of @{term "(:\<turnstile>)"}, deduction from sets of assumptions
-        makes true the \emph{reflection principle} and is automatically provable. \<close>
+        makes true the \<^emph>\<open>reflection principle\<close> and is automatically provable. \<close>
 
 theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (metis Set.set_insert
@@ -444,7 +444,7 @@ theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Lo
 
 subsection \<open> The Cut Rule \<close>
 
-text \<open> The final principle of @{term "(\<tturnstile>)"} presented is the \emph{cut rule}. \<close>
+text \<open> The final principle of @{term "(\<tturnstile>)"} presented is the \<^emph>\<open>cut rule\<close>. \<close>
 
 text \<open> First, the weak form of the rule is established. \<close>
 
@@ -460,7 +460,7 @@ proof -
 qed
 
 text \<open> Another lemma is shown next in order to establish the strong form of the rule.
-        The lemma shows the existence of a \emph{covering list} of assumptions @{term "\<Psi>"} in
+        The lemma shows the existence of a \<^emph>\<open>covering list\<close> of assumptions @{term "\<Psi>"} in
         the event some set of assumptions @{term "\<Delta>"} proves everything in a finite set of
         assumptions @{term "\<Phi>"}. \<close>
 

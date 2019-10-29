@@ -6,7 +6,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-text \<open> This theory presents \emph{Classical propositional logic}, which is
+text \<open> This theory presents \<^emph>\<open>Classical propositional logic\<close>, which is
         a classical logic without quantifiers. \<close>
 
 subsection \<open> Axiomatization \<close>
