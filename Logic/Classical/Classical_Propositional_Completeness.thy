@@ -157,6 +157,10 @@ theorem Classical_Propositional_Calculus_Soundness_And_Completeness:
         set_deduction_base_theory [where \<phi>="\<phi>"]
   by metis
 
+instantiation Classical_Propositional_Formula :: (type) Consistent_Classical_Logic
+begin
+instance by standard (simp add: Classical_Propositional_Calculus_Soundness_And_Completeness)
+end
 
 primrec (in Classical_Propositional_Logic) Classical_Propositional_Formula_embedding
                            :: "'a Classical_Propositional_Formula \<Rightarrow> 'a" ("\<^bold>\<lparr> _ \<^bold>\<rparr>" [50]) where

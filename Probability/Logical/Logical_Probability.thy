@@ -192,8 +192,10 @@ next
     by (metis sum_rule add.commute) 
 qed
 
-lemma (in Logical_Probability) consistency: "\<not> \<turnstile> \<bottom>"
-  using Unity Antithesis by auto 
+sublocale Logical_Probability \<subseteq> Consistent_Classical_Logic
+proof
+  show "\<not> \<turnstile> \<bottom>" using Unity Antithesis by auto
+qed
 
 lemma (in Logical_Probability) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
@@ -391,5 +393,7 @@ next
               set_deduction_reflection)
   thus ?case using Cons.hyps by simp
 qed
+
+
 
 end

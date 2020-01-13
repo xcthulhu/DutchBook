@@ -1777,10 +1777,9 @@ proof -
           "(map (uncurry (\<rightarrow>)) (\<delta> # \<Delta>) @
             map (uncurry (\<rightarrow>)) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>)))
             \<preceq> ((uncurry (\<rightarrow>)) \<delta> # map (uncurry (\<rightarrow>)) (\<JJ> (remove1 \<psi> \<Psi>) \<Delta>))"
-          apply simp
           using stronger_theory_left_right_cons
                 stronger_theory_transitive
-          by blast
+          by fastforce
         moreover
         let ?\<alpha> = "fst \<delta>"
         let ?\<beta> = "fst \<psi>"
@@ -2269,9 +2268,8 @@ proof (rule iffI)
     proof (induct \<Psi>)
       case Nil
       then show ?case
-        apply simp
         using Axiom_1 Modus_Ponens
-        by blast
+        by fastforce
     next
       case (Cons \<delta> \<Psi>)
       let ?\<delta>' = "(\<lambda> (\<chi>, \<gamma>). (\<psi> \<rightarrow> (\<chi> \<squnion> \<gamma>))) \<delta>"
@@ -2319,9 +2317,8 @@ proof (rule iffI)
     case Nil
     then show ?case
       unfolding disjunction_def
-      apply simp
       using Axiom_1 Modus_Ponens
-      by blast
+      by fastforce
   next
     case (Cons \<nu> \<Psi>)
     let ?\<Delta> = "map (uncurry (\<squnion>)) \<Psi>"
@@ -3198,16 +3195,16 @@ proof -
         case True
         from this obtain \<psi> where "(\<phi>,\<psi>) \<in> set \<Sigma>"
           by (induct \<Sigma>, simp, fastforce)
-        hence "mset (map snd (remove1 (\<phi>, \<psi>) \<Sigma>)) = mset (remove1 \<psi> \<Psi>)"
-              "mset (map fst (remove1 (\<phi>, \<psi>) \<Sigma>)) \<subseteq># mset \<Phi>"
-              "\<forall>(\<phi>,\<psi>)\<in>set (remove1 (\<phi>, \<psi>) \<Sigma>). \<turnstile> \<phi> \<rightarrow> \<psi>"
+        hence A: "mset (map snd (remove1 (\<phi>, \<psi>) \<Sigma>)) = mset (remove1 \<psi> \<Psi>)"
+          and B: "mset (map fst (remove1 (\<phi>, \<psi>) \<Sigma>)) \<subseteq># mset \<Phi>"
           using \<Sigma> remove1_pairs_list_projections_snd
                   remove1_pairs_list_projections_fst
                   subset_eq_diff_conv
-          apply (fastforce,fastforce)
-          using \<Sigma>(3) by fastforce
+          by fastforce+
+        have "\<forall>(\<phi>,\<psi>)\<in>set (remove1 (\<phi>, \<psi>) \<Sigma>). \<turnstile> \<phi> \<rightarrow> \<psi>"
+          using \<Sigma>(3) by fastforce+
         hence "(remove1 \<psi> \<Psi>) \<preceq> \<Phi>"
-          unfolding stronger_theory_relation_alt_def by blast
+          unfolding stronger_theory_relation_alt_def using A B by blast
         moreover
         from \<open>\<Gamma> $\<turnstile> (\<phi> # \<Phi>)\<close> obtain \<Delta> where
           \<Delta>: "mset (map snd \<Delta>) \<subseteq># mset \<Gamma>"
@@ -3365,25 +3362,26 @@ proof -
         let ?\<gamma> = "fst \<delta>"
         have "(uncurry (\<squnion>)) = (\<lambda> \<sigma>. fst \<sigma> \<squnion> snd \<sigma>)" by fastforce
         hence "(uncurry (\<squnion>)) \<sigma> = ?\<alpha> \<squnion> ?\<beta>" by simp
-        hence "\<turnstile> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta>) \<rightarrow> (uncurry (\<squnion>)) \<sigma>" using tautology by simp
+        hence A: "\<turnstile> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta>) \<rightarrow> (uncurry (\<squnion>)) \<sigma>" using tautology by simp
         moreover
         have "map (uncurry (\<squnion>)) (remove1 \<sigma> \<Sigma>)
              \<preceq> map (uncurry (\<squnion>)) (\<EE> (remove1 \<sigma> \<Sigma>) \<Delta>)"
           using Cons by simp
-        ultimately have
+        ultimately have A:
           "map (uncurry (\<squnion>)) (\<sigma> # (remove1 \<sigma> \<Sigma>))
            \<preceq> (?\<alpha> \<squnion> (?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta> # map (uncurry (\<squnion>)) (\<EE> (remove1 \<sigma> \<Sigma>) \<Delta>))"
-          apply simp
-          using stronger_theory_left_right_cons by blast
-        moreover from \<sigma>(3) have "mset \<Sigma> = mset (\<sigma> # (remove1 \<sigma> \<Sigma>))"
+           using stronger_theory_left_right_cons by fastforce
+        from \<sigma>(3) have "mset \<Sigma> = mset (\<sigma> # (remove1 \<sigma> \<Sigma>))"
           by simp
         hence "mset (map (uncurry (\<squnion>)) \<Sigma>) = mset (map (uncurry (\<squnion>)) (\<sigma> # (remove1 \<sigma> \<Sigma>)))"
           by (metis mset_map)
-        hence "map (uncurry (\<squnion>)) \<Sigma> \<preceq> map (uncurry (\<squnion>)) (\<sigma> # (remove1 \<sigma> \<Sigma>))"
+        hence B: "map (uncurry (\<squnion>)) \<Sigma> \<preceq> map (uncurry (\<squnion>)) (\<sigma> # (remove1 \<sigma> \<Sigma>))"
           by (simp add: msub_stronger_theory_intro)
-        ultimately show ?thesis using \<sigma>
-          apply simp
-          using stronger_theory_transitive by blast
+        have "(  fst \<sigma> 
+               \<squnion> (fst \<delta> \<sqinter> fst \<sigma>) 
+               \<squnion> snd \<sigma> # map (\<lambda>(x, y). x \<squnion> y) (\<EE> (remove1 \<sigma> \<Sigma>) \<Delta>)) \<succeq> map (\<lambda>(x, y). x \<squnion> y) \<Sigma>"
+          by (metis (no_types, hide_lams) A B stronger_theory_transitive uncurry_def)
+        thus ?thesis using A B \<sigma> by simp
       qed
     }
     then show ?case by auto
@@ -3528,9 +3526,8 @@ proof -
         hence "(uncurry (\<squnion>) \<delta>) = (?\<gamma> \<squnion> (?\<alpha> \<rightarrow> ?\<beta>))" using \<sigma>(2) by simp
         hence "\<turnstile> (?\<alpha> \<rightarrow> ((?\<gamma> \<sqinter> ?\<alpha>) \<squnion> ?\<beta>)) \<rightarrow> (uncurry (\<squnion>) \<delta>)" using tautology by auto
         ultimately show ?thesis
-          apply simp
           using stronger_theory_left_right_cons
-          by blast
+          by fastforce
       qed
     }
     then show ?case by auto
@@ -5000,6 +4997,10 @@ qed
 definition (in Minimal_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
   where
     "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<C> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<C> \<Gamma> \<phi> })"
+
+abbreviation (in Minimal_Logic_With_Falsum) MaxSAT :: "'a list \<Rightarrow> nat"
+  where
+    "MaxSAT \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
 
 definition (in Minimal_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
   where
@@ -7545,7 +7546,7 @@ next
   thus ?case by blast
 qed
 
-lemma (in Classical_Propositional_Logic) binary_ceiling_inequality:
+lemma (in Classical_Propositional_Logic) dirac_ceiling:
   "\<forall> Pr \<in> Dirac_Measures.
       ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof -
@@ -7586,15 +7587,15 @@ lemma (in Logical_Probability) probability_replicate_verum:
   using Unity
   by (induct n, auto)
 
-lemma (in Classical_Propositional_Logic) weakly_additive_collapse:
+lemma (in Classical_Propositional_Logic) dirac_collapse:
   "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
    = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
-proof (rule iffI)
+proof
   assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using Dirac_Measures_subset by fastforce
   thus "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-    using binary_ceiling_inequality by blast
+    using dirac_ceiling by blast
 next
   assume assm: "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   show "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7676,6 +7677,56 @@ next
         by linarith
     }
     then show ?thesis by blast
+  qed
+qed
+
+lemma (in Classical_Propositional_Logic) dirac_strict_floor:
+  "\<forall> Pr \<in> Dirac_Measures.
+      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof
+  fix Pr :: "'a \<Rightarrow> real"
+  let ?Pr' = "(\<lambda> \<phi>. \<lfloor> Pr \<phi> \<rfloor>) :: 'a \<Rightarrow> int"
+  assume "Pr \<in> Dirac_Measures"
+  hence "\<forall> \<phi>. Pr \<phi> = ?Pr' \<phi>"
+    unfolding Dirac_Measures_def
+    by (metis (mono_tags, lifting) mem_Collect_eq of_int_0 of_int_1 of_int_floor_cancel)   
+  hence A: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>)"
+    by (induct \<Phi>, auto)
+  have B: "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) = (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>)"
+    using \<open>\<forall> \<phi>. Pr \<phi> = ?Pr' \<phi>\<close> by (induct \<Gamma>, auto)
+  have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>))"
+    unfolding A B by auto
+  also have "\<dots> = ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>))"
+    by linarith
+  finally show "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) =
+                ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+    using A B by linarith
+qed
+
+lemma (in Classical_Propositional_Logic) strict_dirac_collapse:
+  "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+   = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+proof
+  assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    using Dirac_Measures_subset by blast
+  thus "\<forall> Pr \<in> Dirac_Measures. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+    using dirac_strict_floor by blast
+next
+  assume "\<forall> Pr \<in> Dirac_Measures. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  moreover have "\<lfloor>c\<rfloor> + 1 = \<lceil> (\<lfloor>c\<rfloor> + 1) :: real\<rceil>"
+    by simp
+  ultimately have \<star>: "\<forall> Pr \<in> Logical_Probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+    using dirac_collapse [of \<Phi> "\<lfloor>c\<rfloor> + 1" \<Gamma>]
+    by auto
+  show "\<forall> Pr \<in> Logical_Probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  proof
+    fix Pr :: "'a \<Rightarrow> real"
+    assume "Pr \<in> Logical_Probabilities"
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)" 
+      using \<star> by auto
+    thus "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+      by linarith
   qed
 qed
 
@@ -7832,14 +7883,13 @@ next
   thus ?case using Suc by simp
 qed
 
-lemma (in Classical_Propositional_Logic) binary_inequality_elim:
-  assumes "\<not> \<turnstile> \<bottom>"
-      and "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-    shows "((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
+lemma (in Consistent_Classical_Logic) binary_inequality_elim:
+  assumes "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+    shows "((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>)"
 proof (cases "c \<ge> 0")
   case True
   from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
-    by simp
+    by (metis ceiling_mono ceiling_zero of_nat_nat)
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
@@ -7847,7 +7897,7 @@ proof (cases "c \<ge> 0")
       unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-      by (metis assms(2) \<open>Pr \<in> Dirac_Measures\<close> \<open>real n = \<lceil>c\<rceil>\<close> binary_ceiling_inequality)
+      by (metis assms \<open>Pr \<in> Dirac_Measures\<close> \<open>real n = \<lceil>c\<rceil>\<close> dirac_ceiling)
     hence "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
       by metis
@@ -7860,13 +7910,14 @@ proof (cases "c \<ge> 0")
     unfolding core_size_def unproving_core_def
     by metis
   hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + \<lceil>c\<rceil> \<le> length \<Gamma>"
-    using \<open>real n = \<lceil>c\<rceil>\<close> assms(1) unproving_core_verum_extract
+    using \<open>real n = \<lceil>c\<rceil>\<close> consistency unproving_core_verum_extract
     by auto
   then show ?thesis by linarith
 next
   case False
   hence "\<lceil>c\<rceil> \<le> 0" by auto
-  from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
+  from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" 
+    by (metis neg_0_le_iff_le of_nat_nat)
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
@@ -7874,7 +7925,7 @@ next
       unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-      using assms(2) \<open>Pr \<in> Dirac_Measures\<close> binary_ceiling_inequality
+      using assms \<open>Pr \<in> Dirac_Measures\<close> dirac_ceiling
       by blast
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) + n"
       using \<open>real n = - \<lceil>c\<rceil>\<close> by linarith
@@ -7892,7 +7943,7 @@ qed
 
 lemma (in Classical_Propositional_Logic) binary_inequality_intro:
   assumes "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>"
-  shows "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  shows "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof (cases "\<turnstile> \<bottom>")
   assume "\<turnstile> \<bottom>"
   {
@@ -7968,11 +8019,11 @@ next
   qed
 qed
 
-lemma (in Classical_Propositional_Logic) binary_inequality_equiv:
-  assumes "\<not> \<turnstile> \<bottom>"
-  shows "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) =
-         ((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + c \<le> length \<Gamma>)"
-  using assms binary_inequality_elim binary_inequality_intro by auto
+lemma (in Consistent_Classical_Logic) binary_inequality_equiv:
+   "  (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+    = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+  using binary_inequality_elim binary_inequality_intro consistency by auto 
+
 
 (*
 lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:

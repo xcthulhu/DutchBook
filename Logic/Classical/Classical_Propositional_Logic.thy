@@ -6,15 +6,20 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-text \<open> This theory presents \<^emph>\<open>Classical propositional logic\<close>, which is
+text \<open> This theory presents \<^emph>\<open>classical propositional logic\<close>, which is
         a classical logic without quantifiers. \<close>
 
 subsection \<open> Axiomatization \<close>
 
-text \<open> Minimal logic is given by the following Hilbert-style axiom system: \<close>
+text \<open> Classical propositional logic is given by the following Hilbert-style axiom system: \<close>
 
 class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
+
+text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
+
+class Consistent_Classical_Logic = Classical_Propositional_Logic +
+  assumes consistency: "\<not> \<turnstile> \<bottom>"
 
 subsection \<open> Common Rules \<close>
 
