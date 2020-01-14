@@ -6,7 +6,7 @@ book/book.pdf:
 	make -C book/
 
 dutchbook:
-	isabelle build -d . DutchBook
+	isabelle build -c -v -d . DutchBook
 
 test: test-Dutchbook test-Extra
 
