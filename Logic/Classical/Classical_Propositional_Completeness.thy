@@ -7,10 +7,10 @@ begin
 subsection \<open> Syntax \<close>
 
 datatype 'a Classical_Propositional_Formula =
-      Falsum                                                                  ("\<^bold>\<bottom>")
-    | Proposition 'a                                                          ("\<^bold>\<langle> _ \<^bold>\<rangle>" [45])
+      Falsum ("\<^bold>\<bottom>")
+    | Proposition 'a ("\<^bold>\<langle> _ \<^bold>\<rangle>" [45])
     | Implication "'a Classical_Propositional_Formula"
-                  "'a Classical_Propositional_Formula"                          (infixr "\<^bold>\<rightarrow>" 70)
+                  "'a Classical_Propositional_Formula" (infixr "\<^bold>\<rightarrow>" 70)
 
 subsection \<open> Propositional Calculus \<close>
 
@@ -19,10 +19,14 @@ named_theorems Classical_Propositional_Calculus "Rules for the Propositional Cal
 inductive Classical_Propositional_Calculus ::
   "'a Classical_Propositional_Formula \<Rightarrow> bool"                                  ("\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p _" [60] 55)
   where
-       Axiom_1 [Classical_Propositional_Calculus]: "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
-    |  Axiom_2 [Classical_Propositional_Calculus]: "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<chi>) \<^bold>\<rightarrow> (\<phi> \<^bold>\<rightarrow> \<psi>) \<^bold>\<rightarrow> \<phi> \<^bold>\<rightarrow> \<chi>"
-    |  Double_Negation [Classical_Propositional_Calculus]: "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<phi> \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<phi>"
-    |  Modus_Ponens [Classical_Propositional_Calculus]: "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
+     Axiom_1 [Classical_Propositional_Calculus]: 
+       "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
+   | Axiom_2 [Classical_Propositional_Calculus]: 
+       "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<chi>) \<^bold>\<rightarrow> (\<phi> \<^bold>\<rightarrow> \<psi>) \<^bold>\<rightarrow> \<phi> \<^bold>\<rightarrow> \<chi>"
+   | Double_Negation [Classical_Propositional_Calculus]: 
+       "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<phi> \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<phi>"
+   | Modus_Ponens [Classical_Propositional_Calculus]: 
+        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
 
 instantiation Classical_Propositional_Formula :: (type) Classical_Propositional_Logic
 begin

@@ -2,6 +2,8 @@ theory Logical_Probability_Completeness
   imports Logical_Probability
 begin
 
+(*:maxLineLen=80:*)
+
 sledgehammer_params [smt_proofs = false]
 
 (* TODO: Move utility stuff *)
