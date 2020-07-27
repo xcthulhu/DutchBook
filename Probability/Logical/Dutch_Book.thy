@@ -1,4 +1,4 @@
-theory Dutch_Book 
+theory Dutch_Book
   imports "../../Logic/Classical/Classical_Propositional_Connectives"
           "Logical_Probability_Completeness"
           "~~/src/HOL/Real"
@@ -43,7 +43,7 @@ lemma payoff_alt_def2:
 (* TODO: Cite Lehman *)
 
 definition (in Classical_Propositional_Logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
-  [simp]: "possibility p \<equiv>    \<not> (p \<bottom>) 
+  [simp]: "possibility p \<equiv>    \<not> (p \<bottom>)
                            \<and> (\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> p \<phi>)
                            \<and> (\<forall> \<phi> \<psi> . p (\<phi> \<rightarrow> \<psi>) \<longrightarrow> p \<phi> \<longrightarrow> p \<psi>)
                            \<and> (\<forall> \<phi> . p \<phi> \<or> p (\<phi> \<rightarrow> \<bottom>))"
@@ -102,40 +102,40 @@ lemma (in Classical_Propositional_Logic) possibilities_are_MCS:
   assumes "possibility p"
   shows "MCS {x. p x}"
   using assms
-  by (metis (mono_tags, lifting) 
+  by (metis (mono_tags, lifting)
             Formula_Consistent_def
             Formula_Maximally_Consistent_Set_def
             Maximally_Consistent_Set_def
             possibilities_logical_closure
             possibility_def
             mem_Collect_eq)
-  
+
 lemma (in Classical_Propositional_Logic) MCSs_are_possibilities:
   assumes "MCS s"
   shows "possibility (\<lambda> x. x \<in> s)"
 proof -
   have "\<bottom> \<notin> s"
-    using \<open>MCS s\<close> 
+    using \<open>MCS s\<close>
           Formula_Consistent_def
           Formula_Maximally_Consistent_Set_def
           Maximally_Consistent_Set_def
-          set_deduction_reflection 
+          set_deduction_reflection
     by blast
   moreover have "\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> \<phi> \<in> s"
     using \<open>MCS s\<close>
           Formula_Maximally_Consistent_Set_reflection
           Maximally_Consistent_Set_def
-          set_deduction_weaken 
+          set_deduction_weaken
     by blast
   moreover have "\<forall> \<phi> \<psi>. (\<phi> \<rightarrow> \<psi>) \<in> s \<longrightarrow> \<phi> \<in> s \<longrightarrow> \<psi> \<in> s"
-    using \<open>MCS s\<close> 
+    using \<open>MCS s\<close>
           Formula_Maximal_Consistency
           Formula_Maximally_Consistent_Set_implication
     by blast
   moreover have "\<forall> \<phi>. \<phi> \<in> s \<or> (\<phi> \<rightarrow> \<bottom>) \<in> s"
-    using assms 
+    using assms
           Formula_Maximally_Consistent_Set_implication
-          Maximally_Consistent_Set_def 
+          Maximally_Consistent_Set_def
     by blast
   ultimately show ?thesis by simp
 qed
@@ -145,7 +145,7 @@ definition (in Classical_Propositional_Logic) negate_bets ("_\<^sup>\<sim>") whe
 
 lemma (in Classical_Propositional_Logic) possibility_payoff:
   assumes "possibility p"
-  shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr> 
+  shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = settle p (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys'"
 proof (induct buys')
   case Nil
@@ -159,7 +159,7 @@ proof (induct buys')
 next
   case (Cons b buys')
   have "p (\<sim> (bet b)) = (\<not> (p (bet b)))" using assms negation_def by auto
-  moreover have "  total_amount ((b # buys') @ sells') 
+  moreover have "  total_amount ((b # buys') @ sells')
                  = amount b + total_amount buys' + total_amount sells'"
     unfolding total_amount_def
     by (induct buys', induct sells', auto)
@@ -181,18 +181,18 @@ proof (rule ex_ex1I)
       by (meson le_less_linear)
     hence \<star>: "\<forall>p \<in> possibilities. \<exists> q \<in> possibilities. \<pi> q bets < \<pi> p bets"
       by blast
-    have \<lozenge>: "\<forall> p \<in> possibilities. \<exists> q \<in> possibilities. 
+    have \<lozenge>: "\<forall> p \<in> possibilities. \<exists> q \<in> possibilities.
                     settle q (buys'\<^sup>\<sim> @ sells') < settle p (buys'\<^sup>\<sim> @ sells')"
     proof
       fix p
       assume "p \<in> possibilities"
       from this obtain q where "q \<in> possibilities" and "\<pi> q bets < \<pi> p bets"
         using \<star> by blast
-      hence 
-        "  settle q (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys' 
+      hence
+        "  settle q (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys'
          < settle p (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys'"
-        by (metis \<open>\<pi> q bets < \<pi> p bets\<close> 
-                  \<open>bets = \<lparr>buys = buys', sells = sells'\<rparr>\<close> 
+        by (metis \<open>\<pi> q bets < \<pi> p bets\<close>
+                  \<open>bets = \<lparr>buys = buys', sells = sells'\<rparr>\<close>
                   \<open>p \<in> possibilities\<close>
                   possibilities_def
                   possibility_payoff
@@ -211,15 +211,15 @@ proof (rule ex_ex1I)
     } note \<dagger> = this
     {
       fix n :: "nat"
-      have "    (\<exists> p \<in> possibilities. settle p (buys'\<^sup>\<sim> @ sells') \<le> n) 
+      have "    (\<exists> p \<in> possibilities. settle p (buys'\<^sup>\<sim> @ sells') \<le> n)
             \<longrightarrow> (\<exists> q \<in> possibilities. settle q (buys'\<^sup>\<sim> @ sells') < 0)" (is "_ \<longrightarrow> ?consequent")
       proof (induct n)
         case 0
         {
           fix p :: "'a \<Rightarrow> bool"
           assume"p \<in> possibilities" and "settle p (buys'\<^sup>\<sim> @ sells') \<le> 0"
-          from this obtain q where 
-            "q \<in> possibilities" 
+          from this obtain q where
+            "q \<in> possibilities"
             "settle q (buys'\<^sup>\<sim> @ sells') < settle p (buys'\<^sup>\<sim> @ sells')"
             using \<lozenge> by blast
           hence ?consequent
@@ -231,12 +231,12 @@ proof (rule ex_ex1I)
         {
           fix p :: "'a \<Rightarrow> bool"
           assume"p \<in> possibilities" and "settle p (buys'\<^sup>\<sim> @ sells') \<le> Suc n"
-          from this obtain q\<^sub>1 where 
-            "q\<^sub>1 \<in> possibilities" 
+          from this obtain q\<^sub>1 where
+            "q\<^sub>1 \<in> possibilities"
             "settle q\<^sub>1 (buys'\<^sup>\<sim> @ sells') < Suc n"
             by (metis \<lozenge> antisym_conv not_less)
-          from this obtain q\<^sub>2 where 
-            "q\<^sub>2 \<in> possibilities" 
+          from this obtain q\<^sub>2 where
+            "q\<^sub>2 \<in> possibilities"
             "settle q\<^sub>2 (buys'\<^sup>\<sim> @ sells') < n"
             using \<lozenge>
             by (metis \<dagger> add.commute nat_le_real_less nat_less_le of_nat_Suc of_nat_less_iff)
@@ -264,8 +264,8 @@ next
   fix x y
   assume A: "(\<exists>p \<in> possibilities. \<pi> p bets = x) \<and> (\<forall>q \<in> possibilities. x \<le> \<pi> q bets)"
   and B: "(\<exists>p \<in> possibilities. \<pi> p bets = y) \<and> (\<forall>q \<in> possibilities. y \<le> \<pi> q bets)"
-  from this obtain p\<^sub>x p\<^sub>y where 
-    "p\<^sub>x \<in> possibilities" 
+  from this obtain p\<^sub>x p\<^sub>y where
+    "p\<^sub>x \<in> possibilities"
     "p\<^sub>y \<in> possibilities"
     "\<pi> p\<^sub>x bets = x"
     "\<pi> p\<^sub>y bets = y"
@@ -275,13 +275,13 @@ next
   thus "x = y" by linarith
 qed
 
-definition (in Consistent_Classical_Logic) 
+definition (in Consistent_Classical_Logic)
   minimum_payoff :: "'a book \<Rightarrow> real" ("\<pi>\<^sub>m\<^sub>i\<^sub>n") where
   "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
 
 lemma (in Classical_Propositional_Logic) possibility_payoff_dual:
   assumes "possibility p"
-  shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr> 
+  shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = - settle p (sells'\<^sup>\<sim> @ buys')
              + total_amount buys' + length sells' - total_amount sells'"
 proof (induct sells')
@@ -295,7 +295,7 @@ proof (induct sells')
 next
   case (Cons sell' sells')
   have "p (\<sim> (bet sell')) = (\<not> (p (bet sell')))" using assms negation_def by auto
-  moreover have "total_amount ((sell' # sells') @ buys') 
+  moreover have "total_amount ((sell' # sells') @ buys')
                  = amount sell' + total_amount sells' + total_amount buys'"
     unfolding total_amount_def
     by (induct buys', induct sells', auto)
@@ -310,7 +310,7 @@ lemma settle_alt_def: "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \
   by (induct bets, simp+)
 
 theorem (in Consistent_Classical_Logic) dutch_book_maxsat:
-  "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>) 
+  "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (  MaxSAT [bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] + (k :: real)
       \<le> total_amount buys' + length sells' - total_amount sells')"
   (is "(k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets) = (MaxSAT ?props + k \<le> total_amount _ + _ - _)")
@@ -322,7 +322,7 @@ proof
           minimum_payoff_existence [of ?bets]
     by (metis possibilities_def mem_Collect_eq)
   hence "?P (\<pi> p ?bets)"
-    using possibilities_def by blast 
+    using possibilities_def by blast
   hence "\<pi>\<^sub>m\<^sub>i\<^sub>n ?bets = \<pi> p ?bets"
     unfolding minimum_payoff_def
     using minimum_payoff_existence [of ?bets]
@@ -332,8 +332,8 @@ proof
   let ?\<Phi> = "[\<phi> \<leftarrow> ?props. p \<phi>]"
 
   have "mset ?\<Phi> \<subseteq># mset ?props"
-    by(induct ?props, 
-       auto, 
+    by(induct ?props,
+       auto,
        simp add: subset_mset.add_mono)
   moreover
   have "\<not> (?\<Phi> :\<turnstile> \<bottom>)"
@@ -365,9 +365,9 @@ proof
     have "possibility ?q"
       using \<open>MCS \<Omega>\<^sub>\<Psi>\<close> MCSs_are_possibilities by blast
     hence "\<pi> p ?bets \<le> \<pi> ?q ?bets"
-      using \<open>\<forall>q\<in>possibilities. \<pi> p ?bets \<le> \<pi> q ?bets\<close> 
-            possibilities_def 
-      by blast 
+      using \<open>\<forall>q\<in>possibilities. \<pi> p ?bets \<le> \<pi> q ?bets\<close>
+            possibilities_def
+      by blast
     let ?c = "total_amount buys' + length sells' - total_amount sells'"
     have "- settle p (sells'\<^sup>\<sim> @ buys') + ?c \<le> - settle ?q (sells'\<^sup>\<sim> @ buys') + ?c"
       using \<open>\<pi> p ?bets \<le> \<pi> ?q ?bets\<close>
@@ -386,7 +386,7 @@ proof
     moreover
     have "length \<Psi> \<le> length ?\<Psi>'"
     proof -
-      have "mset [\<psi> \<leftarrow> \<Psi>. ?q \<psi>] \<subseteq># mset ?\<Psi>'" 
+      have "mset [\<psi> \<leftarrow> \<Psi>. ?q \<psi>] \<subseteq># mset ?\<Psi>'"
       proof -
         {
           fix props :: "'a list"
@@ -395,7 +395,7 @@ proof
             by (simp add: multiset_filter_mono)
         }
         thus ?thesis
-          using \<open>mset \<Psi> \<subseteq># mset ?props\<close> by blast 
+          using \<open>mset \<Psi> \<subseteq># mset ?props\<close> by blast
       qed
       hence "length [\<psi> \<leftarrow> \<Psi>. ?q \<psi>] \<le> length ?\<Psi>'"
         by (metis (no_types, lifting) length_sub_mset mset_eq_length nat_less_le not_le)
@@ -439,7 +439,7 @@ next
   have "mset \<Phi> \<subseteq># mset ?props"
     using \<open>\<Phi> \<in> \<C> ?props \<bottom>\<close> unproving_core_def by blast
   have "mset \<Phi> \<subseteq># mset [ b \<leftarrow> ?props. ?p b]"
-    by (metis \<open>mset \<Phi> \<subseteq># mset ?props\<close> 
+    by (metis \<open>mset \<Phi> \<subseteq># mset ?props\<close>
               \<open>set \<Phi> \<subseteq> \<Omega>\<^sub>\<Phi>\<close>
               filter_True
               mset_filter
@@ -452,20 +452,20 @@ next
       using \<open>mset \<Phi> \<subseteq># mset [ b \<leftarrow> ?props. ?p b]\<close> length_sub_mset not_less by blast
     moreover
     have "\<not> [ b \<leftarrow> ?props. ?p b] :\<turnstile> \<bottom>"
-      by (metis IntE 
-                \<open>MCS \<Omega>\<^sub>\<Phi>\<close> 
+      by (metis IntE
+                \<open>MCS \<Omega>\<^sub>\<Phi>\<close>
                 inter_set_filter
                 Formula_Consistent_def
                 Formula_Maximally_Consistent_Set_def
                 Maximally_Consistent_Set_def
-                set_deduction_def 
+                set_deduction_def
                 subsetI)
     hence "length [ b \<leftarrow> ?props. ?p b] \<le> length \<Phi>"
-      by (metis (mono_tags, lifting) 
+      by (metis (mono_tags, lifting)
                 \<open>\<Phi> \<in> \<C> ?props \<bottom>\<close>
                 unproving_core_def [of ?props \<bottom>]
                 mem_Collect_eq
-                mset_filter 
+                mset_filter
                 multiset_filter_subset)
     ultimately show "False"
       using not_le by blast
@@ -473,14 +473,14 @@ next
   hence "length \<Phi> = settle ?p (sells'\<^sup>\<sim> @ buys')"
     unfolding settle_alt_def
     using mset_eq_length by fastforce
-  hence "k \<le> settle ?p (sells'\<^sup>\<sim> @ buys') 
+  hence "k \<le> settle ?p (sells'\<^sup>\<sim> @ buys')
              + total_amount buys' + length sells' - total_amount sells'"
     using \<open>length \<Phi> + k \<le> ?c\<close> by linarith
   hence "k \<le> \<pi> ?p ?bets"
     using \<open>possibility ?p\<close>
           possibility_payoff_dual [of ?p buys' sells']
-          \<open>length \<Phi> + k \<le> ?c\<close> 
-          \<open>length \<Phi> = settle ?p (sells'\<^sup>\<sim> @ buys')\<close> 
+          \<open>length \<Phi> + k \<le> ?c\<close>
+          \<open>length \<Phi> = settle ?p (sells'\<^sup>\<sim> @ buys')\<close>
     by linarith
   have "\<forall> q \<in> possibilities. \<pi> ?p ?bets \<le> \<pi> q ?bets"
   proof
@@ -488,21 +488,21 @@ next
     assume "q \<in> possibilities"
     hence "\<not> [ b \<leftarrow> ?props. q b] :\<turnstile> \<bottom>"
       unfolding possibilities_def
-      by (metis filter_set 
-                possibilities_logical_closure 
-                possibility_def 
-                set_deduction_def 
-                mem_Collect_eq 
-                member_filter 
+      by (metis filter_set
+                possibilities_logical_closure
+                possibility_def
+                set_deduction_def
+                mem_Collect_eq
+                member_filter
                 subsetI)
     hence "length [ b \<leftarrow> ?props. q b] \<le> length \<Phi>"
-      by (metis (mono_tags, lifting) 
-                \<open>\<Phi> \<in> \<C> ?props \<bottom>\<close> 
-                unproving_core_def 
-                mem_Collect_eq 
-                mset_filter 
+      by (metis (mono_tags, lifting)
+                \<open>\<Phi> \<in> \<C> ?props \<bottom>\<close>
+                unproving_core_def
+                mem_Collect_eq
+                mset_filter
                 multiset_filter_subset)
-    hence 
+    hence
       "  - settle ?p (sells'\<^sup>\<sim> @ buys') + total_amount buys' + length sells' - total_amount sells'
        \<le> - settle q (sells'\<^sup>\<sim> @ buys') + total_amount buys' + length sells' - total_amount sells'"
       using \<open>length \<Phi> = settle ?p (sells'\<^sup>\<sim> @ buys')\<close>
@@ -546,8 +546,8 @@ next
 qed
 
 lemma (in Consistent_Classical_Logic) nonstrict_dutch_book:
-  "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>) 
-   = (\<forall> Pr \<in> Logical_Probabilities. 
+  "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
+   = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = _")
@@ -563,7 +563,7 @@ proof -
     by linarith
   also have "\<dots> = (MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length ?sell_\<phi>s)"
     by simp
-  finally have I: "?lhs = (\<forall> Pr \<in> Dirac_Measures. 
+  finally have I: "?lhs = (\<forall> Pr \<in> Dirac_Measures.
     (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (?tot_ss - ?tot_bs + k) \<le> (\<Sum>\<gamma>\<leftarrow>?sell_\<phi>s. Pr \<gamma>))"
     using binary_inequality_equiv [of ?buy_\<phi>s "?tot_ss - ?tot_bs + k" ?sell_\<phi>s]
     by blast
@@ -582,8 +582,8 @@ proof -
 qed
 
 lemma (in Consistent_Classical_Logic) strict_dutch_book:
-  "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>) 
-   = (\<forall> Pr \<in> Logical_Probabilities. 
+  "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
+   = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = ?rhs")
@@ -591,7 +591,7 @@ proof
   assume ?lhs
   from this obtain \<epsilon> where "0 < \<epsilon>" "k + \<epsilon> \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr>buys = buys', sells = sells'\<rparr>"
     using less_diff_eq by fastforce
-  hence "\<forall>Pr \<in> Logical_Probabilities. 
+  hence "\<forall>Pr \<in> Logical_Probabilities.
             (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + (k + \<epsilon>)
           \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys'"
     using nonstrict_dutch_book [of "k + \<epsilon>" buys' sells'] by auto
@@ -623,7 +623,7 @@ next
     by (metis floor_add_int floor_mono floor_of_nat binary_inequality_equiv)
   hence "MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + ?c < length ?sell_\<phi>s"
     by linarith
-  from this obtain \<epsilon> :: real where 
+  from this obtain \<epsilon> :: real where
     "0 < \<epsilon>"
     "MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (k + \<epsilon>) \<le> ?tot_bs + length sells' - ?tot_ss"
     using less_diff_eq by fastforce
@@ -636,8 +636,8 @@ next
 qed
 
 theorem (in Consistent_Classical_Logic) dutch_book:
-  "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>) 
-   = (\<forall> Pr \<in> Logical_Probabilities. 
+  "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
+   = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells'
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   by (simp add: strict_dutch_book)

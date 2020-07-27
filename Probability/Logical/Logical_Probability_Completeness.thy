@@ -162,19 +162,19 @@ primrec (in Classical_Propositional_Logic)
                            map (uncurry (\<squnion>)) \<Psi> :\<turnstile> \<phi> \<and>
                            map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
 
-definition (in Minimal_Logic)
+definition (in Implicational_Intuitionistic_Logic)
   stronger_theory_relation :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<preceq>" 100)
   where
     "\<Sigma> \<preceq> \<Gamma> = (\<exists> \<Phi>. map snd \<Phi> = \<Sigma> \<and>
                     mset (map fst \<Phi>) \<subseteq># mset \<Gamma> \<and>
                     (\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
 
-abbreviation (in Minimal_Logic)
+abbreviation (in Implicational_Intuitionistic_Logic)
   stronger_theory_relation_op :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<succeq>" 100)
   where
     "\<Gamma> \<succeq> \<Sigma> \<equiv> \<Sigma> \<preceq> \<Gamma>"
 
-lemma (in Minimal_Logic) msub_stronger_theory_intro:
+lemma (in Implicational_Intuitionistic_Logic) msub_stronger_theory_intro:
   assumes "mset \<Sigma> \<subseteq># mset \<Gamma>"
   shows "\<Sigma> \<preceq> \<Gamma>"
 proof -
@@ -187,22 +187,22 @@ proof -
     using assms by simp
   moreover have "\<forall> (\<gamma>,\<sigma>) \<in> set ?\<Delta>\<Sigma>. \<turnstile> \<gamma> \<rightarrow> \<sigma>"
     by (induct \<Sigma>, simp, simp,
-        metis list_implication.simps(1) list_implication_Axiom_1)
+        metis list_implication.simps(1) list_implication_Axiom_K)
   ultimately show ?thesis using stronger_theory_relation_def by (simp, blast)
 qed
 
-lemma (in Minimal_Logic) stronger_theory_reflexive [simp]: "\<Gamma> \<preceq> \<Gamma>"
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_reflexive [simp]: "\<Gamma> \<preceq> \<Gamma>"
   using msub_stronger_theory_intro by auto
 
-lemma (in Minimal_Logic) weakest_theory [simp]: "[] \<preceq> \<Gamma>"
+lemma (in Implicational_Intuitionistic_Logic) weakest_theory [simp]: "[] \<preceq> \<Gamma>"
   using msub_stronger_theory_intro by auto
 
-lemma (in Minimal_Logic) stronger_theory_empty_list_intro [simp]:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_empty_list_intro [simp]:
   assumes "\<Gamma> \<preceq> []"
   shows "\<Gamma> = []"
   using assms stronger_theory_relation_def by simp
 
-lemma (in Minimal_Logic) stronger_theory_right_permutation:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_right_permutation:
   assumes "\<Gamma> <~~> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
     shows "\<Sigma> \<preceq> \<Delta>"
@@ -214,7 +214,7 @@ proof -
     by fastforce
 qed
 
-lemma (in Minimal_Logic) stronger_theory_left_permutation:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_left_permutation:
   assumes "\<Sigma> <~~> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
     shows "\<Delta> \<preceq> \<Gamma>"
@@ -283,7 +283,7 @@ proof -
   with assms show ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) stronger_theory_transitive:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_transitive:
   assumes "\<Sigma> \<preceq> \<Delta>" and "\<Delta> \<preceq> \<Gamma>"
     shows "\<Sigma> \<preceq> \<Gamma>"
 proof -
@@ -377,7 +377,7 @@ proof -
   thus ?thesis using assms by blast
 qed
 
-lemma (in Minimal_Logic) stronger_theory_witness:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_witness:
   assumes "\<sigma> \<in> set \<Sigma>"
     shows "\<Sigma> \<preceq> \<Gamma> = (\<exists> \<gamma> \<in> set \<Gamma>. \<turnstile> \<gamma> \<rightarrow> \<sigma> \<and> (remove1 \<sigma> \<Sigma>) \<preceq> (remove1 \<gamma> \<Gamma>))"
 proof (rule iffI)
@@ -437,7 +437,7 @@ next
     using stronger_theory_left_permutation by blast
 qed
 
-lemma (in Minimal_Logic) stronger_theory_cons_witness:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_cons_witness:
   "(\<sigma> # \<Sigma>) \<preceq> \<Gamma> = (\<exists> \<gamma> \<in> set \<Gamma>. \<turnstile> \<gamma> \<rightarrow> \<sigma> \<and> \<Sigma> \<preceq> (remove1 \<gamma> \<Gamma>))"
 proof -
   have "\<sigma> \<in># mset (\<sigma> # \<Sigma>)" by simp
@@ -446,7 +446,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Minimal_Logic) stronger_theory_left_cons:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_left_cons:
   assumes "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>"
   shows "\<Sigma> \<preceq> \<Gamma>"
 proof -
@@ -468,7 +468,7 @@ proof -
   ultimately show ?thesis unfolding stronger_theory_relation_def by blast
 qed
 
-lemma (in Minimal_Logic) stronger_theory_right_cons:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_right_cons:
   assumes "\<Sigma> \<preceq> \<Gamma>"
   shows "\<Sigma> \<preceq> (\<gamma> # \<Gamma>)"
 proof -
@@ -488,7 +488,7 @@ proof -
     by auto
 qed
 
-lemma (in Minimal_Logic) stronger_theory_left_right_cons:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_left_right_cons:
   assumes "\<turnstile> \<gamma> \<rightarrow> \<sigma>"
       and "\<Sigma> \<preceq> \<Gamma>"
     shows "(\<sigma> # \<Sigma>) \<preceq> (\<gamma> # \<Gamma>)"
@@ -510,7 +510,7 @@ proof -
     by metis
 qed
 
-lemma (in Minimal_Logic) stronger_theory_relation_alt_def:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_relation_alt_def:
   "\<Sigma> \<preceq> \<Gamma> = (\<exists>\<Phi>. mset (map snd \<Phi>) = mset \<Sigma> \<and>
                  mset (map fst \<Phi>) \<subseteq># mset \<Gamma> \<and>
                  (\<forall>(\<gamma>, \<sigma>)\<in>set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
@@ -613,7 +613,7 @@ proof -
   thus ?thesis by auto
 qed
 
-lemma (in Minimal_Logic) stronger_theory_deduction_monotonic:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_deduction_monotonic:
   assumes "\<Sigma> \<preceq> \<Gamma>"
       and "\<Sigma> :\<turnstile> \<phi>"
     shows "\<Gamma> :\<turnstile> \<phi>"
@@ -749,7 +749,7 @@ proof -
       hence "uncurry (\<squnion>) \<sigma> = fst \<sigma> \<squnion> snd \<sigma>" by simp
       moreover have "\<turnstile> snd \<sigma> \<rightarrow> (fst \<sigma> \<squnion> snd \<sigma>)"
         unfolding disjunction_def
-        by (simp add: Axiom_1)
+        by (simp add: Axiom_K)
       ultimately have "map (uncurry (\<squnion>)) (\<sigma> # \<Sigma>) \<preceq> (snd \<sigma> # (remove1 (snd \<sigma>) \<Gamma>))"
         by (simp add: stronger_theory_left_right_cons)
       moreover have "mset (snd \<sigma> # (remove1 (snd \<sigma>) \<Gamma>)) = mset \<Gamma>"
@@ -801,7 +801,7 @@ next
     by blast
 qed
 
-lemma (in Minimal_Logic) stronger_theory_combine:
+lemma (in Implicational_Intuitionistic_Logic) stronger_theory_combine:
   assumes "\<Phi> \<preceq> \<Delta>"
       and "\<Psi> \<preceq> \<Gamma>"
     shows "(\<Phi> @ \<Psi>) \<preceq> (\<Delta> @ \<Gamma>)"
@@ -976,8 +976,8 @@ proof -
       qed
       hence "map (uncurry (\<squnion>)) ?\<Theta> :\<turnstile> \<phi>"
         using \<Psi>(2)
-              stronger_theory_deduction_monotonic 
-                [where \<Sigma>="map (uncurry (\<squnion>)) \<Psi>" 
+              stronger_theory_deduction_monotonic
+                [where \<Sigma>="map (uncurry (\<squnion>)) \<Psi>"
                    and \<Gamma>="map (uncurry (\<squnion>)) ?\<Theta>"
                    and \<phi>=\<phi>]
         by metis
@@ -1378,7 +1378,7 @@ proof -
   thus ?thesis using assms by blast
 qed
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   firstComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<AA>")
   where
     "\<AA> \<Psi> [] = []"
@@ -1387,7 +1387,7 @@ primrec (in Minimal_Logic)
              None \<Rightarrow> \<AA> \<Psi> \<Delta>
            | Some \<psi> \<Rightarrow> \<psi> # (\<AA> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   secondComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<BB>")
   where
     "\<BB> \<Psi> [] = []"
@@ -1396,7 +1396,7 @@ primrec (in Minimal_Logic)
              None \<Rightarrow> \<BB> \<Psi> \<Delta>
            | Some \<psi> \<Rightarrow> \<delta> # (\<BB> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-lemma (in Minimal_Logic) firstComponent_secondComponent_mset_connection:
+lemma (in Implicational_Intuitionistic_Logic) firstComponent_secondComponent_mset_connection:
   "mset (map (uncurry (\<rightarrow>)) (\<AA> \<Psi> \<Delta>)) = mset (map snd (\<BB> \<Psi> \<Delta>))"
 proof -
   have "\<forall> \<Psi>. mset (map (uncurry (\<rightarrow>)) (\<AA> \<Psi> \<Delta>)) = mset (map snd (\<BB> \<Psi> \<Delta>))"
@@ -1427,11 +1427,11 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) secondComponent_right_empty [simp]:
+lemma (in Implicational_Intuitionistic_Logic) secondComponent_right_empty [simp]:
   "\<BB> [] \<Delta> = []"
   by (induct \<Delta>, simp+)
 
-lemma (in Minimal_Logic) firstComponent_msub:
+lemma (in Implicational_Intuitionistic_Logic) firstComponent_msub:
   "mset (\<AA> \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
 proof -
   have "\<forall> \<Psi>. mset (\<AA> \<Psi> \<Delta>) \<subseteq># mset \<Psi>"
@@ -1463,7 +1463,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) secondComponent_msub:
+lemma (in Implicational_Intuitionistic_Logic) secondComponent_msub:
   "mset (\<BB> \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
 proof -
   have "\<forall>\<Psi>. mset (\<BB> \<Psi> \<Delta>) \<subseteq># mset \<Delta>"
@@ -1488,7 +1488,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) secondComponent_snd_projection_msub:
+lemma (in Implicational_Intuitionistic_Logic) secondComponent_snd_projection_msub:
   "mset (map snd (\<BB> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi>)"
 proof -
   have "\<forall>\<Psi>. mset (map snd (\<BB> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi>)"
@@ -1528,7 +1528,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) secondComponent_diff_msub:
+lemma (in Implicational_Intuitionistic_Logic) secondComponent_diff_msub:
   assumes "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
   shows "mset (map snd (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))) \<subseteq># mset (\<Gamma> \<ominus> (map snd \<Psi>))"
 proof -
@@ -1750,7 +1750,7 @@ proof -
     {
       fix \<Psi>
       have "\<turnstile> (uncurry (\<rightarrow>)) \<delta> \<rightarrow> (uncurry (\<rightarrow>)) \<delta>"
-        using Axiom_1 Modus_Ponens implication_absorption by blast
+        using Axiom_K Modus_Ponens implication_absorption by blast
       have
         "(map (uncurry (\<rightarrow>)) (\<delta> # \<Delta>) @
           map (uncurry (\<rightarrow>)) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<preceq>
@@ -1975,7 +1975,7 @@ proof -
         hence "\<JJ> \<Psi> (\<delta> # \<Delta>) = \<delta> # \<JJ> \<Psi> \<Delta>"
           by simp
         moreover have "\<turnstile> (uncurry (\<squnion>)) \<delta> \<rightarrow> (uncurry (\<squnion>)) \<delta>"
-          by (metis Axiom_1 Axiom_2 Modus_Ponens)
+          by (metis Axiom_K Axiom_S Modus_Ponens)
         ultimately show ?thesis using Cons
           by (simp add: stronger_theory_left_right_cons)
       next
@@ -2275,7 +2275,7 @@ proof (rule iffI)
     proof (induct \<Psi>)
       case Nil
       then show ?case
-        using Axiom_1 Modus_Ponens
+        using Axiom_K Modus_Ponens
         by fastforce
     next
       case (Cons \<delta> \<Psi>)
@@ -2295,7 +2295,7 @@ proof (rule iffI)
         {
           fix \<alpha> \<beta> \<gamma>
           have "\<turnstile> (\<alpha> \<rightarrow> \<beta> \<rightarrow> \<gamma>) \<rightarrow> ((\<alpha> \<rightarrow> \<beta>) \<rightarrow> \<alpha> \<rightarrow> \<gamma>)"
-            using Axiom_2 by auto
+            using Axiom_S by auto
         }
         ultimately have "?\<Sigma> :\<turnstile> (\<psi> \<rightarrow> (uncurry (\<squnion>)) \<delta>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
           using list_deduction_weaken [where ?\<Gamma>="?\<Sigma>"]
@@ -2324,7 +2324,7 @@ proof (rule iffI)
     case Nil
     then show ?case
       unfolding disjunction_def
-      using Axiom_1 Modus_Ponens
+      using Axiom_K Modus_Ponens
       by fastforce
   next
     case (Cons \<nu> \<Psi>)
@@ -2333,7 +2333,7 @@ proof (rule iffI)
     let ?\<Sigma> = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>))"
     let ?\<Sigma>' = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) (\<nu> # \<Psi>)) (map snd (\<nu> # \<Psi>)))"
     have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Delta> :\<rightarrow> \<phi>"
-      by (simp, metis Axiom_1 Axiom_2 Modus_Ponens)
+      by (simp, metis Axiom_K Axiom_S Modus_Ponens)
     with Cons have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Sigma> :\<rightarrow> (\<psi> \<squnion> \<phi>)"
       using hypothetical_syllogism Modus_Ponens
       by blast
@@ -2444,7 +2444,7 @@ next
     using segmented_deduction.simps(2) by blast
 qed
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   XWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<XX>")
   where
     "\<XX> \<Psi> [] = []"
@@ -2453,7 +2453,7 @@ primrec (in Minimal_Logic)
              None \<Rightarrow> \<delta> # \<XX> \<Psi> \<Delta>
            | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (\<XX> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   XComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<XX>\<^sub>\<bullet>")
   where
     "\<XX>\<^sub>\<bullet> \<Psi> [] = []"
@@ -2462,7 +2462,7 @@ primrec (in Minimal_Logic)
              None \<Rightarrow> \<XX>\<^sub>\<bullet> \<Psi> \<Delta>
            | Some \<psi> \<Rightarrow> (fst \<psi> \<rightarrow> fst \<delta>, snd \<psi>) # (\<XX>\<^sub>\<bullet> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   YWitness :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<YY>")
   where
     "\<YY> \<Psi> [] = \<Psi>"
@@ -2472,7 +2472,7 @@ primrec (in Minimal_Logic)
            | Some \<psi> \<Rightarrow> (fst \<psi>, (fst \<psi> \<rightarrow> fst \<delta>) \<rightarrow> snd \<psi>) #
                        (\<YY> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-primrec (in Minimal_Logic)
+primrec (in Implicational_Intuitionistic_Logic)
   YComponent :: "('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list \<Rightarrow> ('a \<times> 'a) list" ("\<YY>\<^sub>\<bullet>")
   where
     "\<YY>\<^sub>\<bullet> \<Psi> [] = []"
@@ -2482,15 +2482,15 @@ primrec (in Minimal_Logic)
            | Some \<psi> \<Rightarrow> (fst \<psi>, (fst \<psi> \<rightarrow> fst \<delta>) \<rightarrow> snd \<psi>) #
                        (\<YY>\<^sub>\<bullet> (remove1 \<psi> \<Psi>) \<Delta>))"
 
-lemma (in Minimal_Logic) XWitness_right_empty [simp]:
+lemma (in Implicational_Intuitionistic_Logic) XWitness_right_empty [simp]:
   "\<XX> [] \<Delta> = \<Delta>"
   by (induct \<Delta>, simp+)
 
-lemma (in Minimal_Logic) YWitness_right_empty [simp]:
+lemma (in Implicational_Intuitionistic_Logic) YWitness_right_empty [simp]:
   "\<YY> [] \<Delta> = []"
   by (induct \<Delta>, simp+)
 
-lemma (in Minimal_Logic) XWitness_map_snd_decomposition:
+lemma (in Implicational_Intuitionistic_Logic) XWitness_map_snd_decomposition:
    "mset (map snd (\<XX> \<Psi> \<Delta>)) = mset (map snd ((\<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))))"
 proof -
   have "\<forall>\<Psi>. mset (map snd (\<XX> \<Psi> \<Delta>)) = mset (map snd ((\<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> (\<BB> \<Psi> \<Delta>))))"
@@ -2519,7 +2519,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) YWitness_map_snd_decomposition:
+lemma (in Implicational_Intuitionistic_Logic) YWitness_map_snd_decomposition:
    "mset (map snd (\<YY> \<Psi> \<Delta>)) = mset (map snd ((\<Psi> \<ominus> (\<AA> \<Psi> \<Delta>)) @ (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)))"
 proof -
   have "\<forall> \<Psi>. mset (map snd (\<YY> \<Psi> \<Delta>)) = mset (map snd ((\<Psi> \<ominus> (\<AA> \<Psi> \<Delta>)) @ (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)))"
@@ -2539,7 +2539,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) XWitness_msub:
+lemma (in Implicational_Intuitionistic_Logic) XWitness_msub:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
       and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
     shows "mset (map snd (\<XX> \<Psi> \<Delta>)) \<subseteq># mset \<Gamma>"
@@ -2560,7 +2560,7 @@ proof -
     by (metis (no_types) mset_append mset_map subset_mset.add_mono)
 qed
 
-lemma (in Minimal_Logic) YComponent_msub:
+lemma (in Implicational_Intuitionistic_Logic) YComponent_msub:
   "mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry (\<rightarrow>)) (\<XX> \<Psi> \<Delta>))"
 proof -
   have "\<forall> \<Psi>. mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)) \<subseteq># mset (map (uncurry (\<rightarrow>)) (\<XX> \<Psi> \<Delta>))"
@@ -2584,7 +2584,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) YWitness_msub:
+lemma (in Implicational_Intuitionistic_Logic) YWitness_msub:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
       and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
     shows "mset (map snd (\<YY> \<Psi> \<Delta>)) \<subseteq>#
@@ -2730,7 +2730,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) XWitness_secondComponent_diff_decomposition:
+lemma (in Implicational_Intuitionistic_Logic) XWitness_secondComponent_diff_decomposition:
   "mset (\<XX> \<Psi> \<Delta>) = mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta> @ \<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
 proof -
   have "\<forall> \<Psi>. mset (\<XX> \<Psi> \<Delta>) = mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta> @ \<Delta> \<ominus> \<BB> \<Psi> \<Delta>)"
@@ -2753,7 +2753,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) YWitness_firstComponent_diff_decomposition:
+lemma (in Implicational_Intuitionistic_Logic) YWitness_firstComponent_diff_decomposition:
   "mset (\<YY> \<Psi> \<Delta>) = mset (\<Psi> \<ominus> \<AA> \<Psi> \<Delta> @ \<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
 proof -
   have "\<forall> \<Psi>. mset (\<YY> \<Psi> \<Delta>) = mset (\<Psi> \<ominus> \<AA> \<Psi> \<Delta> @ \<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
@@ -2774,7 +2774,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) YWitness_right_stronger_theory:
+lemma (in Implicational_Intuitionistic_Logic) YWitness_right_stronger_theory:
     "map (uncurry (\<rightarrow>)) \<Delta> \<preceq> map (uncurry (\<rightarrow>)) (\<YY> \<Psi> \<Delta> \<ominus> (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>) @ (\<Delta> \<ominus> \<BB> \<Psi> \<Delta>))"
 proof -
   let ?\<ff> = "\<lambda>\<Psi> \<Delta>. (\<Psi> \<ominus> \<AA> \<Psi> \<Delta>)"
@@ -2859,7 +2859,7 @@ proof -
           moreover have "?\<Gamma> :\<turnstile> ?\<beta>"
             by (simp add: list_deduction_reflection)
           hence "?\<Gamma> :\<turnstile> ?\<alpha> \<rightarrow> ?\<beta>"
-            using Axiom_1 list_deduction_modus_ponens list_deduction_weaken by blast
+            using Axiom_K list_deduction_modus_ponens list_deduction_weaken by blast
           ultimately have "?\<Gamma> :\<turnstile> ?\<gamma>"
             using list_deduction_modus_ponens by blast
           thus ?thesis
@@ -2877,7 +2877,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Minimal_Logic) XComponent_YComponent_connection:
+lemma (in Implicational_Intuitionistic_Logic) XComponent_YComponent_connection:
   "map (uncurry (\<rightarrow>)) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
 proof -
   have "\<forall> \<Psi>. map (uncurry (\<rightarrow>)) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
@@ -3104,7 +3104,7 @@ proof -
       have "(uncurry (\<rightarrow>)) = (\<lambda> \<psi>. fst \<psi> \<rightarrow> snd \<psi>)"
         by fastforce
       hence "\<turnstile> ?\<gamma> \<rightarrow> uncurry (\<rightarrow>) \<psi>"
-        using Axiom_1 by simp
+        using Axiom_K by simp
       ultimately have
         "(map (uncurry (\<rightarrow>)) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
         using stronger_theory_left_right_cons by auto
@@ -3384,8 +3384,8 @@ proof -
           by (metis mset_map)
         hence B: "map (uncurry (\<squnion>)) \<Sigma> \<preceq> map (uncurry (\<squnion>)) (\<sigma> # (remove1 \<sigma> \<Sigma>))"
           by (simp add: msub_stronger_theory_intro)
-        have "(  fst \<sigma> 
-               \<squnion> (fst \<delta> \<sqinter> fst \<sigma>) 
+        have "(  fst \<sigma>
+               \<squnion> (fst \<delta> \<sqinter> fst \<sigma>)
                \<squnion> snd \<sigma> # map (\<lambda>(x, y). x \<squnion> y) (\<EE> (remove1 \<sigma> \<Sigma>) \<Delta>)) \<succeq> map (\<lambda>(x, y). x \<squnion> y) \<Sigma>"
           by (metis (no_types, hide_lams) A B stronger_theory_transitive uncurry_def)
         thus ?thesis using A B \<sigma> by simp
@@ -3930,7 +3930,7 @@ proof -
         hence "uncurry (\<rightarrow>) \<delta> = ?\<alpha> \<rightarrow> ?\<beta>" by auto
         moreover have "\<turnstile> (?\<alpha> \<rightarrow> (?\<gamma> \<squnion> ?\<alpha>) \<rightarrow> ?\<beta>) \<rightarrow> ?\<alpha> \<rightarrow> ?\<beta>"
           unfolding disjunction_def
-          using Axiom_1 Axiom_2 Modus_Ponens flip_implication
+          using Axiom_K Axiom_S Modus_Ponens flip_implication
           by blast
         ultimately show ?thesis
           using Cons \<sigma>
@@ -4781,13 +4781,13 @@ qed
 
 (**************************************)
 
-definition (in Minimal_Logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<C>")
+definition (in Implicational_Intuitionistic_Logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<C>")
   where
     "\<C> \<Gamma> \<phi> = {\<Phi>. mset \<Phi> \<subseteq># mset \<Gamma>
                   \<and> \<not> \<Phi> :\<turnstile> \<phi>
                   \<and> (\<forall> \<Psi>. mset \<Psi> \<subseteq># mset \<Gamma> \<longrightarrow> \<not> \<Psi> :\<turnstile> \<phi> \<longrightarrow> length \<Psi> \<le> length \<Phi>)}"
 
-lemma (in Minimal_Logic) unproving_core_finite:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_finite:
   "finite (\<C> \<Gamma> \<phi>)"
 proof -
   {
@@ -4809,7 +4809,7 @@ proof -
   ultimately show ?thesis using rev_finite_subset by auto
 qed
 
-lemma (in Minimal_Logic) unproving_core_existence:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_existence:
   "(\<not> \<turnstile> \<phi>) = (\<exists> \<Sigma>. \<Sigma> \<in> \<C> \<Gamma> \<phi>)"
 proof (rule iffI)
   assume "\<not> \<turnstile> \<phi>"
@@ -4846,7 +4846,7 @@ next
     by blast
 qed
 
-lemma (in Minimal_Logic) unproving_core_complement_deduction:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_complement_deduction:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
       and "\<psi> \<in> set (\<Gamma> \<ominus> \<Phi>)"
     shows "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi>"
@@ -4872,7 +4872,7 @@ proof (rule ccontr)
     by simp
 qed
 
-lemma (in Minimal_Logic) unproving_core_set_complement [simp]:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_set_complement [simp]:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
   shows "set (\<Gamma> \<ominus> \<Phi>) = set \<Gamma> - set \<Phi>"
 proof (rule equalityI)
@@ -4899,7 +4899,7 @@ next
     by (simp add: listSubtract_set_difference_lower_bound)
 qed
 
-lemma (in Minimal_Logic) unproving_core_complement_equiv:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_complement_equiv:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
       and "\<psi> \<in> set \<Gamma>"
     shows "\<Phi> :\<turnstile> \<psi> \<rightarrow> \<phi> = (\<psi> \<notin> set \<Phi>)"
@@ -4918,14 +4918,14 @@ next
     by auto
 qed
 
-lemma (in Minimal_Logic) unproving_length_equiv:
+lemma (in Implicational_Intuitionistic_Logic) unproving_length_equiv:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
       and "\<Psi> \<in> \<C> \<Gamma> \<phi>"
     shows "length \<Phi> = length \<Psi>"
   using assms
   by (simp add: dual_order.antisym unproving_core_def)
 
-lemma (in Minimal_Logic) unproving_listSubtract_length_equiv:
+lemma (in Implicational_Intuitionistic_Logic) unproving_listSubtract_length_equiv:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
       and "\<Psi> \<in> \<C> \<Gamma> \<phi>"
     shows "length (\<Gamma> \<ominus> \<Phi>) = length (\<Gamma> \<ominus> \<Psi>)"
@@ -4943,7 +4943,7 @@ proof -
   ultimately show ?thesis by metis
 qed
 
-lemma (in Minimal_Logic) unproving_core_max_list_deduction:
+lemma (in Implicational_Intuitionistic_Logic) unproving_core_max_list_deduction:
   "\<Gamma> :\<turnstile> \<phi> = (\<forall> \<Phi> \<in> \<C> \<Gamma> \<phi>. 1 \<le> length (\<Gamma> \<ominus> \<Phi>))"
 proof cases
   assume "\<turnstile> \<phi>"
@@ -5001,19 +5001,19 @@ next
   qed
 qed
 
-definition (in Minimal_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
+definition (in Implicational_Intuitionistic_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
   where
     "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<C> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<C> \<Gamma> \<phi> })"
 
-abbreviation (in Minimal_Logic_With_Falsum) MaxSAT :: "'a list \<Rightarrow> nat"
+abbreviation (in Implicational_Intuitionistic_Logic_With_Falsum) MaxSAT :: "'a list \<Rightarrow> nat"
   where
     "MaxSAT \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
 
-definition (in Minimal_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
+definition (in Implicational_Intuitionistic_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
   where
     "(\<parallel> \<Gamma> \<parallel>\<^sub>\<phi>) = length \<Gamma> - \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
 
-lemma (in Minimal_Logic) core_size_intro:
+lemma (in Implicational_Intuitionistic_Logic) core_size_intro:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
   shows "length \<Phi> = \<bar> \<Gamma> \<bar>\<^sub>\<phi>"
 proof -
@@ -5033,7 +5033,7 @@ proof -
     by auto
 qed
 
-lemma (in Minimal_Logic) complement_core_size_intro:
+lemma (in Implicational_Intuitionistic_Logic) complement_core_size_intro:
   assumes "\<Phi> \<in> \<C> \<Gamma> \<phi>"
   shows "length (\<Gamma> \<ominus> \<Phi>) = \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
 proof -
@@ -5048,7 +5048,7 @@ proof -
     by (metis assms core_size_intro)
 qed
 
-lemma (in Minimal_Logic) length_core_decomposition:
+lemma (in Implicational_Intuitionistic_Logic) length_core_decomposition:
   "length \<Gamma> = (\<bar> \<Gamma> \<bar>\<^sub>\<phi>) + \<parallel> \<Gamma> \<parallel>\<^sub>\<phi>"
 proof (cases "\<C> \<Gamma> \<phi> = {}")
   case True
@@ -5348,7 +5348,7 @@ proof (induct \<Psi>)
   then show ?case
     unfolding biconditional_def
               disjunction_def
-    using Axiom_1
+    using Axiom_K
           Modus_Ponens
           verum_tautology
     by (simp, blast)
@@ -6746,14 +6746,14 @@ next
     by auto
 qed
 
-primrec (in Minimal_Logic) core_witness :: "('a \<times> 'a) list \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<UU>")
+primrec (in Implicational_Intuitionistic_Logic) core_witness :: "('a \<times> 'a) list \<Rightarrow> 'a list \<Rightarrow> ('a \<times> 'a) list" ("\<UU>")
   where
     "\<UU> _ [] = []"
   | "\<UU> \<Sigma> (\<xi> # \<Xi>) = (case find (\<lambda> \<sigma>. \<xi> = snd \<sigma>) \<Sigma> of
                        None \<Rightarrow> \<UU> \<Sigma> \<Xi>
                      | Some \<sigma> \<Rightarrow> \<sigma> # (\<UU> (remove1 \<sigma> \<Sigma>) \<Xi>))"
 
-lemma (in Minimal_Logic) core_witness_right_msub:
+lemma (in Implicational_Intuitionistic_Logic) core_witness_right_msub:
   "mset (map snd (\<UU> \<Sigma> \<Xi>)) \<subseteq># mset \<Xi>"
 proof -
   have "\<forall> \<Sigma>. mset (map snd (\<UU> \<Sigma> \<Xi>)) \<subseteq># mset \<Xi>"
@@ -6795,7 +6795,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Minimal_Logic) core_witness_left_msub:
+lemma (in Implicational_Intuitionistic_Logic) core_witness_left_msub:
   "mset (\<UU> \<Sigma> \<Xi>) \<subseteq># mset \<Sigma>"
 proof -
   have "\<forall> \<Sigma>. mset (\<UU> \<Sigma> \<Xi>) \<subseteq># mset \<Sigma>"
@@ -6833,7 +6833,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Minimal_Logic) core_witness_right_projection:
+lemma (in Implicational_Intuitionistic_Logic) core_witness_right_projection:
   "mset (map snd (\<UU> \<Sigma> \<Xi>)) = mset ((map snd \<Sigma>) \<^bold>\<inter> \<Xi>)"
 proof -
   have "\<forall> \<Sigma>. mset (map snd (\<UU> \<Sigma> \<Xi>)) = mset ((map snd \<Sigma>) \<^bold>\<inter> \<Xi>)"
@@ -6885,7 +6885,7 @@ lemma (in Classical_Propositional_Logic) witness_list_implication_rule:
   "\<turnstile> (map (uncurry (\<squnion>)) \<Sigma> :\<rightarrow> \<phi>) \<rightarrow> \<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>) \<rightarrow> \<phi>"
 proof (induct \<Sigma>)
   case Nil
-  then show ?case using Axiom_1 by simp
+  then show ?case using Axiom_K by simp
 next
   case (Cons \<sigma> \<Sigma>)
   let ?\<chi> = "fst \<sigma>"
@@ -7696,7 +7696,7 @@ proof
   assume "Pr \<in> Dirac_Measures"
   hence "\<forall> \<phi>. Pr \<phi> = ?Pr' \<phi>"
     unfolding Dirac_Measures_def
-    by (metis (mono_tags, lifting) mem_Collect_eq of_int_0 of_int_1 of_int_floor_cancel)   
+    by (metis (mono_tags, lifting) mem_Collect_eq of_int_0 of_int_1 of_int_floor_cancel)
   hence A: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>)"
     by (induct \<Phi>, auto)
   have B: "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) = (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>)"
@@ -7730,7 +7730,7 @@ next
   proof
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> Logical_Probabilities"
-    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)" 
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using \<star> by auto
     thus "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       by linarith
@@ -7761,7 +7761,7 @@ next
     hence "\<not> (remove1 \<top> \<Sigma> :\<turnstile> \<phi>)"
       by (meson \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close>
                 list.set_intros(1)
-                Axiom_1
+                Axiom_K
                 list_deduction_modus_ponens
                 list_deduction_monotonic
                 list_deduction_weaken
@@ -7923,7 +7923,7 @@ proof (cases "c \<ge> 0")
 next
   case False
   hence "\<lceil>c\<rceil> \<le> 0" by auto
-  from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" 
+  from this obtain n :: nat where "real n = - \<lceil>c\<rceil>"
     by (metis neg_0_le_iff_le of_nat_nat)
   {
     fix Pr
@@ -8000,13 +8000,13 @@ next
   next
     assume "\<not> (c \<ge> 0)"
     hence "\<lceil>c\<rceil> \<le> 0" by auto
-    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" 
+    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>"
       by (metis neg_0_le_iff_le of_nat_nat)
     hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> n + length \<Gamma>"
       using assms by linarith
     hence "(\<bar> \<^bold>\<sim> (replicate n \<top> @ \<Gamma>) @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (replicate n \<top> @ \<Gamma>)"
       by (simp add: unproving_core_neg_verum_elim)
-    hence "\<forall> Pr \<in> Dirac_Measures. 
+    hence "\<forall> Pr \<in> Dirac_Measures.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       using binary_core_partial_completeness by blast
     {
@@ -8017,7 +8017,7 @@ next
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
         using \<open>Pr \<in> Dirac_Measures\<close>
-              \<open>\<forall> Pr \<in> Dirac_Measures. 
+              \<open>\<forall> Pr \<in> Dirac_Measures.
                    (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
         by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
@@ -8032,6 +8032,6 @@ qed
 lemma (in Consistent_Classical_Logic) binary_inequality_equiv:
    "  (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
     = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
-  using binary_inequality_elim binary_inequality_intro consistency by auto 
+  using binary_inequality_elim binary_inequality_intro consistency by auto
 
 end

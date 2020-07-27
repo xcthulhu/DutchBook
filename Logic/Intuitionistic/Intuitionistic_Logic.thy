@@ -4,6 +4,8 @@ theory Intuitionistic_Logic
   imports "../Classical/Classical_Propositional_Logic"
 begin
 
+(*:maxLineLen=80:*)
+
 text \<open> This theory presents extends minimal logic to \<^emph>\<open>intuitionistic logic\<close>.
         Intuitionistic logic include binary logical connectives
         for \<^emph>\<open>conjunction\<close> and \<^emph>\<open>disjunction\<close> as well as \<^emph>\<open>negation\<close>,
@@ -11,7 +13,7 @@ text \<open> This theory presents extends minimal logic to \<^emph>\<open>intuit
 
 subsection \<open> Axiomatization \<close>
 
-class Intuitionistic_Logic = Minimal_Logic_With_Falsum +
+class Intuitionistic_Logic = Implicational_Intuitionistic_Logic_With_Falsum +
   fixes verum :: "'a"                                            ("\<top>")
   fixes negation :: "'a \<Rightarrow> 'a"                                   ("\<sim>")
   fixes conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"                          (infixr "\<sqinter>" 67)

@@ -11,7 +11,7 @@ class Logical_Probability = Classical_Propositional_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
-  assumes Implicational_Additivity: 
+  assumes Implicational_Additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
 
 lemma (in Logical_Probability) Additivity:
@@ -46,7 +46,7 @@ lemma (in Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
 
-text \<open> Alternate axiomatization of logical probability following Brian Weatherson in 
+text \<open> Alternate axiomatization of logical probability following Brian Weatherson in
         https://doi.org/10.1305/ndjfl/1082637807 \<close>
 
 class Weatherson_Probability = Classical_Propositional_Logic +
@@ -62,31 +62,31 @@ proof
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
     by (simp add: Ex_Falso_Quodlibet)
   thus "0 \<le> Pr \<phi>"
-    using Antithesis Monotonicity by fastforce 
+    using Antithesis Monotonicity by fastforce
 next
   fix \<phi>
   assume "\<turnstile> \<phi>"
   thus "Pr \<phi> = 1"
-    by (metis Thesis 
+    by (metis Thesis
               Monotonicity
-              eq_iff 
-              Axiom_1 
-              Ex_Falso_Quodlibet 
-              Modus_Ponens 
-              verum_def) 
+              eq_iff
+              Axiom_K
+              Ex_Falso_Quodlibet
+              Modus_Ponens
+              verum_def)
 next
   fix \<phi> \<psi>
   assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   thus "Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
-    by (metis add.left_neutral 
-              eq_iff 
-              Antithesis 
-              Ex_Falso_Quodlibet 
-              Monotonicity 
-              Sum_Rule 
-              conjunction_negation_identity 
-              disjunction_def 
-              negation_def 
+    by (metis add.left_neutral
+              eq_iff
+              Antithesis
+              Ex_Falso_Quodlibet
+              Monotonicity
+              Sum_Rule
+              conjunction_negation_identity
+              disjunction_def
+              negation_def
               weak_biconditional_weaken)
 qed
 
@@ -124,7 +124,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Minimal_Logic_With_Falsum_class.negation_def
+                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -136,7 +136,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom>"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Minimal_Logic_With_Falsum_class.negation_def
+                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -150,7 +150,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Minimal_Logic_With_Falsum_class.negation_def
+                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -183,13 +183,13 @@ next
 next
   fix \<phi> \<psi>
   assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
-  thus "Pr \<phi> \<le> Pr \<psi>" 
-    using monotonicity 
+  thus "Pr \<phi> \<le> Pr \<psi>"
+    using monotonicity
     by auto
 next
   fix \<phi> \<psi>
   show "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
-    by (metis sum_rule add.commute) 
+    by (metis sum_rule add.commute)
 qed
 
 sublocale Logical_Probability \<subseteq> Consistent_Classical_Logic
@@ -204,7 +204,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Minimal_Logic_With_Falsum_class.negation_def
+                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -220,7 +220,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Minimal_Logic_With_Falsum_class.negation_def
+                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
       by simp

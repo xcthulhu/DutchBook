@@ -4,15 +4,15 @@ theory LaTeX_Snippets
     "~~/src/HOL/Library/LaTeXsugar"
 begin
 
-text (in Minimal_Logic) \<open>
+text (in Implicational_Intuitionistic_Logic) \<open>
  \DefineSnippet{Axiom K}{
-   @{thm [display] Minimal_Logic.Axiom_1}
+   @{thm [display] Implicational_Intuitionistic_Logic.Axiom_K}
  }%EndSnippet
  \DefineSnippet{Axiom S}{
-   @{thm [display] Minimal_Logic.Axiom_2}
+   @{thm [display] Implicational_Intuitionistic_Logic.Axiom_S}
  }%EndSnippet
  \DefineSnippet{Modus Ponens}{
-   @{thm [mode=Rule] Minimal_Logic.Modus_Ponens} {\sc MP}
+   @{thm [mode=Rule] Implicational_Intuitionistic_Logic.Modus_Ponens} {\sc MP}
  }%EndSnippet
 \<close>
 

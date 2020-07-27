@@ -16,7 +16,8 @@ subsection \<open> Axiomatization \<close>
 text \<open> Classical propositional logic is given by the following
        Hilbert-style axiom system: \<close>
 
-class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
+class Classical_Propositional_Logic =
+  Implicational_Intuitionistic_Logic_With_Falsum +
   assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
@@ -27,7 +28,7 @@ class Consistent_Classical_Logic = Classical_Propositional_Logic +
 subsection \<open> Common Rules \<close>
 
 lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-  using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism
+  using Axiom_K Double_Negation Modus_Ponens hypothetical_syllogism
   by blast
 
 lemma (in Classical_Propositional_Logic) Contraposition:
@@ -48,7 +49,7 @@ qed
 
 lemma (in Classical_Propositional_Logic) Double_Negation_converse:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-  by (meson Axiom_1 Modus_Ponens flip_implication)
+  by (meson Axiom_K Modus_Ponens flip_implication)
 
 lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
@@ -240,7 +241,7 @@ proof -
                   The_Principle_of_Pseudo_Scotus set_deduction_weaken)
       then have "\<forall>\<chi> \<psi>. insert \<chi> \<Gamma> \<tturnstile> \<psi> \<or> \<chi> \<rightarrow> \<phi> \<notin> \<Gamma>"
         by (meson assms
-                  Axiom_1
+                  Axiom_K
                   Formula_Maximally_Consistent_Set_reflection
                   set_deduction_modus_ponens
                   set_deduction_theorem

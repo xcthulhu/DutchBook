@@ -13,7 +13,7 @@ record ('a, 'b) Kripke_Model =
 
 primrec
 Intuitionistic_Kripke_Semantics
-  :: "('a, 'b) Kripke_Model \<Rightarrow> 'a \<Rightarrow> 'b Simple_Type \<Rightarrow> bool" 
+  :: "('a, 'b) Kripke_Model \<Rightarrow> 'a \<Rightarrow> 'b Simple_Type \<Rightarrow> bool"
      ("_ _ \<Turnstile> _" [60,60,60] 60)
   where
     "(\<MM> x \<Turnstile> \<^bold>\<lbrace> v \<^bold>\<rbrace>) = (\<exists> w. (R \<MM>)\<^sup>*\<^sup>* w x \<and> (V \<MM>) w v)"
@@ -25,7 +25,7 @@ lemma Kripke_model_monotone:
      (meson rtranclp_trans)+
 
 lemma Kripke_models_impl_flatten:
-  "\<MM> x \<Turnstile> \<phi> \<^bold>\<Rightarrow> \<psi> \<^bold>\<Rightarrow> \<chi> = 
+  "\<MM> x \<Turnstile> \<phi> \<^bold>\<Rightarrow> \<psi> \<^bold>\<Rightarrow> \<chi> =
     (\<forall> y. (R \<MM>)\<^sup>*\<^sup>* x y \<longrightarrow> \<MM> y \<Turnstile> \<phi> \<longrightarrow> \<MM> y \<Turnstile> \<psi> \<longrightarrow> \<MM> y \<Turnstile> \<chi>)"
   by (rule iffI ; simp)
      (meson Kripke_model_monotone rtranclp_trans)
@@ -47,7 +47,7 @@ theorem Combinator_Typing_Kripke_Soundness:
   by (induct rule: Simply_Typed_SKComb.induct)
      (meson Kripke_models_S, meson Kripke_models_K, auto)
 
-lemma Combinator_Typing_Kripke_Soundness_alt: 
+lemma Combinator_Typing_Kripke_Soundness_alt:
   "\<exists> X . X \<Colon> \<phi> \<Longrightarrow> \<forall> \<MM> x. \<MM> x \<Turnstile> \<phi>"
   by (meson Combinator_Typing_Kripke_Soundness)
 
@@ -79,6 +79,6 @@ lemma no_extract:
   using assms
   by (metis
         Combinator_Typing_Kripke_Soundness
-        Kripke_Cont_Monad)   
+        Kripke_Cont_Monad)
 
 end

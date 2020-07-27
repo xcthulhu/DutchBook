@@ -68,7 +68,7 @@ lemma subst_lift [simp]:
 lemma subst_subst:
     "i < j + 1 \<Longrightarrow> t[j+1 \<^bold>\<mapsto> lift v i][i \<^bold>\<mapsto> u[j \<^bold>\<mapsto> v]] = t[i \<^bold>\<mapsto> u][j \<^bold>\<mapsto> v]"
   by (induct t arbitrary: i j u v)
-    (simp_all 
+    (simp_all
       add: diff_Suc subst_Var lift_lift [symmetric] lift_subst_lt
       split: nat.split)
 
@@ -121,19 +121,19 @@ lemma rtrancl_beta_App [intro]:
     "s \<rightarrow>\<^sub>\<beta>\<^sup>* s' \<Longrightarrow> t \<rightarrow>\<^sub>\<beta>\<^sup>* t' \<Longrightarrow> s \<cdot> t \<rightarrow>\<^sub>\<beta>\<^sup>* s' \<cdot> t'"
   by (blast intro!: rtrancl_beta_AppL rtrancl_beta_AppR intro: rtranclp_trans)
 
-theorem rtancl_lift_preserves_beta: 
+theorem rtancl_lift_preserves_beta:
     "r \<rightarrow>\<^sub>\<beta>\<^sup>* s \<Longrightarrow> lift r i \<rightarrow>\<^sub>\<beta>\<^sup>* lift s i"
   by (induct rule: rtranclp.induct,
-      blast, 
+      blast,
       simp add: rtranclp.rtrancl_into_rtrancl)
 
-theorem rtrancl_subst_preserves_beta: 
+theorem rtrancl_subst_preserves_beta:
     "r \<rightarrow>\<^sub>\<beta>\<^sup>* s \<Longrightarrow> r[i \<^bold>\<mapsto> t] \<rightarrow>\<^sub>\<beta>\<^sup>* s[i \<^bold>\<mapsto> t]"
-  by (induct rule: rtranclp.induct, 
-      blast, 
+  by (induct rule: rtranclp.induct,
+      blast,
       meson rtranclp.simps subst_preserves_beta)
 
-theorem rtancl_subst_preserves_beta_inner: 
+theorem rtancl_subst_preserves_beta_inner:
     "r \<rightarrow>\<^sub>\<beta>\<^sup>* s \<Longrightarrow> t[i \<^bold>\<mapsto> r] \<rightarrow>\<^sub>\<beta>\<^sup>* t[i \<^bold>\<mapsto> s]"
 proof -
   {
@@ -141,11 +141,11 @@ proof -
     have "r \<rightarrow>\<^sub>\<beta> s \<Longrightarrow> t[i \<^bold>\<mapsto> r] \<rightarrow>\<^sub>\<beta>\<^sup>* t[i \<^bold>\<mapsto> s]"
       by (induct t arbitrary: r s i,
           simp add: subst_Var r_into_rtranclp,
-          simp add: rtrancl_beta_App, 
+          simp add: rtrancl_beta_App,
           simp add: rtrancl_beta_Abs)
   } note \<dagger> = this
   show "r \<rightarrow>\<^sub>\<beta>\<^sup>* s \<Longrightarrow> t[i \<^bold>\<mapsto> r] \<rightarrow>\<^sub>\<beta>\<^sup>* t[i \<^bold>\<mapsto> s]"
-    by (induct rule: rtranclp.induct, 
+    by (induct rule: rtranclp.induct,
         blast,
         metis \<dagger> rtranclp.rtrancl_into_rtrancl rtranclp_idemp)
 qed
@@ -180,7 +180,7 @@ definition
 subsubsection \<open>Church-Rosser Properties\<close>
 
 lemma common_reduction_to_equiv:
-  assumes 
+  assumes
     "R\<^sup>*\<^sup>* x z"
     "R\<^sup>*\<^sup>* y z"
   shows "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x y"
@@ -188,17 +188,17 @@ proof -
   have "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x z"
     by (metis \<open>R\<^sup>*\<^sup>* x z\<close> mono_rtranclp sup2I1)
   moreover have "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* z y"
-    by (metis (no_types, lifting) 
-          \<open>R\<^sup>*\<^sup>* y z\<close> 
-          conversep_conversep 
-          mono_rtranclp 
-          rtranclp_converseD 
+    by (metis (no_types, lifting)
+          \<open>R\<^sup>*\<^sup>* y z\<close>
+          conversep_conversep
+          mono_rtranclp
+          rtranclp_converseD
           sup2CI)
   ultimately show ?thesis
     by auto
 qed
 
-lemma Church_Rosser_alt_def: 
+lemma Church_Rosser_alt_def:
   "Church_Rosser R =
     (\<forall>x y. (R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x y \<longrightarrow> (\<exists>z. R\<^sup>*\<^sup>* x z \<and> R\<^sup>*\<^sup>* y z))"
   unfolding Church_Rosser_def
@@ -211,9 +211,9 @@ lemma common_ancestor_to_equiv:
   shows "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* y z"
 proof -
   have "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* y x"
-    by (meson 
+    by (meson
           \<open>R\<^sup>*\<^sup>* x y\<close>
-          common_reduction_to_equiv 
+          common_reduction_to_equiv
           rtranclp.rtrancl_refl)
   moreover have "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x z"
     by (metis \<open>R\<^sup>*\<^sup>* x z\<close> mono_rtranclp sup2I1)
@@ -224,7 +224,7 @@ lemma Church_Rosser_confluent: "Church_Rosser R = confluent R"
 unfolding square_def commute_def diamond_def Church_Rosser_alt_def
 proof (rule iffI; (rule allI | rule impI)+ )
   fix x y z
-  assume 
+  assume
     "\<forall>x y. (R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x y \<longrightarrow> (\<exists>z. R\<^sup>*\<^sup>* x z \<and> R\<^sup>*\<^sup>* y z)"
     "R\<^sup>*\<^sup>* x y"
     "R\<^sup>*\<^sup>* x z"
@@ -232,10 +232,10 @@ proof (rule iffI; (rule allI | rule impI)+ )
     by (meson common_ancestor_to_equiv)
 next
   fix x y
-  assume "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x y" 
+  assume "(R \<squnion> R\<inverse>)\<^sup>*\<^sup>* x y"
          "\<forall>x y. R\<^sup>*\<^sup>* x y \<longrightarrow> (\<forall>z. R\<^sup>*\<^sup>* x z \<longrightarrow> (\<exists>u. R\<^sup>*\<^sup>* y u \<and> R\<^sup>*\<^sup>* z u))"
-  thus "\<exists>z. R\<^sup>*\<^sup>* x z \<and> R\<^sup>*\<^sup>* y z" 
-    by (induct rule: rtranclp.induct) 
+  thus "\<exists>z. R\<^sup>*\<^sup>* x z \<and> R\<^sup>*\<^sup>* y z"
+    by (induct rule: rtranclp.induct)
        (auto, meson r_into_rtranclp rtranclp_trans)
 qed
 
@@ -244,7 +244,7 @@ subsubsection \<open>Primitive Properties\<close>
 lemma square_sym: "square R S T U \<Longrightarrow> square S R U T"
   by (metis (mono_tags, hide_lams) square_def)
 
-lemma square_subset: 
+lemma square_subset:
   assumes "square R S T U"
   and "T \<le> T'"
   shows "square R S T' U"
@@ -272,8 +272,8 @@ proof (intro strip, erule rtranclp_induct)
 next
   fix x y z y' z'
   assume "S x z"
-         "R\<^sup>*\<^sup>* x y'" 
-         "R y' z'" 
+         "R\<^sup>*\<^sup>* x y'"
+         "R y' z'"
          "\<exists>u. S y' u \<and> T\<^sup>*\<^sup>* z u"
   thus "\<exists>u'. S z' u' \<and> T\<^sup>*\<^sup>* z u'"
     using \<open>square R S S T\<close>
@@ -284,13 +284,13 @@ qed
 lemma square_rtrancl_reflcl_commute:
   "square R S (S\<^sup>*\<^sup>*) (R\<^sup>=\<^sup>=) \<Longrightarrow> commute (R\<^sup>*\<^sup>*) (S\<^sup>*\<^sup>*)"
   unfolding commute_def
-  by (metis 
-       predicate2I 
-       r_into_rtranclp 
-       rtranclp_idemp 
-       rtranclp_reflclp 
-       square_reflcl 
-       square_rtrancl 
+  by (metis
+       predicate2I
+       r_into_rtranclp
+       rtranclp_idemp
+       rtranclp_reflclp
+       square_reflcl
+       square_rtrancl
        square_sym)
 
 lemma commute_sym: "commute R S \<Longrightarrow> commute S R"
@@ -308,8 +308,8 @@ lemma commute_Un:
 
 lemma diamond_Un:
   assumes "diamond R"
-  and "diamond S" 
-  and "commute R S" 
+  and "diamond S"
+  and "commute R S"
   shows "diamond (sup R S)"
     using assms
     unfolding diamond_def
@@ -318,17 +318,17 @@ lemma diamond_Un:
 lemma diamond_confluent: "diamond R \<Longrightarrow> confluent R"
   unfolding diamond_def
   by (simp add: commute_rtrancl)
-  
+
 lemma square_reflcl_confluent:
     "square R R (R\<^sup>=\<^sup>=) (R\<^sup>=\<^sup>=) \<Longrightarrow> confluent R"
   unfolding diamond_def commute_def
-  by (metis 
-       inf_sup_ord(3) 
-       rtranclp_reflclp 
-       square_reflcl 
-       square_rtrancl 
+  by (metis
+       inf_sup_ord(3)
+       rtranclp_reflclp
+       square_reflcl
+       square_rtrancl
        square_sym)
-  
+
 lemma confluent_Un:
   assumes "confluent R"
   and "confluent S"
@@ -342,7 +342,7 @@ lemma diamond_to_confluence:
   and "T \<le> R"
   and "R \<le> T\<^sup>*\<^sup>*"
   shows "confluent T"
-    using assms diamond_confluent rtranclp_subset 
+    using assms diamond_confluent rtranclp_subset
     by fastforce
 
 lemma basic_diamond_to_confluence:
@@ -350,7 +350,7 @@ lemma basic_diamond_to_confluence:
   and "T \<le> R"
   and "R \<le> T\<^sup>*\<^sup>*"
   shows "confluent R"
-    using assms diamond_confluent rtranclp_subset 
+    using assms diamond_confluent rtranclp_subset
     by fastforce
 
 theorem newman:
@@ -365,7 +365,7 @@ proof -
     proof (induct arbitrary: b c)
       case (less x b c)
       have "R\<^sup>*\<^sup>* x c" by fact
-      have "R\<^sup>*\<^sup>* x b" by fact 
+      have "R\<^sup>*\<^sup>* x b" by fact
       thus ?case
       proof (rule converse_rtranclpE)
         assume "x = b"
@@ -379,7 +379,7 @@ proof -
         proof (rule converse_rtranclpE)
           assume "x = c"
           thus ?thesis
-            using \<open>R\<^sup>*\<^sup>* x b\<close> by blast 
+            using \<open>R\<^sup>*\<^sup>* x b\<close> by blast
         next
           fix z
           assume "R\<^sup>*\<^sup>* z c" and "R x z"
@@ -390,15 +390,15 @@ proof -
           from this  obtain v where "R\<^sup>*\<^sup>* b v" and "R\<^sup>*\<^sup>* u v"
             by (meson conversep.intros less.hyps \<open>R x y\<close> \<open>R\<^sup>*\<^sup>* y b\<close>)
           from this obtain w where "R\<^sup>*\<^sup>* v w" and "R\<^sup>*\<^sup>* c w"
-            by (meson 
-                  \<open>R x z\<close> 
-                  \<open>R\<^sup>*\<^sup>* z c\<close> 
-                  \<open>R\<^sup>*\<^sup>* z u\<close> 
-                  conversep.intros 
-                  less.hyps 
+            by (meson
+                  \<open>R x z\<close>
+                  \<open>R\<^sup>*\<^sup>* z c\<close>
+                  \<open>R\<^sup>*\<^sup>* z u\<close>
+                  conversep.intros
+                  less.hyps
                   rtranclp_trans)
           thus ?thesis
-            by (meson \<open>R\<^sup>*\<^sup>* b v\<close> rtranclp_trans) 
+            by (meson \<open>R\<^sup>*\<^sup>* b v\<close> rtranclp_trans)
         qed
       qed
     qed
@@ -410,38 +410,38 @@ qed
 
 section \<open>Confluence Of \<beta>-Reduction\<close>
 
-text \<open>Here we present a proof of the confluence confluence of \<open>\<rightarrow>\<^sub>\<beta>\<close>.  
-      This proof is attributed to William Tait and Per Martin-Löf. 
+text \<open>Here we present a proof of the confluence confluence of \<open>\<rightarrow>\<^sub>\<beta>\<close>.
+      This proof is attributed to William Tait and Per Martin-Löf.
       The technique has been described in
       {@cite takahashiParallelReductionsLCalculus1995}\<close>
 
 subsection \<open>Parallel Reduction\<close>
 
-inductive par_beta :: "dB \<Rightarrow> dB \<Rightarrow> bool"  (infixl "\<Rrightarrow>\<^sub>\<beta>" 50)                                                                                         
-  where                                                                                                                                            
-    var [simp, intro!]: "(\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> (\<langle>i\<rangle>)"                                                                                                           
-  | abs [simp, intro!]: "s \<Rrightarrow>\<^sub>\<beta> t \<Longrightarrow> \<^bold>\<lambda> s \<Rrightarrow>\<^sub>\<beta> \<^bold>\<lambda> t"                                                                                                
-  | app [simp, intro!]: "\<lbrakk> s \<Rrightarrow>\<^sub>\<beta> s'; t \<Rrightarrow>\<^sub>\<beta> t' \<rbrakk> \<Longrightarrow> s \<cdot> t \<Rrightarrow>\<^sub>\<beta> s' \<cdot> t'"                                                              
-  | beta [simp, intro!]: "\<lbrakk> s \<Rrightarrow>\<^sub>\<beta> s'; t \<Rrightarrow>\<^sub>\<beta> t' \<rbrakk> \<Longrightarrow> (\<^bold>\<lambda> s) \<cdot> t \<Rrightarrow>\<^sub>\<beta> s'[0 \<^bold>\<mapsto> t']"                                                              
-                                                                                                                                                   
-inductive_cases par_beta_cases [elim!]:                                                                                                            
-  "(\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> t"                                                                                                                                     
-  "\<^bold>\<lambda> s \<Rrightarrow>\<^sub>\<beta> \<^bold>\<lambda> t"                                                                                                                                 
-  "(\<^bold>\<lambda> s) \<cdot> t \<Rrightarrow>\<^sub>\<beta> u"                                                                                                                       
-  "s \<cdot> t \<Rrightarrow>\<^sub>\<beta> u"                                                                                                                             
+inductive par_beta :: "dB \<Rightarrow> dB \<Rightarrow> bool"  (infixl "\<Rrightarrow>\<^sub>\<beta>" 50)
+  where
+    var [simp, intro!]: "(\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> (\<langle>i\<rangle>)"
+  | abs [simp, intro!]: "s \<Rrightarrow>\<^sub>\<beta> t \<Longrightarrow> \<^bold>\<lambda> s \<Rrightarrow>\<^sub>\<beta> \<^bold>\<lambda> t"
+  | app [simp, intro!]: "\<lbrakk> s \<Rrightarrow>\<^sub>\<beta> s'; t \<Rrightarrow>\<^sub>\<beta> t' \<rbrakk> \<Longrightarrow> s \<cdot> t \<Rrightarrow>\<^sub>\<beta> s' \<cdot> t'"
+  | beta [simp, intro!]: "\<lbrakk> s \<Rrightarrow>\<^sub>\<beta> s'; t \<Rrightarrow>\<^sub>\<beta> t' \<rbrakk> \<Longrightarrow> (\<^bold>\<lambda> s) \<cdot> t \<Rrightarrow>\<^sub>\<beta> s'[0 \<^bold>\<mapsto> t']"
+
+inductive_cases par_beta_cases [elim!]:
+  "(\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> t"
+  "\<^bold>\<lambda> s \<Rrightarrow>\<^sub>\<beta> \<^bold>\<lambda> t"
+  "(\<^bold>\<lambda> s) \<cdot> t \<Rrightarrow>\<^sub>\<beta> u"
+  "s \<cdot> t \<Rrightarrow>\<^sub>\<beta> u"
   "\<^bold>\<lambda> s \<Rrightarrow>\<^sub>\<beta> t"
 
 subsection \<open>Properties of Parallel Reduction\<close>
 
-lemma par_beta_varL [simp]:                                                                                                                        
-    "((\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> t) = (t = (\<langle>i\<rangle>))"                                                                                                                   
+lemma par_beta_varL [simp]:
+    "((\<langle>i\<rangle>) \<Rrightarrow>\<^sub>\<beta> t) = (t = (\<langle>i\<rangle>))"
   by blast
 
 lemma par_beta_refl [simp]: "t \<Rrightarrow>\<^sub>\<beta> t"
-  by (induct t) simp_all                                                                                                                           
+  by (induct t) simp_all
 
-lemma par_beta_lift [simp]:                                                                                                                        
-    "t \<Rrightarrow>\<^sub>\<beta> t' \<Longrightarrow> lift t n \<Rrightarrow>\<^sub>\<beta> lift t' n"                                                                                              
+lemma par_beta_lift [simp]:
+    "t \<Rrightarrow>\<^sub>\<beta> t' \<Longrightarrow> lift t n \<Rrightarrow>\<^sub>\<beta> lift t' n"
   by (induct t arbitrary: t' n) fastforce+
 
 lemma par_beta_subst:
@@ -449,27 +449,27 @@ lemma par_beta_subst:
   apply (induct t arbitrary: s s' t' n)
     apply (simp add: subst_Var)
    apply (erule par_beta_cases)
-    apply (simp add: subst_subst [symmetric] 
+    apply (simp add: subst_subst [symmetric]
             | fastforce intro!: par_beta_lift)+
   done
 
-subsection \<open>Parallel Reduction is Intermediate To 
+subsection \<open>Parallel Reduction is Intermediate To
             Small-Step and Transitive \<beta>-reduction\<close>
-                                                                                                                                                   
+
 lemma beta_subset_par_beta: "(\<rightarrow>\<^sub>\<beta>) \<le> (\<Rrightarrow>\<^sub>\<beta>)"
   by (rule predicate2I, erule beta.induct) simp_all
-                                                                                                                                                   
+
 lemma beta_implies_par_beta: "s \<rightarrow>\<^sub>\<beta> t \<Longrightarrow> s \<Rrightarrow>\<^sub>\<beta> t"
   using beta_subset_par_beta by blast
 
 lemma par_beta_subset_beta: "(\<Rrightarrow>\<^sub>\<beta>) \<le> (\<rightarrow>\<^sub>\<beta>\<^sup>*)"
-  by (rule predicate2I, erule par_beta.induct)                                                                                                                    
-     (blast, blast, blast, 
-        blast del: rtranclp.rtrancl_refl intro: rtranclp.rtrancl_into_rtrancl) 
+  by (rule predicate2I, erule par_beta.induct)
+     (blast, blast, blast,
+        blast del: rtranclp.rtrancl_refl intro: rtranclp.rtrancl_into_rtrancl)
 
 lemma par_beta_implies_transitive_beta: "s \<Rrightarrow>\<^sub>\<beta> t \<Longrightarrow> s \<rightarrow>\<^sub>\<beta>\<^sup>* t"
   using par_beta_subset_beta by blast
-  
+
 subsection \<open>Confluence Theorems Parallel Reduction And \<beta>-Reduction\<close>
 
 lemma diamond_par_beta: "diamond (\<Rrightarrow>\<^sub>\<beta>)"
@@ -483,11 +483,11 @@ lemma par_beta_confluent: "confluent (\<Rrightarrow>\<^sub>\<beta>)"
   by (simp add: diamond_confluent diamond_par_beta)
 
 lemma beta_confluent: "confluent (\<rightarrow>\<^sub>\<beta>)"
-  using 
-    beta_subset_par_beta 
-    diamond_par_beta 
-    diamond_to_confluence 
-    par_beta_subset_beta 
+  using
+    beta_subset_par_beta
+    diamond_par_beta
+    diamond_to_confluence
+    par_beta_subset_beta
   by blast
 
 section \<open>Equational Theory\<close>
@@ -497,7 +497,7 @@ inductive beta_equiv :: "dB \<Rightarrow> dB \<Rightarrow> bool"  (infixl "\<app
   | subst [simp]: "(\<^bold>\<lambda> s) \<cdot> t \<approx>\<^sub>\<beta> s [ 0 \<^bold>\<mapsto> t]"
   | abs [simp]: "s \<approx>\<^sub>\<beta> t \<Longrightarrow> \<^bold>\<lambda> s \<approx>\<^sub>\<beta> \<^bold>\<lambda> t"
   | symm: "s \<approx>\<^sub>\<beta> t \<Longrightarrow> t \<approx>\<^sub>\<beta> s"
-  | app [simp]: "s \<approx>\<^sub>\<beta> t \<Longrightarrow> p \<approx>\<^sub>\<beta> q \<Longrightarrow> s \<cdot> p \<approx>\<^sub>\<beta> t \<cdot> q" 
+  | app [simp]: "s \<approx>\<^sub>\<beta> t \<Longrightarrow> p \<approx>\<^sub>\<beta> q \<Longrightarrow> s \<cdot> p \<approx>\<^sub>\<beta> t \<cdot> q"
   | trans [simp]: "s \<approx>\<^sub>\<beta> t \<Longrightarrow> t \<approx>\<^sub>\<beta> u \<Longrightarrow> s \<approx>\<^sub>\<beta> u"
 
 lemma beta_equiv_alt_def:
@@ -507,9 +507,9 @@ proof (rule iffI)
     fix s t
     have "((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* s t \<Longrightarrow> ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* (\<^bold>\<lambda> s) (\<^bold>\<lambda> t)"
       by (induct set: rtranclp,
-            blast, 
-            metis 
-              beta.abs 
+            blast,
+            metis
+              beta.abs
               conversep_iff
               rtranclp.rtrancl_into_rtrancl
               sup2CI
@@ -520,19 +520,19 @@ proof (rule iffI)
     {
       fix s t p
       have "((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* s t \<Longrightarrow> ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* (s \<cdot> p) (t \<cdot> p)"
-        by (induct set: rtranclp) 
+        by (induct set: rtranclp)
            (blast intro: rtranclp.rtrancl_into_rtrancl)+
     }
     moreover
     {
       fix s t p
       have "((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* s t \<Longrightarrow> ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* (p \<cdot> s) (p \<cdot> t)"
-        by (induct set: rtranclp) 
+        by (induct set: rtranclp)
            (blast intro: rtranclp.rtrancl_into_rtrancl)+
     }
-    ultimately have 
+    ultimately have
       "((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* s t \<Longrightarrow>
-         ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* p q \<Longrightarrow> 
+         ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* p q \<Longrightarrow>
          ((\<rightarrow>\<^sub>\<beta>) \<squnion> (\<rightarrow>\<^sub>\<beta>)\<inverse>)\<^sup>*\<^sup>* (s \<cdot> p) (t \<cdot> q)"
       by (meson rtranclp_trans)
   } note \<ddagger> = this
@@ -540,10 +540,10 @@ proof (rule iffI)
     by (induct set: beta_equiv,
           blast+,
           blast intro: \<dagger>,
-          metis 
-            converse_join 
-            conversep_conversep 
-            rtranclp_converseD 
+          metis
+            converse_join
+            conversep_conversep
+            rtranclp_converseD
             sup_commute,
           blast intro: \<ddagger>,
           auto)
@@ -564,7 +564,7 @@ next
         by (induct set: beta, auto)
     }
     ultimately show "s \<approx>\<^sub>\<beta> y"
-      by (meson beta_equiv.symm beta_equiv.trans) 
+      by (meson beta_equiv.symm beta_equiv.trans)
   qed
 qed
 

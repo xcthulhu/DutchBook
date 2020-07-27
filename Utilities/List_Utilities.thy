@@ -511,7 +511,7 @@ lemma listSubtract_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
   shows  "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
 proof -
-  from \<open>\<phi> \<in> set \<Lambda>\<close> 
+  from \<open>\<phi> \<in> set \<Lambda>\<close>
   have "mset (\<Phi> \<ominus> \<Lambda>) = mset ((remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>))"
     by simp
   thus ?thesis
@@ -610,7 +610,7 @@ proof -
   hence "mset (\<Phi> \<ominus> \<Lambda>) = mset (\<Psi> \<ominus> \<Lambda>)"
     by simp
   thus ?thesis
-    using mset_eq_perm by blast 
+    using mset_eq_perm by blast
 qed
 
 lemma append_perm_listSubtract_intro:
@@ -628,7 +628,7 @@ lemma listSubtract_concat:
   assumes "\<Psi> \<in> set \<L>"
   shows "concat (\<L> \<ominus> [\<Psi>]) <~~> (concat \<L>) \<ominus> \<Psi>"
   using assms
-  by (simp, 
+  by (simp,
       meson append_perm_listSubtract_intro
             concat_remove1
             perm.trans
@@ -982,21 +982,21 @@ proof -
       fix \<Phi>
       have "mset (\<Phi> \<^bold>\<inter> \<psi> # \<Psi>) = mset \<Phi> \<inter># mset (\<psi> # \<Psi>)"
         using Cons.hyps
-        by (cases "\<psi> \<in> set \<Phi>", 
+        by (cases "\<psi> \<in> set \<Phi>",
             simp add: inter_add_right2,
             simp add: inter_add_right1)
     }
-    then show ?case by blast 
+    then show ?case by blast
   qed
   thus ?thesis by simp
 qed
-    
+
 lemma list_intersect_left_empty [simp]: "[] \<^bold>\<inter> \<Phi> = []" by (induct \<Phi>, simp+)
-    
+
 lemma list_diff_intersect_comp:
   "mset \<Phi> = mset (\<Phi> \<ominus> \<Psi>) + mset (\<Phi> \<^bold>\<inter> \<Psi>)"
   by (simp add: multiset_inter_def)
-  
+
 lemma list_intersect_left_project: "mset (\<Phi> \<^bold>\<inter> \<Psi>) \<subseteq># mset \<Phi>"
   by simp
 

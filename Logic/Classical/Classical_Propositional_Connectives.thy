@@ -9,20 +9,20 @@ sledgehammer_params [smt_proofs = false]
 
 subsection \<open> Verum \<close>
 
-definition (in Minimal_Logic_With_Falsum) verum :: "'a" ("\<top>")
+definition (in Implicational_Intuitionistic_Logic_With_Falsum) verum :: "'a" ("\<top>")
   where
     "\<top> = \<bottom> \<rightarrow> \<bottom>"
 
-lemma (in Minimal_Logic_With_Falsum) verum_tautology [simp]: "\<turnstile> \<top>"
-  by (metis list_implication.simps(1) list_implication_Axiom_1 verum_def)
+lemma (in Implicational_Intuitionistic_Logic_With_Falsum) verum_tautology [simp]: "\<turnstile> \<top>"
+  by (metis list_implication.simps(1) list_implication_Axiom_K verum_def)
 
 lemma verum_semantics [simp]:
   "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<top>"
-  unfolding verum_def by simp    
-    
+  unfolding verum_def by simp
+
 lemma (in Classical_Propositional_Logic) verum_embedding [simp]:
   "\<^bold>\<lparr> \<top> \<^bold>\<rparr> = \<top>"
-  unfolding verum_def Minimal_Logic_With_Falsum_class.verum_def
+  unfolding verum_def Implicational_Intuitionistic_Logic_With_Falsum_class.verum_def
   by simp
 
 subsection \<open> Conjunction \<close>
@@ -56,7 +56,7 @@ lemma (in Classical_Propositional_Logic) conjunction_left_elimination:
 
 lemma (in Classical_Propositional_Logic) conjunction_right_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<psi>"
-  by (metis (full_types) Axiom_1
+  by (metis (full_types) Axiom_K
                          Contraposition
                          Modus_Ponens
                          conjunction_def
@@ -102,23 +102,23 @@ lemma biconditional_semantics [simp]:
 
 subsection \<open> Negation \<close>
 
-definition (in Minimal_Logic_With_Falsum) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
+definition (in Implicational_Intuitionistic_Logic_With_Falsum) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
   where
     "\<sim> \<phi> = \<phi> \<rightarrow> \<bottom>"
 
-lemma (in Minimal_Logic_With_Falsum) negation_introduction:
+lemma (in Implicational_Intuitionistic_Logic_With_Falsum) negation_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<sim> \<phi>"
   unfolding negation_def
-  by (metis Axiom_1 Modus_Ponens implication_absorption)
+  by (metis Axiom_K Modus_Ponens implication_absorption)
 
-lemma (in Minimal_Logic_With_Falsum) negation_elimination:
+lemma (in Implicational_Intuitionistic_Logic_With_Falsum) negation_elimination:
   "\<turnstile> \<sim> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>)"
   unfolding negation_def
-  by (metis Axiom_1 Modus_Ponens implication_absorption)
+  by (metis Axiom_K Modus_Ponens implication_absorption)
 
 lemma (in Classical_Propositional_Logic) negation_embedding [simp]:
   "\<^bold>\<lparr> \<sim> \<phi> \<^bold>\<rparr> = \<sim> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
-  unfolding negation_def Minimal_Logic_With_Falsum_class.negation_def
+  unfolding negation_def Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
   by simp
 
 lemma negation_semantics [simp]:
@@ -171,7 +171,7 @@ lemma (in Classical_Propositional_Logic) disjunction_left_introduction:
 lemma (in Classical_Propositional_Logic) disjunction_right_introduction:
   "\<turnstile> \<psi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
-  using Axiom_1
+  using Axiom_K
   by simp
 
 lemma (in Classical_Propositional_Logic) disjunction_embedding [simp]:
@@ -208,7 +208,7 @@ subsubsection \<open> Biconditional Equivalence Relation \<close>
 
 lemma (in Classical_Propositional_Logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
-  by (meson Axiom_1 Modus_Ponens biconditional_introduction implication_absorption)
+  by (meson Axiom_K Modus_Ponens biconditional_introduction implication_absorption)
 
 lemma (in Classical_Propositional_Logic) biconditional_symmetry:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<leftrightarrow> (\<psi> \<leftrightarrow> \<phi>)"
@@ -281,7 +281,7 @@ lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
 lemma (in Classical_Propositional_Logic) conjunction_set_deduction_equivalence [simp]:
   "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>)"
   by (metis set_deduction_weaken [where \<Gamma>="\<Gamma>"]
-            set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"] 
+            set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
             conjunction_introduction
             conjunction_left_elimination
             conjunction_right_elimination)
@@ -289,11 +289,11 @@ lemma (in Classical_Propositional_Logic) conjunction_set_deduction_equivalence [
 lemma (in Classical_Propositional_Logic) conjunction_list_deduction_equivalence [simp]:
   "\<Gamma> :\<turnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> :\<turnstile> \<phi> \<and> \<Gamma> :\<turnstile> \<psi>)"
   by (metis list_deduction_weaken [where \<Gamma>="\<Gamma>"]
-            list_deduction_modus_ponens [where \<Gamma>="\<Gamma>"] 
+            list_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
             conjunction_introduction
             conjunction_left_elimination
             conjunction_right_elimination)
-          
+
 lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
   "\<turnstile> \<phi> \<sqinter> \<psi> = (\<turnstile> \<phi> \<and> \<turnstile> \<psi>)"
   by (metis conjunction_set_deduction_equivalence set_deduction_base_theory)
@@ -309,7 +309,7 @@ lemma (in Classical_Propositional_Logic) conjunction_list_deduction_arbitrary_eq
 lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_arbitrary_equivalence [simp]:
   "\<turnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<phi>)"
   by (induct \<Phi>, simp+)
-    
+
 lemma (in Classical_Propositional_Logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis (full_types) Modus_Ponens
@@ -381,7 +381,7 @@ proof -
                   fix \<phi>
                   have "\<turnstile> (\<chi> \<sqinter> \<phi>) \<rightarrow> (\<chi> \<sqinter> \<chi> \<sqinter> \<phi>)"
                     unfolding conjunction_def
-                    by (meson Axiom_2
+                    by (meson Axiom_S
                               Double_Negation
                               Modus_Ponens
                               flip_hypothetical_syllogism
@@ -479,7 +479,7 @@ proof (induct \<Phi>)
     unfolding biconditional_def
               conjunction_def
               verum_def
-    using Axiom_1
+    using Axiom_K
               Ex_Falso_Quodlibet
               Modus_Ponens
               conjunction_def
@@ -590,7 +590,7 @@ proof -
                   using \<open>\<turnstile> \<Squnion> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<squnion> \<chi> \<squnion> \<Squnion> (removeAll \<phi> \<Phi>))\<close>
                   unfolding biconditional_def
                   by (simp add: disjunction_def,
-                      meson Axiom_1 Modus_Ponens flip_hypothetical_syllogism implication_absorption)
+                      meson Axiom_K Modus_Ponens flip_hypothetical_syllogism implication_absorption)
               next
                 assume "\<phi> \<noteq> \<chi>"
                 then show ?thesis
@@ -629,7 +629,7 @@ proof -
         then show ?thesis
           apply simp
           unfolding disjunction_def
-          using Axiom_1 Modus_Ponens flip_implication by blast
+          using Axiom_K Modus_Ponens flip_implication by blast
       qed
     }
     then show ?case by blast
@@ -742,7 +742,7 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     unfolding disjunction_def biconditional_def
-    using Axiom_1 Modus_Ponens verum_tautology
+    using Axiom_K Modus_Ponens verum_tautology
     by (simp, blast)
 next
   case (Cons \<psi> \<Psi>)
@@ -763,9 +763,9 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     by (simp add: biconditional_def,
-        meson Axiom_1
+        meson Axiom_K
               Modus_Ponens
-              list_implication_Axiom_1
+              list_implication_Axiom_K
               verum_tautology)
 next
   case (Cons \<psi> \<Psi>)

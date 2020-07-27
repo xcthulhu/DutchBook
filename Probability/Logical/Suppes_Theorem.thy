@@ -310,9 +310,9 @@ next
       unfolding Logical_Probabilities_def
       by simp
     show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
-      using \<open>?rhs\<close> 
-            exclusive_sum_list_identity 
-            monotonicity 
+      using \<open>?rhs\<close>
+            exclusive_sum_list_identity
+            monotonicity
       by fastforce
   qed
 qed
@@ -359,7 +359,7 @@ lemma (in Classical_Propositional_Logic) Dirac_Exclusive_List_Summation_Complete
 
 theorem (in Classical_Propositional_Logic) Exclusive_List_Summation_Completeness:
   "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
-  by (metis antisym_conv 
+  by (metis antisym_conv
             Exclusive_Implication_Completeness
             List_Summation_Completeness
             trivial_implication)

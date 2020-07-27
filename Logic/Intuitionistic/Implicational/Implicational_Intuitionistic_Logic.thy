@@ -6,44 +6,51 @@ begin
 
 (*:maxLineLen=80:*)
 
-text \<open> This theory presents the implicational fragment of intuitionistic logic. \<close>
+text \<open> This theory presents the implicational fragment of
+       intuitionistic logic. \<close>
 
 subsection \<open> Axiomatization \<close>
 
-text \<open> Minimal logic is given by the following Hilbert-style axiom system: \<close>
+text \<open> Minimal logic is given by the following Hilbert-style axiom
+       system: \<close>
 
-class Minimal_Logic =
-  fixes deduction :: "'a \<Rightarrow> bool"             ("\<turnstile> _" [60] 55)
-  fixes implication :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"       (infixr "\<rightarrow>" 70)
-  assumes Axiom_1: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
-  assumes Axiom_2: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
+class Implicational_Intuitionistic_Logic =
+  fixes deduction :: "'a \<Rightarrow> bool" ("\<turnstile> _" [60] 55)
+  fixes implication :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixr "\<rightarrow>" 70)
+  assumes Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
+  assumes Axiom_S: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
+text \<open> A convenience class to have is
+       @{class "Implicational_Intuitionistic_Logic"} extended with a single
+       named constant, intended to be \<^emph>\<open>falsum\<close>.  Other classes extending
+       this class will provide rules for how this constant interacts with
+       other terms. \<close>
 
-text \<open> A convenience class to have is @{class "Minimal_Logic"} extended with a single named
-        constant, intended to be \<^emph>\<open>falsum\<close>.  Other classes extending this class will provide
-        rules for how this constant interacts with other terms. \<close>
-
-class Minimal_Logic_With_Falsum = Minimal_Logic +
-  fixes falsum :: "'a"                      ("\<bottom>")
+class Implicational_Intuitionistic_Logic_With_Falsum =
+  Implicational_Intuitionistic_Logic + fixes falsum :: "'a" ("\<bottom>")
 
 subsection \<open> Common Rules \<close>
 
-lemma (in Minimal_Logic) trivial_implication: "\<turnstile> \<phi> \<rightarrow> \<phi>"
-  by (meson Axiom_1 Axiom_2 Modus_Ponens)
+lemma (in Implicational_Intuitionistic_Logic) trivial_implication:
+  "\<turnstile> \<phi> \<rightarrow> \<phi>"
+  by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Minimal_Logic) flip_implication: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> \<psi> \<rightarrow> \<phi> \<rightarrow> \<chi>"
-  by (meson Axiom_1 Axiom_2 Modus_Ponens)
+lemma (in Implicational_Intuitionistic_Logic) flip_implication:
+  "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> \<psi> \<rightarrow> \<phi> \<rightarrow> \<chi>"
+  by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Minimal_Logic) hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
-  by (meson Axiom_1 Axiom_2 Modus_Ponens)
+lemma (in Implicational_Intuitionistic_Logic) hypothetical_syllogism:
+  "\<turnstile> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
+  by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Minimal_Logic) flip_hypothetical_syllogism:
+lemma (in Implicational_Intuitionistic_Logic) flip_hypothetical_syllogism:
   shows "\<turnstile> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>)"
   using Modus_Ponens flip_implication hypothetical_syllogism by blast
 
-lemma (in Minimal_Logic) implication_absorption: "\<turnstile> (\<phi> \<rightarrow> \<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
-  by (meson Axiom_1 Axiom_2 Modus_Ponens)
+lemma (in Implicational_Intuitionistic_Logic) implication_absorption:
+  "\<turnstile> (\<phi> \<rightarrow> \<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
+  by (meson Axiom_K Axiom_S Modus_Ponens)
 
 subsection \<open> Lists of Assumptions \<close>
 
@@ -51,61 +58,65 @@ subsubsection \<open> List Implication \<close>
 
 text \<open> Implication given a list of assumptions can be expressed recursively \<close>
 
-primrec (in Minimal_Logic) list_implication :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a" (infix ":\<rightarrow>" 80) where
+primrec (in Implicational_Intuitionistic_Logic)
+  list_implication :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a" (infix ":\<rightarrow>" 80) where
     "[] :\<rightarrow> \<phi> = \<phi>"
   | "(\<psi> # \<Psi>) :\<rightarrow> \<phi> = \<psi> \<rightarrow> \<Psi> :\<rightarrow> \<phi>"
 
 subsubsection \<open> Definition of Deduction \<close>
 
-text \<open> Deduction from a list of assumptions can be expressed in terms of @{term "(:\<rightarrow>)"}. \<close>
+text \<open> Deduction from a list of assumptions can be expressed in terms of
+       @{term "(:\<rightarrow>)"}. \<close>
 
-definition (in Minimal_Logic) list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
+definition (in Implicational_Intuitionistic_Logic)
+  list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
   "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
 
 subsubsection \<open> Interpretation as Minimal Logic \<close>
 
-text \<open> The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a @{term "proves"}
-        predicate for an instance of minimal logic for a fixed list of assumptions @{term "\<Gamma>"}. \<close>
+text \<open> The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a
+       @{term "proves"} predicate for an instance of minimal logic for a fixed
+       list of assumptions @{term "\<Gamma>"}. \<close>
 
-text \<open> Analogues of the two axioms of minimal logic can be naturally stated using
-        list implication. \<close>
+text \<open> Analogues of the two axioms of minimal logic can be naturally stated
+       using list implication. \<close>
 
-lemma (in Minimal_Logic) list_implication_Axiom_1: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
-  by (induct \<Gamma>, (simp, meson Axiom_1 Axiom_2 Modus_Ponens)+)
+lemma (in Implicational_Intuitionistic_Logic) list_implication_Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
+  by (induct \<Gamma>, (simp, meson Axiom_K Axiom_S Modus_Ponens)+)
 
-lemma (in Minimal_Logic) list_implication_Axiom_2: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<Gamma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<psi>"
-  by (induct \<Gamma>, (simp, meson Axiom_1 Axiom_2 Modus_Ponens hypothetical_syllogism)+)
+lemma (in Implicational_Intuitionistic_Logic) list_implication_Axiom_S: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<Gamma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<psi>"
+  by (induct \<Gamma>, (simp, meson Axiom_K Axiom_S Modus_Ponens hypothetical_syllogism)+)
 
-text \<open> The lemmas @{thm list_implication_Axiom_1} and  @{thm list_implication_Axiom_2} jointly
+text \<open> The lemmas @{thm list_implication_Axiom_K} and  @{thm list_implication_Axiom_S} jointly
         give rise to an interpretation of minimal logic, where a list of assumptions
         @{term "\<Gamma>"} plays the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
 
-context Minimal_Logic begin
-interpretation List_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
+context Implicational_Intuitionistic_Logic begin
+interpretation List_Deduction_Logic: Implicational_Intuitionistic_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed (meson list_deduction_def
-                 Axiom_1
-                 Axiom_2
+                 Axiom_K
+                 Axiom_S
                  Modus_Ponens
-                 list_implication_Axiom_1
-                 list_implication_Axiom_2)+
+                 list_implication_Axiom_K
+                 list_implication_Axiom_S)+
 end
 
 text \<open> The following \<^emph>\<open>weakening\<close> rule can also be derived. \<close>
 
-lemma (in Minimal_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
+lemma (in Implicational_Intuitionistic_Logic) list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
-  using Modus_Ponens list_implication_Axiom_1
+  using Modus_Ponens list_implication_Axiom_K
   by blast
 
 text \<open> In the case of the empty list, the converse may be established. \<close>
 
-lemma (in Minimal_Logic) list_deduction_base_theory [simp]: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
+lemma (in Implicational_Intuitionistic_Logic) list_deduction_base_theory [simp]: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   unfolding list_deduction_def
   by simp
 
-lemma (in Minimal_Logic) list_deduction_modus_ponens: "\<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<psi>"
+lemma (in Implicational_Intuitionistic_Logic) list_deduction_modus_ponens: "\<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<psi>"
   unfolding list_deduction_def
-  using Modus_Ponens list_implication_Axiom_2
+  using Modus_Ponens list_implication_Axiom_S
   by blast
 
 subsection \<open> The Deduction Theorem \<close>
@@ -117,17 +128,17 @@ text \<open> One result in the meta-theory of minimal logic is the \<^emph>\<ope
 text \<open> To develop the deduction theorem, the following two lemmas generalize
         @{thm "flip_implication"}. \<close>
 
-lemma (in Minimal_Logic) list_flip_implication1: "\<turnstile> (\<phi> # \<Gamma>) :\<rightarrow> \<chi> \<rightarrow> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>)"
+lemma (in Implicational_Intuitionistic_Logic) list_flip_implication1: "\<turnstile> (\<phi> # \<Gamma>) :\<rightarrow> \<chi> \<rightarrow> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>)"
   by (induct \<Gamma>,
-      (simp, meson Axiom_1 Axiom_2 Modus_Ponens flip_implication hypothetical_syllogism)+)
+      (simp, meson Axiom_K Axiom_S Modus_Ponens flip_implication hypothetical_syllogism)+)
 
-lemma (in Minimal_Logic) list_flip_implication2: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> # \<Gamma>) :\<rightarrow> \<chi>"
+lemma (in Implicational_Intuitionistic_Logic) list_flip_implication2: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> # \<Gamma>) :\<rightarrow> \<chi>"
   by (induct \<Gamma>,
-      (simp, meson Axiom_1 Axiom_2 Modus_Ponens flip_implication hypothetical_syllogism)+)
+      (simp, meson Axiom_K Axiom_S Modus_Ponens flip_implication hypothetical_syllogism)+)
 
 text \<open> Together the two lemmas above suffice to prove a form of the deduction theorem: \<close>
 
-theorem (in Minimal_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
+theorem (in Implicational_Intuitionistic_Logic) list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
   unfolding list_deduction_def
   by (metis Modus_Ponens list_flip_implication1 list_flip_implication2)
 
@@ -147,13 +158,13 @@ text \<open> The lemma @{thm "list_flip_implication2"} presents a means of \<^em
         implication.  The next lemma presents a means of \<^emph>\<open>discharging\<close> those assumptions,
         which can be used in the monotonic growth theorem to be proved. \<close>
 
-lemma (in Minimal_Logic) list_implication_removeAll:
+lemma (in Implicational_Intuitionistic_Logic) list_implication_removeAll:
   "\<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
 proof -
   have "\<forall> \<psi>. \<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
   proof(induct \<Gamma>)
     case Nil
-    then show ?case by (simp, meson Axiom_1)
+    then show ?case by (simp, meson Axiom_K)
   next
     case (Cons \<chi> \<Gamma>)
     assume inductive_hypothesis: "\<forall> \<psi>. \<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> removeAll \<phi> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
@@ -183,7 +194,7 @@ qed
 text \<open> From lemma above presents what is needed to prove that deductive power for lists is
         monotonic. \<close>
 
-theorem (in Minimal_Logic) list_implication_monotonic:
+theorem (in Implicational_Intuitionistic_Logic) list_implication_monotonic:
   "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<turnstile> \<Sigma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
 proof -
   assume "set \<Sigma> \<subseteq> set \<Gamma>"
@@ -191,7 +202,7 @@ proof -
   proof(induct \<Gamma>)
     case Nil
     then show ?case
-      by (metis list_implication.simps(1) list_implication_Axiom_1 set_empty subset_empty)
+      by (metis list_implication.simps(1) list_implication_Axiom_K set_empty subset_empty)
   next
     case (Cons \<psi> \<Gamma>)
     assume inductive_hypothesis: "\<forall>\<Sigma> \<phi>. set \<Sigma> \<subseteq> set \<Gamma> \<longrightarrow> \<turnstile> \<Sigma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
@@ -204,7 +215,7 @@ proof -
         {
           assume "set \<Sigma> \<subseteq> set \<Gamma>"
           hence ?thesis
-            by (metis inductive_hypothesis Axiom_1 Modus_Ponens flip_implication
+            by (metis inductive_hypothesis Axiom_K Modus_Ponens flip_implication
                       list_implication.simps(2))
         }
         moreover {
@@ -232,7 +243,7 @@ qed
 
 text \<open> A direct consequence is that deduction from lists of assumptions is monotonic as well: \<close>
 
-theorem (in Minimal_Logic) list_deduction_monotonic:
+theorem (in Implicational_Intuitionistic_Logic) list_deduction_monotonic:
   "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<Sigma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
   using Modus_Ponens list_implication_monotonic
@@ -244,7 +255,7 @@ text \<open> The monotonic nature of deduction allows us to prove another form o
         theorem, where the assumption being discharged is completely removed from the list of
         assumptions. \<close>
 
-theorem (in Minimal_Logic) alternate_list_deduction_theorem:
+theorem (in Implicational_Intuitionistic_Logic) alternate_list_deduction_theorem:
   "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
   by (metis list_deduction_def
             Modus_Ponens
@@ -261,13 +272,13 @@ text \<open> In logic the \<^emph>\<open>reflection\<close> principle sometimes 
         assumptions can deduce any of its members. It is automatically derivable from
         @{thm "list_deduction_monotonic"} among the other rules provided. \<close>
 
-lemma (in Minimal_Logic) list_deduction_reflection: "\<phi> \<in> set \<Gamma> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
+lemma (in Implicational_Intuitionistic_Logic) list_deduction_reflection: "\<phi> \<in> set \<Gamma> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   by (metis list_deduction_def
             insert_subset
             list.simps(15)
             list_deduction_monotonic
             list_implication.simps(2)
-            list_implication_Axiom_1
+            list_implication_Axiom_K
             order_refl)
 
 subsection \<open> The Cut Rule \<close>
@@ -283,7 +294,7 @@ text \<open> The cut rule is not generally necessary in sequent calculi. It can 
 
 text \<open> Here the rule is presented just as a meta theorem. \<close>
 
-theorem (in Minimal_Logic) list_deduction_cut_rule:
+theorem (in Implicational_Intuitionistic_Logic) list_deduction_cut_rule:
   "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
   by (metis
        (no_types, lifting)
@@ -296,7 +307,7 @@ theorem (in Minimal_Logic) list_deduction_cut_rule:
 
 text \<open> The cut rule can also be strengthened to entire lists of propositions. \<close>
 
-theorem (in Minimal_Logic) strong_list_deduction_cut_rule:
+theorem (in Implicational_Intuitionistic_Logic) strong_list_deduction_cut_rule:
   "(\<Phi> @ \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
 proof -
   have "\<forall> \<psi>. (\<Phi> @ \<Gamma> :\<turnstile> \<psi> \<longrightarrow> (\<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi>) \<longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>)"
@@ -344,7 +355,7 @@ subsection \<open> Definition of Deduction \<close>
 text \<open> Just as deduction from a list @{term "(:\<turnstile>)"} can be defined in terms of @{term "(:\<rightarrow>)"},
         deduction from a \<^emph>\<open>set\<close> of assumptions can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
 
-definition (in Minimal_Logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
+definition (in Implicational_Intuitionistic_Logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
   "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
 
 subsubsection \<open> Interpretation as Minimal Logic \<close>
@@ -355,17 +366,17 @@ text \<open> As in the case of @{term "(:\<turnstile>)"}, the relation @{term "(
 text \<open> The following lemma is given in order to establish this, which asserts that
         every minimal logic tautology @{term "\<turnstile> \<phi>"} is also a tautology for @{term "\<Gamma> \<tturnstile> \<phi>"}. \<close>
 
-lemma (in Minimal_Logic) set_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
+lemma (in Implicational_Intuitionistic_Logic) set_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by fastforce
 
 text \<open> In the case of the empty set, the converse may be established. \<close>
 
-lemma (in Minimal_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
+lemma (in Implicational_Intuitionistic_Logic) set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
 text \<open> Next, a form of \<^emph>\<open>modus ponens\<close> is provided for @{term "(\<tturnstile>)"}. \<close>
 
-lemma (in Minimal_Logic) set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
+lemma (in Implicational_Intuitionistic_Logic) set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
 proof -
   assume "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
   then obtain \<Phi> where A: "set \<Phi> \<subseteq> \<Gamma>" and B: "\<Phi> :\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -380,14 +391,14 @@ proof -
     using set_deduction_def by blast
 qed
 
-context Minimal_Logic begin
-interpretation Set_Deduction_Logic: Minimal_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
+context Implicational_Intuitionistic_Logic begin
+interpretation Set_Deduction_Logic: Implicational_Intuitionistic_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
 proof
    fix \<phi> \<psi>
-   show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis Axiom_1 set_deduction_weaken)
+   show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis Axiom_K set_deduction_weaken)
 next
     fix \<phi> \<psi> \<chi>
-    show "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"  by (metis Axiom_2 set_deduction_weaken)
+    show "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"  by (metis Axiom_S set_deduction_weaken)
 next
     fix \<phi> \<psi>
     show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>" using set_deduction_modus_ponens by metis
@@ -398,7 +409,7 @@ subsection \<open> The Deduction Theorem \<close>
 
 text \<open> The next result gives the deduction theorem for @{term "(\<tturnstile>)"}. \<close>
 
-theorem (in Minimal_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
+theorem (in Implicational_Intuitionistic_Logic) set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> insert \<phi> \<Gamma> \<tturnstile> \<psi>"
     by (metis set_deduction_def insert_mono list.simps(15) list_deduction_theorem)
@@ -431,7 +442,7 @@ text \<open> As a consequence of the fact that @{thm "set_deduction_monotonic"} 
         removed from the set of assumptions is just a consequence of the more conventional
         @{thm "set_deduction_theorem"} and some basic set identities. \<close>
 
-theorem (in Minimal_Logic) alternate_set_deduction_theorem:
+theorem (in Implicational_Intuitionistic_Logic) alternate_set_deduction_theorem:
   "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> - {\<phi>} \<tturnstile> \<phi> \<rightarrow> \<psi>"
   by (metis insert_Diff_single set_deduction_theorem)
 
@@ -440,10 +451,10 @@ subsection \<open> Reflection \<close>
 text \<open> Just as in the case of @{term "(:\<turnstile>)"}, deduction from sets of assumptions
         makes true the \<^emph>\<open>reflection principle\<close> and is automatically provable. \<close>
 
-theorem (in Minimal_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
+theorem (in Implicational_Intuitionistic_Logic) set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (metis Set.set_insert
             list_implication.simps(1)
-            list_implication_Axiom_1
+            list_implication_Axiom_K
             set_deduction_theorem
             set_deduction_weaken)
 
@@ -453,7 +464,7 @@ text \<open> The final principle of @{term "(\<tturnstile>)"} presented is the \
 
 text \<open> First, the weak form of the rule is established. \<close>
 
-theorem (in Minimal_Logic) set_deduction_cut_rule:
+theorem (in Implicational_Intuitionistic_Logic) set_deduction_cut_rule:
   "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
 proof -
   assume "insert \<phi> \<Gamma> \<tturnstile> \<psi>"
@@ -470,7 +481,7 @@ text \<open> Another lemma is shown next in order to establish the strong form
        \<^term>\<open>\<Delta>\<close> proves everything in a finite set of assumptions
        \<^term>\<open>\<Phi>\<close>. \<close>
 
-lemma (in Minimal_Logic) finite_set_deduction_list_deduction:
+lemma (in Implicational_Intuitionistic_Logic) finite_set_deduction_list_deduction:
   "finite \<Phi> \<Longrightarrow>
    \<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi> \<Longrightarrow>
    \<exists>\<Psi>. set \<Psi> \<subseteq> \<Delta> \<and> (\<forall>\<phi> \<in> \<Phi>. \<Psi> :\<turnstile> \<phi>)"
@@ -498,7 +509,7 @@ qed
 text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened
        form of the cut rule can be given. \<close>
 
-theorem (in Minimal_Logic) strong_set_deduction_cut_rule:
+theorem (in Implicational_Intuitionistic_Logic) strong_set_deduction_cut_rule:
   "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
 proof -
   assume "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi>"
@@ -524,11 +535,11 @@ qed
 
 subsection \<open>Maximally Consistent Sets For Minimal Logic\<close>
 
-definition (in Minimal_Logic)
+definition (in Implicational_Intuitionistic_Logic)
   Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
   where [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"
 
-lemma (in Minimal_Logic) Formula_Consistent_Extension:
+lemma (in Implicational_Intuitionistic_Logic) Formula_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "(\<phi>-Consistent insert \<psi> \<Gamma>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>)"
 proof -
@@ -544,13 +555,13 @@ proof -
   thus ?thesis by blast
 qed
 
-definition (in Minimal_Logic)
+definition (in Implicational_Intuitionistic_Logic)
   Formula_Maximally_Consistent_Set
     :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
     where
       [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
 
-theorem (in Minimal_Logic) Formula_Maximally_Consistent_Extension:
+theorem (in Implicational_Intuitionistic_Logic) Formula_Maximally_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "\<exists> \<Omega>. (\<phi>-MCS \<Omega>) \<and> \<Gamma> \<subseteq> \<Omega>"
 proof -
@@ -625,14 +636,15 @@ proof -
     by blast
 qed
 
-lemma (in Minimal_Logic) Formula_Maximally_Consistent_Set_reflection:
-  "\<phi>-MCS \<Gamma> \<Longrightarrow> \<psi> \<in> \<Gamma> = \<Gamma> \<tturnstile> \<psi>"
+lemma (in Implicational_Intuitionistic_Logic)
+  Formula_Maximally_Consistent_Set_reflection: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<psi> \<in> \<Gamma> = \<Gamma> \<tturnstile> \<psi>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
   {
     assume "\<Gamma> \<tturnstile> \<psi>"
     moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "~ \<Gamma> \<tturnstile> \<phi>"
-      unfolding Formula_Maximally_Consistent_Set_def Formula_Consistent_def
+      unfolding Formula_Maximally_Consistent_Set_def
+                Formula_Consistent_def
       by auto
     ultimately have "\<psi> \<in> \<Gamma>"
       using set_deduction_reflection set_deduction_modus_ponens
@@ -643,7 +655,7 @@ proof -
     by metis
 qed
 
-theorem (in Minimal_Logic)
+theorem (in Implicational_Intuitionistic_Logic)
   Formula_Maximally_Consistent_Set_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<Longrightarrow> \<chi> \<in> \<Omega>"

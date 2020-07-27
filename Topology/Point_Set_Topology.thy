@@ -46,7 +46,7 @@ lemma open_Un [point_set_continuous_intros, intro]: "open S \<Longrightarrow> op
 lemma open_UN [point_set_continuous_intros, intro]: "\<forall>x\<in>A. open (B x) \<Longrightarrow> open (\<Union>x\<in>A. B x)"
   using open_Union [of "B ` A"] by simp
 
-lemma open_Inter [point_set_continuous_intros, intro]: 
+lemma open_Inter [point_set_continuous_intros, intro]:
   "finite S \<Longrightarrow> \<forall>T\<in>S. open T \<Longrightarrow> open (\<Omega> \<inter> \<Inter> S)"
   by (induct set: finite, simp, simp add: inf_left_commute open_Int)
 
@@ -67,7 +67,7 @@ definition closed :: "'a set \<Rightarrow> bool"
   where "closed S \<longleftrightarrow> S \<subseteq> \<Omega> \<and> open (\<Omega> - S)"
 
 lemma closed_empty [point_set_continuous_intros, intro, simp]: "closed {}"
-  unfolding closed_def by auto 
+  unfolding closed_def by auto
 
 lemma closed_Un [point_set_continuous_intros, intro]: "closed S \<Longrightarrow> closed T \<Longrightarrow> closed (S \<union> T)"
   unfolding closed_def
@@ -77,27 +77,27 @@ lemma closed_relative_universe [point_set_continuous_intros, intro, simp]: "clos
   unfolding closed_def
   by simp
 
-lemma closed_Int [point_set_continuous_intros, intro]: 
+lemma closed_Int [point_set_continuous_intros, intro]:
   "closed S \<Longrightarrow> closed T \<Longrightarrow> closed (S \<inter> T)"
   unfolding closed_def by (simp add: Diff_Int inf.coboundedI1 open_Un)
 
-lemma closed_INT [point_set_continuous_intros, intro]: 
+lemma closed_INT [point_set_continuous_intros, intro]:
   "\<forall>x\<in>A. closed (B x) \<Longrightarrow> closed (\<Omega> \<inter> (\<Inter> x\<in>A. B x))"
   unfolding closed_def
-  by (metis (no_types, lifting) Diff_Int 
-                                Diff_cancel 
-                                IntE 
-                                UN_simps(7) 
-                                inf_commute 
-                                open_UN 
-                                subsetI 
+  by (metis (no_types, lifting) Diff_Int
+                                Diff_cancel
+                                IntE
+                                UN_simps(7)
+                                inf_commute
+                                open_UN
+                                subsetI
                                 sup_bot.comm_neutral)
 
 lemma closed_Inter [point_set_continuous_intros, intro]: "\<forall>S\<in>K. closed S \<Longrightarrow> closed (\<Omega> \<inter> \<Inter> K)"
   using closed_INT [where ?B="\<lambda> x. x"]
   by auto
 
-lemma closed_Union [point_set_continuous_intros, intro]: 
+lemma closed_Union [point_set_continuous_intros, intro]:
   "finite S \<Longrightarrow> \<forall>T\<in>S. closed T \<Longrightarrow> closed (\<Union>S)"
   by (induct set: finite) auto
 
@@ -131,7 +131,7 @@ lemma closed_open: "closed S \<longleftrightarrow> S \<subseteq> \<Omega> \<and>
 
 lemma open_Diff [point_set_continuous_intros, intro]: "open S \<Longrightarrow> closed T \<Longrightarrow> open (S - T)"
   by (metis Int_Diff Int_absorb2 closed_open open_Int open_closed)
-  
+
 lemma closed_Diff [point_set_continuous_intros, intro]: "closed S \<Longrightarrow> open T \<Longrightarrow> closed (S - T)"
   by (metis Int_Diff Int_absorb2 closed_Int closed_open open_closed)
 
@@ -196,7 +196,7 @@ lemma open_Collect_disj:
 lemma open_Collect_ex: "(\<And>i. open {x. P i x}) \<Longrightarrow> open {x. \<exists>i. P i x}"
   using open_UN[of UNIV "\<lambda>i. {x. P i x}"] unfolding Collect_ex_eq by simp
 
-lemma weakend_open_Collect_ex: 
+lemma weakend_open_Collect_ex:
   assumes "\<And>i. open {x \<in> \<Omega>. P i x}"
   shows "open {x \<in> \<Omega>. \<exists>i. P i x}"
 proof -
@@ -208,7 +208,7 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-lemma open_Collect_imp: 
+lemma open_Collect_imp:
   assumes "open {x. \<not> P x}" "open {x. Q x}"
   shows "open {x. P x \<longrightarrow> Q x}"
 proof -
@@ -216,7 +216,7 @@ proof -
     using open_Collect_disj by blast
   thus ?thesis
     by linarith
-qed    
+qed
 
 lemma open_Collect_const: "open {x \<in> \<Omega>. P}"
   by (cases P) auto
@@ -268,7 +268,7 @@ proof -
     by auto
   ultimately show ?thesis by simp
 qed
-    
+
 lemma closed_Collect_const: "closed {x \<in> \<Omega>. P}"
   by (cases P) auto
 
@@ -296,15 +296,15 @@ lemma t1_space: "x \<in> \<Omega> \<Longrightarrow> y \<in> \<Omega> \<Longright
 lemma separation_t1: "x \<in> \<Omega> \<Longrightarrow> y \<in> \<Omega> \<Longrightarrow> x \<noteq> y \<longleftrightarrow> (\<exists>U. open U \<and> x \<in> U \<and> y \<notin> U)"
   using t1_space[of x y] by blast
 
-lemma closed_singleton: 
-  assumes "a \<in> \<Omega>" 
+lemma closed_singleton:
+  assumes "a \<in> \<Omega>"
   shows "closed {a}"
 proof -
   let ?T = "\<Union>{S. open S \<and> a \<notin> S}"
   have "open ?T"
     by (simp add: open_Union)
   moreover have "?T = \<Omega> - {a}"
-    using t1_space 
+    using t1_space
     by (auto, fastforce simp add: open_closed)
   ultimately show ?thesis
     using \<open>a \<in> \<Omega>\<close>
@@ -314,7 +314,7 @@ qed
 
 lemma closed_insert [point_set_continuous_intros, simp]:
   assumes "a \<in> \<Omega>"
-      and "closed S" 
+      and "closed S"
     shows "closed (insert a S)"
 proof -
   from closed_singleton assms have "closed ({a} \<union> S)"
@@ -323,7 +323,7 @@ proof -
     by simp
 qed
 
-lemma finite_imp_closed: 
+lemma finite_imp_closed:
   assumes "finite S"
       and "S \<subseteq> \<Omega>"
     shows "closed S"
@@ -335,12 +335,12 @@ end
 text \<open>T2 spaces are also known as Hausdorff spaces.\<close>
 
 class t2_topology = point_set_topology +
-  assumes hausdorff: 
+  assumes hausdorff:
     "x \<in> \<Omega> \<Longrightarrow> y \<in> \<Omega> \<Longrightarrow> x \<noteq> y \<Longrightarrow> \<exists>U V. U \<in> \<tau> \<and> V \<in> \<tau> \<and> x \<in> U \<and> y \<in> V \<and> U \<inter> V = {}"
 
 instance t2_topology \<subseteq> t1_topology
   by standard (metis IntI empty_iff hausdorff)
-  
+
 lemma (in t2_topology) separation_t2:
   assumes "x \<in> \<Omega>"
       and "y \<in> \<Omega>"
@@ -359,7 +359,7 @@ text \<open>A classical separation axiom for topological space, the T3 axiom -- 
 if a point is not in a closed set, then there are open sets separating them.\<close>
 
 class t3_topology = t2_topology +
-  assumes t3_topology: 
+  assumes t3_topology:
     "y \<in> \<Omega> \<Longrightarrow>
      S \<subseteq> \<Omega> \<Longrightarrow>
      \<Omega> - S \<in> \<tau> \<Longrightarrow>
@@ -386,13 +386,13 @@ proof
   then show "\<exists>U V. U \<in> \<tau> \<and> V \<in> \<tau> \<and> y \<in> U \<and> S \<subseteq> V \<and> U \<inter> V = {}"
     using t4_topology[of "{y}" S]
     by (metis (no_types, lifting)
-              Diff_disjoint 
+              Diff_disjoint
               Diff_insert_absorb
               closed_empty
               closed_insert
               closed_open
               open_def
-              singletonI subsetCE) 
+              singletonI subsetCE)
 qed
 
 text \<open>A perfect space is a topological space with no isolated points.\<close>
@@ -437,9 +437,9 @@ proof -
     by blast
 qed
 
-lemma topological_space_generate_topology: 
+lemma topological_space_generate_topology:
   "class.point_set_topology (\<Union>S) (Collect (generate_topology S))"
-  by (standard, 
+  by (standard,
       simp add: generate_topology_Collect_Pow,
       simp add: generate_topology_\<Omega>,
       simp add: generate_topology.Int,
@@ -448,33 +448,33 @@ lemma topological_space_generate_topology:
 subsection \<open>Order topologies\<close>
 
 class order_topology = order + \<Omega> + \<tau> +
-  assumes open_generated_order: 
+  assumes open_generated_order:
     "\<tau> = Collect (generate_topology (range (\<lambda>a. {..< a}) \<union> range (\<lambda>a. {a <..})))"
   assumes \<Omega>_union_\<tau>: "\<Omega> = \<Union>\<tau>"
 begin
 
 subclass point_set_topology
   unfolding open_generated_order \<Omega>_union_\<tau>
-  by (standard, 
-      blast, 
-      force intro: generate_topology.UN, 
-      simp add: generate_topology.Int, 
+  by (standard,
+      blast,
+      force intro: generate_topology.UN,
+      simp add: generate_topology.Int,
       metis Ball_Collect CollectI generate_topology.UN)
 
 lemma open_greaterThan [point_set_continuous_intros, simp]: "open {a <..}"
   unfolding open_generated_order
-  by (metis CollectI 
-            IntD2 
-            generate_topology.Basis 
-            inf_sup_absorb 
-            open_def 
-            open_generated_order 
+  by (metis CollectI
+            IntD2
+            generate_topology.Basis
+            inf_sup_absorb
+            open_def
+            open_generated_order
             range_eqI
             sup_commute)
 
 lemma open_lessThan [point_set_continuous_intros, simp]: "open {..< a}"
   unfolding open_generated_order
-  by (metis (no_types, lifting) 
+  by (metis (no_types, lifting)
             Un_def
             generate_topology.Basis
             open_def
@@ -500,7 +500,7 @@ proof -
     using UnI1 \<open>a \<in> S\<close> not_less_iff_gr_or_eq by auto
   thus ?thesis
     by (metis UNIV_I UNIV_eq_I UnionI \<Omega>_union_\<tau>
-              \<open>S \<in> \<tau>\<close> open_Un open_def 
+              \<open>S \<in> \<tau>\<close> open_Un open_def
               open_greaterThan open_lessThan)
 qed
 
@@ -548,9 +548,9 @@ qed
 instance linorder_topology \<subseteq> t2_topology
 proof
   fix x y :: 'a
-  show "    x \<in> \<Omega> 
-        \<Longrightarrow> y \<in> \<Omega> 
-        \<Longrightarrow> x \<noteq> y 
+  show "    x \<in> \<Omega>
+        \<Longrightarrow> y \<in> \<Omega>
+        \<Longrightarrow> x \<noteq> y
         \<Longrightarrow> \<exists>U V. U \<in> \<tau> \<and> V \<in> \<tau> \<and> x \<in> U \<and> y \<in> V \<and> U \<inter> V = {}"
     using less_separate [of x y] less_separate [of y x]
     by (metis inf_commute linorder_cases open_def open_greaterThan open_lessThan)
@@ -562,7 +562,7 @@ lemma (in linorder_topology) open_right:
     shows "\<exists>b>x. {x ..< b} \<subseteq> S"
     using assms unfolding open_generated_order
 proof -
-  from \<open>open S\<close> 
+  from \<open>open S\<close>
   have "generate_topology (range (\<lambda>a. {..< a}) \<union> range (\<lambda>a. {a <..})) S"
 
 

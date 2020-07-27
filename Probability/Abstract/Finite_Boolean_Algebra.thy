@@ -19,7 +19,7 @@ subclass finite_distrib_lattice_complete
         top_unique
         Inf_def
         Sup_def
-  by (unfold_locales, blast, fastforce, auto) 
+  by (unfold_locales, blast, fastforce, auto)
 end
 
 definition (in bounded_lattice_bot) join_prime :: "'a \<Rightarrow> bool" where
@@ -41,16 +41,16 @@ proof
       by simp
     finally have "x = (x \<sqinter> -y) \<squnion> y"
       by (simp add: sup_inf_distrib2)
-    hence "x \<le> -y" 
+    hence "x \<le> -y"
       using \<open>join_prime x\<close> \<open>y \<noteq> x\<close> \<open>y \<le> x\<close> eq_iff
       unfolding join_prime_def
       by force
     hence "y \<le> y \<sqinter> -y"
-      by (metis \<open>x = x \<squnion> y\<close> 
-                inf.orderE 
-                inf_compl_bot_right 
-                inf_sup_absorb 
-                order_refl 
+      by (metis \<open>x = x \<squnion> y\<close>
+                inf.orderE
+                inf_compl_bot_right
+                inf_sup_absorb
+                order_refl
                 sup.commute)
     hence "y = \<bottom>"
       using sup_absorb2 by fastforce
@@ -132,18 +132,18 @@ lemma (in order) descending_chain_list_drop_penultimate:
 lemma (in order) descending_chain_list_le_others:
   assumes "descending_chain_list (s # S)"
   shows   "\<forall>s' \<in> set S. s < s'"
-  using assms 
+  using assms
   by (induct S, auto, simp add: descending_chain_list_drop_penultimate)
 
 lemma (in order) descending_chain_list_distinct:
   assumes "descending_chain_list S"
   shows "distinct S"
   using assms
-  by (induct S, 
-      simp, 
-      meson descending_chain_list_le_others 
-            descending_chain_list_tail 
-            distinct.simps(2) 
+  by (induct S,
+      simp,
+      meson descending_chain_list_le_others
+            descending_chain_list_tail
+            distinct.simps(2)
             less_irrefl)
 
 lemma (in finite_boolean_algebra) join_prime_lower_bound_exists:
@@ -172,12 +172,12 @@ proof (rule ccontr)
           using \<open>x \<noteq> \<bottom>\<close>
           by simp
         then show ?thesis
-          by blast 
+          by blast
       next
         case False
         from this obtain s S where
-          "descending_chain_list (s # S)" 
-          "length (s # S) = n" 
+          "descending_chain_list (s # S)"
+          "length (s # S) = n"
           "\<forall>s \<in> set (s # S). s \<noteq> \<bottom> \<and> s \<le> x"
           using Suc.hyps length_0_conv descending_chain_list.elims(2)
           by metis
@@ -189,7 +189,7 @@ proof (rule ccontr)
           by metis
         note B = this
         let ?S' = "s' # s # S"
-        from A and B have 
+        from A and B have
           "descending_chain_list ?S'"
           "length ?S' = Suc n"
           "\<forall>s \<in> set ?S'. s \<noteq> \<bottom> \<and> s \<le> x"
@@ -198,8 +198,8 @@ proof (rule ccontr)
       qed
     qed
   }
-  from this obtain S :: "'a list" where 
-    "descending_chain_list S" 
+  from this obtain S :: "'a list" where
+    "descending_chain_list S"
     "length S = 1 + (card (UNIV::'a set))"
     by auto
   hence "card (set S) = 1 + (card (UNIV::'a set))"
@@ -229,11 +229,11 @@ proof -
     proof (rule ccontr)
       assume "\<not> x \<le> y"
       hence "\<bottom> < x \<sqinter> -y"
-        by (metis bot_less 
-                  compl_sup_top 
-                  inf_top_right 
-                  le_iff_sup 
-                  sup.commute 
+        by (metis bot_less
+                  compl_sup_top
+                  inf_top_right
+                  le_iff_sup
+                  sup.commute
                   sup_bot_right
                   sup_inf_distrib1)
       from this obtain a where
@@ -244,14 +244,14 @@ proof -
       hence "a \<in> \<lbrace> x \<rbrace>"
         by (simp add: join_prime_embedding_def)
       hence "a \<le> y"
-        using \<open>\<Squnion>\<lbrace> x \<rbrace> \<le> y\<close> 
-              Sup_upper 
-              order.trans 
+        using \<open>\<Squnion>\<lbrace> x \<rbrace> \<le> y\<close>
+              Sup_upper
+              order.trans
         by blast
       hence "a \<le> y \<sqinter> -y"
-        using \<open>a \<le> x \<sqinter> - y\<close> 
-              inf.boundedE 
-              inf_greatest 
+        using \<open>a \<le> x \<sqinter> - y\<close>
+              inf.boundedE
+              inf_greatest
         by blast
       hence "a = \<bottom>"
         by (simp add: le_bot)
@@ -284,9 +284,9 @@ proof -
     proof (rule ccontr)
       assume "\<not> (\<exists> s \<in> S. x \<le> s)"
       hence "\<forall> s \<in> S. x \<sqinter> s \<noteq> x"
-        using inf.order_iff 
-        by auto 
-      moreover 
+        using inf.order_iff
+        by auto
+      moreover
       have "\<forall> s \<in> S. x \<sqinter> s \<le> x"
         by simp
       hence "\<forall> s \<in> S. x \<sqinter> s = \<bottom> \<or> x \<sqinter> s = x"
@@ -329,8 +329,8 @@ proof
     hence "\<Squnion> \<lbrace> x \<rbrace> = \<Squnion> \<lbrace> y \<rbrace>"
       by simp
     hence "x = y"
-      using sup_join_prime_embedding_ident 
-      by auto 
+      using sup_join_prime_embedding_ident
+      by auto
   }
   thus "inj (\<lambda> x. \<lbrace> x \<rbrace>)"
     unfolding inj_def
@@ -348,7 +348,7 @@ next
     fix S
     assume "S \<in> Pow \<J>"
     hence "\<exists> x. \<lbrace> x \<rbrace> = S"
-      using join_prime_embedding_sup_ident 
+      using join_prime_embedding_sup_ident
       by blast
     thus "S \<in> range (\<lambda> x. \<lbrace> x \<rbrace>)"
       by blast
@@ -381,7 +381,7 @@ next
              "z \<in> {{}, {x}} \<times> Pow X"
              "fst y \<union> snd y = fst z \<union> snd z"
              (is "?Uy = ?Uz")
-      hence "x \<notin> snd y" 
+      hence "x \<notin> snd y"
             "x \<notin> snd z"
             "fst y = {x} \<or> fst y = {}"
             "fst z = {x} \<or> fst z = {}"

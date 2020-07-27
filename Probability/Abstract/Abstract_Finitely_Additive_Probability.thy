@@ -13,7 +13,7 @@ no_notation
   Arbitrary_Conjunction ("\<Sqinter>") and
   Arbitrary_Disjunction ("\<Squnion>")
 
-class \<P> = 
+class \<P> =
   fixes \<P> :: "'a \<Rightarrow> real"
 
 class abstract_finitely_additive_probability = \<P> + boolean_algebra +
@@ -32,8 +32,8 @@ proof
   assume "A \<sqinter> B \<le> C"
   have "B \<squnion> (A \<Rightarrow> C) = A \<Rightarrow> C \<squnion> B \<sqinter> \<top>"
     unfolding residual_def
-    using inf_top.right_neutral 
-          sup_commute 
+    using inf_top.right_neutral
+          sup_commute
     by presburger
   moreover have "\<top> = A \<Rightarrow> C \<squnion> A"
     unfolding residual_def
@@ -48,8 +48,8 @@ proof
     unfolding residual_def
     by (metis inf_commute
               sup.absorb_iff2
-              sup.semigroup_axioms 
-              sup_commute 
+              sup.semigroup_axioms
+              sup_commute
               semigroup.assoc)
 next
   assume "B \<le> A \<Rightarrow> C"
@@ -66,7 +66,7 @@ next
     unfolding residual_def
     by (metis (no_types) inf.orderI
                          inf_compl_bot_right
-                         inf_sup_distrib1 
+                         inf_sup_distrib1
                          sup_bot.right_neutral)
 qed
 
@@ -91,8 +91,8 @@ next
       by (metis compl_sup_top sup_compl_top_left2 sup_left_commute)
     ultimately have "\<top> = (\<phi> \<Rightarrow> \<psi> \<Rightarrow> \<chi>) \<Rightarrow> (\<phi> \<Rightarrow> \<chi>) \<squnion> - (\<phi> \<Rightarrow> \<psi>)"
       unfolding residual_def
-      using abel_semigroup.commute 
-            sup.abel_semigroup_axioms 
+      using abel_semigroup.commute
+            sup.abel_semigroup_axioms
             sup_inf_distrib1
       by fastforce
     hence "\<top> = (\<phi> \<Rightarrow> \<psi>) \<Rightarrow> (\<phi> \<Rightarrow> \<psi> \<Rightarrow> \<chi>) \<Rightarrow> \<phi> \<Rightarrow> \<chi>"
@@ -115,13 +115,13 @@ next
     by simp
 qed
 
-lemmas Axiom_1 = Axiom_1
-lemmas Axiom_2 = Axiom_2
+lemmas Axiom_K = Axiom_K
+lemmas Axiom_S = Axiom_S
 lemmas Double_Negation = Double_Negation
 lemmas Modus_Ponens = Modus_Ponens
 
 definition probabilities :: "('a \<Rightarrow> real) set"
-  where "probabilities = 
+  where "probabilities =
          { \<P>. class.abstract_finitely_additive_probability \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top> }"
 
 lemma probabilities_alt_def:
@@ -131,7 +131,7 @@ proof
   proof
     fix \<P>
     assume "\<P> \<in> probabilities"
-    from this interpret 
+    from this interpret
       abstract_finitely_additive_probability \<P>
       unfolding probabilities_def
       by auto
@@ -176,9 +176,9 @@ next
       fix \<phi> \<psi>
       assume "\<phi> \<sqinter> \<psi> = \<bottom>"
       thus "\<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
-        using Implicational_Additivity 
-              compl_bot_eq 
-              sup_bot.right_neutral 
+        using Implicational_Additivity
+              compl_bot_eq
+              sup_bot.right_neutral
               residual_def
         by force
     qed
@@ -239,14 +239,14 @@ lemma conditional_probability_measure:
   assumes "\<P> \<in> probabilities" and "\<P> \<psi> \<noteq> 0"
   shows   "(\<lambda> \<phi>. \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>) \<in> probabilities"
 proof -
-  from assms interpret 
+  from assms interpret
     abstract_finitely_additive_probability \<P>
     unfolding probabilities_def
     by auto
   have "\<P> \<psi> > 0"
-    using \<open>\<P> \<psi> \<noteq> 0\<close> 
+    using \<open>\<P> \<psi> \<noteq> 0\<close>
           Non_Negative
-          order_class.dual_order.order_iff_strict 
+          order_class.dual_order.order_iff_strict
     by blast
   let ?\<P>' = "\<lambda> \<phi>. \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>"
   have "class.abstract_finitely_additive_probability ?\<P>' (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
@@ -261,11 +261,11 @@ proof -
     fix \<phi> \<chi>
     assume "\<phi> \<sqinter> \<chi> = \<bottom>"
     hence "\<P> ((\<phi> \<squnion> \<chi>) \<sqinter> \<psi>) = \<P> (\<phi> \<sqinter> \<psi>) + \<P> (\<chi> \<sqinter> \<psi>)"
-      by (metis Finite_Additivity 
-                inf.assoc 
-                inf.commute 
-                inf_bot_right 
-                inf_sup_distrib2) 
+      by (metis Finite_Additivity
+                inf.assoc
+                inf.commute
+                inf_bot_right
+                inf_sup_distrib2)
     thus "\<P> ((\<phi> \<squnion> \<chi>) \<sqinter> \<psi>) / \<P> \<psi> = \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi> + \<P> (\<chi> \<sqinter> \<psi>) / \<P> \<psi>"
       by (simp add: add_divide_distrib)
   qed
@@ -300,7 +300,7 @@ proof -
   next
     fix \<phi> \<psi>
     assume "\<phi> \<sqinter> \<psi> = \<bottom>"
-    thus "  \<alpha> * \<P> (\<phi> \<squnion> \<psi>) + (1 - \<alpha>) * \<Q> (\<phi> \<squnion> \<psi>) 
+    thus "  \<alpha> * \<P> (\<phi> \<squnion> \<psi>) + (1 - \<alpha>) * \<Q> (\<phi> \<squnion> \<psi>)
           = \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi> + (\<alpha> * \<P> \<psi> + (1 - \<alpha>) * \<Q> \<psi>)"
       by (simp add: \<P>_Finite_Additivity distrib_left Finite_Additivity)
   qed
@@ -320,19 +320,19 @@ proof -
   hence "\<P> \<in> probabilities"
     unfolding probabilities_def
     by auto
-  thus "class.Logical_Probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>" 
-    unfolding probabilities_alt_def 
+  thus "class.Logical_Probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
+    unfolding probabilities_alt_def
     by blast
 qed
 
 lemma sum_rule: "\<P> a + \<P> b = \<P> (a \<sqinter> b) + \<P> (a \<squnion> b)"
-  by (metis compl_inf 
-            conjunction_def 
-            disjunction_def 
+  by (metis compl_inf
+            conjunction_def
+            disjunction_def
             double_compl
-            residual_def 
+            residual_def
             sum_rule
-            sup.commute 
+            sup.commute
             sup_bot.left_neutral)
 
 lemma conditional_probability_join_prime:
@@ -344,7 +344,7 @@ proof (cases "\<alpha> \<le> \<phi>")
     by (simp add: inf_absorb2)
   hence "\<P> (\<phi> \<sqinter> \<alpha>) / \<P> \<alpha> = 1"
     using \<open>\<P> \<alpha> \<noteq> 0\<close> right_inverse_eq by blast
-  then show ?thesis 
+  then show ?thesis
     using \<open>\<alpha> \<le> \<phi>\<close> by simp
 next
   case False
@@ -372,8 +372,8 @@ proof -
     using Antithesis by auto
   moreover
   have \<star>: "\<forall> \<phi>. \<P> (\<phi> \<sqinter> \<alpha>) = (if \<alpha> \<le> \<phi> then \<P> \<alpha> else 0)"
-    by (metis \<open>\<P> (\<top> \<sqinter> \<alpha>) / \<P> \<alpha> = 1\<close> 
-              \<open>\<forall> \<phi>. \<P> (\<phi> \<sqinter> \<alpha>) / \<P> \<alpha> = (if \<alpha> \<le> \<phi> then 1 else 0)\<close> 
+    by (metis \<open>\<P> (\<top> \<sqinter> \<alpha>) / \<P> \<alpha> = 1\<close>
+              \<open>\<forall> \<phi>. \<P> (\<phi> \<sqinter> \<alpha>) / \<P> \<alpha> = (if \<alpha> \<le> \<phi> then 1 else 0)\<close>
               divide_eq_0_iff
               inf.absorb2 zero_neq_one)
   {
@@ -403,20 +403,20 @@ proof -
 qed
 
 lemma monotonicity: "a \<le> b \<Longrightarrow> \<P> a \<le> \<P> b"
-  by (metis monotonicity 
-            residual_def 
-            sup.commute 
-            sup.left_commute 
-            sup_absorb1 
+  by (metis monotonicity
+            residual_def
+            sup.commute
+            sup.left_commute
+            sup_absorb1
             sup_cancel_left1)
 
 lemmas Antithesis = Antithesis
 
 lemma complementation: "\<P> (- \<phi>) = 1 - \<P> \<phi>"
-  by (metis add_diff_cancel_left' 
-            Finite_Additivity 
-            Unity 
-            inf_compl_bot 
+  by (metis add_diff_cancel_left'
+            Finite_Additivity
+            Unity
+            inf_compl_bot
             sup_compl_top)
 
 lemma finite_certainty:
@@ -426,12 +426,12 @@ lemma finite_certainty:
 proof (induct A rule: finite_induct)
   case empty
   show "\<P> (Finite_Set.fold (\<sqinter>) \<top> {}) = 1"
-    by (simp add: Unity) 
+    by (simp add: Unity)
 next
   case (insert a A)
   have \<star>: "\<P> (Finite_Set.fold (\<sqinter>) \<top> (insert a A)) = \<P> (a \<sqinter> Finite_Set.fold (\<sqinter>) \<top> A)"
        (is "\<P> ?A' = \<P> (a \<sqinter> ?A)")
-    by (simp add: comp_fun_idem.fold_insert_idem insert.hyps(1) comp_fun_idem_inf) 
+    by (simp add: comp_fun_idem.fold_insert_idem insert.hyps(1) comp_fun_idem_inf)
   have "\<P> ?A = 1"
     using insert.hyps(3) insert.prems by blast
   moreover have "\<P> a = 1"
@@ -477,14 +477,14 @@ next
     hence "a \<sqinter> ?UA' = (a \<sqinter> a') \<squnion> (a \<sqinter> ?UA)"
       using inf_sup_distrib1 by auto
     ultimately show ?case
-      by auto 
+      by auto
   qed
   moreover have "Finite_Set.fold (\<squnion>) \<bottom> ({a} \<union> A) = a \<squnion> ?UA"
     by (simp add: comp_fun_idem.fold_insert_idem \<open>finite A\<close> comp_fun_idem_sup)
   moreover have "\<P> ?UA = (\<Sum> a \<in> A. \<P> a)"
     using insert by blast
   ultimately show ?case
-    by (simp add: \<open>finite A\<close> \<open>a \<notin> A\<close> Finite_Additivity) 
+    by (simp add: \<open>finite A\<close> \<open>a \<notin> A\<close> Finite_Additivity)
 qed
 
 end
@@ -501,8 +501,8 @@ proof -
     unfolding probabilities_def
     by blast
   have \<star>: "\<phi> = \<Squnion> { \<alpha> \<in> \<J>. \<alpha> \<le> \<phi> }" (is "\<phi> = \<Squnion> ?\<J>\<phi>")
-    using join_prime_embedding_def 
-          sup_join_prime_embedding_ident 
+    using join_prime_embedding_def
+          sup_join_prime_embedding_ident
     by auto
   have "\<forall> \<alpha> \<in> ?\<J>\<phi>. \<forall> \<alpha>' \<in> ?\<J>\<phi>. \<alpha> \<noteq> \<alpha>' \<longrightarrow> \<alpha> \<sqinter> \<alpha>' = \<bottom>"
     unfolding join_primes_def
@@ -544,7 +544,7 @@ proof -
        (is "\<forall> \<phi> \<in> ?A. \<delta> \<phi> = 1")
        by auto
   hence "\<delta> ?\<alpha> = 1"
-    using finite_certainty Inf_def finite 
+    using finite_certainty Inf_def finite
     by presburger
   hence "?\<alpha> \<noteq> \<bottom>"
     using Antithesis
@@ -557,17 +557,17 @@ proof -
       using \<open>\<delta> ?\<alpha> = 1\<close> monotonicity
       by fastforce
     hence "\<delta> (y \<squnion> z) = 1"
-      by (metis Unity 
-                monotonicity 
-                sup.cobounded2 
-                sup_top_left 
+      by (metis Unity
+                monotonicity
+                sup.cobounded2
+                sup_top_left
                 order_class.eq_iff)
     moreover have "\<delta> y = 0 \<Longrightarrow> \<delta> z = 0 \<Longrightarrow> \<delta> (y \<squnion> z) = 0"
-      by (metis add.right_neutral 
-                add_diff_cancel_left' 
-                diff_ge_0_iff_ge 
-                Non_Negative 
-                sum_rule 
+      by (metis add.right_neutral
+                add_diff_cancel_left'
+                diff_ge_0_iff_ge
+                Non_Negative
+                sum_rule
                 order_class.eq_iff)
     ultimately have "\<delta> y \<noteq> 0 \<or> \<delta> z \<noteq> 0"
       by linarith
@@ -606,7 +606,7 @@ proof
       by simp
   next
     have "join_prime (\<Sqinter> { \<phi> . \<delta> \<phi> = 1 })"
-      using \<open>\<delta> \<in> dirac_measures\<close> 
+      using \<open>\<delta> \<in> dirac_measures\<close>
             dirac_measure_to_join_prime
       unfolding join_primes_def
       by blast
@@ -666,15 +666,15 @@ proof
     assume "\<alpha>1 \<in> \<J>"
            "\<alpha>2 \<in> \<J>"
            "to_\<delta> \<alpha>1 = to_\<delta> \<alpha>2"
-    moreover from this have 
+    moreover from this have
       " \<Sqinter>{ \<phi>. (\<lambda> \<phi>. if \<alpha>1 \<le> \<phi> then 1 else 0) \<phi> = (1 :: real) }
       = \<Sqinter>{ \<phi>. (\<lambda> \<phi>. if \<alpha>2 \<le> \<phi> then 1 else 0) \<phi> = (1 :: real) }"
       unfolding to_\<delta>_def
-      by metis 
-    ultimately have "\<alpha>1 = \<alpha>2" 
+      by metis
+    ultimately have "\<alpha>1 = \<alpha>2"
       using join_prime_to_dirac_ident [of \<alpha>1]
             join_prime_to_dirac_ident [of \<alpha>2]
-      by presburger  
+      by presburger
   }
   hence "inj_on to_\<delta> \<J>"
     unfolding inj_on_def
@@ -682,7 +682,7 @@ proof
   thus "inj_on (\<lambda> \<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0 :: real) \<J>"
     unfolding to_\<delta>_def
     by blast
-    
+
 next
   show "(\<lambda>\<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) ` \<J> = dirac_measures"
   proof
