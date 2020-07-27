@@ -1,12 +1,12 @@
-section \<open> Minimal Logic \<close>
+section \<open> Implicational Intuitionistic Logic \<close>
 
-theory Minimal_Logic
+theory Implicational_Intuitionistic_Logic
   imports Main
 begin
 
 (*:maxLineLen=80:*)
 
-text \<open> This theory presents \<^emph>\<open>minimal logic\<close>, the implicational fragment of intuitionistic logic. \<close>
+text \<open> This theory presents the implicational fragment of intuitionistic logic. \<close>
 
 subsection \<open> Axiomatization \<close>
 
@@ -277,15 +277,15 @@ text \<open> \<^emph>\<open>Cut\<close> is a rule commonly presented in sequent 
 
 text \<open> The cut rule is not generally necessary in sequent calculi. It can often be shown
         that the rule can be eliminated without reducing the power of the underlying logic.
-        However, as demonstrated by George Boolos' \<^emph>\<open>Don't Eliminate Cute\<close> 
+        However, as demonstrated by George Boolos' \<^emph>\<open>Don't Eliminate Cute\<close>
         (1984) (TODO: Cite me),
         removing the rule can often lead to very inefficient proof systems. \<close>
 
 text \<open> Here the rule is presented just as a meta theorem. \<close>
 
-theorem (in Minimal_Logic) list_deduction_cut_rule: 
+theorem (in Minimal_Logic) list_deduction_cut_rule:
   "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
-  by (metis 
+  by (metis
        (no_types, lifting)
        Un_upper1
        Un_upper2
@@ -306,7 +306,7 @@ proof -
         by (metis Un_iff append.left_neutral list_deduction_monotonic set_append subsetI)
     next
       case (Cons \<chi> \<Phi>)
-      assume inductive_hypothesis: 
+      assume inductive_hypothesis:
          "\<forall> \<psi>. \<Phi> @ \<Gamma> :\<turnstile> \<psi> \<longrightarrow> (\<forall>\<phi>\<in>set \<Phi>. \<Delta> :\<turnstile> \<phi>) \<longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
       {
         fix \<psi> \<chi>
@@ -331,9 +331,9 @@ qed
 
 subsection \<open> Sets of Assumptions \<close>
 
-text \<open> While deduction in terms of lists of assumptions is straight-forward 
-       to define, deduction (and the \<^emph>\<open>deduction theorem\<close>) is commonly given in 
-       terms of \<^emph>\<open>sets\<close> of propositions.  This formulation is suited to 
+text \<open> While deduction in terms of lists of assumptions is straight-forward
+       to define, deduction (and the \<^emph>\<open>deduction theorem\<close>) is commonly given in
+       terms of \<^emph>\<open>sets\<close> of propositions.  This formulation is suited to
        establishing strong completeness theorems and compactness theorems. \<close>
 
 text \<open> The presentation of deduction from a set follows the presentation of list deduction given
@@ -464,10 +464,10 @@ proof -
   ultimately show ?thesis using set_deduction_modus_ponens by metis
 qed
 
-text \<open> Another lemma is shown next in order to establish the strong form 
-       of the cut rule. The lemma shows the existence of a \<^emph>\<open>covering list\<close> of 
-       assumptions \<^term>\<open>\<Psi>\<close> in the event some set of assumptions 
-       \<^term>\<open>\<Delta>\<close> proves everything in a finite set of assumptions 
+text \<open> Another lemma is shown next in order to establish the strong form
+       of the cut rule. The lemma shows the existence of a \<^emph>\<open>covering list\<close> of
+       assumptions \<^term>\<open>\<Psi>\<close> in the event some set of assumptions
+       \<^term>\<open>\<Delta>\<close> proves everything in a finite set of assumptions
        \<^term>\<open>\<Phi>\<close>. \<close>
 
 lemma (in Minimal_Logic) finite_set_deduction_list_deduction:
@@ -481,34 +481,34 @@ next
   assume "\<forall>\<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<exists>\<Psi>. set \<Psi> \<subseteq> \<Delta> \<and> (\<forall>\<phi> \<in> \<Phi>. \<Psi> :\<turnstile> \<phi>)"
      and "\<forall>\<phi> \<in> insert \<chi> \<Phi>. \<Delta> \<tturnstile> \<phi>"
   hence "\<exists>\<Psi>. set \<Psi> \<subseteq> \<Delta> \<and> (\<forall>\<phi>\<in>\<Phi>. \<Psi> :\<turnstile> \<phi>)" and "\<Delta> \<tturnstile> \<chi>" by simp+
-  then obtain \<Psi>\<^sub>1 \<Psi>\<^sub>2 where 
-    "set (\<Psi>\<^sub>1 @ \<Psi>\<^sub>2) \<subseteq> \<Delta>" and 
-    "\<forall>\<phi> \<in> \<Phi>. \<Psi>\<^sub>1 :\<turnstile> \<phi>" and 
+  then obtain \<Psi>\<^sub>1 \<Psi>\<^sub>2 where
+    "set (\<Psi>\<^sub>1 @ \<Psi>\<^sub>2) \<subseteq> \<Delta>" and
+    "\<forall>\<phi> \<in> \<Phi>. \<Psi>\<^sub>1 :\<turnstile> \<phi>" and
     "\<Psi>\<^sub>2 :\<turnstile> \<chi>"
     using set_deduction_def by auto
   moreover from this have "\<forall>\<phi> \<in> (insert \<chi> \<Phi>). \<Psi>\<^sub>1 @ \<Psi>\<^sub>2 :\<turnstile> \<phi>"
-    by (metis 
-         insert_iff 
-         le_sup_iff 
-         list_deduction_monotonic 
+    by (metis
+         insert_iff
+         le_sup_iff
+         list_deduction_monotonic
          order_refl set_append)
   ultimately show ?case by blast
 qed
 
-text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened 
+text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened
        form of the cut rule can be given. \<close>
 
 theorem (in Minimal_Logic) strong_set_deduction_cut_rule:
   "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
 proof -
   assume "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi>"
-  then obtain \<Sigma> where 
-    A: "set \<Sigma>  \<subseteq> \<Phi> \<union> \<Gamma>" and 
-    B: "\<Sigma> :\<turnstile> \<psi>" 
-    using set_deduction_def 
+  then obtain \<Sigma> where
+    A: "set \<Sigma>  \<subseteq> \<Phi> \<union> \<Gamma>" and
+    B: "\<Sigma> :\<turnstile> \<psi>"
+    using set_deduction_def
     by auto+
-  obtain \<Phi>' \<Gamma>' where 
-    C: "set \<Phi>' = set \<Sigma> \<inter> \<Phi>" and 
+  obtain \<Phi>' \<Gamma>' where
+    C: "set \<Phi>' = set \<Sigma> \<inter> \<Phi>" and
     D: "set \<Gamma>' = set \<Sigma> \<inter> \<Gamma>"
     by (metis inf_sup_aci(1) inter_set_filter)+
   then have "set (\<Phi>' @ \<Gamma>') = set \<Sigma>" using A by auto
@@ -525,7 +525,7 @@ qed
 subsection \<open>Maximally Consistent Sets For Minimal Logic\<close>
 
 definition (in Minimal_Logic)
-  Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100) 
+  Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
   where [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"
 
 lemma (in Minimal_Logic) Formula_Consistent_Extension:
@@ -545,8 +545,8 @@ proof -
 qed
 
 definition (in Minimal_Logic)
-  Formula_Maximally_Consistent_Set 
-    :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100) 
+  Formula_Maximally_Consistent_Set
+    :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
     where
       [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
 
@@ -589,7 +589,7 @@ proof -
               using subset_chain_\<C>
               unfolding subset.chain_def
               by blast
-            hence "(insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>1 \<or> (insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>2" 
+            hence "(insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>1 \<or> (insert \<psi> \<omega>) \<subseteq> \<Sigma>\<^sub>2"
               using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
             thus ?case using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
           qed
@@ -612,16 +612,16 @@ proof -
     have "(\<phi>-Consistent insert \<psi> \<Omega>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
          "\<Gamma> \<subseteq> insert \<psi> \<Omega>"
          "\<Gamma> \<subseteq> insert (\<psi> \<rightarrow> \<phi>) \<Omega>"
-      using \<Omega>(1) Formula_Consistent_Extension Formula_Consistent_def 
+      using \<Omega>(1) Formula_Consistent_Extension Formula_Consistent_def
       by auto
-    hence "insert \<psi> \<Omega> \<in> ?\<Gamma>_Extensions 
-           \<or> insert (\<psi> \<rightarrow> \<phi>) \<Omega> \<in> ?\<Gamma>_Extensions" 
+    hence "insert \<psi> \<Omega> \<in> ?\<Gamma>_Extensions
+           \<or> insert (\<psi> \<rightarrow> \<phi>) \<Omega> \<in> ?\<Gamma>_Extensions"
       by blast
     hence "\<psi> \<in> \<Omega> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Omega>" using \<Omega>(2) by blast
   }
-  thus ?thesis 
-    using \<Omega>(1) 
-    unfolding Formula_Maximally_Consistent_Set_def 
+  thus ?thesis
+    using \<Omega>(1)
+    unfolding Formula_Maximally_Consistent_Set_def
     by blast
 qed
 
@@ -643,7 +643,7 @@ proof -
     by metis
 qed
 
-theorem (in Minimal_Logic) 
+theorem (in Minimal_Logic)
   Formula_Maximally_Consistent_Set_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<Longrightarrow> \<chi> \<in> \<Omega>"

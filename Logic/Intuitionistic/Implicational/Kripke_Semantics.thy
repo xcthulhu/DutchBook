@@ -44,41 +44,41 @@ lemma Kripke_models_Modus_Ponens:
 
 theorem Combinator_Typing_Kripke_Soundness:
   "X \<Colon> \<phi> \<Longrightarrow> \<MM> x \<Turnstile> \<phi>"
-  by (induct rule: Simply_Typed_SKCombinator.induct)
+  by (induct rule: Simply_Typed_SKComb.induct)
      (meson Kripke_models_S, meson Kripke_models_K, auto)
 
-lemma "\<exists> X . X \<Colon> \<phi> \<Longrightarrow> \<forall> \<MM> x. \<MM> x \<Turnstile> \<phi>"
+lemma Combinator_Typing_Kripke_Soundness_alt: 
+  "\<exists> X . X \<Colon> \<phi> \<Longrightarrow> \<forall> \<MM> x. \<MM> x \<Turnstile> \<phi>"
   by (meson Combinator_Typing_Kripke_Soundness)
 
 lemma Kripke_Cont_Monad:
-  assumes "p \<noteq> q"
-  and "\<MM> = \<lparr> R = (\<lambda> x y. x = p \<and> y = q), V = (\<lambda> x y. x = q \<and> y = p) \<rparr>"
-  shows "\<not> \<MM> p \<Turnstile> ((\<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> p \<^bold>\<rbrace>"
+  assumes "a \<noteq> b"
+  and "p \<noteq> q"
+  and "\<MM> = \<lparr> R = (\<lambda> x y. x = a \<and> y = b), V = (\<lambda> x y. x = b \<and> y = p) \<rparr>"
+  shows "\<not> \<MM> a \<Turnstile> ((\<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> p \<^bold>\<rbrace>"
 proof -
-  have "\<not> \<MM> p \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
-    unfolding assms(2)
-    using assms(1) by auto
-  moreover from this have "\<not> \<MM> q \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
-    unfolding assms(2)
-    by auto
-  ultimately have "\<forall> x. (R \<MM>)\<^sup>*\<^sup>* p x \<longrightarrow> \<not> \<MM> x \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
-    unfolding assms(2)
+  have  "\<not> \<MM> b \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
+        "\<not> \<MM> a \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
+    unfolding assms(3)
+    using assms(1) assms(2) by auto
+  hence "\<forall> x. (R \<MM>)\<^sup>*\<^sup>* a x \<longrightarrow> \<not> \<MM> x \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
+    unfolding assms(3)
     by (simp, metis (mono_tags, lifting) rtranclp.simps)
-  hence "\<MM> p \<Turnstile> (\<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
+  hence "\<MM> a \<Turnstile> (\<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>"
     by fastforce
-  moreover have "\<not> \<MM> p \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace>"
-    unfolding assms(2)
+  moreover have "\<not> \<MM> a \<Turnstile> \<^bold>\<lbrace> p \<^bold>\<rbrace>"
+    unfolding assms(3)
     using assms(1) converse_rtranclpE by fastforce
   ultimately show ?thesis
-    unfolding assms(2)
     by (meson Kripke_models_Modus_Ponens)
 qed
 
-lemma "\<nexists> X . X \<Colon> ((\<^bold>\<lbrace> (1 :: nat) \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> 2 \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> 2 \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> 1 \<^bold>\<rbrace>"
+lemma no_extract:
+  assumes "p \<noteq> q"
+  shows "\<nexists> X . X \<Colon> ((\<^bold>\<lbrace> p \<^bold>\<rbrace> \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> q \<^bold>\<rbrace>) \<^bold>\<Rightarrow> \<^bold>\<lbrace> p \<^bold>\<rbrace>"
+  using assms
   by (metis
         Combinator_Typing_Kripke_Soundness
-        Kripke_Cont_Monad 
-        numeral_eq_one_iff 
-        semiring_norm(83))   
+        Kripke_Cont_Monad)   
 
 end

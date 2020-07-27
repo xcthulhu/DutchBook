@@ -1,7 +1,7 @@
 section \<open> Classical Propositional Logic \<close>
 
 theory Classical_Propositional_Logic
-  imports "../Intuitionistic/Minimal/Minimal_Logic"
+  imports "../Intuitionistic/Implicational/Implicational_Intuitionistic_Logic"
 begin
 
 (*:maxLineLen=80:*)
@@ -13,7 +13,7 @@ text \<open> This theory presents \<^emph>\<open>classical propositional logic\<
 
 subsection \<open> Axiomatization \<close>
 
-text \<open> Classical propositional logic is given by the following 
+text \<open> Classical propositional logic is given by the following
        Hilbert-style axiom system: \<close>
 
 class Classical_Propositional_Logic = Minimal_Logic_With_Falsum +
@@ -27,7 +27,7 @@ class Consistent_Classical_Logic = Classical_Propositional_Logic +
 subsection \<open> Common Rules \<close>
 
 lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-  using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism 
+  using Axiom_1 Double_Negation Modus_Ponens hypothetical_syllogism
   by blast
 
 lemma (in Classical_Propositional_Logic) Contraposition:
@@ -46,21 +46,21 @@ proof -
     using list_deduction_base_theory list_deduction_theorem by blast
 qed
 
-lemma (in Classical_Propositional_Logic) Double_Negation_converse: 
+lemma (in Classical_Propositional_Logic) Double_Negation_converse:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson Axiom_1 Modus_Ponens flip_implication)
 
-lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus: 
+lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
 
-lemma (in Classical_Propositional_Logic) Peirces_law: 
+lemma (in Classical_Propositional_Logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
-    using The_Principle_of_Pseudo_Scotus 
-          list_deduction_theorem 
-          list_deduction_weaken 
+    using The_Principle_of_Pseudo_Scotus
+          list_deduction_theorem
+          list_deduction_weaken
     by blast
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
     by (meson list.set_intros(1)
@@ -69,15 +69,15 @@ proof -
               set_subset_Cons
               subsetCE)
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<bottom>"
-    by (meson list.set_intros(1) 
-              list_deduction_modus_ponens 
+    by (meson list.set_intros(1)
+              list_deduction_modus_ponens
               list_deduction_reflection)
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
     using list_deduction_theorem by blast
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
-    using Double_Negation 
-          list_deduction_modus_ponens 
-          list_deduction_weaken 
+    using Double_Negation
+          list_deduction_modus_ponens
+          list_deduction_weaken
     by blast
   thus ?thesis
     using list_deduction_def
@@ -128,7 +128,7 @@ definition (in Classical_Propositional_Logic)
   Maximally_Consistent_Set :: "'a set \<Rightarrow> bool" ("MCS") where
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
-lemma (in Classical_Propositional_Logic) 
+lemma (in Classical_Propositional_Logic)
   Formula_Maximal_Consistent_Set_negation: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<phi> \<rightarrow> \<bottom> \<in> \<Gamma>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
@@ -191,16 +191,16 @@ proof -
             by simp
           hence "\<Gamma> \<tturnstile> (\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
             using calculation
-                  hypothetical_syllogism 
+                  hypothetical_syllogism
                     [where \<phi>="\<psi> \<rightarrow> \<bottom>" and \<psi>="\<phi>" and \<chi>="\<bottom>"]
-                  set_deduction_weaken 
+                  set_deduction_weaken
                     [where \<Gamma>="\<Gamma>"]
                   set_deduction_modus_ponens
             by metis
           hence "\<Gamma> \<tturnstile> \<psi>"
-            using Double_Negation 
+            using Double_Negation
                     [where \<phi>="\<psi>"]
-                  set_deduction_weaken 
+                  set_deduction_weaken
                     [where \<Gamma>="\<Gamma>"]
                   set_deduction_modus_ponens
             by metis
@@ -223,7 +223,7 @@ proof -
     by metis
 qed
 
-lemma (in Classical_Propositional_Logic) 
+lemma (in Classical_Propositional_Logic)
   Formula_Maximally_Consistent_Set_implication:
   assumes "\<phi>-MCS \<Gamma>"
   shows "\<psi> \<rightarrow> \<chi> \<in> \<Gamma> = (\<psi> \<in> \<Gamma> \<longrightarrow> \<chi> \<in> \<Gamma>)"

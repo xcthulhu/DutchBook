@@ -1,6 +1,6 @@
 theory LaTeX_Snippets
   imports
-    "../Logic/Intuitionistic/Minimal/Minimal_Logic"
+    "../Logic/Intuitionistic/Implicational/Implicational_Intuitionistic_Logic"
     "~~/src/HOL/Library/LaTeXsugar"
 begin
 

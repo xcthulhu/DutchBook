@@ -974,8 +974,13 @@ proof -
           unfolding stronger_theory_relation_def
           by blast
       qed
-      with \<Psi>(2) have "map (uncurry (\<squnion>)) ?\<Theta> :\<turnstile> \<phi>"
-        by (metis stronger_theory_deduction_monotonic)
+      hence "map (uncurry (\<squnion>)) ?\<Theta> :\<turnstile> \<phi>"
+        using \<Psi>(2)
+              stronger_theory_deduction_monotonic 
+                [where \<Sigma>="map (uncurry (\<squnion>)) \<Psi>" 
+                   and \<Gamma>="map (uncurry (\<squnion>)) ?\<Theta>"
+                   and \<phi>=\<phi>]
+        by metis
       moreover have
         "(map (uncurry (\<rightarrow>)) \<Psi> @ \<Sigma> \<ominus> (map snd \<Psi>)) \<preceq>
          (map (uncurry (\<rightarrow>)) ?\<Theta> @ \<Gamma> \<ominus> (map snd ?\<Theta>))"
@@ -7995,12 +8000,14 @@ next
   next
     assume "\<not> (c \<ge> 0)"
     hence "\<lceil>c\<rceil> \<le> 0" by auto
-    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" by (metis neg_0_le_iff_le of_nat_nat)
+    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" 
+      by (metis neg_0_le_iff_le of_nat_nat)
     hence "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> n + length \<Gamma>"
       using assms by linarith
     hence "(\<bar> \<^bold>\<sim> (replicate n \<top> @ \<Gamma>) @ \<Phi> \<bar>\<^sub>\<bottom>) \<le> length (replicate n \<top> @ \<Gamma>)"
       by (simp add: unproving_core_neg_verum_elim)
-    hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
+    hence "\<forall> Pr \<in> Dirac_Measures. 
+              (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       using binary_core_partial_completeness by blast
     {
       fix Pr
@@ -8010,7 +8017,8 @@ next
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
         using \<open>Pr \<in> Dirac_Measures\<close>
-              \<open>\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
+              \<open>\<forall> Pr \<in> Dirac_Measures. 
+                   (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)\<close>
         by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
         using \<open>real n = - \<lceil>c\<rceil>\<close> probability_replicate_verum by auto
@@ -8025,73 +8033,5 @@ lemma (in Consistent_Classical_Logic) binary_inequality_equiv:
    "  (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
     = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   using binary_inequality_elim binary_inequality_intro consistency by auto 
-
-
-(*
-lemma (in Classical_Propositional_Logic) conj_cons_list_deduction [simp]:
-  "(\<phi> \<sqinter> \<psi>) # \<Phi> :\<turnstile> \<chi> = \<phi> # \<psi> # \<Phi> :\<turnstile> \<chi>"
-  sorry
-
-lemma (in Classical_Propositional_Logic) subtr_cons_list_deduction [simp]:
-  "(\<phi> \<setminus> \<psi>) # \<Phi> :\<turnstile> \<chi> = \<phi> # (\<sim> \<psi>) # \<Phi> :\<turnstile> \<chi>"
-  unfolding subtraction_def
-  by simp
-
-lemma (in Classical_Propositional_Logic) intuitionistic_demorgans:
-  "\<turnstile> \<sim>(a \<sqinter> b) \<leftrightarrow> (\<sim>a \<squnion> \<sim>b)"
-  sorry
-
-lemma (in Logical_Probability)
-  "2 * Pr p \<le> Pr (\<sim>(a \<sqinter> (b \<rightarrow> (\<sim> p)))) +
-              Pr (\<sim>(b \<sqinter> (a \<rightarrow> (\<sim> p)))) +
-              Pr (\<sim>((a \<rightarrow> (\<sim> p)) \<sqinter> (b \<rightarrow> (\<sim> p))))"
-proof -
-  have "\<turnstile> \<sim>(a \<sqinter> (b \<rightarrow> (\<sim> p))) \<leftrightarrow> (\<sim>a \<squnion> \<sim>(b \<rightarrow> (\<sim> p)))"
-       "\<turnstile> \<sim>(b \<sqinter> (a \<rightarrow> (\<sim> p))) \<leftrightarrow> (\<sim>b \<squnion> \<sim>(a \<rightarrow> (\<sim> p)))"
-       "\<turnstile> \<sim>((a \<rightarrow> (\<sim> p)) \<sqinter> (b \<rightarrow> (\<sim> p))) \<leftrightarrow>
-          (\<sim>(a \<rightarrow> (\<sim> p)) \<squnion> \<sim> (b \<rightarrow> (\<sim> p)))"
-    by (simp add: intuitionistic_demorgans)+
-  moreover have "\<turnstile> \<sim>(b \<rightarrow> (\<sim> p)) \<leftrightarrow> (b \<sqinter> p)"
-                "\<turnstile> \<sim>(a \<rightarrow> (\<sim> p)) \<leftrightarrow> (a \<sqinter> p)"
-    by (simp add: biconditional_def,
-        simp add: conjunction_def
-                  negation_def
-                  The_Principle_of_Pseudo_Scotus)+
-  ultimately have "\<turnstile> \<sim>(a \<sqinter> (b \<rightarrow> (\<sim> p))) \<leftrightarrow> (\<sim>a \<squnion> (b \<sqinter> p))"
-                  "\<turnstile> \<sim>(b \<sqinter> (a \<rightarrow> (\<sim> p))) \<leftrightarrow> (\<sim>b \<squnion> (a \<sqinter> p))"
-                  "\<turnstile> \<sim>((a \<rightarrow> (\<sim> p)) \<sqinter> (b \<rightarrow> (\<sim> p))) \<leftrightarrow>s
-                       ((a \<sqinter> p) \<squnion> (b \<sqinter> p))"
-    by (simp add: conjunction_def negation_def)+
-  hence
-    "Pr (\<sim>(a \<sqinter> (b \<rightarrow> (\<sim> p)))) +
-     Pr (\<sim>(b \<sqinter> (a \<rightarrow> (\<sim> p)))) +
-     Pr (\<sim>((a \<rightarrow> (\<sim> p)) \<sqinter> (b \<rightarrow> (\<sim> p))))
-              =
-     Pr (\<sim>a \<squnion> (b \<sqinter> p)) +
-     Pr (\<sim>b \<squnion> (a \<sqinter> p)) +
-     Pr ((a \<sqinter> p) \<squnion> (b \<sqinter> p))"
-    using biconditional_equivalence by auto
-*)
-
-  (*
-lemma (in Classical_Propositional_Logic)
-  "[a \<sqinter> (b \<rightarrow> p), b \<sqinter> (a \<rightarrow> p), (a \<rightarrow> p) \<sqinter> (b \<rightarrow> p)] #\<turnstile> 2 p"
-  (is "[?X, ?Y, ?Z] #\<turnstile> 2 _")
-proof -
-  have "[?Y, ?Z] :\<turnstile> p"
-  proof -
-    let ?\<Gamma> = "[a \<rightarrow> p, b \<rightarrow> p, b, a \<rightarrow> p]"
-    have "[?Y, ?Z] :\<turnstile> p = [b, a \<rightarrow> p, ?Z] :\<turnstile> p" by simp
-    moreover have "set [b, a \<rightarrow> p, ?Z] = set [?Z, b, a \<rightarrow> p]" by fastforce
-    ultimately have "[?Y, ?Z] :\<turnstile> p = [?Z, b, a \<rightarrow> p] :\<turnstile> p"
-      by (smurf insert_subset list.simps(15) list_deduction_monotonic set_subset_Cons)
-    hence "[?Y, ?Z] :\<turnstile> p = ?\<Gamma> :\<turnstile> p" by simp
-    moreover have "?\<Gamma> :\<turnstile> b" "?\<Gamma> :\<turnstile> b \<rightarrow> p"
-      by (simp add: list_deduction_reflection)+
-    hence "?\<Gamma> :\<turnstile> p" using list_deduction_modus_ponens by blast
-    ultimately show "[?Y, ?Z] :\<turnstile> p" by simp
-  qed
-  moreover have "[?X, ?Y \<setminus> p, ?Z \<setminus> p] :\<turnstile> p"
-    *)
 
 end
