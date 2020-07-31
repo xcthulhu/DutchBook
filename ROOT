@@ -6,8 +6,6 @@ session DutchBook = "HOL" +
     "~~/src/HOL/Rat"
     "~~/src/HOL/Real"
   theories
-    "Logic/Intuitionistic/Implicational/Combinators"
-    "Logic/Intuitionistic/Implicational/Kripke_Semantics"
     "Probability/Logical/Suppes_Theorem"
     "Probability/Logical/Logical_Probability_Completeness"
     "Probability/Logical/Dutch_Book"
@@ -20,11 +18,15 @@ session Test_DutchBook = "HOL" +
   theories
     "Probability/Logical/Suppes_Theorem"
     "Probability/Logical/Logical_Probability_Completeness"
+    "Probability/Logical/Dutch_Book"
 
 session Test_Extra_Theories = "HOL" +
-  options [document = false]
+  options [document = pdf, document_output = "output"]
   theories
     "Logic/Intuitionistic/Intuitionistic_Logic"
-    "Logic/Intuitionistic/Minimal/Combinators"
-    "Logic/Intuitionistic/Minimal/De_Bruijn"
-    "Logic/Intuitionistic/Minimal/Kripke_Semantics"
+    "Logic/Intuitionistic/Implicational/Combinators"
+    "Logic/Intuitionistic/Implicational/De_Bruijn"
+    "Logic/Intuitionistic/Implicational/Kripke_Semantics"
+  document_files
+    "root.tex"
+    "root.bib"

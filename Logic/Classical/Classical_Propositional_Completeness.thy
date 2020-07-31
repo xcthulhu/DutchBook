@@ -1,10 +1,12 @@
-section \<open> Classical Propositional Calculus Soundness And Completeness \<close>
+(*:maxLineLen=80:*)
+
+section \<open> Classical Propositional Calculus Soundness And Completeness \label{sec:classical-propositional-calculus}\<close>
 
 theory Classical_Propositional_Completeness
   imports Classical_Propositional_Logic
 begin
 
-(*:maxLineLen=80:*)
+sledgehammer_params [smt_proofs = false]
 
 subsection \<open> Syntax \<close>
 
@@ -98,7 +100,7 @@ next
 qed
 
 theorem Classical_Propositional_Calculus_Strong_Soundness_And_Completeness:
-  "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
+  "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
 proof -
   have soundness: "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   proof -
@@ -153,7 +155,7 @@ proof -
       unfolding Strong_Classical_Propositional_Models_def
       by simp
   qed
-  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
+  from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
     by linarith
 qed
 

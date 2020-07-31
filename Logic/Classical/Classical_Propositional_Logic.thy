@@ -1,24 +1,25 @@
-section \<open> Classical Propositional Logic \<close>
+(*:maxLineLen=80:*)
+
+section \<open> Classical Propositional Logic \label{sec:classical-propositional-logic}\<close>
 
 theory Classical_Propositional_Logic
   imports "../Intuitionistic/Implicational/Implicational_Intuitionistic_Logic"
 begin
 
-(*:maxLineLen=80:*)
-
 sledgehammer_params [smt_proofs = false]
 
 text \<open> This theory presents \<^emph>\<open>classical propositional logic\<close>, which is
-        a classical logic without quantifiers. \<close>
+       classical logic without quantifiers. \<close>
 
 subsection \<open> Axiomatization \<close>
 
-text \<open> Classical propositional logic is given by the following
-       Hilbert-style axiom system: \<close>
+text \<open> Classical propositional logic can be given by the following
+       Hilbert-style axiom system.  It is @{class Implicational_Intuitionistic_Logic}
+       extended with \<^emph>\<open>falsum\<close> and double negation. \<close>
 
-class Classical_Propositional_Logic =
-  Implicational_Intuitionistic_Logic_With_Falsum +
-  assumes Double_Negation: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
+class Classical_Propositional_Logic = Implicational_Intuitionistic_Logic
+  + fixes falsum :: "'a" ("\<bottom>")
+  assumes Double_Negation: "\<turnstile> (((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>)"
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
 
@@ -27,12 +28,21 @@ class Consistent_Classical_Logic = Classical_Propositional_Logic +
 
 subsection \<open> Common Rules \<close>
 
-lemma (in Classical_Propositional_Logic) Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
+text \<open> There are many common tautologies in classical logic.  Once we have 
+       established \<^emph>\<open>completeness\<close> in \S\ref{sec:classical-propositional-calculus},
+       we will be able to leverage Isabelle/HOL's automation for proving
+       these elementary results. \<close>
+
+text \<open> In order to bootstrap completeness, we develop some common lemmas
+       using classical deduction alone. \<close>
+
+lemma (in Classical_Propositional_Logic) 
+  Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_K Double_Negation Modus_Ponens hypothetical_syllogism
   by blast
 
-lemma (in Classical_Propositional_Logic) Contraposition:
-  "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)) \<rightarrow> \<psi> \<rightarrow> \<phi>"
+lemma (in Classical_Propositional_Logic) 
+  Contraposition: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)) \<rightarrow> \<psi> \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<bottom>"
     using flip_implication list_deduction_theorem list_implication.simps(1)
@@ -47,32 +57,35 @@ proof -
     using list_deduction_base_theory list_deduction_theorem by blast
 qed
 
-lemma (in Classical_Propositional_Logic) Double_Negation_converse:
-  "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
+lemma (in Classical_Propositional_Logic) 
+  Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson Axiom_K Modus_Ponens flip_implication)
 
-lemma (in Classical_Propositional_Logic) The_Principle_of_Pseudo_Scotus:
-  "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
+lemma (in Classical_Propositional_Logic) 
+  The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
 
 lemma (in Classical_Propositional_Logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
-    using The_Principle_of_Pseudo_Scotus
-          list_deduction_theorem
-          list_deduction_weaken
+    using 
+      The_Principle_of_Pseudo_Scotus
+      list_deduction_theorem
+      list_deduction_weaken
     by blast
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
-    by (meson list.set_intros(1)
-              list_deduction_reflection
-              list_deduction_modus_ponens
-              set_subset_Cons
-              subsetCE)
+    by (meson
+          list.set_intros(1)
+          list_deduction_reflection
+          list_deduction_modus_ponens
+          set_subset_Cons
+          subsetCE)
   hence "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<bottom>"
-    by (meson list.set_intros(1)
-              list_deduction_modus_ponens
-              list_deduction_reflection)
+    by (meson 
+          list.set_intros(1)
+          list_deduction_modus_ponens
+          list_deduction_reflection)
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
     using list_deduction_theorem by blast
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
@@ -93,26 +106,30 @@ proof -
        "?\<Gamma> :\<turnstile> \<psi> \<rightarrow> \<bottom>"
     by (simp add: list_deduction_reflection)+
   hence "?\<Gamma> :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-    by (meson flip_hypothetical_syllogism
-              list_deduction_base_theory
-              list_deduction_monotonic
-              list_deduction_theorem
-              set_subset_Cons)
+    by (meson 
+          flip_hypothetical_syllogism
+          list_deduction_base_theory
+          list_deduction_monotonic
+          list_deduction_theorem
+          set_subset_Cons)
   hence "?\<Gamma> :\<turnstile> \<phi>"
-    using Double_Negation
-          list_deduction_modus_ponens
-          list_deduction_weaken
+    using 
+      Double_Negation
+      list_deduction_modus_ponens
+      list_deduction_weaken
     by blast
   hence "?\<Gamma> :\<turnstile> \<psi>"
-    by (meson list.set_intros(1)
-              list_deduction_modus_ponens
-              list_deduction_reflection
-              set_subset_Cons subsetCE)
-  hence "[\<phi> \<rightarrow> \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>] :\<turnstile> \<psi>"
-    using Peirces_law
+    by (meson 
+          list.set_intros(1)
           list_deduction_modus_ponens
-          list_deduction_theorem
-          list_deduction_weaken
+          list_deduction_reflection
+          set_subset_Cons subsetCE)
+  hence "[\<phi> \<rightarrow> \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>] :\<turnstile> \<psi>"
+    using 
+      Peirces_law
+      list_deduction_modus_ponens
+      list_deduction_theorem
+      list_deduction_weaken
     by blast
   thus ?thesis
     unfolding list_deduction_def
@@ -120,6 +137,22 @@ proof -
 qed
 
 subsection \<open> Maximally Consistent Sets For Classical Logic\<close>
+
+text \<open> \<^emph>\<open>Relativized\<close> maximally consistent sets were introduced in 
+       \S\ref{sec:implicational-maximally-consistent-sets}. 
+       Often this is exactly what we want in a proof.  
+       A completeness theorem typically starts by assuming \<^term>\<open>\<phi>\<close> is 
+       not provable, then finding a \<^term>\<open>\<phi>-MCS \<Gamma>\<close> which gives rise to a model
+       which does not make \<^term>\<open>\<phi>\<close> true. \<close>
+
+text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\<close> is maximally 
+       consistent if and only if  \<^term>\<open>~ (\<Gamma> \<tturnstile> \<bottom>)\<close> and
+       \<^term>\<open>\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>\<close>. This conventional presentation 
+       will come up when formulating \textsc{MaxSat} in 
+       \S\ref{sec:abstract-maxsat}. This in turn allows us to formulate
+       \textsc{MaxSat} completeness for probability inequalities in 
+       \S\ref{sec:maxsat-completeness} and a form of the
+        \<^emph>\<open>Dutch Book Argument\<close> in \S\ref{sec:dutch-book-theorem}.\<close>
 
 definition (in Classical_Propositional_Logic)
   Consistent :: "'a set \<Rightarrow> bool" where
@@ -143,21 +176,26 @@ proof -
       using set_deduction_reflection
       by simp
     hence "\<Gamma> \<tturnstile> \<phi>"
-      using Peirces_law
-            set_deduction_modus_ponens
-            set_deduction_weaken
-         by metis
+      using 
+        Peirces_law
+        set_deduction_modus_ponens
+        set_deduction_weaken
+      by metis
     hence "False"
       using \<open>\<phi>-MCS \<Gamma>\<close>
-      unfolding Formula_Maximally_Consistent_Set_def
-                Formula_Consistent_def
+      unfolding 
+        Formula_Maximally_Consistent_Set_def
+        Formula_Consistent_def
       by simp
   }
   thus ?thesis by blast
 qed
 
-lemma (in Classical_Propositional_Logic) Formula_Maximal_Consistency:
-  "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
+text \<open> Relative maximal consistency and conventional maximal consistency in 
+       fact coincide in classical logic. \<close>
+
+lemma (in Classical_Propositional_Logic) 
+  Formula_Maximal_Consistency: "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
 proof -
   {
     fix \<phi>
@@ -165,13 +203,15 @@ proof -
     proof -
       assume "\<phi>-MCS \<Gamma>"
       have "Consistent \<Gamma>"
-        using \<open>\<phi>-MCS \<Gamma>\<close>
-              Ex_Falso_Quodlibet [where \<phi>="\<phi>"]
-              set_deduction_weaken [where \<Gamma>="\<Gamma>"]
-              set_deduction_modus_ponens
-        unfolding Formula_Maximally_Consistent_Set_def
-                  Consistent_def
-                  Formula_Consistent_def
+        using 
+          \<open>\<phi>-MCS \<Gamma>\<close>
+          Ex_Falso_Quodlibet [where \<phi>="\<phi>"]
+          set_deduction_weaken [where \<Gamma>="\<Gamma>"]
+          set_deduction_modus_ponens
+        unfolding 
+          Formula_Maximally_Consistent_Set_def
+          Consistent_def
+          Formula_Consistent_def
         by metis
       moreover {
         fix \<psi>
@@ -223,6 +263,10 @@ proof -
     unfolding Maximally_Consistent_Set_def
     by metis
 qed
+
+text \<open> Finally, classical logic allows us to strengthen 
+       @{thm Formula_Maximally_Consistent_Set_implication_elimination} to a
+       biconditional. \<close>
 
 lemma (in Classical_Propositional_Logic)
   Formula_Maximally_Consistent_Set_implication:

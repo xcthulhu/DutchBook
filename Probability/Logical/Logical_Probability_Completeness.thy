@@ -13,8 +13,8 @@ definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \
 
 (***************************************)
 
-abbreviation (in Classical_Propositional_Logic) map_negation :: "'a list \<Rightarrow> 'a list" ("\<^bold>\<sim>")
-  where "\<^bold>\<sim> \<Phi> \<equiv> map \<sim> \<Phi>"
+definition (in Classical_Propositional_Logic) map_negation :: "'a list \<Rightarrow> 'a list" ("\<^bold>\<sim>")
+  where [simp]: "\<^bold>\<sim> \<Phi> \<equiv> map \<sim> \<Phi>"
 
 lemma (in Classical_Propositional_Logic) map_negation_list_implication:
   "\<turnstile> ((\<^bold>\<sim> \<Phi>) :\<rightarrow> (\<sim> \<phi>)) \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>)"
@@ -36,7 +36,8 @@ next
       by simp
   qed
   with Cons show ?case
-    by (metis list.simps(9)
+    by (metis map_negation_def
+              list.simps(9)
               Arbitrary_Disjunction.simps(2)
               Modus_Ponens
               list_implication.simps(2))
@@ -1085,10 +1086,12 @@ proof (rule iffI)
   from this obtain \<Delta> where \<Delta>:
     "mset \<Delta> \<subseteq># mset \<Gamma>"
     "map snd \<Psi> = \<^bold>\<sim> \<Delta>"
+    unfolding map_negation_def
     using mset_sub_map_list_exists [where f="\<sim>" and \<Gamma>="\<Gamma>"]
     by metis
   let ?\<Psi> = "zip \<Delta> (map fst \<Psi>)"
   from \<Delta>(2) have "map fst ?\<Psi> = \<Delta>"
+    unfolding map_negation_def
     by (metis length_map map_fst_zip)
   with \<Delta>(1) have "mset (map fst ?\<Psi>) \<subseteq># mset \<Gamma>"
     by simp
@@ -5001,13 +5004,15 @@ next
   qed
 qed
 
+section \<open> Abstract \textsc{MaxSat} \label{sec:abstract-maxsat} \<close>
+
 definition (in Implicational_Intuitionistic_Logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
   where
     "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<C> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<C> \<Gamma> \<phi> })"
 
-abbreviation (in Implicational_Intuitionistic_Logic_With_Falsum) MaxSAT :: "'a list \<Rightarrow> nat"
+abbreviation (in Classical_Propositional_Logic) MaxSat :: "'a list \<Rightarrow> nat"
   where
-    "MaxSAT \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
+    "MaxSat \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
 
 definition (in Implicational_Intuitionistic_Logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
   where
@@ -7263,7 +7268,10 @@ proof -
               unproving_core_existence
               stratified_deduction_tautology_weaken
         by blast
-      from this obtain \<Phi> where \<Phi>: "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" "mset \<Phi> \<subseteq># mset \<Gamma>"
+      from this obtain \<Phi> where \<Phi>: 
+        "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" 
+        "mset \<Phi> \<subseteq># mset \<Gamma>"
+        unfolding map_negation_def
         by (metis (mono_tags, lifting)
                   unproving_core_def
                   mem_Collect_eq
@@ -7354,6 +7362,7 @@ proof -
         by simp
       moreover
       have "(\<^bold>\<sim> (\<Gamma> \<ominus> \<Phi>)) <~~> (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
+        unfolding map_negation_def
         by (metis \<Phi>(2) map_listSubtract_mset_equivalence mset_eq_perm)
       with perm_length have "length (\<Gamma> \<ominus> \<Phi>) = length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
         by fastforce
@@ -7595,8 +7604,8 @@ lemma (in Logical_Probability) probability_replicate_verum:
   by (induct n, auto)
 
 lemma (in Classical_Propositional_Logic) dirac_collapse:
-  "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-   = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+     = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
   assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7890,9 +7899,14 @@ next
   thus ?case using Suc by simp
 qed
 
+section \<open>\textsc{MaxSat} Completeness For Probability Inequality Identities \label{sec:maxsat-completeness}\<close>
+
+(* TODO: Cite that conference paper on probabilistic satisfaction where 
+         this is remarked at the end *)
+
 lemma (in Consistent_Classical_Logic) binary_inequality_elim:
   assumes "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-    shows "((\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>)"
+    shows "(MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
 proof (cases "c \<ge> 0")
   case True
   from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
@@ -7949,7 +7963,7 @@ next
 qed
 
 lemma (in Classical_Propositional_Logic) binary_inequality_intro:
-  assumes "(\<bar> \<^bold>\<sim> \<Gamma> @ \<Phi> \<bar>\<^sub>\<bottom>) + (c :: real) \<le> length \<Gamma>"
+  assumes "MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>"
   shows "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof (cases "\<turnstile> \<bottom>")
   assume "\<turnstile> \<bottom>"
@@ -8029,9 +8043,17 @@ next
   qed
 qed
 
+(* TODO: Rename me *)
+
 lemma (in Consistent_Classical_Logic) binary_inequality_equiv:
-   "  (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-    = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+   "(\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+      = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   using binary_inequality_elim binary_inequality_intro consistency by auto
+
+lemma (in Consistent_Classical_Logic) probability_inequality_equiv:
+   "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+      = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+  unfolding dirac_collapse
+  using binary_inequality_equiv dirac_ceiling by blast
 
 end

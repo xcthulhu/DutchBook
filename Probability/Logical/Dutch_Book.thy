@@ -309,11 +309,13 @@ lemma settle_alt_def: "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \
   unfolding settle_def settle_bet_def
   by (induct bets, simp+)
 
+section \<open> The Market Dutch Book Argument \label{sec:dutch-book-theorem}\<close>
+
 theorem (in Consistent_Classical_Logic) dutch_book_maxsat:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (  MaxSAT [bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] + (k :: real)
+   = (  MaxSat [bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] + (k :: real)
       \<le> total_amount buys' + length sells' - total_amount sells')"
-  (is "(k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets) = (MaxSAT ?props + k \<le> total_amount _ + _ - _)")
+  (is "(k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets) = (MaxSat ?props + k \<le> total_amount _ + _ - _)")
 proof
   assume "k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets"
   let ?P = "\<lambda> x . (\<exists> p \<in> possibilities. \<pi> p ?bets = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q ?bets)"
@@ -409,12 +411,12 @@ proof
   ultimately have "?\<Phi> \<in> \<C> ?props \<bottom>"
     unfolding unproving_core_def
     by blast
-  hence "MaxSAT ?props = length ?\<Phi>"
+  hence "MaxSat ?props = length ?\<Phi>"
     using core_size_intro by presburger
-  hence "MaxSAT ?props = settle p (sells'\<^sup>\<sim> @ buys')"
+  hence "MaxSat ?props = settle p (sells'\<^sup>\<sim> @ buys')"
     unfolding settle_alt_def
     by simp
-  thus "MaxSAT ?props + k \<le> total_amount buys' + length sells' - total_amount sells'"
+  thus "MaxSat ?props + k \<le> total_amount buys' + length sells' - total_amount sells'"
     using possibility_payoff_dual [of p buys' sells']
           \<open>k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets\<close>
           \<open>\<pi>\<^sub>m\<^sub>i\<^sub>n ?bets = \<pi> p ?bets\<close>
@@ -422,7 +424,7 @@ proof
     by linarith
 next
   let ?c = "total_amount buys' + length sells' - total_amount sells'"
-  assume "MaxSAT ?props + k \<le> ?c"
+  assume "MaxSat ?props + k \<le> ?c"
   from this obtain \<Phi> where "\<Phi> \<in> \<C> ?props \<bottom>" and "length \<Phi> + k \<le> ?c"
     using consistency core_size_intro unproving_core_existence by fastforce
   hence "\<not> \<Phi> :\<turnstile> \<bottom>"
@@ -557,11 +559,11 @@ proof -
     (is "_ = \<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s")
     unfolding negate_bets_def
     by (induct sells', simp+)
-  hence "?lhs = (MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + k \<le> ?tot_bs + length sells' - ?tot_ss)"
+  hence "?lhs = (MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + k \<le> ?tot_bs + length sells' - ?tot_ss)"
     using dutch_book_maxsat [of k buys' sells'] by auto
-  also have "\<dots> = (MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length sells')"
+  also have "\<dots> = (MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length sells')"
     by linarith
-  also have "\<dots> = (MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length ?sell_\<phi>s)"
+  also have "\<dots> = (MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length ?sell_\<phi>s)"
     by simp
   finally have I: "?lhs = (\<forall> Pr \<in> Dirac_Measures.
     (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (?tot_ss - ?tot_bs + k) \<le> (\<Sum>\<gamma>\<leftarrow>?sell_\<phi>s. Pr \<gamma>))"
@@ -619,13 +621,13 @@ next
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (\<lfloor>?c\<rfloor> + 1) \<le> (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using strict_dirac_collapse [of ?buy_\<phi>s ?c ?sell_\<phi>s]
     by auto
-  hence "MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (\<lfloor>?c\<rfloor> + 1) \<le> length ?sell_\<phi>s"
+  hence "MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (\<lfloor>?c\<rfloor> + 1) \<le> length ?sell_\<phi>s"
     by (metis floor_add_int floor_mono floor_of_nat binary_inequality_equiv)
-  hence "MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + ?c < length ?sell_\<phi>s"
+  hence "MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + ?c < length ?sell_\<phi>s"
     by linarith
   from this obtain \<epsilon> :: real where
     "0 < \<epsilon>"
-    "MaxSAT (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (k + \<epsilon>) \<le> ?tot_bs + length sells' - ?tot_ss"
+    "MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (k + \<epsilon>) \<le> ?tot_bs + length sells' - ?tot_ss"
     using less_diff_eq by fastforce
   hence "k + \<epsilon> \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr>buys = buys', sells = sells'\<rparr>"
     using \<open>[bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] = \<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s\<close>

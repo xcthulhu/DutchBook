@@ -124,7 +124,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
+                Classical_Propositional_Logic_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -136,7 +136,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom>"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
+                Classical_Propositional_Logic_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -150,7 +150,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
+                Classical_Propositional_Logic_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -204,7 +204,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
+                Classical_Propositional_Logic_class.negation_def
                 Classical_Propositional_Logic_class.biconditional_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
@@ -220,7 +220,7 @@ proof -
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
       unfolding Classical_Propositional_Logic_class.subtraction_def
-                Implicational_Intuitionistic_Logic_With_Falsum_class.negation_def
+                Classical_Propositional_Logic_class.negation_def
                 Classical_Propositional_Logic_class.conjunction_def
                 Classical_Propositional_Logic_class.disjunction_def
       by simp

@@ -6,7 +6,7 @@ begin
 
 (*:maxLineLen=80:*)
 
-text \<open> This theory presents extends minimal logic to \<^emph>\<open>intuitionistic logic\<close>.
+text \<open> This theory presents extends \<^emph>\<open>implicational intuitionistic logic\<close> to full \<^emph>\<open>intuitionistic logic\<close>.
         Intuitionistic logic include binary logical connectives
         for \<^emph>\<open>conjunction\<close> and \<^emph>\<open>disjunction\<close> as well as \<^emph>\<open>negation\<close>,
         \<^emph>\<open>falsum\<close> and \<^emph>\<open>verum\<close>. \<close>
