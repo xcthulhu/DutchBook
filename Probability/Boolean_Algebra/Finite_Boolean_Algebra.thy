@@ -1,3 +1,9 @@
+(*:maxLineLen=80:*)
+
+section \<open>Finite Boolean Algebra\<close>
+
+(* TODO: Cite Birkoff and Priestley *)
+
 theory Finite_Boolean_Algebra
   imports "~~/src/HOL/Library/Finite_Lattice"
           "~~/src/HOL/Library/Lattice_Syntax"
@@ -12,13 +18,14 @@ class finite_boolean_algebra = boolean_algebra + finite + Inf + Sup +
 begin
 
 subclass finite_distrib_lattice_complete
-  using Inf_fin.coboundedI
-        Sup_fin.coboundedI
-        finite_UNIV
-        le_bot
-        top_unique
-        Inf_def
-        Sup_def
+  using 
+    Inf_fin.coboundedI
+    Sup_fin.coboundedI
+    finite_UNIV
+    le_bot
+    top_unique
+    Inf_def
+    Sup_def
   by (unfold_locales, blast, fastforce, auto)
 end
 
@@ -46,12 +53,13 @@ proof
       unfolding join_prime_def
       by force
     hence "y \<le> y \<sqinter> -y"
-      by (metis \<open>x = x \<squnion> y\<close>
-                inf.orderE
-                inf_compl_bot_right
-                inf_sup_absorb
-                order_refl
-                sup.commute)
+      by (metis 
+            \<open>x = x \<squnion> y\<close>
+            inf.orderE
+            inf_compl_bot_right
+            inf_sup_absorb
+            order_refl
+            sup.commute)
     hence "y = \<bottom>"
       using sup_absorb2 by fastforce
   }
@@ -115,7 +123,8 @@ definition (in bounded_lattice_bot) join_primes ("\<J>") where
 fun (in order) descending_chain_list :: "'a list \<Rightarrow> bool" where
   "descending_chain_list [] = True"
 | "descending_chain_list [x] = True"
-| "descending_chain_list (x # x' # xs) = (x < x' \<and> descending_chain_list (x' # xs))"
+| "descending_chain_list (x # x' # xs) 
+     = (x < x' \<and> descending_chain_list (x' # xs))"
 
 lemma (in order) descending_chain_list_tail:
   assumes "descending_chain_list (s # S)"
@@ -129,7 +138,7 @@ lemma (in order) descending_chain_list_drop_penultimate:
   using assms
   by (induct S, simp, auto)
 
-lemma (in order) descending_chain_list_le_others:
+lemma (in order) descending_chain_list_less_than_others:
   assumes "descending_chain_list (s # S)"
   shows   "\<forall>s' \<in> set S. s < s'"
   using assms
@@ -141,10 +150,11 @@ lemma (in order) descending_chain_list_distinct:
   using assms
   by (induct S,
       simp,
-      meson descending_chain_list_le_others
-            descending_chain_list_tail
-            distinct.simps(2)
-            less_irrefl)
+      meson 
+        descending_chain_list_less_than_others
+        descending_chain_list_tail
+        distinct.simps(2)
+        less_irrefl)
 
 lemma (in finite_boolean_algebra) join_prime_lower_bound_exists:
   assumes "x \<noteq> \<bottom>"
@@ -158,17 +168,23 @@ proof (rule ccontr)
     by fastforce
   {
     fix n :: nat
-    have "\<exists> S . descending_chain_list S \<and> length S = n \<and> (\<forall>s \<in> set S. s \<noteq> \<bottom> \<and> s \<le> x)"
+    have "\<exists> S . descending_chain_list S 
+                \<and> length S = n 
+                \<and> (\<forall>s \<in> set S. s \<noteq> \<bottom> \<and> s \<le> x)"
     proof (induct n)
       case 0
-      have "descending_chain_list [] \<and> length [] = 0 \<and> (\<forall>s \<in> set []. s \<noteq> \<bottom> \<and> s \<le> x)"
+      have "descending_chain_list [] 
+            \<and> length [] = 0 
+            \<and> (\<forall>s \<in> set []. s \<noteq> \<bottom> \<and> s \<le> x)"
         by auto
       then show ?case by simp
     next
       case (Suc n)
       then show ?case proof (cases "n = 0")
         case True
-        hence "descending_chain_list [x] \<and> length [x] = Suc n \<and> (\<forall>s \<in> set [x]. s \<noteq> \<bottom> \<and> s \<le> x)"
+        hence "descending_chain_list [x] 
+               \<and> length [x] = Suc n 
+               \<and> (\<forall>s \<in> set [x]. s \<noteq> \<bottom> \<and> s \<le> x)"
           using \<open>x \<noteq> \<bottom>\<close>
           by simp
         then show ?thesis
@@ -212,7 +228,8 @@ proof (rule ccontr)
     using card_mono finite_UNIV by blast
 qed
 
-definition (in bounded_lattice_bot) join_prime_embedding :: "'a \<Rightarrow> 'a set" ("\<lbrace> _ \<rbrace>" [50]) where
+definition (in bounded_lattice_bot) 
+  join_prime_embedding :: "'a \<Rightarrow> 'a set" ("\<lbrace> _ \<rbrace>" [50]) where
   "\<lbrace> x \<rbrace> \<equiv> {a \<in> \<J>. a \<le> x}"
 
 theorem (in finite_boolean_algebra) sup_join_prime_embedding_ident:

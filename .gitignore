@@ -6,5 +6,5 @@ generated/
 *.bbl
 *.blg
 
-output/*
+output/
 !output/document.pdf

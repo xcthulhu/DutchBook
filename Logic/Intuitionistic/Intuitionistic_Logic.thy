@@ -1,7 +1,7 @@
 subsection \<open> Intuitionistic Logic \<close>
 
 theory Intuitionistic_Logic
-  imports "../Classical/Classical_Propositional_Logic"
+  imports "../Classical/Classical_Logic"
 begin
 
 (*:maxLineLen=80:*)
@@ -13,7 +13,7 @@ text \<open> This theory presents extends \<^emph>\<open>implicational intuition
 
 subsection \<open> Axiomatization \<close>
 
-class Intuitionistic_Logic = Implicational_Intuitionistic_Logic_With_Falsum +
+class Intuitionistic_Logic = Implication_Logic_With_Falsum +
   fixes verum :: "'a"                                            ("\<top>")
   fixes negation :: "'a \<Rightarrow> 'a"                                   ("\<sim>")
   fixes conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"                          (infixr "\<sqinter>" 67)

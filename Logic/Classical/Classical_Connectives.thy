@@ -1,9 +1,9 @@
 (*:maxLineLen=80:*)
 
-section \<open> Classical Propositional Connectives \<close>
+section \<open> Classical Logic Connectives \label{sec:logical-connectives}\<close>
 
-theory Classical_Propositional_Connectives
-  imports Classical_Propositional_Completeness
+theory Classical_Connectives
+  imports Classical_Logic_Completeness
           "../../Utilities/List_Utilities"
 begin
 
@@ -11,36 +11,36 @@ sledgehammer_params [smt_proofs = false]
 
 subsection \<open> Verum \<close>
 
-definition (in Classical_Propositional_Logic) verum :: "'a" ("\<top>")
+definition (in Classical_Logic) verum :: "'a" ("\<top>")
   where
     "\<top> = \<bottom> \<rightarrow> \<bottom>"
 
-lemma (in Classical_Propositional_Logic) verum_tautology [simp]: "\<turnstile> \<top>"
+lemma (in Classical_Logic) verum_tautology [simp]: "\<turnstile> \<top>"
   by (metis list_implication.simps(1) list_implication_Axiom_K verum_def)
 
 lemma verum_semantics [simp]:
   "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<top>"
   unfolding verum_def by simp
 
-lemma (in Classical_Propositional_Logic) verum_embedding [simp]:
+lemma (in Classical_Logic) verum_embedding [simp]:
   "\<^bold>\<lparr> \<top> \<^bold>\<rparr> = \<top>"
-  by (simp add: Classical_Propositional_Logic_class.verum_def verum_def)
+  by (simp add: Classical_Logic_class.verum_def verum_def)
   
 
 subsection \<open> Conjunction \<close>
 
-definition (in Classical_Propositional_Logic) 
+definition (in Classical_Logic) 
   conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixr "\<sqinter>" 67)
   where
     "\<phi> \<sqinter> \<psi> = (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
 
-primrec (in Classical_Propositional_Logic) 
+primrec (in Classical_Logic) 
   Arbitrary_Conjunction :: "'a list \<Rightarrow> 'a" ("\<Sqinter>")
   where
      "\<Sqinter> [] = \<top>"
   |  "\<Sqinter> (\<phi> # \<Phi>) = \<phi> \<sqinter> \<Sqinter> \<Phi>"
 
-lemma (in Classical_Propositional_Logic) conjunction_introduction:
+lemma (in Classical_Logic) conjunction_introduction:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis 
         Modus_Ponens
@@ -49,7 +49,7 @@ lemma (in Classical_Propositional_Logic) conjunction_introduction:
         list_implication.simps(1)
         list_implication.simps(2))
 
-lemma (in Classical_Propositional_Logic) conjunction_left_elimination:
+lemma (in Classical_Logic) conjunction_left_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<phi>"
   by (metis (full_types) 
         Peirces_law
@@ -60,7 +60,7 @@ lemma (in Classical_Propositional_Logic) conjunction_left_elimination:
         list_deduction_theorem
         list_deduction_weaken)
 
-lemma (in Classical_Propositional_Logic) conjunction_right_elimination:
+lemma (in Classical_Logic) conjunction_right_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<psi>"
   by (metis (full_types) Axiom_K
                          Contraposition
@@ -69,9 +69,9 @@ lemma (in Classical_Propositional_Logic) conjunction_right_elimination:
                          flip_hypothetical_syllogism
                          flip_implication)
 
-lemma (in Classical_Propositional_Logic) conjunction_embedding [simp]:
+lemma (in Classical_Logic) conjunction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<sqinter> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<sqinter> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding conjunction_def Classical_Propositional_Logic_class.conjunction_def
+  unfolding conjunction_def Classical_Logic_class.conjunction_def
   by simp
 
 lemma conjunction_semantics [simp]:
@@ -80,25 +80,25 @@ lemma conjunction_semantics [simp]:
 
 subsection \<open> Biconditional \<close>
 
-definition (in Classical_Propositional_Logic) biconditional :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<leftrightarrow>" 75)
+definition (in Classical_Logic) biconditional :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<leftrightarrow>" 75)
   where
     "\<phi> \<leftrightarrow> \<psi> = (\<phi> \<rightarrow> \<psi>) \<sqinter> (\<psi> \<rightarrow> \<phi>)"
 
-lemma (in Classical_Propositional_Logic) biconditional_introduction:
+lemma (in Classical_Logic) biconditional_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<leftrightarrow> \<psi>)"
   by (simp add: biconditional_def conjunction_introduction)
 
-lemma (in Classical_Propositional_Logic) biconditional_left_elimination:
+lemma (in Classical_Logic) biconditional_left_elimination:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   by (simp add: biconditional_def conjunction_left_elimination)
 
-lemma (in Classical_Propositional_Logic) biconditional_right_elimination:
+lemma (in Classical_Logic) biconditional_right_elimination:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
   by (simp add: biconditional_def conjunction_right_elimination)
 
-lemma (in Classical_Propositional_Logic) biconditional_embedding [simp]:
+lemma (in Classical_Logic) biconditional_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<leftrightarrow> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<leftrightarrow> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding biconditional_def Classical_Propositional_Logic_class.biconditional_def
+  unfolding biconditional_def Classical_Logic_class.biconditional_def
   by simp
 
 lemma biconditional_semantics [simp]:
@@ -108,24 +108,24 @@ lemma biconditional_semantics [simp]:
 
 subsection \<open> Negation \<close>
 
-definition (in Classical_Propositional_Logic) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
+definition (in Classical_Logic) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
   where
     "\<sim> \<phi> = \<phi> \<rightarrow> \<bottom>"
 
-lemma (in Classical_Propositional_Logic) negation_introduction:
+lemma (in Classical_Logic) negation_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<sim> \<phi>"
   unfolding negation_def
   by (metis Axiom_K Modus_Ponens implication_absorption)
 
-lemma (in Classical_Propositional_Logic) negation_elimination:
+lemma (in Classical_Logic) negation_elimination:
   "\<turnstile> \<sim> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>)"
   unfolding negation_def
   by (metis Axiom_K Modus_Ponens implication_absorption)
 
-lemma (in Classical_Propositional_Logic) negation_embedding [simp]:
+lemma (in Classical_Logic) negation_embedding [simp]:
   "\<^bold>\<lparr> \<sim> \<phi> \<^bold>\<rparr> = \<sim> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (simp add: 
-        Classical_Propositional_Logic_class.negation_def 
+        Classical_Logic_class.negation_def 
         negation_def)
 
 lemma negation_semantics [simp]:
@@ -135,16 +135,16 @@ lemma negation_semantics [simp]:
 
 subsection \<open> Disjunction \<close>
 
-definition (in Classical_Propositional_Logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<squnion>" 67)
+definition (in Classical_Logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixr "\<squnion>" 67)
   where
     "\<phi> \<squnion> \<psi> = (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>"
 
-primrec (in Classical_Propositional_Logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
+primrec (in Classical_Logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
   where
      "\<Squnion> [] = \<bottom>"
   |  "\<Squnion> (\<phi> # \<Phi>) = \<phi> \<squnion> \<Squnion> \<Phi>"
 
-lemma (in Classical_Propositional_Logic) disjunction_elimination:
+lemma (in Classical_Logic) disjunction_elimination:
   "\<turnstile> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>"
 proof -
   let ?\<Gamma> = "[\<phi> \<rightarrow> \<chi>, \<psi> \<rightarrow> \<chi>, \<phi> \<squnion> \<psi>]"
@@ -168,22 +168,22 @@ proof -
     by simp
 qed
 
-lemma (in Classical_Propositional_Logic) disjunction_left_introduction:
+lemma (in Classical_Logic) disjunction_left_introduction:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
   by (metis Modus_Ponens
             The_Principle_of_Pseudo_Scotus
             flip_implication)
 
-lemma (in Classical_Propositional_Logic) disjunction_right_introduction:
+lemma (in Classical_Logic) disjunction_right_introduction:
   "\<turnstile> \<psi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
   using Axiom_K
   by simp
 
-lemma (in Classical_Propositional_Logic) disjunction_embedding [simp]:
+lemma (in Classical_Logic) disjunction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<squnion> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<squnion> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding disjunction_def Classical_Propositional_Logic_class.disjunction_def
+  unfolding disjunction_def Classical_Logic_class.disjunction_def
   by simp
 
 lemma disjunction_semantics [simp]:
@@ -193,31 +193,31 @@ lemma disjunction_semantics [simp]:
 
 subsection \<open> Mutual Exclusion \<close>
 
-primrec (in Classical_Propositional_Logic) exclusive :: "'a list \<Rightarrow> 'a" ("\<Coprod>")
+primrec (in Classical_Logic) exclusive :: "'a list \<Rightarrow> 'a" ("\<Coprod>")
   where
       "\<Coprod> [] = \<top>"
     | "\<Coprod> (\<phi> # \<Phi>) = \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>) \<sqinter> \<Coprod> \<Phi>"
 
 subsection \<open> Subtraction \<close>
 
-definition (in Classical_Propositional_Logic) subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixl "\<setminus>" 69)
+definition (in Classical_Logic) subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a"   (infixl "\<setminus>" 69)
   where
     "\<phi> \<setminus> \<psi> = \<phi> \<sqinter> \<sim> \<psi>"
 
-lemma (in Classical_Propositional_Logic) subtraction_embedding [simp]:
+lemma (in Classical_Logic) subtraction_embedding [simp]:
   "\<^bold>\<lparr> \<phi> \<setminus> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<setminus> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
-  unfolding subtraction_def Classical_Propositional_Logic_class.subtraction_def
+  unfolding subtraction_def Classical_Logic_class.subtraction_def
   by simp
 
 subsection \<open> Common Rules \<close>
 
 subsubsection \<open> Biconditional Equivalence Relation \<close>
 
-lemma (in Classical_Propositional_Logic) biconditional_reflection:
+lemma (in Classical_Logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
   by (meson Axiom_K Modus_Ponens biconditional_introduction implication_absorption)
 
-lemma (in Classical_Propositional_Logic) biconditional_symmetry:
+lemma (in Classical_Logic) biconditional_symmetry:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<leftrightarrow> (\<psi> \<leftrightarrow> \<phi>)"
   by (metis (full_types) Modus_Ponens
                          biconditional_def
@@ -225,14 +225,14 @@ lemma (in Classical_Propositional_Logic) biconditional_symmetry:
                          flip_hypothetical_syllogism
                          flip_implication)
 
-lemma (in Classical_Propositional_Logic) biconditional_symmetry_rule:
+lemma (in Classical_Logic) biconditional_symmetry_rule:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<phi>"
   by (meson Modus_Ponens
             biconditional_introduction
             biconditional_left_elimination
             biconditional_right_elimination)
 
-lemma (in Classical_Propositional_Logic) biconditional_transitivity:
+lemma (in Classical_Logic) biconditional_transitivity:
     "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> (\<psi> \<leftrightarrow> \<chi>) \<rightarrow> (\<phi> \<leftrightarrow> \<chi>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<rightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
@@ -242,13 +242,13 @@ proof -
  thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) biconditional_transitivity_rule:
+lemma (in Classical_Logic) biconditional_transitivity_rule:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<chi> \<Longrightarrow> \<turnstile> \<phi> \<leftrightarrow> \<chi>"
   using Modus_Ponens biconditional_transitivity by blast
 
 subsubsection \<open> Biconditional Weakening \<close>
 
-lemma (in Classical_Propositional_Logic) biconditional_weaken:
+lemma (in Classical_Logic) biconditional_weaken:
   assumes "\<Gamma> \<tturnstile> \<phi> \<leftrightarrow> \<psi>"
   shows "\<Gamma> \<tturnstile> \<phi> = \<Gamma> \<tturnstile> \<psi>"
   by (metis assms
@@ -257,7 +257,7 @@ lemma (in Classical_Propositional_Logic) biconditional_weaken:
             set_deduction_modus_ponens
             set_deduction_weaken)
 
-lemma (in Classical_Propositional_Logic) list_biconditional_weaken:
+lemma (in Classical_Logic) list_biconditional_weaken:
   assumes "\<Gamma> :\<turnstile> \<phi> \<leftrightarrow> \<psi>"
   shows "\<Gamma> :\<turnstile> \<phi> = \<Gamma> :\<turnstile> \<psi>"
   by (metis assms
@@ -266,7 +266,7 @@ lemma (in Classical_Propositional_Logic) list_biconditional_weaken:
             list_deduction_modus_ponens
             list_deduction_weaken)
 
-lemma (in Classical_Propositional_Logic) weak_biconditional_weaken:
+lemma (in Classical_Logic) weak_biconditional_weaken:
   assumes "\<turnstile> \<phi> \<leftrightarrow> \<psi>"
   shows "\<turnstile> \<phi> = \<turnstile> \<psi>"
   by (metis assms
@@ -276,7 +276,7 @@ lemma (in Classical_Propositional_Logic) weak_biconditional_weaken:
 
 subsubsection \<open> Conjunction Identities \<close>
 
-lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
+lemma (in Classical_Logic) conjunction_negation_identity:
   "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>)"
   by (metis Contraposition
             Double_Negation_converse
@@ -285,7 +285,7 @@ lemma (in Classical_Propositional_Logic) conjunction_negation_identity:
             conjunction_def
             negation_def)
 
-lemma (in Classical_Propositional_Logic) conjunction_set_deduction_equivalence [simp]:
+lemma (in Classical_Logic) conjunction_set_deduction_equivalence [simp]:
   "\<Gamma> \<tturnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> \<tturnstile> \<phi> \<and> \<Gamma> \<tturnstile> \<psi>)"
   by (metis set_deduction_weaken [where \<Gamma>="\<Gamma>"]
             set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
@@ -293,7 +293,7 @@ lemma (in Classical_Propositional_Logic) conjunction_set_deduction_equivalence [
             conjunction_left_elimination
             conjunction_right_elimination)
 
-lemma (in Classical_Propositional_Logic) conjunction_list_deduction_equivalence [simp]:
+lemma (in Classical_Logic) conjunction_list_deduction_equivalence [simp]:
   "\<Gamma> :\<turnstile> \<phi> \<sqinter> \<psi> = (\<Gamma> :\<turnstile> \<phi> \<and> \<Gamma> :\<turnstile> \<psi>)"
   by (metis list_deduction_weaken [where \<Gamma>="\<Gamma>"]
             list_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
@@ -301,23 +301,23 @@ lemma (in Classical_Propositional_Logic) conjunction_list_deduction_equivalence 
             conjunction_left_elimination
             conjunction_right_elimination)
 
-lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_equivalence [simp]:
+lemma (in Classical_Logic) weak_conjunction_deduction_equivalence [simp]:
   "\<turnstile> \<phi> \<sqinter> \<psi> = (\<turnstile> \<phi> \<and> \<turnstile> \<psi>)"
   by (metis conjunction_set_deduction_equivalence set_deduction_base_theory)
 
-lemma (in Classical_Propositional_Logic) conjunction_set_deduction_arbitrary_equivalence [simp]:
+lemma (in Classical_Logic) conjunction_set_deduction_arbitrary_equivalence [simp]:
   "\<Gamma> \<tturnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<phi>)"
   by (induct \<Phi>, simp add: set_deduction_weaken, simp)
 
-lemma (in Classical_Propositional_Logic) conjunction_list_deduction_arbitrary_equivalence [simp]:
+lemma (in Classical_Logic) conjunction_list_deduction_arbitrary_equivalence [simp]:
   "\<Gamma> :\<turnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<Gamma> :\<turnstile> \<phi>)"
   by (induct \<Phi>, simp add: list_deduction_weaken, simp)
 
-lemma (in Classical_Propositional_Logic) weak_conjunction_deduction_arbitrary_equivalence [simp]:
+lemma (in Classical_Logic) weak_conjunction_deduction_arbitrary_equivalence [simp]:
   "\<turnstile> \<Sqinter> \<Phi> = (\<forall> \<phi> \<in> set \<Phi>. \<turnstile> \<phi>)"
   by (induct \<Phi>, simp+)
 
-lemma (in Classical_Propositional_Logic) conjunction_commutativity:
+lemma (in Classical_Logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
   by (metis (full_types) Modus_Ponens
                          biconditional_introduction
@@ -325,7 +325,7 @@ lemma (in Classical_Propositional_Logic) conjunction_commutativity:
                          flip_hypothetical_syllogism
                          flip_implication)
 
-lemma (in Classical_Propositional_Logic) conjunction_associativity:
+lemma (in Classical_Logic) conjunction_associativity:
   "\<turnstile> ((\<phi> \<sqinter> \<psi>) \<sqinter> \<chi>) \<leftrightarrow> (\<phi> \<sqinter> (\<psi> \<sqinter> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -335,7 +335,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) arbitrary_conjunction_antitone:
+lemma (in Classical_Logic) arbitrary_conjunction_antitone:
   "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>"
 proof -
   have "\<forall> \<Phi>. set \<Phi> \<subseteq> set \<Psi> \<longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>"
@@ -463,11 +463,11 @@ proof -
   thus "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Sqinter> \<Psi> \<rightarrow> \<Sqinter> \<Phi>" by blast
 qed
 
-lemma (in Classical_Propositional_Logic) arbitrary_conjunction_remdups:
+lemma (in Classical_Logic) arbitrary_conjunction_remdups:
   "\<turnstile> (\<Sqinter> \<Phi>) \<leftrightarrow> \<Sqinter> (remdups \<Phi>)"
   by (simp add: arbitrary_conjunction_antitone biconditional_def)
 
-lemma (in Classical_Propositional_Logic) curry_uncurry:
+lemma (in Classical_Logic) curry_uncurry:
   "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<leftrightarrow> ((\<phi> \<sqinter> \<psi>) \<rightarrow> \<chi>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)"
@@ -477,7 +477,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) list_curry_uncurry:
+lemma (in Classical_Logic) list_curry_uncurry:
   "\<turnstile> (\<Phi> :\<rightarrow> \<chi>) \<leftrightarrow> (\<Sqinter> \<Phi> \<rightarrow> \<chi>)"
 proof (induct \<Phi>)
   case Nil
@@ -516,11 +516,11 @@ qed
 
 subsubsection \<open> Disjunction Identities \<close>
 
-lemma (in Classical_Propositional_Logic) bivalence:
+lemma (in Classical_Logic) bivalence:
   "\<turnstile> \<sim> \<phi> \<squnion> \<phi>"
   by (simp add: Double_Negation disjunction_def negation_def)
 
-lemma (in Classical_Propositional_Logic) implication_equivalence:
+lemma (in Classical_Logic) implication_equivalence:
   "\<turnstile> (\<sim> \<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi>)"
   by (metis Double_Negation_converse
             Modus_Ponens
@@ -530,7 +530,7 @@ lemma (in Classical_Propositional_Logic) implication_equivalence:
             flip_hypothetical_syllogism
             negation_def)
 
-lemma (in Classical_Propositional_Logic) disjunction_commutativity:
+lemma (in Classical_Logic) disjunction_commutativity:
   "\<turnstile> (\<psi> \<squnion> \<phi>) \<leftrightarrow> (\<phi> \<squnion> \<psi>)"
   by (meson Modus_Ponens
             biconditional_introduction
@@ -538,7 +538,7 @@ lemma (in Classical_Propositional_Logic) disjunction_commutativity:
             disjunction_left_introduction
             disjunction_right_introduction)
 
-lemma (in Classical_Propositional_Logic) disjunction_associativity:
+lemma (in Classical_Logic) disjunction_associativity:
   "\<turnstile> ((\<phi> \<squnion> \<psi>) \<squnion> \<chi>) \<leftrightarrow> (\<phi> \<squnion> (\<psi> \<squnion> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -548,7 +548,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) arbitrary_disjunction_monotone:
+lemma (in Classical_Logic) arbitrary_disjunction_monotone:
   "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   have "\<forall> \<Phi>. set \<Phi> \<subseteq> set \<Psi> \<longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -647,13 +647,13 @@ proof -
   thus "set \<Phi> \<subseteq> set \<Psi> \<Longrightarrow> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>" by blast
 qed
 
-lemma (in Classical_Propositional_Logic) arbitrary_disjunction_remdups:
+lemma (in Classical_Logic) arbitrary_disjunction_remdups:
   "\<turnstile> (\<Squnion> \<Phi>) \<leftrightarrow> \<Squnion> (remdups \<Phi>)"
   by (simp add: arbitrary_disjunction_monotone biconditional_def)
 
 subsubsection \<open> Distribution Identities \<close>
 
-lemma (in Classical_Propositional_Logic) conjunction_distribution:
+lemma (in Classical_Logic) conjunction_distribution:
   "\<turnstile> ((\<psi> \<squnion> \<chi>) \<sqinter> \<phi>) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> (\<chi> \<sqinter> \<phi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<leftrightarrow> ((\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>))"
@@ -663,11 +663,11 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) subtraction_distribution:
+lemma (in Classical_Logic) subtraction_distribution:
   "\<turnstile> ((\<psi> \<squnion> \<chi>) \<setminus> \<phi>) \<leftrightarrow> ((\<psi> \<setminus> \<phi>) \<squnion> (\<chi> \<setminus> \<phi>))"
   by (simp add: conjunction_distribution subtraction_def)
 
-lemma (in Classical_Propositional_Logic) conjunction_arbitrary_distribution:
+lemma (in Classical_Logic) conjunction_arbitrary_distribution:
   "\<turnstile> (\<Squnion> \<Psi> \<sqinter> \<phi>) \<leftrightarrow> \<Squnion> [\<psi> \<sqinter> \<phi>. \<psi> \<leftarrow> \<Psi>]"
 proof (induct \<Psi>)
   case Nil
@@ -688,11 +688,11 @@ next
     by (simp, metis biconditional_transitivity_rule)
 qed
 
-lemma (in Classical_Propositional_Logic) subtraction_arbitrary_distribution:
+lemma (in Classical_Logic) subtraction_arbitrary_distribution:
   "\<turnstile> (\<Squnion> \<Psi> \<setminus> \<phi>) \<leftrightarrow> \<Squnion> [\<psi> \<setminus> \<phi>. \<psi> \<leftarrow> \<Psi>]"
   by (simp add: conjunction_arbitrary_distribution subtraction_def)
 
-lemma (in Classical_Propositional_Logic) disjunction_distribution:
+lemma (in Classical_Logic) disjunction_distribution:
   "\<turnstile> (\<phi> \<squnion> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<phi> \<squnion> \<psi>) \<sqinter> (\<phi> \<squnion> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -702,7 +702,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) implication_distribution:
+lemma (in Classical_Logic) implication_distribution:
   "\<turnstile> (\<phi> \<rightarrow> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<phi> \<rightarrow> \<psi>) \<sqinter> (\<phi> \<rightarrow> \<chi>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
@@ -712,7 +712,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) list_implication_distribution:
+lemma (in Classical_Logic) list_implication_distribution:
   "\<turnstile> (\<Phi> :\<rightarrow> (\<psi> \<sqinter> \<chi>)) \<leftrightarrow> ((\<Phi> :\<rightarrow> \<psi>) \<sqinter> (\<Phi> :\<rightarrow> \<chi>))"
 proof (induct \<Phi>)
   case Nil
@@ -731,7 +731,7 @@ next
     by (simp, metis biconditional_transitivity_rule)
 qed
 
-lemma (in Classical_Propositional_Logic) biconditional_conjunction_weaken:
+lemma (in Classical_Logic) biconditional_conjunction_weaken:
   "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<rightarrow> ((\<gamma> \<sqinter> \<alpha>) \<leftrightarrow> (\<gamma> \<sqinter> \<beta>))"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<alpha>\<^bold>\<rangle> \<leftrightarrow> \<^bold>\<langle>\<beta>\<^bold>\<rangle>) \<rightarrow> ((\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<alpha>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<gamma>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<beta>\<^bold>\<rangle>))"
@@ -741,11 +741,11 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) biconditional_conjunction_weaken_rule:
+lemma (in Classical_Logic) biconditional_conjunction_weaken_rule:
   "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<Longrightarrow> \<turnstile> (\<gamma> \<sqinter> \<alpha>) \<leftrightarrow> (\<gamma> \<sqinter> \<beta>)"
   using Modus_Ponens biconditional_conjunction_weaken by blast
 
-lemma (in Classical_Propositional_Logic) disjunction_arbitrary_distribution:
+lemma (in Classical_Logic) disjunction_arbitrary_distribution:
   "\<turnstile> (\<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<phi> \<squnion> \<psi>. \<psi> \<leftarrow> \<Psi>]"
 proof (induct \<Psi>)
   case Nil
@@ -766,7 +766,7 @@ next
     by (metis biconditional_transitivity_rule)
 qed
 
-lemma (in Classical_Propositional_Logic) list_implication_arbitrary_distribution:
+lemma (in Classical_Logic) list_implication_arbitrary_distribution:
   "\<turnstile> (\<Phi> :\<rightarrow> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<Phi> :\<rightarrow> \<psi>. \<psi> \<leftarrow> \<Psi>]"
 proof (induct \<Psi>)
   case Nil
@@ -790,34 +790,34 @@ next
     by (metis biconditional_transitivity_rule)
 qed
 
-lemma (in Classical_Propositional_Logic) implication_arbitrary_distribution:
+lemma (in Classical_Logic) implication_arbitrary_distribution:
   "\<turnstile> (\<phi> \<rightarrow> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<phi> \<rightarrow> \<psi>. \<psi> \<leftarrow> \<Psi>]"
   using list_implication_arbitrary_distribution [where ?\<Phi>="[\<phi>]"]
   by simp
 
 subsubsection \<open> Negation \<close>
 
-lemma (in Classical_Propositional_Logic) double_negation_biconditional:
+lemma (in Classical_Logic) double_negation_biconditional:
   "\<turnstile> \<sim> (\<sim> \<phi>) \<leftrightarrow> \<phi>"
   unfolding biconditional_def negation_def
   by (simp add: Double_Negation Double_Negation_converse)
 
-lemma (in Classical_Propositional_Logic) double_negation_elimination [simp]:
+lemma (in Classical_Logic) double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) = \<Gamma> \<tturnstile> \<phi>"
   using set_deduction_weaken biconditional_weaken double_negation_biconditional
   by metis
 
-lemma (in Classical_Propositional_Logic) alt_double_negation_elimination [simp]:
+lemma (in Classical_Logic) alt_double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<Gamma> \<tturnstile> \<phi>"
   using double_negation_elimination
   unfolding negation_def
   by auto
 
-lemma (in Classical_Propositional_Logic) base_double_negation_elimination [simp]:
+lemma (in Classical_Logic) base_double_negation_elimination [simp]:
   "\<turnstile> \<sim> (\<sim> \<phi>) = \<turnstile> \<phi>"
   by (metis double_negation_elimination set_deduction_base_theory)
 
-lemma (in Classical_Propositional_Logic) alt_base_double_negation_elimination [simp]:
+lemma (in Classical_Logic) alt_base_double_negation_elimination [simp]:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom> \<equiv> \<turnstile> \<phi>"
   using base_double_negation_elimination
   unfolding negation_def
@@ -825,7 +825,7 @@ lemma (in Classical_Propositional_Logic) alt_base_double_negation_elimination [s
 
 subsection \<open> Mutual Exclusion Identities \<close>
 
-lemma (in Classical_Propositional_Logic) exclusion_contrapositive_equivalence:
+lemma (in Classical_Logic) exclusion_contrapositive_equivalence:
   "\<turnstile> (\<phi> \<rightarrow> \<gamma>) \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<sim> \<gamma>)"
 proof -
   have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>) \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<sim> \<^bold>\<langle>\<gamma>\<^bold>\<rangle>)"
@@ -835,7 +835,7 @@ proof -
   thus ?thesis by simp
 qed
 
-lemma (in Classical_Propositional_Logic) disjuction_exclusion_equivalence:
+lemma (in Classical_Logic) disjuction_exclusion_equivalence:
   "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>) \<equiv> \<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)"
 proof (induct \<Phi>)
   case Nil
@@ -865,7 +865,7 @@ next
     by simp
 qed
 
-lemma (in Classical_Propositional_Logic) exclusive_elimination1:
+lemma (in Classical_Logic) exclusive_elimination1:
   assumes "\<Gamma> \<tturnstile> \<Coprod> \<Phi>"
   shows "\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   using assms
@@ -896,7 +896,7 @@ next
     by simp
 qed
 
-lemma (in Classical_Propositional_Logic) exclusive_elimination2:
+lemma (in Classical_Logic) exclusive_elimination2:
   assumes "\<Gamma> \<tturnstile> \<Coprod> \<Phi>"
   shows "\<forall> \<phi> \<in> duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>"
   using assms
@@ -948,7 +948,7 @@ next
   qed
 qed
 
-lemma (in Classical_Propositional_Logic) exclusive_equivalence:
+lemma (in Classical_Logic) exclusive_equivalence:
    "\<Gamma> \<tturnstile> \<Coprod> \<Phi> =
       ((\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> 
          (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)))"

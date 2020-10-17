@@ -1,18 +1,32 @@
+(*:maxLineLen=80:*)
+
+chapter \<open> Probability Logic \label{chapter:probability} \<close>
+
 theory Logical_Probability
-  imports "../../Logic/Classical/Classical_Propositional_Connectives"
+  imports "../../Logic/Classical/Classical_Connectives"
           "~~/src/HOL/Real"
 begin
 
 sledgehammer_params [smt_proofs = false]
 
-text \<open> TODO: Cite Hajek PROBABILITY, LOGIC, AND PROBABILITY LOGIC \<close>
+section \<open> Definition of Probability Logic \label{sec:definition-of-probability-logic} \<close>
 
-class Logical_Probability = Classical_Propositional_Logic +
+text \<open> TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary Theory of Probability" \<close>
+
+class Logical_Probability = Classical_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes Implicational_Additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
+
+subsection \<open> Why Finitely Additive Logic? \<close>
+
+text \<open> TODO: cite Tarski, argue we won't be able to use SMT solvers. \<close>
+
+text \<open> TODO: Discuss the value of traditional probability theory and cite Bouffon's needle. @{cite eberlBuffonNeedleProblem2017}\<close>
+
+subsection \<open> Basic Properties of Probability Logic \<close>
 
 lemma (in Logical_Probability) Additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
@@ -46,10 +60,12 @@ lemma (in Logical_Probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
 
+subsection \<open> Alternate Definition \<close>
+
 text \<open> Alternate axiomatization of logical probability following Brian Weatherson in
         https://doi.org/10.1305/ndjfl/1082637807 \<close>
 
-class Weatherson_Probability = Classical_Propositional_Logic +
+class Weatherson_Probability = Classical_Logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Thesis: "Pr \<top> = 1"
   assumes Antithesis: "Pr \<bottom> = 0"
@@ -123,11 +139,11 @@ proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Classical_Propositional_Logic_class.subtraction_def
-                Classical_Propositional_Logic_class.negation_def
-                Classical_Propositional_Logic_class.biconditional_def
-                Classical_Propositional_Logic_class.conjunction_def
-                Classical_Propositional_Logic_class.disjunction_def
+      unfolding Classical_Logic_class.subtraction_def
+                Classical_Logic_class.negation_def
+                Classical_Logic_class.biconditional_def
+                Classical_Logic_class.conjunction_def
+                Classical_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -135,11 +151,11 @@ proof -
   moreover have "\<turnstile> \<phi> \<rightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) \<rightarrow> \<bottom>"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom>"
-      unfolding Classical_Propositional_Logic_class.subtraction_def
-                Classical_Propositional_Logic_class.negation_def
-                Classical_Propositional_Logic_class.biconditional_def
-                Classical_Propositional_Logic_class.conjunction_def
-                Classical_Propositional_Logic_class.disjunction_def
+      unfolding Classical_Logic_class.subtraction_def
+                Classical_Logic_class.negation_def
+                Classical_Logic_class.biconditional_def
+                Classical_Logic_class.conjunction_def
+                Classical_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -149,11 +165,11 @@ proof -
   moreover have "\<turnstile> \<psi> \<leftrightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Classical_Propositional_Logic_class.subtraction_def
-                Classical_Propositional_Logic_class.negation_def
-                Classical_Propositional_Logic_class.biconditional_def
-                Classical_Propositional_Logic_class.conjunction_def
-                Classical_Propositional_Logic_class.disjunction_def
+      unfolding Classical_Logic_class.subtraction_def
+                Classical_Logic_class.negation_def
+                Classical_Logic_class.biconditional_def
+                Classical_Logic_class.conjunction_def
+                Classical_Logic_class.disjunction_def
       by auto
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
@@ -203,11 +219,11 @@ proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Classical_Propositional_Logic_class.subtraction_def
-                Classical_Propositional_Logic_class.negation_def
-                Classical_Propositional_Logic_class.biconditional_def
-                Classical_Propositional_Logic_class.conjunction_def
-                Classical_Propositional_Logic_class.disjunction_def
+      unfolding Classical_Logic_class.subtraction_def
+                Classical_Logic_class.negation_def
+                Classical_Logic_class.biconditional_def
+                Classical_Logic_class.conjunction_def
+                Classical_Logic_class.disjunction_def
       by (simp, blast)
     hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast
@@ -219,10 +235,10 @@ proof -
   moreover have "\<turnstile> \<sim>((\<phi> \<setminus> \<psi>) \<sqinter> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding Classical_Propositional_Logic_class.subtraction_def
-                Classical_Propositional_Logic_class.negation_def
-                Classical_Propositional_Logic_class.conjunction_def
-                Classical_Propositional_Logic_class.disjunction_def
+      unfolding Classical_Logic_class.subtraction_def
+                Classical_Logic_class.negation_def
+                Classical_Logic_class.conjunction_def
+                Classical_Logic_class.disjunction_def
       by simp
     hence "\<turnstile> \<^bold>\<lparr> \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast
@@ -275,21 +291,21 @@ lemma (in Logical_Probability) implication_set_summation_inequality:
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans
   by blast
 
-definition (in Classical_Propositional_Logic) Logical_Probabilities :: "('a \<Rightarrow> real) set"
+definition (in Classical_Logic) Logical_Probabilities :: "('a \<Rightarrow> real) set"
   where "Logical_Probabilities =
          {Pr. class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
-definition (in Classical_Propositional_Logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
+definition (in Classical_Logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
   where "Dirac_Measures =
          { Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
-lemma (in Classical_Propositional_Logic) Dirac_Measures_subset:
+lemma (in Classical_Logic) Dirac_Measures_subset:
   "Dirac_Measures \<subseteq> Logical_Probabilities"
   unfolding Logical_Probabilities_def Dirac_Measures_def
   by fastforce
 
-lemma (in Classical_Propositional_Logic) MCS_Dirac_Measure:
+lemma (in Classical_Logic) MCS_Dirac_Measure:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Dirac_Measures"
       (is "?Pr \<in> Dirac_Measures")
@@ -369,7 +385,7 @@ proof -
     by simp
 qed
 
-lemma (in Classical_Propositional_Logic) arbitrary_disjunction_exclusion_MCS:
+lemma (in Classical_Logic) arbitrary_disjunction_exclusion_MCS:
   assumes "MCS \<Omega>"
   shows "\<Squnion> \<Psi> \<notin> \<Omega> \<equiv> \<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
 proof (induct \<Psi>)

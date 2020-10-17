@@ -3,23 +3,25 @@
 chapter \<open> Logical Foundations \<close>
 
 text \<open> The logical formulation of probability presented in 
-       (TODO: Cite me) relies essentially on automated \<^emph>\<open>classical propositional 
-       logic\<close>. In order to provide this, we first develop an extensive theory 
-       of classical propositional logic up to completeness. \<close>
+       \S\ref{chapter:probability} relies essentially on automated 
+       \<^emph>\<open>classical propositional logic\<close>. In order to provide this, we first 
+       develop an extensive theory of classical propositional logic up to 
+       completeness. \<close>
 
-text \<open> We first give \<^emph>\<open>the pure implicational fragement intuitionistic logic\<close> 
+text \<open> We first give the \<^emph>\<open>pure implicational fragement of intuitionistic logic\<close> 
        as an elementary foundation. This is presented in 
-       \S\ref{sec:implicational-intuitionistic-logic}. \<close>
+       \S\ref{sec:implicational-intuitionistic-logic}. 
+       Following this will be referred to as \<^emph>\<open>implication logic\<close>.\<close>
 
-text \<open> We extend \<^emph>\<open>implicational intuitionistic logic\<close> to full blown \<^emph>\<open>classical 
-       propositional logic\<close> in \S\ref{sec:classical-propositional-logic}. 
-       Completeness is presented in \S\ref{sec:classical-propositional-calculus}.  
-       Finally classical logic is extended with logical connectives 
-       in \S\ref{sec:logical-connectives}\<close>
+text \<open> Implication logic is extended to full \<^emph>\<open>classical propositional logic\<close> 
+       in \S\ref{sec:classical-propositional-logic}. Completeness is 
+       presented in \S\ref{sec:classical-propositional-calculus}.  
+       Finally logical connectives are defined for classical logic
+       in \S\ref{sec:logical-connectives}. \<close>
 
-section \<open> Implicational Intuitionistic Logic \label{sec:implicational-intuitionistic-logic} \<close>
+section \<open> Implication Logic \label{sec:implicational-intuitionistic-logic} \<close>
 
-theory Implicational_Intuitionistic_Logic
+theory Implication_Logic
   imports Main
 begin
 
@@ -28,17 +30,19 @@ sledgehammer_params [smt_proofs = false]
 text \<open> This theory presents the pure implicational fragment of
        intuitionistic logic.  That is to say, this is the fragment of 
        intuitionistic logic containing \<^emph>\<open>implication only\<close>, and no other 
-       connectives nor \<^emph>\<open>falsum\<close>. It shall be  referred to as 
-       \<^emph>\<open>implicational intuitionistic logic\<close> in our discussions. 
+       connectives nor \<^emph>\<open>falsum\<close>. It shall be referred to as 
+       \<^emph>\<open>implication logic\<close> in our discussions. 
        For further reference see 
        @{cite urquhartImplicationalFormulasIntuitionistic1974}.\<close>
 
 subsection \<open> Axiomatization \<close>
 
-text \<open> Implicational intuitionistic logic is given by the following 
-       Hilbert-style axiom system: \<close>
+text \<open> Implication logic can be given by the a Hilbert-style 
+       axiom system, following Troelstra and Schwichtenberg's 
+       \<^emph>\<open>Basic Proof Theory\<close> (1999, \S 1.3.9, pg. 33) 
+       @{cite troelstraBasicProofTheory2000}. \<close>
 
-class Implicational_Intuitionistic_Logic =
+class Implication_Logic =
   fixes deduction :: "'a \<Rightarrow> bool" ("\<turnstile> _" [60] 55)
   fixes implication :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixr "\<rightarrow>" 70)
   assumes Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
@@ -47,23 +51,23 @@ class Implicational_Intuitionistic_Logic =
 
 subsection \<open> Common Rules \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   trivial_implication: "\<turnstile> \<phi> \<rightarrow> \<phi>"
   by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Implicational_Intuitionistic_Logic)
+lemma (in Implication_Logic)
   flip_implication: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> \<psi> \<rightarrow> \<phi> \<rightarrow> \<chi>"
   by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   by (meson Axiom_K Axiom_S Modus_Ponens)
 
-lemma (in Implicational_Intuitionistic_Logic)
+lemma (in Implication_Logic)
   flip_hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>)"
   using Modus_Ponens flip_implication hypothetical_syllogism by blast
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   implication_absorption: "\<turnstile> (\<phi> \<rightarrow> \<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   by (meson Axiom_K Axiom_S Modus_Ponens)
 
@@ -73,46 +77,46 @@ subsubsection \<open> List Implication \<close>
 
 text \<open> Implication given a list of assumptions can be expressed recursively \<close>
 
-primrec (in Implicational_Intuitionistic_Logic)
+primrec (in Implication_Logic)
   list_implication :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a" (infix ":\<rightarrow>" 80) where
     "[] :\<rightarrow> \<phi> = \<phi>"
   | "(\<psi> # \<Psi>) :\<rightarrow> \<phi> = \<psi> \<rightarrow> \<Psi> :\<rightarrow> \<phi>"
 
-subsubsection \<open> Definition of Deduction \<close>
+subsubsection \<open> Deduction From a List of Assumptions \<close>
 
 text \<open> Deduction from a list of assumptions can be expressed in terms of
        @{term "(:\<rightarrow>)"}. \<close>
 
-definition (in Implicational_Intuitionistic_Logic)
+definition (in Implication_Logic)
   list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
   "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
 
-subsubsection \<open> Interpretation as Implicational Intuitionistic Logic \<close>
+subsubsection \<open> List Deduction as Implication Logic \<close>
 
 text \<open> The relation @{term "(:\<turnstile>)"} may naturally be interpreted as a
-       @{term "deduction"} predicate for an instance of implicational 
-       intuitionistic logic for a fixed list of assumptions @{term "\<Gamma>"}. \<close>
+       @{term "deduction"} predicate for an instance of implication logic 
+       for a fixed list of assumptions @{term "\<Gamma>"}. \<close>
 
-text \<open> Analogues of the two axioms of implicational intuitionistic logic can be 
+text \<open> Analogues of the two axioms of implication logic can be 
        naturally stated using list implication. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_implication_Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
   by (induct \<Gamma>, (simp, meson Axiom_K Axiom_S Modus_Ponens)+)
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_implication_Axiom_S: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<Gamma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<psi>"
   by (induct \<Gamma>, 
       (simp, meson Axiom_K Axiom_S Modus_Ponens hypothetical_syllogism)+)
 
 text \<open> The lemmas @{thm list_implication_Axiom_K} and 
        @{thm list_implication_Axiom_S} jointly give rise to an interpretation 
-       of implicational intuitionistic logic, where a list of assumptions 
-       @{term "\<Gamma>"} plays the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
+       of implication logic, where a list of assumptions @{term "\<Gamma>"} play
+       the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
 
-context Implicational_Intuitionistic_Logic begin
+context Implication_Logic begin
 interpretation List_Deduction_Logic: 
-   Implicational_Intuitionistic_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
+   Implication_Logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed (meson 
              list_deduction_def
              Axiom_K
@@ -124,7 +128,7 @@ end
 
 text \<open> The following \<^emph>\<open>weakening\<close> rule can also be derived. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
   using Modus_Ponens list_implication_Axiom_K
@@ -132,12 +136,12 @@ lemma (in Implicational_Intuitionistic_Logic)
 
 text \<open> In the case of the empty list, the converse may be established. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_deduction_base_theory [simp]: "[] :\<turnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   unfolding list_deduction_def
   by simp
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_deduction_modus_ponens: "\<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<psi>"
   unfolding list_deduction_def
   using Modus_Ponens list_implication_Axiom_S
@@ -145,14 +149,14 @@ lemma (in Implicational_Intuitionistic_Logic)
 
 subsection \<open> The Deduction Theorem \<close>
 
-text \<open> One result in the meta-theory of implicational intuitionistic logic 
+text \<open> One result in the meta-theory of implication logic 
        is the \<^emph>\<open>deduction theorem\<close>, which is a mechanism for moving 
        antecedents back and forth from collections of assumptions. \<close>
 
 text \<open> To develop the deduction theorem, the following two lemmas generalize
         @{thm "flip_implication"}. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_flip_implication1: "\<turnstile> (\<phi> # \<Gamma>) :\<rightarrow> \<chi> \<rightarrow> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>)"
   by (induct \<Gamma>,
       (simp, 
@@ -163,7 +167,7 @@ lemma (in Implicational_Intuitionistic_Logic)
            flip_implication 
            hypothetical_syllogism)+)
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_flip_implication2: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> # \<Gamma>) :\<rightarrow> \<chi>"
   by (induct \<Gamma>,
       (simp, 
@@ -177,7 +181,7 @@ lemma (in Implicational_Intuitionistic_Logic)
 text \<open> Together the two lemmas above suffice to prove a form of 
        the deduction theorem: \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   list_deduction_theorem: "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = \<Gamma> :\<turnstile> \<phi> \<rightarrow> \<psi>"
   unfolding list_deduction_def
   by (metis Modus_Ponens list_flip_implication1 list_flip_implication2)
@@ -193,7 +197,7 @@ text \<open> In logic, for two sets of assumptions @{term "\<Phi>"} and @{term "
         underlying assumptions grow. \<close>
 
 text \<open> The monotonic growth of deductive power can be expressed as a 
-       meta-theorem in implicational intuitionistic logic. \<close>
+       meta-theorem in implication logic. \<close>
 
 text \<open> The lemma @{thm "list_flip_implication2"} presents a means 
        of \<^emph>\<open>introducing\<close> assumptions into a list of assumptions when 
@@ -201,7 +205,7 @@ text \<open> The lemma @{thm "list_flip_implication2"} presents a means
        presents a means of \<^emph>\<open>discharging\<close> those assumptions, which can be 
        used in the monotonic growth theorem to be proved. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_implication_removeAll: "\<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
 proof -
   have "\<forall> \<psi>. \<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
@@ -247,7 +251,7 @@ qed
 text \<open> From lemma above presents what is needed to prove that deductive power 
        for lists is monotonic. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   list_implication_monotonic: "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<turnstile> \<Sigma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
 proof -
   assume "set \<Sigma> \<subseteq> set \<Gamma>"
@@ -308,7 +312,7 @@ qed
 text \<open> A direct consequence is that deduction from lists of assumptions 
        is monotonic as well: \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   list_deduction_monotonic: "set \<Sigma> \<subseteq> set \<Gamma> \<Longrightarrow> \<Sigma> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
   using Modus_Ponens list_implication_monotonic
@@ -320,7 +324,7 @@ text \<open> The monotonic nature of deduction allows us to prove another form o
        the deduction theorem, where the assumption being discharged is 
        completely removed from the list of assumptions. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   alternate_list_deduction_theorem: 
     "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
   by (metis 
@@ -340,7 +344,7 @@ text \<open> In logic the \<^emph>\<open>reflection\<close> principle sometimes 
        automatically derivable from @{thm "list_deduction_monotonic"} among 
        the other rules provided. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   list_deduction_reflection: "\<phi> \<in> set \<Gamma> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   by (metis 
         list_deduction_def
@@ -365,7 +369,7 @@ text \<open> The cut rule is not generally necessary in sequent calculi. It can
 
 text \<open> Here the rule is presented just as a meta theorem. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) list_deduction_cut_rule:
+theorem (in Implication_Logic) list_deduction_cut_rule:
   "(\<phi> # \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
   by (metis
         (no_types, lifting)
@@ -378,7 +382,7 @@ theorem (in Implicational_Intuitionistic_Logic) list_deduction_cut_rule:
 
 text \<open> The cut rule can also be strengthened to entire lists of propositions. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   strong_list_deduction_cut_rule:
     "(\<Phi> @ \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
 proof -
@@ -434,33 +438,33 @@ text \<open> Just as deduction from a list @{term "(:\<turnstile>)"} can be defi
        terms of @{term "(:\<rightarrow>)"}, deduction from a \<^emph>\<open>set\<close> of assumptions 
        can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
 
-definition (in Implicational_Intuitionistic_Logic) 
+definition (in Implication_Logic) 
   set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
   "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
 
-subsubsection \<open> Interpretation as Implicational Intuitionistic Logic \<close>
+subsubsection \<open> Interpretation as Implication Logic \<close>
 
 text \<open> As in the case of @{term "(:\<turnstile>)"}, the relation @{term "(\<tturnstile>)"} may be 
        interpreted as @{term "deduction"} predicate for a fixed set of 
        assumptions @{term "\<Gamma>"}. \<close>
 
 text \<open> The following lemma is given in order to establish this, which asserts 
-       that every implicational intuitionistic logic tautology @{term "\<turnstile> \<phi>"} 
+       that every implication logic tautology @{term "\<turnstile> \<phi>"} 
        is also a tautology for @{term "\<Gamma> \<tturnstile> \<phi>"}. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   set_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by fastforce
 
 text \<open> In the case of the empty set, the converse may be established. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   set_deduction_base_theory: "{} \<tturnstile> \<phi> \<equiv> \<turnstile> \<phi>"
   using list_deduction_base_theory set_deduction_def by auto
 
 text \<open> Next, a form of \<^emph>\<open>modus ponens\<close> is provided for @{term "(\<tturnstile>)"}. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
    set_deduction_modus_ponens: "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<tturnstile> \<psi>"
 proof -
   assume "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
@@ -476,9 +480,9 @@ proof -
     using set_deduction_def by blast
 qed
 
-context Implicational_Intuitionistic_Logic begin
+context Implication_Logic begin
 interpretation Set_Deduction_Logic: 
-  Implicational_Intuitionistic_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
+  Implication_Logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
 proof
    fix \<phi> \<psi>
    show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis Axiom_K set_deduction_weaken)
@@ -497,7 +501,7 @@ subsection \<open> The Deduction Theorem \<close>
 
 text \<open> The next result gives the deduction theorem for @{term "(\<tturnstile>)"}. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> insert \<phi> \<Gamma> \<tturnstile> \<psi>"
@@ -537,7 +541,7 @@ text \<open> As a consequence of the fact that @{thm "set_deduction_monotonic"}
        is just a consequence of the more conventional 
        @{thm "set_deduction_theorem"} rule and some basic set identities. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   alternate_set_deduction_theorem: "insert \<phi> \<Gamma> \<tturnstile> \<psi> = \<Gamma> - {\<phi>} \<tturnstile> \<phi> \<rightarrow> \<psi>"
   by (metis insert_Diff_single set_deduction_theorem)
 
@@ -547,7 +551,7 @@ text \<open> Just as in the case of @{term "(:\<turnstile>)"}, deduction from se
        assumptions makes true the \<^emph>\<open>reflection principle\<close> and is 
        automatically provable. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   set_deduction_reflection: "\<phi> \<in> \<Gamma> \<Longrightarrow> \<Gamma> \<tturnstile> \<phi>"
   by (metis 
         Set.set_insert
@@ -562,7 +566,7 @@ text \<open> The final principle of @{term "(\<tturnstile>)"} presented is the \
 
 text \<open> First, the weak form of the rule is established. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) set_deduction_cut_rule:
+theorem (in Implication_Logic) set_deduction_cut_rule:
   "insert \<phi> \<Gamma> \<tturnstile> \<psi> \<Longrightarrow> \<Delta> \<tturnstile> \<phi> \<Longrightarrow> \<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
 proof -
   assume "insert \<phi> \<Gamma> \<tturnstile> \<psi>"
@@ -579,7 +583,7 @@ text \<open> Another lemma is shown next in order to establish the strong form
        \<^term>\<open>\<Delta>\<close> proves everything in a finite set of assumptions
        \<^term>\<open>\<Phi>\<close>. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   finite_set_deduction_list_deduction:
   assumes "finite \<Phi>"
   and "\<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi>"
@@ -609,7 +613,7 @@ qed
 text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened
        form of the cut rule can be given. \<close>
 
-theorem (in Implicational_Intuitionistic_Logic) 
+theorem (in Implication_Logic) 
   strong_set_deduction_cut_rule:
   assumes "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi>" 
   and "\<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi>"
@@ -634,11 +638,11 @@ proof -
   thus ?thesis using set_deduction_def by blast
 qed
 
-subsection \<open>Maximally Consistent Sets For Implicational Intuitionistic Logic \label{sec:implicational-maximally-consistent-sets}\<close>
+subsection \<open>Maximally Consistent Sets For Implication Logic \label{sec:implicational-maximally-consistent-sets}\<close>
 
 text \<open> \<^emph>\<open>Maximally Consistent Sets\<close> are a common construction for proving
        completeness of logical calculi.  For a classic presentation, see
-       Chapter 1, Section 5 of Dirk van Dalen's \<^emph>\<open>Logic and Structure\<close> (2013)
+       Dirk van Dalen's \<^emph>\<open>Logic and Structure\<close> (2013, \S1.5, pgs. 42--45)
        @{cite dalenLogicStructure2013}. \<close>
 
 text \<open> Maximally consistent sets will form the foundation of all of the
@@ -646,15 +650,16 @@ text \<open> Maximally consistent sets will form the foundation of all of the
        classical logic semantics, conventional model theory will not be
        used at all. \<close>
 
-text \<open> The models we are centrally concerned with, such as probability 
-       measures used in completeness theorems in (TODO: provide reference) 
-       and arbitrage opportunities in (TODO: provide reference), will all be 
-       derived from maximally consistent sets. \<close>
+text \<open> The models we are centrally concerned are derived from maximally consistent sets. 
+       These include probability measures used in completeness theorems of 
+       probability logic found in \S\ref{sec:probability-logic-completeness},
+       as well as arbitrage opportunities stipulated by the \<^emph>\<open>Dutch Book Theorem\<close>
+       in \S\ref{sec:dutch-book-theorem}. \<close>
 
-text \<open> Since implicational intuitionistic logic does not have \<^emph>\<open>falsum\<close>,
-       consistency is defined relative to a formula \<^term>\<open>\<phi>\<close>. \<close>
+text \<open> Since implication logic does not have \<^emph>\<open>falsum\<close>, consistency is 
+       defined relative to a formula \<^term>\<open>\<phi>\<close>. \<close>
 
-definition (in Implicational_Intuitionistic_Logic)
+definition (in Implication_Logic)
   Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
   where [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"
 
@@ -664,7 +669,7 @@ text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>
        for all \<^term>\<open>\<psi>\<close>.  This coincides with the traditional definition in
        classical logic when \<^term>\<open>\<phi>\<close> is \<^emph>\<open>falsum\<close>. \<close>
 
-definition (in Implicational_Intuitionistic_Logic)
+definition (in Implication_Logic)
   Formula_Maximally_Consistent_Set
     :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
     where
@@ -674,12 +679,12 @@ text \<open> Every consistent set \<^term>\<open>\<Gamma>\<close> may be extende
        consistent set. \<close>
 
 text \<open> However, no assumption is made regarding the cardinality of the types 
-       of an instance of @{class Implicational_Intuitionistic_Logic}. \<close>
+       of an instance of @{class Implication_Logic}. \<close>
 
 text \<open> As a result, typical proofs that assume a countable domain are not
        suitable.  Our proof leverages \<^emph>\<open>Zorn's lemma\<close>. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic) 
+lemma (in Implication_Logic) 
   Formula_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "(\<phi>-Consistent insert \<psi> \<Gamma>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>)"
@@ -696,7 +701,7 @@ proof -
   thus ?thesis by blast
 qed
 
-theorem (in Implicational_Intuitionistic_Logic)
+theorem (in Implication_Logic)
   Formula_Maximally_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "\<exists> \<Omega>. (\<phi>-MCS \<Omega>) \<and> \<Gamma> \<subseteq> \<Omega>"
@@ -775,7 +780,7 @@ qed
 text \<open> Finally, maximally consistent sets contain anything that can be deduced 
        from them, and model a form of \<^emph>\<open>modus ponens\<close>. \<close>
 
-lemma (in Implicational_Intuitionistic_Logic)
+lemma (in Implication_Logic)
   Formula_Maximally_Consistent_Set_reflection: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<psi> \<in> \<Gamma> = \<Gamma> \<tturnstile> \<psi>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
@@ -794,7 +799,7 @@ proof -
     by metis
 qed
 
-theorem (in Implicational_Intuitionistic_Logic)
+theorem (in Implication_Logic)
   Formula_Maximally_Consistent_Set_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<Longrightarrow> \<chi> \<in> \<Omega>"
@@ -803,6 +808,6 @@ theorem (in Implicational_Intuitionistic_Logic)
         set_deduction_modus_ponens
   by blast
 
-text \<open> This concludes our introduction to implicational intuitionistic logic. \<close>
+text \<open> This concludes our introduction to implication logic. \<close>
 
 end

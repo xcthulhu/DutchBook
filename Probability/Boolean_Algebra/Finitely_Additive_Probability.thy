@@ -1,5 +1,11 @@
-theory Abstract_Finitely_Additive_Probability
-  imports "../Logical/Logical_Probability_Completeness"
+(*:maxLineLen=80:*)
+
+section \<open>Boolean Algebra Probability\<close>
+
+(* TODO: Cite Bool's laws of thought, Dempster, Nils Nilsson's Probabilisitic Logic *)
+
+theory Finitely_Additive_Probability
+  imports "../Logical/Logical_Probability"
           Finite_Boolean_Algebra
 begin
 
@@ -16,12 +22,26 @@ no_notation
 class \<P> =
   fixes \<P> :: "'a \<Rightarrow> real"
 
-class abstract_finitely_additive_probability = \<P> + boolean_algebra +
+subsection \<open> Definition of Finitely Additive Probability \<close>
+
+text \<open> TODO: cite @{cite booleChapterXVIIGeneral1853}, @{cite broderickBooleanAlgebraProbability1940}, ``Elementary Theory of Probability'' @{cite kolmogoroffGrundbegriffeWahrscheinlichkeitsrechnung1933}\<close>
+
+class finitely_additive_probability = \<P> + boolean_algebra +
   assumes Non_Negative: "\<P> \<phi> \<ge> 0"
   assumes Unity: "\<P> \<top> = 1"
   assumes Finite_Additivity: "\<phi> \<sqinter> \<psi> = \<bottom> \<Longrightarrow> \<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
 
 context boolean_algebra begin
+
+definition probabilities :: "('a \<Rightarrow> real) set"
+  where "probabilities =
+         { \<P>. class.finitely_additive_probability 
+                \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top> }"
+
+subsection \<open> Equivalence With Probability Logic \<close>
+
+text \<open> The Boolean algebra formulation of finitely additive probability is
+       in fact a special case of probability logic as presented in \S\ref{sec:definition-of-probability-logic}.\<close>
 
 definition residual (infixr "\<Rightarrow>" 70) where
   "\<phi> \<Rightarrow> \<psi> \<equiv> - \<phi> \<squnion> \<psi>"
@@ -46,11 +66,12 @@ proof
     using \<open>A \<sqinter> B \<le> C\<close> sup.absorb_iff2 by blast
   ultimately show "B \<le> A \<Rightarrow> C"
     unfolding residual_def
-    by (metis inf_commute
-              sup.absorb_iff2
-              sup.semigroup_axioms
-              sup_commute
-              semigroup.assoc)
+    by (metis 
+          inf_commute
+          sup.absorb_iff2
+          sup.semigroup_axioms
+          sup_commute
+          semigroup.assoc)
 next
   assume "B \<le> A \<Rightarrow> C"
   hence "B \<sqinter> (A \<Rightarrow> C) = B"
@@ -64,13 +85,14 @@ next
       by (simp add: inf.semigroup_axioms semigroup.assoc)
   ultimately show "A \<sqinter> B \<le> C"
     unfolding residual_def
-    by (metis (no_types) inf.orderI
-                         inf_compl_bot_right
-                         inf_sup_distrib1
-                         sup_bot.right_neutral)
+    by (metis (no_types) 
+          inf.orderI
+          inf_compl_bot_right
+          inf_sup_distrib1
+          sup_bot.right_neutral)
 qed
 
-interpretation Classical_Propositional_Logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
+interpretation Classical_Logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
 proof standard
   fix \<phi> \<psi>
   show "\<top> = \<phi> \<Rightarrow> \<psi> \<Rightarrow> \<phi>"
@@ -120,10 +142,6 @@ lemmas Axiom_S = Axiom_S
 lemmas Double_Negation = Double_Negation
 lemmas Modus_Ponens = Modus_Ponens
 
-definition probabilities :: "('a \<Rightarrow> real) set"
-  where "probabilities =
-         { \<P>. class.abstract_finitely_additive_probability \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top> }"
-
 lemma probabilities_alt_def:
   "probabilities = { \<P>. class.Logical_Probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
 proof
@@ -132,7 +150,7 @@ proof
     fix \<P>
     assume "\<P> \<in> probabilities"
     from this interpret
-      abstract_finitely_additive_probability \<P>
+      finitely_additive_probability \<P>
       unfolding probabilities_def
       by auto
     have "class.Logical_Probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
@@ -164,7 +182,8 @@ next
     from this interpret Logical_Probability "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
       by auto
     have
-      "class.abstract_finitely_additive_probability \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
+      "class.finitely_additive_probability 
+         \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
     proof standard
       fix \<phi>
       show "0 \<le> \<P> \<phi>"
@@ -193,7 +212,8 @@ definition dirac_measures where
 
 lemma dirac_measures_alt_def:
   "dirac_measures =
-     { \<delta>. class.Logical_Probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<delta> \<and> (\<forall>x. \<delta> x = 0 \<or> \<delta> x = 1) }"
+     { \<delta>. class.Logical_Probability 
+            ((=) \<top>) (\<Rightarrow>) \<bottom> \<delta> \<and> (\<forall>x. \<delta> x = 0 \<or> \<delta> x = 1) }"
   unfolding dirac_measures_def
             probabilities_alt_def
   by auto
@@ -240,7 +260,7 @@ lemma conditional_probability_measure:
   shows   "(\<lambda> \<phi>. \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>) \<in> probabilities"
 proof -
   from assms interpret
-    abstract_finitely_additive_probability \<P>
+    finitely_additive_probability \<P>
     unfolding probabilities_def
     by auto
   have "\<P> \<psi> > 0"
@@ -249,7 +269,8 @@ proof -
           order_class.dual_order.order_iff_strict
     by blast
   let ?\<P>' = "\<lambda> \<phi>. \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>"
-  have "class.abstract_finitely_additive_probability ?\<P>' (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
+  have "class.finitely_additive_probability 
+          ?\<P>' (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
   proof standard
     fix \<phi>
     show "0 \<le> \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>"
@@ -280,16 +301,17 @@ lemma probabilities_convex:
   shows   "(\<lambda> \<phi>. \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi>) \<in> probabilities"
 proof -
   let ?\<M> = "\<lambda> \<phi>. \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi>"
-  from assms interpret abstract_finitely_additive_probability \<P>
+  from assms interpret finitely_additive_probability \<P>
     unfolding probabilities_def
     by auto
-  note \<P>_Non_Negative      = Non_Negative
-  note \<P>_Unity             = Unity
+  note \<P>_Non_Negative = Non_Negative
+  note \<P>_Unity = Unity
   note \<P>_Finite_Additivity = Finite_Additivity
-  from assms interpret abstract_finitely_additive_probability \<Q>
+  from assms interpret finitely_additive_probability \<Q>
     unfolding probabilities_def
     by auto
-  have "class.abstract_finitely_additive_probability ?\<M> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
+  have "class.finitely_additive_probability 
+          ?\<M> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
   proof standard
     fix \<phi>
     show "0 \<le> \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi>"
@@ -311,11 +333,12 @@ qed
 
 end
 
-context abstract_finitely_additive_probability begin
+context finitely_additive_probability begin
 
 interpretation Logical_Probability "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
 proof -
-  have "class.abstract_finitely_additive_probability \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
+  have "class.finitely_additive_probability 
+          \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
     by standard
   hence "\<P> \<in> probabilities"
     unfolding probabilities_def
@@ -403,12 +426,13 @@ proof -
 qed
 
 lemma monotonicity: "a \<le> b \<Longrightarrow> \<P> a \<le> \<P> b"
-  by (metis monotonicity
-            residual_def
-            sup.commute
-            sup.left_commute
-            sup_absorb1
-            sup_cancel_left1)
+  by (metis 
+        monotonicity
+        residual_def
+        sup.commute
+        sup.left_commute
+        sup_absorb1
+        sup_cancel_left1)
 
 lemmas Antithesis = Antithesis
 
@@ -429,9 +453,13 @@ proof (induct A rule: finite_induct)
     by (simp add: Unity)
 next
   case (insert a A)
-  have \<star>: "\<P> (Finite_Set.fold (\<sqinter>) \<top> (insert a A)) = \<P> (a \<sqinter> Finite_Set.fold (\<sqinter>) \<top> A)"
+  have \<star>: "\<P> (Finite_Set.fold (\<sqinter>) \<top> (insert a A)) 
+             = \<P> (a \<sqinter> Finite_Set.fold (\<sqinter>) \<top> A)"
        (is "\<P> ?A' = \<P> (a \<sqinter> ?A)")
-    by (simp add: comp_fun_idem.fold_insert_idem insert.hyps(1) comp_fun_idem_inf)
+    by (simp add: 
+          comp_fun_idem.fold_insert_idem 
+          insert.hyps(1) 
+          comp_fun_idem_inf)
   have "\<P> ?A = 1"
     using insert.hyps(3) insert.prems by blast
   moreover have "\<P> a = 1"
@@ -463,7 +491,8 @@ next
   case (insert a A)
   hence "\<forall>a' \<in> A. a \<sqinter> a' = \<bottom>"
     by auto
-  with \<open>finite A\<close> \<open>a \<notin> A\<close> have "a \<sqinter> (Finite_Set.fold (\<squnion>) \<bottom> A) = \<bottom>" (is "a \<sqinter> ?UA = \<bottom>")
+  with \<open>finite A\<close> \<open>a \<notin> A\<close> 
+    have "a \<sqinter> (Finite_Set.fold (\<squnion>) \<bottom> A) = \<bottom>" (is "a \<sqinter> ?UA = \<bottom>")
   proof (induct A rule: finite_induct)
     case empty
     then show ?case by auto
@@ -472,8 +501,13 @@ next
     hence "a \<sqinter> (Finite_Set.fold (\<squnion>) \<bottom> A) = \<bottom>" (is "a \<sqinter> ?UA = \<bottom>")
           "a \<sqinter> a' = \<bottom>"
       by auto
-    moreover have "Finite_Set.fold (\<squnion>) \<bottom> ({a'} \<union> A) = a' \<squnion> ?UA" (is "?UA' = _")
-      by (simp add: comp_fun_idem.fold_insert_idem \<open>finite A\<close> comp_fun_idem_sup)
+    moreover 
+      have "Finite_Set.fold (\<squnion>) \<bottom> ({a'} \<union> A) = a' \<squnion> ?UA" 
+           (is "?UA' = _")
+        by (simp add: 
+              comp_fun_idem.fold_insert_idem 
+              \<open>finite A\<close> 
+              comp_fun_idem_sup)
     hence "a \<sqinter> ?UA' = (a \<sqinter> a') \<squnion> (a \<sqinter> ?UA)"
       using inf_sup_distrib1 by auto
     ultimately show ?case
@@ -496,7 +530,7 @@ lemma join_prime_decomposition:
   assumes "\<P> \<in> probabilities"
   shows   "\<P> \<phi> = (\<Sum> \<alpha> \<in> \<J>. \<P> \<alpha> * (if \<alpha> \<le> \<phi> then 1 else 0))"
 proof -
-  interpret abstract_finitely_additive_probability \<P>
+  interpret finitely_additive_probability \<P>
     using \<open>\<P> \<in> probabilities\<close>
     unfolding probabilities_def
     by blast
@@ -536,7 +570,7 @@ lemma dirac_measure_to_join_prime:
   shows "\<Sqinter> { \<phi> . \<delta> \<phi> = 1 } \<in> \<J>"
   (is "?\<alpha> \<in> \<J>")
 proof -
-  interpret abstract_finitely_additive_probability \<delta>
+  interpret finitely_additive_probability \<delta>
     using \<open>\<delta> \<in> dirac_measures\<close>
     unfolding dirac_measures_def probabilities_def
     by blast
@@ -557,18 +591,20 @@ proof -
       using \<open>\<delta> ?\<alpha> = 1\<close> monotonicity
       by fastforce
     hence "\<delta> (y \<squnion> z) = 1"
-      by (metis Unity
-                monotonicity
-                sup.cobounded2
-                sup_top_left
-                order_class.eq_iff)
+      by (metis 
+            Unity
+            monotonicity
+            sup.cobounded2
+            sup_top_left
+            order_class.eq_iff)
     moreover have "\<delta> y = 0 \<Longrightarrow> \<delta> z = 0 \<Longrightarrow> \<delta> (y \<squnion> z) = 0"
-      by (metis add.right_neutral
-                add_diff_cancel_left'
-                diff_ge_0_iff_ge
-                Non_Negative
-                sum_rule
-                order_class.eq_iff)
+      by (metis 
+            add.right_neutral
+            add_diff_cancel_left'
+            diff_ge_0_iff_ge
+            Non_Negative
+            sum_rule
+            order_class.eq_iff)
     ultimately have "\<delta> y \<noteq> 0 \<or> \<delta> z \<noteq> 0"
       by linarith
     hence "\<delta> y = 1 \<or> \<delta> z = 1"
@@ -589,7 +625,7 @@ lemma dirac_to_join_prime_ident:
   assumes "\<delta> \<in> dirac_measures"
   shows "(\<lambda> \<phi>. if \<Sqinter> { \<phi> . \<delta> \<phi> = 1 } \<le> \<phi> then 1 else 0) = \<delta>"
 proof
-  interpret abstract_finitely_additive_probability \<delta>
+  interpret finitely_additive_probability \<delta>
     using \<open>\<delta> \<in> dirac_measures\<close>
     unfolding dirac_measures_def probabilities_def
     by blast
@@ -660,20 +696,23 @@ lemma dirac_join_prime_bij_betw:
   "bij_betw (\<lambda> \<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0 :: real) \<J> dirac_measures"
   unfolding bij_betw_def
 proof
-  obtain to_\<delta> where to_\<delta>_def : "to_\<delta> = (\<lambda> \<alpha> \<phi> . if \<alpha> \<le> \<phi> then 1 else 0 :: real)" by auto
+  obtain to_\<delta> where to_\<delta>_def: 
+    "to_\<delta> = (\<lambda> \<alpha> \<phi> . if \<alpha> \<le> \<phi> then 1 else 0 :: real)" by auto
   {
     fix \<alpha>1 \<alpha>2
-    assume "\<alpha>1 \<in> \<J>"
-           "\<alpha>2 \<in> \<J>"
-           "to_\<delta> \<alpha>1 = to_\<delta> \<alpha>2"
+    assume 
+      "\<alpha>1 \<in> \<J>"
+      "\<alpha>2 \<in> \<J>"
+      "to_\<delta> \<alpha>1 = to_\<delta> \<alpha>2"
     moreover from this have
       " \<Sqinter>{ \<phi>. (\<lambda> \<phi>. if \<alpha>1 \<le> \<phi> then 1 else 0) \<phi> = (1 :: real) }
       = \<Sqinter>{ \<phi>. (\<lambda> \<phi>. if \<alpha>2 \<le> \<phi> then 1 else 0) \<phi> = (1 :: real) }"
       unfolding to_\<delta>_def
       by metis
     ultimately have "\<alpha>1 = \<alpha>2"
-      using join_prime_to_dirac_ident [of \<alpha>1]
-            join_prime_to_dirac_ident [of \<alpha>2]
+      using 
+        join_prime_to_dirac_ident [of \<alpha>1]
+        join_prime_to_dirac_ident [of \<alpha>2]
       by presburger
   }
   hence "inj_on to_\<delta> \<J>"
@@ -682,7 +721,6 @@ proof
   thus "inj_on (\<lambda> \<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0 :: real) \<J>"
     unfolding to_\<delta>_def
     by blast
-
 next
   show "(\<lambda>\<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) ` \<J> = dirac_measures"
   proof
@@ -705,10 +743,256 @@ next
       ultimately have "\<delta> \<in> (\<lambda>\<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) ` \<J>"
         using image_iff by fastforce
     }
-    thus " dirac_measures \<subseteq> (\<lambda>\<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) ` \<J>"
+    thus "dirac_measures \<subseteq> (\<lambda>\<alpha> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) ` \<J>"
       using subsetI
       by blast
   qed
 qed
+
+lemma dirac_join_prime_bij_betw_alt:
+  "bij_betw (\<lambda> \<delta>. \<Sqinter> { \<phi> . \<delta> \<phi> = 1 }) dirac_measures \<J>"
+  (is "bij_betw ?to_\<J> _ _")
+  unfolding bij_betw_def
+proof
+  {
+    fix \<delta>1 \<delta>2
+    assume 
+      "\<delta>1 \<in> dirac_measures"
+      "\<delta>2 \<in> dirac_measures"
+      "?to_\<J> \<delta>1 = ?to_\<J> \<delta>2"
+    moreover from this have
+      "(\<lambda> \<phi>. if ?to_\<J> \<delta>1 \<le> \<phi> then 1 else 0) = \<delta>1"
+      "(\<lambda> \<phi>. if ?to_\<J> \<delta>2 \<le> \<phi> then 1 else 0) = \<delta>2"
+      using dirac_to_join_prime_ident by blast+
+    ultimately have "\<delta>1 = \<delta>2"
+      by presburger
+  }
+  thus "inj_on ?to_\<J> dirac_measures"
+    unfolding inj_on_def
+    by auto
+next
+  show "?to_\<J> ` dirac_measures = \<J>"
+  proof
+    show "(\<lambda>\<delta>. \<Sqinter> {\<phi>. \<delta> \<phi> = 1}) ` dirac_measures \<subseteq> \<J>"
+      using dirac_measure_to_join_prime by blast
+  next
+    {
+      fix \<alpha> :: 'a
+      assume "\<alpha> \<in> \<J>"
+      hence "(\<lambda>\<phi>. if \<alpha> \<le> \<phi> then 1 else 0 :: real) \<in> dirac_measures"
+        using join_prime_to_dirac_measure by blast
+      moreover have "?to_\<J> (\<lambda>\<phi>. if \<alpha> \<le> \<phi> then 1 else 0 :: real) = \<alpha>"
+        by (simp add: \<open>\<alpha> \<in> \<J>\<close> join_prime_to_dirac_ident)
+      ultimately have "\<alpha> \<in> ?to_\<J> ` dirac_measures"
+        using image_iff by fastforce
+    }
+    thus "\<J> \<subseteq> (\<lambda>\<delta>. \<Sqinter> {\<phi>. \<delta> \<phi> = 1}) ` dirac_measures"
+      using subsetI
+      by blast
+  qed
+qed
+
+lemma special_dirac_collapse:
+  "(\<forall> \<P> \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<P> \<gamma>))
+      = (\<forall> \<P> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<P> \<gamma>))"
+proof
+  assume \<star>: "\<forall> \<P> \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<P> \<gamma>)"
+  {
+    fix \<delta>
+    assume "\<delta> \<in> dirac_measures"
+    hence "\<forall> \<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0"
+      using dirac_measures_def by blast
+    have A: "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) = \<lceil>\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>\<rceil>"
+    proof (induct \<Phi>)
+      case Nil
+      then show ?case using \<open>\<forall> \<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0\<close> by simp
+    next
+      case (Cons \<phi> \<Phi>)
+      then show ?case
+      proof (cases "\<delta> \<phi> = 0")
+        case True
+        then show ?thesis
+          using Cons.hyps by fastforce
+      next
+        case False
+        hence "\<delta> \<phi> = 1"
+          using \<open>\<forall>\<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0\<close> by blast
+        then show ?thesis
+          by (simp, 
+              metis 
+                Cons.hyps 
+                add.commute 
+                ceiling_add_one 
+                of_int_1 
+                of_int_add)
+      qed
+    qed
+    have B: "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>) = \<lceil>\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>\<rceil>"
+    proof (induct \<Gamma>)
+      case Nil
+      then show ?case using \<open>\<forall> \<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0\<close> by simp
+    next
+      case (Cons \<gamma> \<Gamma>)
+      then show ?case
+      proof (cases "\<delta> \<gamma> = 0")
+        case True
+        then show ?thesis
+          using Cons.hyps by fastforce
+      next
+        case False
+        hence "\<delta> \<gamma> = 1"
+          using \<open>\<forall>\<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0\<close> by blast
+        then show ?thesis
+          by (simp, 
+              metis 
+                Cons.hyps 
+                add.commute 
+                ceiling_add_one 
+                of_int_1 
+                of_int_add)
+      qed
+    qed
+    have C: "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)"
+      using \<open>\<forall> \<phi>. \<delta> \<phi> = 1 \<or> \<delta> \<phi> = 0\<close> \<open>\<delta> \<in> dirac_measures\<close> \<star> 
+      unfolding dirac_measures_def 
+      by blast
+    from A B C have "\<lceil>(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)\<rceil> + c \<le> \<lceil>(\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)\<rceil>"
+      by simp
+    hence "\<lceil>(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)\<rceil> + \<lceil>c\<rceil> \<le> \<lceil>(\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)\<rceil>"
+      by linarith
+    hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)"
+      using A B C by simp
+  }
+  thus "\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)"
+    by auto
+next
+  assume \<star>: "\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<delta> \<gamma>)"
+  let ?to_\<delta> = "\<lambda> \<alpha> \<phi> :: 'a. if \<alpha> \<le> \<phi> then 1 :: real else 0"
+  {
+    fix \<P>
+    assume "\<P> \<in> probabilities"
+    from this interpret
+      finitely_additive_probability \<P>
+      unfolding probabilities_def
+      by auto
+    have "finite \<J>" by simp
+    {
+      fix \<Phi> :: "'a list"
+      {
+        fix A :: "'a set"
+        assume "finite A"
+        have "(\<Sum>\<phi> \<leftarrow> \<Phi>. (\<Sum>\<alpha> \<in> A. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>))
+                = (\<Sum>\<alpha> \<in> A. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+        proof (induct \<Phi>)
+          case Nil
+          then show ?case by simp
+        next
+          case (Cons \<phi>' \<Phi>)
+          with \<open>finite A\<close> show ?case
+          proof (induct A rule: finite_induct)
+            case empty
+            then show ?case by simp
+          next
+            case (insert a A)
+            have 
+              "(\<Sum>\<phi>\<leftarrow>\<phi>' # \<Phi>. \<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>)
+               = (\<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>') 
+                 + (\<Sum>\<phi>\<leftarrow>\<Phi>. \<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>)"
+              by simp
+            also have
+              "\<dots> = (\<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>') 
+                    + (\<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * (\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+              using insert.prems by linarith
+            also have
+              "\<dots> = (\<Sum>\<alpha>\<in>insert a A. (\<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>') 
+                    + \<P> \<alpha> * (\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+              by (simp add: sum.distrib)
+            also have
+              "\<dots> = (\<Sum>\<alpha>\<in>insert a A. \<P> \<alpha> * (\<Sum>\<phi>\<leftarrow>\<phi>' # \<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+              by (simp add: distrib_left)
+            finally show ?case by simp
+          qed
+        qed
+      }
+      note \<dagger> = this
+      have "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * ?to_\<delta> \<alpha> \<phi>))"
+        by (induct \<Phi>, 
+            auto, 
+            metis join_prime_decomposition [OF \<open>\<P> \<in> probabilities\<close>])
+      hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) = (\<Sum> \<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+        unfolding \<dagger> [OF \<open>finite \<J>\<close>] by auto
+    }
+    hence X: "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) = (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>))"
+      and Y: "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<P> \<gamma>) = (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+      by auto
+    {
+      fix A :: "'a set"
+      assume "A \<subseteq> \<J>"
+      hence "finite A"
+        by simp
+      hence "(\<Sum>\<alpha> \<in> A. \<P> \<alpha> * ((\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>) + \<lceil>c\<rceil>)) 
+            \<le> (\<Sum>\<alpha> \<in> A. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+        using \<open>A \<subseteq> \<J>\<close>
+      proof (induct A rule: finite_induct)
+        case empty
+        then show ?case by auto
+      next
+        case (insert \<alpha>' A)
+        hence "\<alpha>' \<in> \<J>"
+          by blast
+        hence "?to_\<delta> \<alpha>' \<in> dirac_measures"
+          using dirac_join_prime_bij_betw
+          unfolding bij_betw_def
+          by blast
+        hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha>' \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?to_\<delta> \<alpha>' \<gamma>)"
+          using \<star> by blast
+        moreover have "0 \<le> \<P> \<alpha>'"
+          by (simp add: Non_Negative)
+        ultimately have 
+          "\<P> \<alpha>' * ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha>' \<phi>) + \<lceil>c\<rceil>) \<le> \<P> \<alpha>' * (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?to_\<delta> \<alpha>' \<gamma>)"
+          using mult_left_mono by blast
+        moreover have 
+          "(\<Sum>\<alpha> \<in> A. \<P> \<alpha> * ((\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>) + \<lceil>c\<rceil>)) 
+            \<le> (\<Sum>\<alpha> \<in> A. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+          using insert.hyps insert.prems by blast
+        ultimately show ?case
+          using insert.hyps(2) by auto
+      qed
+    }
+    hence A:
+      "(\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * ((\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>) + \<lceil>c\<rceil>)) 
+            \<le> (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+      by blast 
+    {
+      fix A :: "'a set"
+      assume "finite A"
+      hence
+        "(\<Sum>\<alpha> \<in> A. \<P> \<alpha> * ((\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>) + \<lceil>c\<rceil>)) 
+         = (\<Sum>\<alpha> \<in> A. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>)) + \<lceil>c\<rceil> * (\<Sum>\<alpha> \<in> A. \<P> \<alpha>)"
+        by (induct A rule: finite_induct, simp, simp add: distrib_left)
+    }
+    with A \<open>finite \<J>\<close> have B:
+     "(\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>)) + \<lceil>c\<rceil> * (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha>)
+      \<le> (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+      by auto
+    have "(\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha>) = 1"
+      using 
+        join_prime_decomposition [where \<phi>="\<top>"]
+        \<open>\<P> \<in> probabilities\<close>
+        Unity 
+      by auto
+    hence "  (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>)) + \<lceil>c\<rceil> 
+          \<le> (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"
+      using B by auto
+    hence "(\<Sum>\<phi> \<leftarrow> \<Phi>. \<P> \<phi>) + c \<le> (\<Sum>\<gamma> \<leftarrow> \<Gamma>. \<P> \<gamma>)"
+      using X Y
+      by linarith 
+  }
+  thus "\<forall> \<P> \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<P> \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. \<P> \<gamma>)" by auto
+qed
+  
+   
+
+end
 
 end

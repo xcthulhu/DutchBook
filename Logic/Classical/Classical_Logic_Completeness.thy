@@ -2,8 +2,8 @@
 
 section \<open> Classical Propositional Calculus Soundness And Completeness \label{sec:classical-propositional-calculus}\<close>
 
-theory Classical_Propositional_Completeness
-  imports Classical_Propositional_Logic
+theory Classical_Logic_Completeness
+  imports Classical_Logic
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -34,7 +34,7 @@ inductive Classical_Propositional_Calculus ::
         "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
 
 instantiation Classical_Propositional_Formula
-  :: (type) Classical_Propositional_Logic
+  :: (type) Classical_Logic
 begin
 definition [simp]: "\<bottom> = \<^bold>\<bottom>"
 definition [simp]: "\<turnstile> \<phi> = \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
@@ -177,19 +177,19 @@ instance by standard
   (simp add: Classical_Propositional_Calculus_Soundness_And_Completeness)
 end
 
-primrec (in Classical_Propositional_Logic)
+primrec (in Classical_Logic)
    Classical_Propositional_Formula_embedding
    :: "'a Classical_Propositional_Formula \<Rightarrow> 'a" ("\<^bold>\<lparr> _ \<^bold>\<rparr>" [50]) where
      "\<^bold>\<lparr> \<^bold>\<langle> p \<^bold>\<rangle> \<^bold>\<rparr> = p"
    | "\<^bold>\<lparr> \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<rightarrow> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
    | "\<^bold>\<lparr> \<^bold>\<bottom> \<^bold>\<rparr> = \<bottom>"
 
-theorem (in Classical_Propositional_Logic) propositional_calculus:
+theorem (in Classical_Logic) propositional_calculus:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Classical_Propositional_Calculus.induct,
       (simp add: Axiom_K Axiom_S Double_Negation Modus_Ponens)+)
 
-theorem (in Classical_Propositional_Logic) propositional_semantics:
+theorem (in Classical_Logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (simp add: Classical_Propositional_Calculus_Soundness_And_Completeness
                 propositional_calculus)

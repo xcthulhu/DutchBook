@@ -1,5 +1,7 @@
+chapter \<open>Dutch Book Theorem\<close>
+
 theory Dutch_Book
-  imports "../../Logic/Classical/Classical_Propositional_Connectives"
+  imports "../../Logic/Classical/Classical_Connectives"
           "Logical_Probability_Completeness"
           "~~/src/HOL/Real"
 begin
@@ -42,16 +44,16 @@ lemma payoff_alt_def2:
 
 (* TODO: Cite Lehman *)
 
-definition (in Classical_Propositional_Logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
+definition (in Classical_Logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
   [simp]: "possibility p \<equiv>    \<not> (p \<bottom>)
                            \<and> (\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> p \<phi>)
                            \<and> (\<forall> \<phi> \<psi> . p (\<phi> \<rightarrow> \<psi>) \<longrightarrow> p \<phi> \<longrightarrow> p \<psi>)
                            \<and> (\<forall> \<phi> . p \<phi> \<or> p (\<phi> \<rightarrow> \<bottom>))"
 
-definition (in Classical_Propositional_Logic) possibilities :: "('a \<Rightarrow> bool) set" where
+definition (in Classical_Logic) possibilities :: "('a \<Rightarrow> bool) set" where
   [simp]: "possibilities = {p. possibility p}"
 
-lemma (in Classical_Propositional_Logic) possibility_negation:
+lemma (in Classical_Logic) possibility_negation:
   assumes "possibility p"
   shows "p (\<phi> \<rightarrow> \<bottom>) = (\<not> p \<phi>)"
 proof
@@ -69,7 +71,7 @@ next
   show "\<not> p \<phi> \<Longrightarrow> p (\<phi> \<rightarrow> \<bottom>)" using \<open>possibility p\<close> by fastforce
 qed
 
-lemma (in Classical_Propositional_Logic) possibilities_logical_closure:
+lemma (in Classical_Logic) possibilities_logical_closure:
   assumes "possibility p"
       and "{x. p x} \<tturnstile> \<phi>"
     shows "p \<phi>"
@@ -98,7 +100,7 @@ proof -
     using \<open>Collect p \<tturnstile> \<phi>\<close> set_deduction_def by auto
 qed
 
-lemma (in Classical_Propositional_Logic) possibilities_are_MCS:
+lemma (in Classical_Logic) possibilities_are_MCS:
   assumes "possibility p"
   shows "MCS {x. p x}"
   using assms
@@ -110,7 +112,7 @@ lemma (in Classical_Propositional_Logic) possibilities_are_MCS:
             possibility_def
             mem_Collect_eq)
 
-lemma (in Classical_Propositional_Logic) MCSs_are_possibilities:
+lemma (in Classical_Logic) MCSs_are_possibilities:
   assumes "MCS s"
   shows "possibility (\<lambda> x. x \<in> s)"
 proof -
@@ -140,10 +142,10 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-definition (in Classical_Propositional_Logic) negate_bets ("_\<^sup>\<sim>") where
+definition (in Classical_Logic) negate_bets ("_\<^sup>\<sim>") where
   "bets\<^sup>\<sim> = [b \<lparr> bet := \<sim> (bet b) \<rparr>. b \<leftarrow> bets]"
 
-lemma (in Classical_Propositional_Logic) possibility_payoff:
+lemma (in Classical_Logic) possibility_payoff:
   assumes "possibility p"
   shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = settle p (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys'"
@@ -279,7 +281,7 @@ definition (in Consistent_Classical_Logic)
   minimum_payoff :: "'a book \<Rightarrow> real" ("\<pi>\<^sub>m\<^sub>i\<^sub>n") where
   "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
 
-lemma (in Classical_Propositional_Logic) possibility_payoff_dual:
+lemma (in Classical_Logic) possibility_payoff_dual:
   assumes "possibility p"
   shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = - settle p (sells'\<^sup>\<sim> @ buys')
@@ -309,7 +311,9 @@ lemma settle_alt_def: "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \
   unfolding settle_def settle_bet_def
   by (induct bets, simp+)
 
-section \<open> The Market Dutch Book Argument \label{sec:dutch-book-theorem}\<close>
+section \<open> Market Dutch Book Theorems \label{sec:dutch-book-theorem} \<close>
+
+subsection \<open> MaxSat Reduction \label{subsec:dutch-book-maxsat-reduction} \<close>
 
 theorem (in Consistent_Classical_Logic) dutch_book_maxsat:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
