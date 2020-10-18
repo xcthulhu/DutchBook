@@ -1,9 +1,12 @@
+(*:maxLineLen=80:*)
+
 chapter \<open>Dutch Book Theorem\<close>
 
 theory Dutch_Book
-  imports "../../Logic/Classical/Classical_Connectives"
-          "Logical_Probability_Completeness"
-          "~~/src/HOL/Real"
+  imports 
+    "../../Logic/Classical/Classical_Connectives"
+    "Logical_Probability_Completeness"
+    "HOL.Real"
 begin
 
 record 'p bet_offer =

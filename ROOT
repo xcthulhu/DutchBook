@@ -1,24 +1,32 @@
 session DutchBook = "HOL" +
   options [document = pdf, document_output = "output"]
+  sessions
+    "HOL-Library"
+  directories
+    "Logic/Classical/"
+    "Logic/Intuitionistic/"
+    "Probability/Boolean_Algebra/"
+    "Probability/Logical/"
+    "Utilities/"
   theories [document = false]
-    "~~/src/HOL/Archimedean_Field"
-    "~~/src/HOL/Deriv"
-    "~~/src/HOL/Hull"
-    "~~/src/HOL/Inequalities"
-    "~~/src/HOL/Library/Cancellation"
-    "~~/src/HOL/Library/Finite_Lattice"
-    "~~/src/HOL/Library/Lattice_Syntax"
-    "~~/src/HOL/Library/Multiset"
-    "~~/src/HOL/Library/Permutation"
-    "~~/src/HOL/Limits"
-    "~~/src/HOL/Modules"
-    "~~/src/HOL/NthRoot"
-    "~~/src/HOL/Rat"
-    "~~/src/HOL/Real"
-    "~~/src/HOL/Real_Vector_Spaces"
-    "~~/src/HOL/Series"
-    "~~/src/HOL/Topological_Spaces"
-    "~~/src/HOL/Transcendental"
+    "HOL-Library.Cancellation"
+    "HOL-Library.Finite_Lattice"
+    "HOL-Library.Lattice_Syntax"
+    "HOL-Library.Multiset"
+    "HOL-Library.Permutation"
+    "HOL.Archimedean_Field"
+    "HOL.Deriv"
+    "HOL.Hull"
+    "HOL.Inequalities"
+    "HOL.Limits"
+    "HOL.Modules"
+    "HOL.NthRoot"
+    "HOL.Rat"
+    "HOL.Real"
+    "HOL.Real_Vector_Spaces"
+    "HOL.Series"
+    "HOL.Topological_Spaces"
+    "HOL.Transcendental"
   theories
     "Probability/Logical/Suppes_Theorem"
     "Probability/Boolean_Algebra/Finitely_Additive_Probability"
@@ -28,6 +36,7 @@ session DutchBook = "HOL" +
     "root.tex"
     "root.bib"
 
+(*
 session Test_DutchBook = "HOL" +
   options [document = false]
   theories
@@ -35,9 +44,15 @@ session Test_DutchBook = "HOL" +
     "Probability/Boolean_Algebra/Finitely_Additive_Probability"
     "Probability/Logical/Logical_Probability_Completeness"
     "Probability/Logical/Dutch_Book"
+*)
 
+(*
 session Test_Extra_Theories = "HOL" +
-  options [document = pdf, document_output = "output"]
+session DutchBook = "HOL" +
+  options [document = false]
+  directories
+    "Logic/Intuitionistic"
+    "Logic/Classical"
   theories
     "Logic/Intuitionistic/Intuitionistic_Logic"
     "Logic/Intuitionistic/Implicational/Combinators"
@@ -46,3 +61,4 @@ session Test_Extra_Theories = "HOL" +
   document_files
     "root.tex"
     "root.bib"
+*)

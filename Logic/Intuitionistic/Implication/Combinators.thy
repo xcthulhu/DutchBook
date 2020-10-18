@@ -3,7 +3,7 @@ section \<open>Combinatory Logic\<close>
 (*:maxLineLen=80:*)
 
 theory Combinators
-  imports "./Implication_Logic"
+  imports "../Implication_Logic"
 begin
 
 subsection \<open>Definitions\<close>

@@ -7,7 +7,8 @@ text \<open> Throughout our work it will be necessary to reuse common lemmas reg
        and reused by subsequent lemmas and theorems. \<close>
 
 theory List_Utilities
-  imports "~~/src/HOL/Library/Permutation"
+  imports 
+    "HOL-Library.Permutation"
 begin
 
 sledgehammer_params [smt_proofs = false]

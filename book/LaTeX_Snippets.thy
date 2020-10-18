@@ -1,7 +1,7 @@
 theory LaTeX_Snippets
   imports
     "../Logic/Intuitionistic/Implication_Logic"
-    "~~/src/HOL/Library/LaTeXsugar"
+    "HOL-Library.LaTeXsugar"
 begin
 
 text (in Implication_Logic) \<open>

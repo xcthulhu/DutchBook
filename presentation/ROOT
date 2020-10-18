@@ -6,7 +6,8 @@ session "LaTeX_Snippets" = "HOL" +
      "HOL-Library"
    directories
      "../Logic/Intuitionistic/"
+     "../Logic/Intuitionistic/Implication/"
    theories
-     "LaTeX_Snippets"
+    "Snippets"
    document_files
      build

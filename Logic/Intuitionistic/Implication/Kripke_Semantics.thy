@@ -1,8 +1,9 @@
 section \<open> Kripke Semantics For Intuitionistic Logic \<close>
 
 theory Kripke_Semantics
-  imports Main
-          "./Combinators"
+  imports 
+    Main
+    "./Combinators"
 begin
 
 (*:maxLineLen=80:*)

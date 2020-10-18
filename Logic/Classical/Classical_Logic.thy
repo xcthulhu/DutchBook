@@ -17,8 +17,8 @@ text \<open> Classical propositional logic can be given by the following
        Hilbert-style axiom system.  It is @{class Implication_Logic}
        extended with \<^emph>\<open>falsum\<close> and double negation. \<close>
 
-class Classical_Logic = Implication_Logic
-  + fixes falsum :: "'a" ("\<bottom>")
+class Classical_Logic = Implication_Logic +
+  fixes falsum :: "'a" ("\<bottom>")
   assumes Double_Negation: "\<turnstile> (((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>)"
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>

@@ -1,8 +1,9 @@
 (*:maxLineLen=80:*)
 
 theory DeBruijn
-  imports Main
-          "~~/src/HOL/Library/Lattice_Syntax"
+  imports 
+    Main
+    "HOL-Library.Lattice_Syntax"
 begin
 
 sledgehammer_params [smt_proofs = false]

@@ -4,7 +4,7 @@ chapter \<open> Probability Logic \label{chapter:probability} \<close>
 
 theory Logical_Probability
   imports "../../Logic/Classical/Classical_Connectives"
-          "~~/src/HOL/Real"
+          HOL.Real
 begin
 
 sledgehammer_params [smt_proofs = false]

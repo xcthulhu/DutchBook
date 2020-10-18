@@ -5,9 +5,10 @@ section \<open>Finite Boolean Algebra\<close>
 (* TODO: Cite Birkoff and Priestley *)
 
 theory Finite_Boolean_Algebra
-  imports "~~/src/HOL/Library/Finite_Lattice"
-          "~~/src/HOL/Library/Lattice_Syntax"
-          "~~/src/HOL/Transcendental"
+  imports 
+    "HOL-Library.Finite_Lattice"
+    "HOL-Library.Lattice_Syntax"
+    "HOL.Transcendental"
 begin
 
 sledgehammer_params [smt_proofs = false]
