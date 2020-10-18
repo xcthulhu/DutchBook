@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 chapter \<open>Dutch Book Theorem\<close>
 

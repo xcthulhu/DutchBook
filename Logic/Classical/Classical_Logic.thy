@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 section \<open> Classical Propositional Logic \label{sec:classical-propositional-logic}\<close>
 

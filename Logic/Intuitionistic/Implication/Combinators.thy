@@ -1,6 +1,6 @@
 section \<open>Combinatory Logic\<close>
 
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 theory Combinators
   imports "../Implication_Logic"

@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 subsection \<open> Intuitionistic Logic \<close>
 

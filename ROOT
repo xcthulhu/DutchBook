@@ -35,30 +35,3 @@ session DutchBook = "HOL" +
   document_files
     "root.tex"
     "root.bib"
-
-(*
-session Test_DutchBook = "HOL" +
-  options [document = false]
-  theories
-    "Probability/Logical/Suppes_Theorem"
-    "Probability/Boolean_Algebra/Finitely_Additive_Probability"
-    "Probability/Logical/Logical_Probability_Completeness"
-    "Probability/Logical/Dutch_Book"
-*)
-
-(*
-session Test_Extra_Theories = "HOL" +
-session DutchBook = "HOL" +
-  options [document = false]
-  directories
-    "Logic/Intuitionistic"
-    "Logic/Classical"
-  theories
-    "Logic/Intuitionistic/Intuitionistic_Logic"
-    "Logic/Intuitionistic/Implicational/Combinators"
-    "Logic/Intuitionistic/Implicational/De_Bruijn"
-    "Logic/Intuitionistic/Implicational/Kripke_Semantics"
-  document_files
-    "root.tex"
-    "root.bib"
-*)

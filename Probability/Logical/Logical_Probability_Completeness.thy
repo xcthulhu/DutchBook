@@ -1,17 +1,10 @@
+(*:maxLineLen=78:*)
+
 theory Logical_Probability_Completeness
   imports Logical_Probability
 begin
 
-(*:maxLineLen=80:*)
-
 sledgehammer_params [smt_proofs = false]
-
-(* TODO: Move utility stuff *)
-
-definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
-  where uncurry_def [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
-
-(***************************************)
 
 definition (in Classical_Logic) map_negation :: "'a list \<Rightarrow> 'a list" ("\<^bold>\<sim>")
   where [simp]: "\<^bold>\<sim> \<Phi> \<equiv> map \<sim> \<Phi>"
@@ -21,7 +14,10 @@ lemma (in Classical_Logic) map_negation_list_implication:
 proof (induct \<Phi>)
   case Nil
   then show ?case
-    by (simp add: biconditional_def negation_def The_Principle_of_Pseudo_Scotus)
+    by (simp add: 
+          biconditional_def 
+          negation_def 
+          The_Principle_of_Pseudo_Scotus)
 next
   case (Cons \<psi> \<Phi>)
   have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>)) 
@@ -128,7 +124,8 @@ next
   have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (@) \<Phi>) \<Lambda>) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))
        = \<turnstile> \<Squnion> (map \<Sqinter> (map ((@) \<Phi>) \<Lambda>)) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
     by simp
-  with Cons have "\<turnstile> \<Squnion> (map \<Sqinter> (map (\<lambda> \<Psi>. \<Phi> @ \<Psi>) \<Lambda>)) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
+  with Cons have 
+    "\<turnstile> \<Squnion> (map \<Sqinter> (map (\<lambda> \<Psi>. \<Phi> @ \<Psi>) \<Lambda>)) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
     (is "\<turnstile> \<Squnion> (map \<Sqinter> ?A) \<leftrightarrow> (?B \<sqinter> ?C)")
     by meson
   moreover have "\<turnstile> \<Squnion> (map \<Sqinter> ?A) \<leftrightarrow> (?B \<sqinter> ?C)
@@ -156,6 +153,9 @@ next
 qed
 
 (***************************************)
+
+definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
+  where uncurry_def [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
 
 primrec (in Classical_Logic)
   segmented_deduction :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" ("_ $\<turnstile> _" [60,100] 60)

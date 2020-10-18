@@ -6,7 +6,7 @@ theory Kripke_Semantics
     "./Combinators"
 begin
 
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 record ('a, 'b) Kripke_Model =
   R :: "'a \<Rightarrow> 'a \<Rightarrow> bool"

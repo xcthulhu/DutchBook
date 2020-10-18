@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 section \<open> Classical Propositional Calculus Soundness And Completeness \label{sec:classical-propositional-calculus}\<close>
 

@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 section \<open> Classical Logic Connectives \label{sec:logical-connectives}\<close>
 

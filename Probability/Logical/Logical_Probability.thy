@@ -1,4 +1,4 @@
-(*:maxLineLen=80:*)
+(*:maxLineLen=78:*)
 
 chapter \<open> Probability Logic \label{chapter:probability} \<close>
 
