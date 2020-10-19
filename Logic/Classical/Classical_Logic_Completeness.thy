@@ -24,7 +24,7 @@ named_theorems Classical_Propositional_Calculus
 inductive Classical_Propositional_Calculus ::
   "'a Classical_Propositional_Formula \<Rightarrow> bool" ("\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p _" [60] 55)
   where
-     Axiom_K [Classical_Propositional_Calculus]:
+     axiom_k [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
    | Axiom_S [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<chi>) \<^bold>\<rightarrow> (\<phi> \<^bold>\<rightarrow> \<psi>) \<^bold>\<rightarrow> \<phi> \<^bold>\<rightarrow> \<chi>"
@@ -187,7 +187,7 @@ primrec (in classical_logic)
 theorem (in classical_logic) propositional_calculus:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Classical_Propositional_Calculus.induct,
-      (simp add: Axiom_K Axiom_S Double_Negation Modus_Ponens)+)
+      (simp add: axiom_k Axiom_S Double_Negation Modus_Ponens)+)
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"

@@ -45,7 +45,7 @@ text \<open> Implication logic can be given by the a Hilbert-style
 class implication_logic =
   fixes deduction :: "'a \<Rightarrow> bool" ("\<turnstile> _" [60] 55)
   fixes implication :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixr "\<rightarrow>" 70)
-  assumes Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
+  assumes axiom_k: "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"
   assumes Axiom_S: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
   assumes Modus_Ponens: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> \<turnstile> \<phi> \<Longrightarrow> \<turnstile> \<psi>"
 
@@ -53,15 +53,15 @@ subsection \<open> Common Rules \<close>
 
 lemma (in implication_logic) 
   trivial_implication: "\<turnstile> \<phi> \<rightarrow> \<phi>"
-  by (meson Axiom_K Axiom_S Modus_Ponens)
+  by (meson axiom_k Axiom_S Modus_Ponens)
 
 lemma (in implication_logic)
   flip_implication: "\<turnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> \<psi> \<rightarrow> \<phi> \<rightarrow> \<chi>"
-  by (meson Axiom_K Axiom_S Modus_Ponens)
+  by (meson axiom_k Axiom_S Modus_Ponens)
 
 lemma (in implication_logic) 
   hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"
-  by (meson Axiom_K Axiom_S Modus_Ponens)
+  by (meson axiom_k Axiom_S Modus_Ponens)
 
 lemma (in implication_logic)
   flip_hypothetical_syllogism: "\<turnstile> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>)"
@@ -69,7 +69,7 @@ lemma (in implication_logic)
 
 lemma (in implication_logic) 
   implication_absorption: "\<turnstile> (\<phi> \<rightarrow> \<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
-  by (meson Axiom_K Axiom_S Modus_Ponens)
+  by (meson axiom_k Axiom_S Modus_Ponens)
 
 subsection \<open> Lists of Assumptions \<close>
 
@@ -87,9 +87,9 @@ subsubsection \<open> Deduction From a List of Assumptions \<close>
 text \<open> Deduction from a list of assumptions can be expressed in terms of
        @{term "(:\<rightarrow>)"}. \<close>
 
-definition (in implication_logic)
-  list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60) where
-  "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
+definition (in implication_logic) list_deduction :: "'a list \<Rightarrow> 'a \<Rightarrow> bool" (infix ":\<turnstile>" 60)
+  where
+    "\<Gamma> :\<turnstile> \<phi> \<equiv> \<turnstile> \<Gamma> :\<rightarrow> \<phi>"
 
 subsubsection \<open> List Deduction as Implication Logic \<close>
 
@@ -101,15 +101,15 @@ text \<open> Analogues of the two axioms of implication logic can be
        naturally stated using list implication. \<close>
 
 lemma (in implication_logic) 
-  list_implication_Axiom_K: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
-  by (induct \<Gamma>, (simp, meson Axiom_K Axiom_S Modus_Ponens)+)
+  list_implication_axiom_k: "\<turnstile> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<phi>"
+  by (induct \<Gamma>, (simp, meson axiom_k Axiom_S Modus_Ponens)+)
 
 lemma (in implication_logic) 
   list_implication_Axiom_S: "\<turnstile> \<Gamma> :\<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<Gamma> :\<rightarrow> \<phi> \<rightarrow> \<Gamma> :\<rightarrow> \<psi>"
   by (induct \<Gamma>, 
-      (simp, meson Axiom_K Axiom_S Modus_Ponens hypothetical_syllogism)+)
+      (simp, meson axiom_k Axiom_S Modus_Ponens hypothetical_syllogism)+)
 
-text \<open> The lemmas @{thm list_implication_Axiom_K} and 
+text \<open> The lemmas @{thm list_implication_axiom_k} and 
        @{thm list_implication_Axiom_S} jointly give rise to an interpretation 
        of implication logic, where a list of assumptions @{term "\<Gamma>"} play
        the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
@@ -119,10 +119,10 @@ interpretation List_Deduction_Logic:
    implication_logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed (meson 
              list_deduction_def
-             Axiom_K
+             axiom_k
              Axiom_S
              Modus_Ponens
-             list_implication_Axiom_K
+             list_implication_axiom_k
              list_implication_Axiom_S)+
 end
 
@@ -131,7 +131,7 @@ text \<open> The following \<^emph>\<open>weakening\<close> rule can also be der
 lemma (in implication_logic) 
   list_deduction_weaken: "\<turnstile> \<phi> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   unfolding list_deduction_def
-  using Modus_Ponens list_implication_Axiom_K
+  using Modus_Ponens list_implication_axiom_k
   by blast
 
 text \<open> In the case of the empty list, the converse may be established. \<close>
@@ -161,7 +161,7 @@ lemma (in implication_logic)
   by (induct \<Gamma>,
       (simp, 
          meson 
-           Axiom_K 
+           axiom_k 
            Axiom_S 
            Modus_Ponens 
            flip_implication 
@@ -172,7 +172,7 @@ lemma (in implication_logic)
   by (induct \<Gamma>,
       (simp, 
          meson 
-           Axiom_K 
+           axiom_k 
            Axiom_S 
            Modus_Ponens 
            flip_implication 
@@ -211,7 +211,7 @@ proof -
   have "\<forall> \<psi>. \<turnstile> \<Gamma> :\<rightarrow> \<psi> \<rightarrow> (removeAll \<phi> \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
   proof(induct \<Gamma>)
     case Nil
-    then show ?case by (simp, meson Axiom_K)
+    then show ?case by (simp, meson axiom_k)
   next
     case (Cons \<chi> \<Gamma>)
     assume 
@@ -261,7 +261,7 @@ proof -
     then show ?case
       by (metis 
             list_implication.simps(1) 
-            list_implication_Axiom_K 
+            list_implication_axiom_k 
             set_empty 
             subset_empty)
   next
@@ -279,7 +279,7 @@ proof -
           hence ?thesis
             by (metis 
                   inductive_hypothesis 
-                  Axiom_K Modus_Ponens 
+                  axiom_k Modus_Ponens 
                   flip_implication
                   list_implication.simps(2))
         }
@@ -324,8 +324,7 @@ text \<open> The monotonic nature of deduction allows us to prove another form o
        the deduction theorem, where the assumption being discharged is 
        completely removed from the list of assumptions. \<close>
 
-theorem (in implication_logic) 
-  alternate_list_deduction_theorem: 
+theorem (in implication_logic) alternate_list_deduction_theorem:
     "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
   by (metis 
         list_deduction_def
@@ -352,7 +351,7 @@ lemma (in implication_logic)
         list.simps(15)
         list_deduction_monotonic
         list_implication.simps(2)
-        list_implication_Axiom_K
+        list_implication_axiom_k
         order_refl)
 
 subsection \<open> The Cut Rule \<close>
@@ -382,8 +381,7 @@ theorem (in implication_logic) list_deduction_cut_rule:
 
 text \<open> The cut rule can also be strengthened to entire lists of propositions. \<close>
 
-theorem (in implication_logic) 
-  strong_list_deduction_cut_rule:
+theorem (in implication_logic) strong_list_deduction_cut_rule:
     "(\<Phi> @ \<Gamma>) :\<turnstile> \<psi> \<Longrightarrow> \<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi> \<Longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
 proof -
   have "\<forall> \<psi>. (\<Phi> @ \<Gamma> :\<turnstile> \<psi> \<longrightarrow> (\<forall> \<phi> \<in> set \<Phi>. \<Delta> :\<turnstile> \<phi>) \<longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>)"
@@ -397,8 +395,7 @@ proof -
               set_append 
               subsetI)
     next
-      case (Cons \<chi> \<Phi>)
-      assume inductive_hypothesis:
+      case (Cons \<chi> \<Phi>) assume inductive_hypothesis:
          "\<forall> \<psi>. \<Phi> @ \<Gamma> :\<turnstile> \<psi> \<longrightarrow> (\<forall>\<phi>\<in>set \<Phi>. \<Delta> :\<turnstile> \<phi>) \<longrightarrow> \<Gamma> @ \<Delta> :\<turnstile> \<psi>"
       {
         fix \<psi> \<chi>
@@ -438,9 +435,9 @@ text \<open> Just as deduction from a list @{term "(:\<turnstile>)"} can be defi
        terms of @{term "(:\<rightarrow>)"}, deduction from a \<^emph>\<open>set\<close> of assumptions 
        can be expressed in terms of @{term "(:\<turnstile>)"}. \<close>
 
-definition (in implication_logic) 
-  set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60) where
-  "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
+definition (in implication_logic) set_deduction :: "'a set \<Rightarrow> 'a \<Rightarrow> bool" (infix "\<tturnstile>" 60)
+  where
+    "\<Gamma> \<tturnstile> \<phi> \<equiv> \<exists> \<Psi>. set(\<Psi>) \<subseteq> \<Gamma> \<and> \<Psi> :\<turnstile> \<phi>"
 
 subsubsection \<open> Interpretation as Implication Logic \<close>
 
@@ -485,7 +482,7 @@ interpretation Set_Deduction_Logic:
   implication_logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
 proof
    fix \<phi> \<psi>
-   show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis Axiom_K set_deduction_weaken)
+   show "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<phi>"  by (metis axiom_k set_deduction_weaken)
 next
     fix \<phi> \<psi> \<chi>
     show "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<chi>"  
@@ -556,7 +553,7 @@ theorem (in implication_logic)
   by (metis 
         Set.set_insert
         list_implication.simps(1)
-        list_implication_Axiom_K
+        list_implication_axiom_k
         set_deduction_theorem
         set_deduction_weaken)
 
@@ -583,8 +580,7 @@ text \<open> Another lemma is shown next in order to establish the strong form
        \<^term>\<open>\<Delta>\<close> proves everything in a finite set of assumptions
        \<^term>\<open>\<Phi>\<close>. \<close>
 
-lemma (in implication_logic) 
-  finite_set_deduction_list_deduction:
+lemma (in implication_logic) finite_set_deduction_list_deduction:
   assumes "finite \<Phi>"
   and "\<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi>"
   shows "\<exists>\<Psi>. set \<Psi> \<subseteq> \<Delta> \<and> (\<forall>\<phi> \<in> \<Phi>. \<Psi> :\<turnstile> \<phi>)"
@@ -597,8 +593,8 @@ next
      and "\<forall>\<phi> \<in> insert \<chi> \<Phi>. \<Delta> \<tturnstile> \<phi>"
   hence "\<exists>\<Psi>. set \<Psi> \<subseteq> \<Delta> \<and> (\<forall>\<phi>\<in>\<Phi>. \<Psi> :\<turnstile> \<phi>)" and "\<Delta> \<tturnstile> \<chi>" by simp+
   then obtain \<Psi>\<^sub>1 \<Psi>\<^sub>2 where
-    "set (\<Psi>\<^sub>1 @ \<Psi>\<^sub>2) \<subseteq> \<Delta>" and
-    "\<forall>\<phi> \<in> \<Phi>. \<Psi>\<^sub>1 :\<turnstile> \<phi>" and
+    "set (\<Psi>\<^sub>1 @ \<Psi>\<^sub>2) \<subseteq> \<Delta>"
+    "\<forall>\<phi> \<in> \<Phi>. \<Psi>\<^sub>1 :\<turnstile> \<phi>"
     "\<Psi>\<^sub>2 :\<turnstile> \<chi>"
     using set_deduction_def by auto
   moreover from this have "\<forall>\<phi> \<in> (insert \<chi> \<Phi>). \<Psi>\<^sub>1 @ \<Psi>\<^sub>2 :\<turnstile> \<phi>"
@@ -613,8 +609,7 @@ qed
 text \<open> With @{thm finite_set_deduction_list_deduction} the strengthened
        form of the cut rule can be given. \<close>
 
-theorem (in implication_logic) 
-  strong_set_deduction_cut_rule:
+theorem (in implication_logic) strong_set_deduction_cut_rule:
   assumes "\<Phi> \<union> \<Gamma> \<tturnstile> \<psi>" 
   and "\<forall> \<phi> \<in> \<Phi>. \<Delta> \<tturnstile> \<phi>"
   shows "\<Gamma> \<union> \<Delta> \<tturnstile> \<psi>"
@@ -659,9 +654,10 @@ text \<open> The models we are centrally concerned are derived from maximally co
 text \<open> Since implication logic does not have \<^emph>\<open>falsum\<close>, consistency is 
        defined relative to a formula \<^term>\<open>\<phi>\<close>. \<close>
 
-definition (in implication_logic)
+definition (in implication_logic) 
   Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
-  where [simp]: "\<phi>-Consistent \<Gamma> \<equiv> ~ (\<Gamma> \<tturnstile> \<phi>)"
+  where
+    [simp]: "\<phi>-Consistent \<Gamma> \<equiv> \<not> (\<Gamma> \<tturnstile> \<phi>)"
 
 text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>\<close>, 
        \<^emph>\<open>maximal consistency\<close> is presented as asserting that either 
@@ -669,11 +665,11 @@ text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>
        for all \<^term>\<open>\<psi>\<close>.  This coincides with the traditional definition in
        classical logic when \<^term>\<open>\<phi>\<close> is \<^emph>\<open>falsum\<close>. \<close>
 
-definition (in implication_logic)
-  Formula_Maximally_Consistent_Set
+definition (in implication_logic) 
+  Formula_Maximally_Consistent_Set 
     :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
-    where
-      [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
+  where
+    [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
 
 text \<open> Every consistent set \<^term>\<open>\<Gamma>\<close> may be extended to a maximally 
        consistent set. \<close>
@@ -684,10 +680,9 @@ text \<open> However, no assumption is made regarding the cardinality of the typ
 text \<open> As a result, typical proofs that assume a countable domain are not
        suitable.  Our proof leverages \<^emph>\<open>Zorn's lemma\<close>. \<close>
 
-lemma (in implication_logic) 
-  Formula_Consistent_Extension:
+lemma (in implication_logic) Formula_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
-  shows "(\<phi>-Consistent insert \<psi> \<Gamma>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>)"
+  shows "(\<phi>-Consistent (insert \<psi> \<Gamma>)) \<or> (\<phi>-Consistent (insert (\<psi> \<rightarrow> \<phi>) \<Gamma>))"
 proof -
   {
     assume "~ \<phi>-Consistent insert \<psi> \<Gamma>"
@@ -701,8 +696,7 @@ proof -
   thus ?thesis by blast
 qed
 
-theorem (in implication_logic)
-  Formula_Maximally_Consistent_Extension:
+theorem (in implication_logic) Formula_Maximally_Consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "\<exists> \<Omega>. (\<phi>-MCS \<Omega>) \<and> \<Gamma> \<subseteq> \<Omega>"
 proof -
@@ -712,7 +706,8 @@ proof -
     fix \<C> :: "'a set set"
     assume subset_chain_\<C>: "subset.chain ?\<Gamma>_Extensions \<C>"
     hence \<C>:  "\<forall> \<Sigma> \<in> \<C>. \<Gamma> \<subseteq> \<Sigma>" "\<forall> \<Sigma> \<in> \<C>. \<phi>-Consistent \<Sigma>"
-      unfolding subset.chain_def by blast+
+      unfolding subset.chain_def
+      by blast+
     show "\<exists> \<Omega> \<in> ?\<Gamma>_Extensions. \<forall> \<Sigma> \<in> \<C>. \<Sigma> \<subseteq> \<Omega>"
     proof cases
       assume "\<C> = {}" thus ?thesis using assms by blast
@@ -724,9 +719,13 @@ proof -
       proof -
         {
           assume "~ \<phi>-Consistent ?\<Omega>"
-          then obtain \<omega> where \<omega>: "finite \<omega>" "\<omega> \<subseteq> ?\<Omega>" "~ \<phi>-Consistent \<omega>"
-            unfolding Formula_Consistent_def
-                      set_deduction_def
+          then obtain \<omega> where \<omega>: 
+            "finite \<omega>" 
+            "\<omega> \<subseteq> ?\<Omega>" 
+            "~ \<phi>-Consistent \<omega>"
+            unfolding 
+              Formula_Consistent_def
+              set_deduction_def
             by auto
           from \<omega>(1) \<omega>(2) have "\<exists> \<Sigma> \<in> \<C>. \<omega> \<subseteq> \<Sigma>"
           proof (induct \<omega> rule: finite_induct)
@@ -734,8 +733,12 @@ proof -
           next
             case (insert \<psi> \<omega>)
             from this obtain \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 where
-              \<Sigma>\<^sub>1: "\<omega> \<subseteq> \<Sigma>\<^sub>1" "\<Sigma>\<^sub>1 \<in> \<C>" and
-              \<Sigma>\<^sub>2: "\<psi> \<in> \<Sigma>\<^sub>2" "\<Sigma>\<^sub>2 \<in> \<C>"
+              \<Sigma>\<^sub>1: 
+                  "\<omega> \<subseteq> \<Sigma>\<^sub>1" 
+                  "\<Sigma>\<^sub>1 \<in> \<C>" 
+              and \<Sigma>\<^sub>2: 
+                  "\<psi> \<in> \<Sigma>\<^sub>2" 
+                  "\<Sigma>\<^sub>2 \<in> \<C>"
               by auto
             hence "\<Sigma>\<^sub>1 \<subseteq> \<Sigma>\<^sub>2 \<or> \<Sigma>\<^sub>2 \<subseteq> \<Sigma>\<^sub>1"
               using subset_chain_\<C>
@@ -747,8 +750,9 @@ proof -
           qed
           hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> ~ (\<phi>-Consistent \<Sigma>)"
             using \<C>(2) \<omega>(3)
-            unfolding Formula_Consistent_def
-                      set_deduction_def
+            unfolding
+              Formula_Consistent_def
+              set_deduction_def
             by auto
           hence "False" by auto
         }
@@ -757,8 +761,10 @@ proof -
       ultimately show ?thesis by blast
     qed
   qed
-  then obtain \<Omega> where \<Omega>: "\<Omega> \<in> ?\<Gamma>_Extensions"
-                          "\<forall>\<Sigma> \<in> ?\<Gamma>_Extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>" by auto+
+  then obtain \<Omega> where \<Omega>: 
+    "\<Omega> \<in> ?\<Gamma>_Extensions"
+    "\<forall>\<Sigma> \<in> ?\<Gamma>_Extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>" 
+    by auto+
   {
     fix \<psi>
     have "(\<phi>-Consistent insert \<psi> \<Omega>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
@@ -787,8 +793,9 @@ proof -
   {
     assume "\<Gamma> \<tturnstile> \<psi>"
     moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "~ \<Gamma> \<tturnstile> \<phi>"
-      unfolding Formula_Maximally_Consistent_Set_def
-                Formula_Consistent_def
+      unfolding
+        Formula_Maximally_Consistent_Set_def
+        Formula_Consistent_def
       by auto
     ultimately have "\<psi> \<in> \<Gamma>"
       using set_deduction_reflection set_deduction_modus_ponens
@@ -799,8 +806,7 @@ proof -
     by metis
 qed
 
-theorem (in implication_logic)
-  Formula_Maximally_Consistent_Set_implication_elimination:
+theorem (in implication_logic) Formula_Maximally_Consistent_Set_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<Longrightarrow> \<chi> \<in> \<Omega>"
   using assms

@@ -137,7 +137,7 @@ next
     by simp
 qed
 
-lemmas Axiom_K = Axiom_K
+lemmas axiom_k = axiom_k
 lemmas Axiom_S = Axiom_S
 lemmas Double_Negation = Double_Negation
 lemmas Modus_Ponens = Modus_Ponens

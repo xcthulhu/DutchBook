@@ -86,7 +86,7 @@ next
     by (metis Thesis
               Monotonicity
               eq_iff
-              Axiom_K
+              axiom_k
               Ex_Falso_Quodlibet
               Modus_Ponens
               verum_def)

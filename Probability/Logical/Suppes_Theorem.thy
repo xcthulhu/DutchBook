@@ -8,7 +8,7 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-lemma (in classical_logic) Dirac_List_Summation_Completeness:
+lemma (in classical_logic) Dirac_list_summation_completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
@@ -48,7 +48,7 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-theorem (in classical_logic) List_Summation_Completeness:
+theorem (in classical_logic) list_summation_completeness:
   "(\<forall> Pr \<in> Logical_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   (is "?lhs = ?rhs")
 proof
@@ -57,7 +57,7 @@ proof
     unfolding Dirac_Measures_def Logical_Probabilities_def
     by blast
   thus ?rhs
-    using Dirac_List_Summation_Completeness by blast
+    using Dirac_list_summation_completeness by blast
 next
   assume ?rhs
   show ?lhs
@@ -75,7 +75,7 @@ qed
 
 lemma (in classical_logic) Dirac_Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis Dirac_List_Summation_Completeness
+  by (metis Dirac_list_summation_completeness
             Modus_Ponens
             arbitrary_disjunction_remdups
             biconditional_left_elimination
@@ -85,9 +85,9 @@ lemma (in classical_logic) Dirac_Set_Summation_Completeness:
 
 theorem (in classical_logic) Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> Logical_Probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis Dirac_List_Summation_Completeness
+  by (metis Dirac_list_summation_completeness
             Dirac_Set_Summation_Completeness
-            List_Summation_Completeness
+            list_summation_completeness
             sum.set_conv_list)
 
 lemma (in Logical_Probability) exclusive_sum_list_identity:
@@ -363,18 +363,18 @@ proof -
     by simp
 qed
 
-lemma (in classical_logic) Dirac_Exclusive_List_Summation_Completeness:
+lemma (in classical_logic) Dirac_Exclusive_list_summation_completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
             Dirac_Exclusive_Implication_Completeness
-            Dirac_List_Summation_Completeness
+            Dirac_list_summation_completeness
             trivial_implication)
 
-theorem (in classical_logic) Exclusive_List_Summation_Completeness:
+theorem (in classical_logic) Exclusive_list_summation_completeness:
   "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
             Exclusive_Implication_Completeness
-            List_Summation_Completeness
+            list_summation_completeness
             trivial_implication)
 
 lemma (in classical_logic) Dirac_Exclusive_Set_Summation_Completeness:

@@ -42,7 +42,7 @@ proof -
     using assms by simp
   moreover have "\<forall> (\<gamma>,\<sigma>) \<in> set ?\<Delta>\<Sigma>. \<turnstile> \<gamma> \<rightarrow> \<sigma>"
     by (induct \<Sigma>, simp, simp,
-        metis list_implication.simps(1) list_implication_Axiom_K)
+        metis list_implication.simps(1) list_implication_axiom_k)
   ultimately show ?thesis using stronger_theory_relation_def by (simp, blast)
 qed
 
@@ -611,7 +611,7 @@ proof -
       hence "uncurry (\<squnion>) \<sigma> = fst \<sigma> \<squnion> snd \<sigma>" by simp
       moreover have "\<turnstile> snd \<sigma> \<rightarrow> (fst \<sigma> \<squnion> snd \<sigma>)"
         unfolding disjunction_def
-        by (simp add: Axiom_K)
+        by (simp add: axiom_k)
       ultimately have "map (uncurry (\<squnion>)) (\<sigma> # \<Sigma>) \<preceq> (snd \<sigma> # (remove1 (snd \<sigma>) \<Gamma>))"
         by (simp add: stronger_theory_left_right_cons)
       moreover have "mset (snd \<sigma> # (remove1 (snd \<sigma>) \<Gamma>)) = mset \<Gamma>"
@@ -1614,7 +1614,7 @@ proof -
     {
       fix \<Psi>
       have "\<turnstile> (uncurry (\<rightarrow>)) \<delta> \<rightarrow> (uncurry (\<rightarrow>)) \<delta>"
-        using Axiom_K Modus_Ponens implication_absorption by blast
+        using axiom_k Modus_Ponens implication_absorption by blast
       have
         "(map (uncurry (\<rightarrow>)) (\<delta> # \<Delta>) @
           map (uncurry (\<rightarrow>)) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<preceq>
@@ -1839,7 +1839,7 @@ proof -
         hence "\<JJ> \<Psi> (\<delta> # \<Delta>) = \<delta> # \<JJ> \<Psi> \<Delta>"
           by simp
         moreover have "\<turnstile> (uncurry (\<squnion>)) \<delta> \<rightarrow> (uncurry (\<squnion>)) \<delta>"
-          by (metis Axiom_K Axiom_S Modus_Ponens)
+          by (metis axiom_k Axiom_S Modus_Ponens)
         ultimately show ?thesis using Cons
           by (simp add: stronger_theory_left_right_cons)
       next
@@ -2139,7 +2139,7 @@ proof (rule iffI)
     proof (induct \<Psi>)
       case Nil
       then show ?case
-        using Axiom_K Modus_Ponens
+        using axiom_k Modus_Ponens
         by fastforce
     next
       case (Cons \<delta> \<Psi>)
@@ -2188,7 +2188,7 @@ proof (rule iffI)
     case Nil
     then show ?case
       unfolding disjunction_def
-      using Axiom_K Modus_Ponens
+      using axiom_k Modus_Ponens
       by fastforce
   next
     case (Cons \<nu> \<Psi>)
@@ -2197,7 +2197,7 @@ proof (rule iffI)
     let ?\<Sigma> = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>))"
     let ?\<Sigma>' = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) (\<nu> # \<Psi>)) (map snd (\<nu> # \<Psi>)))"
     have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Delta> :\<rightarrow> \<phi>"
-      by (simp, metis Axiom_K Axiom_S Modus_Ponens)
+      by (simp, metis axiom_k Axiom_S Modus_Ponens)
     with Cons have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Sigma> :\<rightarrow> (\<psi> \<squnion> \<phi>)"
       using hypothetical_syllogism Modus_Ponens
       by blast
@@ -2723,7 +2723,7 @@ proof -
           moreover have "?\<Gamma> :\<turnstile> ?\<beta>"
             by (simp add: list_deduction_reflection)
           hence "?\<Gamma> :\<turnstile> ?\<alpha> \<rightarrow> ?\<beta>"
-            using Axiom_K list_deduction_modus_ponens list_deduction_weaken by blast
+            using axiom_k list_deduction_modus_ponens list_deduction_weaken by blast
           ultimately have "?\<Gamma> :\<turnstile> ?\<gamma>"
             using list_deduction_modus_ponens by blast
           thus ?thesis
@@ -2968,7 +2968,7 @@ proof -
       have "(uncurry (\<rightarrow>)) = (\<lambda> \<psi>. fst \<psi> \<rightarrow> snd \<psi>)"
         by fastforce
       hence "\<turnstile> ?\<gamma> \<rightarrow> uncurry (\<rightarrow>) \<psi>"
-        using Axiom_K by simp
+        using axiom_k by simp
       ultimately have
         "(map (uncurry (\<rightarrow>)) (\<psi> # \<Psi>) @ \<Gamma> \<ominus> (map snd (\<psi> # \<Psi>))) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
         using stronger_theory_left_right_cons by auto
@@ -3794,7 +3794,7 @@ proof -
         hence "uncurry (\<rightarrow>) \<delta> = ?\<alpha> \<rightarrow> ?\<beta>" by auto
         moreover have "\<turnstile> (?\<alpha> \<rightarrow> (?\<gamma> \<squnion> ?\<alpha>) \<rightarrow> ?\<beta>) \<rightarrow> ?\<alpha> \<rightarrow> ?\<beta>"
           unfolding disjunction_def
-          using Axiom_K Axiom_S Modus_Ponens flip_implication
+          using axiom_k Axiom_S Modus_Ponens flip_implication
           by blast
         ultimately show ?thesis
           using Cons \<sigma>
@@ -5214,7 +5214,7 @@ proof (induct \<Psi>)
   then show ?case
     unfolding biconditional_def
               disjunction_def
-    using Axiom_K
+    using axiom_k
           Modus_Ponens
           verum_tautology
     by (simp, blast)
@@ -6751,7 +6751,7 @@ lemma (in classical_logic) witness_list_implication_rule:
   "\<turnstile> (map (uncurry (\<squnion>)) \<Sigma> :\<rightarrow> \<phi>) \<rightarrow> \<Sqinter> (map (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>) \<Sigma>) \<rightarrow> \<phi>"
 proof (induct \<Sigma>)
   case Nil
-  then show ?case using Axiom_K by simp
+  then show ?case using axiom_k by simp
 next
   case (Cons \<sigma> \<Sigma>)
   let ?\<chi> = "fst \<sigma>"
@@ -7645,7 +7645,7 @@ next
     hence "\<not> (remove1 \<top> \<Sigma> :\<turnstile> \<phi>)"
       by (meson \<open>\<Sigma> \<in> \<C> (\<top> # \<Phi>) \<phi>\<close>
                 list.set_intros(1)
-                Axiom_K
+                axiom_k
                 list_deduction_modus_ponens
                 list_deduction_monotonic
                 list_deduction_weaken

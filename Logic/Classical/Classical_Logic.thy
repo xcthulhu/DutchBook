@@ -38,7 +38,7 @@ text \<open> In order to bootstrap completeness, we develop some common lemmas
 
 lemma (in classical_logic)
   Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-  using Axiom_K Double_Negation Modus_Ponens hypothetical_syllogism
+  using axiom_k Double_Negation Modus_Ponens hypothetical_syllogism
   by blast
 
 lemma (in classical_logic)
@@ -59,7 +59,7 @@ qed
 
 lemma (in classical_logic)
   Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-  by (meson Axiom_K Modus_Ponens flip_implication)
+  by (meson axiom_k Modus_Ponens flip_implication)
 
 lemma (in classical_logic)
   The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
@@ -285,7 +285,7 @@ proof -
                   The_Principle_of_Pseudo_Scotus set_deduction_weaken)
       then have "\<forall>\<chi> \<psi>. insert \<chi> \<Gamma> \<tturnstile> \<psi> \<or> \<chi> \<rightarrow> \<phi> \<notin> \<Gamma>"
         by (meson assms
-                  Axiom_K
+                  axiom_k
                   Formula_Maximally_Consistent_Set_reflection
                   set_deduction_modus_ponens
                   set_deduction_theorem

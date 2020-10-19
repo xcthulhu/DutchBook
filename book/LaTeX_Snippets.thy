@@ -6,7 +6,7 @@ begin
 
 text (in implication_logic) \<open>
  \DefineSnippet{Axiom K}{
-   @{thm [display] implication_logic.Axiom_K}
+   @{thm [display] implication_logic.axiom_k}
  }%EndSnippet
  \DefineSnippet{Axiom S}{
    @{thm [display] implication_logic.Axiom_S}

@@ -130,6 +130,6 @@ primrec (in implication_logic) Simple_Type_interpretation
 lemma (in implication_logic) Curry_Howard_correspondence:
   "X \<Colon> \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Simply_Typed_SKComb.induct,
-      (simp add: Axiom_K Axiom_S Modus_Ponens)+)
+      (simp add: axiom_k Axiom_S Modus_Ponens)+)
 
 end

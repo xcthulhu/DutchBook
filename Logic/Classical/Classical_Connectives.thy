@@ -17,7 +17,7 @@ definition (in classical_logic) verum :: "'a" ("\<top>")
     "\<top> = \<bottom> \<rightarrow> \<bottom>"
 
 lemma (in classical_logic) verum_tautology [simp]: "\<turnstile> \<top>"
-  by (metis list_implication.simps(1) list_implication_Axiom_K verum_def)
+  by (metis list_implication.simps(1) list_implication_axiom_k verum_def)
 
 lemma verum_semantics [simp]:
   "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<top>"
@@ -64,7 +64,7 @@ lemma (in classical_logic) conjunction_left_elimination:
 lemma (in classical_logic) conjunction_right_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<psi>"
   by (metis (full_types) 
-        Axiom_K
+        axiom_k
         Contraposition
         Modus_Ponens
         conjunction_def
@@ -117,12 +117,12 @@ definition (in classical_logic) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
 lemma (in classical_logic) negation_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<sim> \<phi>"
   unfolding negation_def
-  by (metis Axiom_K Modus_Ponens implication_absorption)
+  by (metis axiom_k Modus_Ponens implication_absorption)
 
 lemma (in classical_logic) negation_elimination:
   "\<turnstile> \<sim> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>)"
   unfolding negation_def
-  by (metis Axiom_K Modus_Ponens implication_absorption)
+  by (metis axiom_k Modus_Ponens implication_absorption)
 
 lemma (in classical_logic) negation_embedding [simp]:
   "\<^bold>\<lparr> \<sim> \<phi> \<^bold>\<rparr> = \<sim> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
@@ -180,7 +180,7 @@ lemma (in classical_logic) disjunction_left_introduction:
 lemma (in classical_logic) disjunction_right_introduction:
   "\<turnstile> \<psi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
-  using Axiom_K
+  using axiom_k
   by simp
 
 lemma (in classical_logic) disjunction_embedding [simp]:
@@ -219,7 +219,7 @@ subsection \<open> Biconditional Equivalence Relation \<close>
 lemma (in classical_logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
   by (meson 
-        Axiom_K 
+        axiom_k 
         Modus_Ponens 
         biconditional_introduction 
         implication_absorption)
@@ -502,7 +502,7 @@ proof (induct \<Phi>)
               conjunction_def
               verum_def
     using 
-      Axiom_K
+      axiom_k
       Ex_Falso_Quodlibet
       Modus_Ponens
       conjunction_def
@@ -617,7 +617,7 @@ proof -
                   unfolding biconditional_def
                   by (simp add: disjunction_def,
                       meson 
-                        Axiom_K 
+                        axiom_k 
                         Modus_Ponens 
                         flip_hypothetical_syllogism 
                         implication_absorption)
@@ -813,7 +813,7 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     unfolding disjunction_def biconditional_def
-    using Axiom_K Modus_Ponens verum_tautology
+    using axiom_k Modus_Ponens verum_tautology
     by (simp, blast)
 next
   case (Cons \<psi> \<Psi>)
@@ -835,9 +835,9 @@ proof (induct \<Psi>)
   then show ?case
     by (simp add: biconditional_def,
         meson 
-          Axiom_K
+          axiom_k
           Modus_Ponens
-          list_implication_Axiom_K
+          list_implication_axiom_k
           verum_tautology)
 next
   case (Cons \<psi> \<Psi>)
