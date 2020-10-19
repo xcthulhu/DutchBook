@@ -108,7 +108,7 @@ lemma (in classical_logic) possibilities_are_MCS:
   shows "MCS {x. p x}"
   using assms
   by (metis (mono_tags, lifting)
-            Formula_Consistent_def
+            formula_consistent_def
             Formula_Maximally_Consistent_Set_def
             Maximally_Consistent_Set_def
             possibilities_logical_closure
@@ -121,7 +121,7 @@ lemma (in classical_logic) MCSs_are_possibilities:
 proof -
   have "\<bottom> \<notin> s"
     using \<open>MCS s\<close>
-          Formula_Consistent_def
+          formula_consistent_def
           Formula_Maximally_Consistent_Set_def
           Maximally_Consistent_Set_def
           set_deduction_reflection
@@ -257,7 +257,7 @@ proof (rule ex_ex1I)
     have "\<not> {} \<tturnstile> \<bottom>"
       using consistency set_deduction_base_theory by auto
     from this obtain \<Gamma> where "MCS \<Gamma>"
-      by (meson Formula_Consistent_def
+      by (meson formula_consistent_def
                 Formula_Maximal_Consistency
                 Formula_Maximally_Consistent_Extension)
     hence "(\<lambda> \<gamma>. \<gamma> \<in> \<Gamma>) \<in> possibilities"
@@ -352,7 +352,7 @@ proof
     hence "\<not> (set ?\<Phi> \<tturnstile> \<bottom>)"
       by (meson \<open>possibility p\<close>
                 possibilities_are_MCS [of p]
-                Formula_Consistent_def
+                formula_consistent_def
                 Formula_Maximally_Consistent_Set_def
                 Maximally_Consistent_Set_def
                 list_deduction_monotonic
@@ -365,7 +365,7 @@ proof
     fix \<Psi>
     assume "mset \<Psi> \<subseteq># mset ?props" and "\<not> \<Psi> :\<turnstile> \<bottom>"
     from this obtain \<Omega>\<^sub>\<Psi> where "MCS \<Omega>\<^sub>\<Psi>" and "set \<Psi> \<subseteq> \<Omega>\<^sub>\<Psi>"
-      by (meson Formula_Consistent_def
+      by (meson formula_consistent_def
                 Formula_Maximal_Consistency
                 Formula_Maximally_Consistent_Extension
                 list_deduction_monotonic
@@ -437,7 +437,7 @@ next
   hence "\<not> \<Phi> :\<turnstile> \<bottom>"
     using unproving_core_def by blast
   from this obtain \<Omega>\<^sub>\<Phi> where "MCS \<Omega>\<^sub>\<Phi>" and "set \<Phi> \<subseteq> \<Omega>\<^sub>\<Phi>"
-    by (meson Formula_Consistent_def
+    by (meson formula_consistent_def
               Formula_Maximal_Consistency
               Formula_Maximally_Consistent_Extension
               list_deduction_monotonic
@@ -464,7 +464,7 @@ next
       by (metis IntE
                 \<open>MCS \<Omega>\<^sub>\<Phi>\<close>
                 inter_set_filter
-                Formula_Consistent_def
+                formula_consistent_def
                 Formula_Maximally_Consistent_Set_def
                 Maximally_Consistent_Set_def
                 set_deduction_def

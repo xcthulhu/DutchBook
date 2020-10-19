@@ -27,7 +27,7 @@ proof -
     from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Psi> \<notin> \<Omega>"
       by (meson 
             insert_subset
-            Formula_Consistent_def
+            formula_consistent_def
             Formula_Maximal_Consistency
             Formula_Maximally_Consistent_Extension
             Formula_Maximally_Consistent_Set_def
@@ -207,7 +207,7 @@ proof -
         by blast
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> (\<phi> \<sqinter> \<chi>) \<notin> \<Omega>"
         by (meson insert_subset
-                Formula_Consistent_def
+                formula_consistent_def
                 Formula_Maximal_Consistency
                 Formula_Maximally_Consistent_Extension
                 Formula_Maximally_Consistent_Set_def
@@ -237,7 +237,7 @@ proof -
         by blast
       from \<phi> obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> \<phi> \<notin> \<Omega>"
         by (meson insert_subset
-                  Formula_Consistent_def
+                  formula_consistent_def
                   Formula_Maximal_Consistency
                   Formula_Maximally_Consistent_Extension
                   Formula_Maximally_Consistent_Set_def
@@ -273,7 +273,7 @@ proof -
                             and \<psi>: "\<psi> \<notin> \<Omega>"
                             and \<phi>: "\<phi> \<in> set \<Phi>" "\<phi> \<in> \<Omega>"
       by (meson insert_subset
-                Formula_Consistent_def
+                formula_consistent_def
                 Formula_Maximal_Consistency
                 Formula_Maximally_Consistent_Extension
                 Formula_Maximally_Consistent_Set_def

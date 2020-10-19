@@ -285,7 +285,7 @@ proof -
         }
         moreover {
           let ?\<Delta> = "removeAll \<psi> \<Sigma>"
-          assume "~ (set \<Sigma> \<subseteq> set \<Gamma>)"
+          assume "\<not> (set \<Sigma> \<subseteq> set \<Gamma>)"
           hence "set ?\<Delta> \<subseteq> set \<Gamma>" 
             using \<Sigma>_subset_relation by auto
           hence "\<turnstile> ?\<Delta> :\<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> \<Gamma> :\<rightarrow> (\<psi> \<rightarrow> \<phi>)" 
@@ -655,7 +655,7 @@ text \<open> Since implication logic does not have \<^emph>\<open>falsum\<close>
        defined relative to a formula \<^term>\<open>\<phi>\<close>. \<close>
 
 definition (in implication_logic) 
-  Formula_Consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
+  formula_consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
   where
     [simp]: "\<phi>-Consistent \<Gamma> \<equiv> \<not> (\<Gamma> \<tturnstile> \<phi>)"
 
@@ -680,18 +680,18 @@ text \<open> However, no assumption is made regarding the cardinality of the typ
 text \<open> As a result, typical proofs that assume a countable domain are not
        suitable.  Our proof leverages \<^emph>\<open>Zorn's lemma\<close>. \<close>
 
-lemma (in implication_logic) Formula_Consistent_Extension:
+lemma (in implication_logic) formula_consistent_Extension:
   assumes "\<phi>-Consistent \<Gamma>"
   shows "(\<phi>-Consistent (insert \<psi> \<Gamma>)) \<or> (\<phi>-Consistent (insert (\<psi> \<rightarrow> \<phi>) \<Gamma>))"
 proof -
   {
-    assume "~ \<phi>-Consistent insert \<psi> \<Gamma>"
+    assume "\<not> \<phi>-Consistent insert \<psi> \<Gamma>"
     hence "\<Gamma> \<tturnstile> \<psi> \<rightarrow> \<phi>"
       using set_deduction_theorem
-      unfolding Formula_Consistent_def
+      unfolding formula_consistent_def
       by simp
     hence "\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>"
-     by (metis Un_absorb assms Formula_Consistent_def set_deduction_cut_rule)
+     by (metis Un_absorb assms formula_consistent_def set_deduction_cut_rule)
   }
   thus ?thesis by blast
 qed
@@ -718,13 +718,13 @@ proof -
       moreover have "\<phi>-Consistent ?\<Omega>"
       proof -
         {
-          assume "~ \<phi>-Consistent ?\<Omega>"
+          assume "\<not> \<phi>-Consistent ?\<Omega>"
           then obtain \<omega> where \<omega>: 
             "finite \<omega>" 
             "\<omega> \<subseteq> ?\<Omega>" 
-            "~ \<phi>-Consistent \<omega>"
+            "\<not> \<phi>-Consistent \<omega>"
             unfolding 
-              Formula_Consistent_def
+              formula_consistent_def
               set_deduction_def
             by auto
           from \<omega>(1) \<omega>(2) have "\<exists> \<Sigma> \<in> \<C>. \<omega> \<subseteq> \<Sigma>"
@@ -748,10 +748,10 @@ proof -
               using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
             thus ?case using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
           qed
-          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> ~ (\<phi>-Consistent \<Sigma>)"
+          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> \<not> (\<phi>-Consistent \<Sigma>)"
             using \<C>(2) \<omega>(3)
             unfolding
-              Formula_Consistent_def
+              formula_consistent_def
               set_deduction_def
             by auto
           hence "False" by auto
@@ -770,7 +770,7 @@ proof -
     have "(\<phi>-Consistent insert \<psi> \<Omega>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
          "\<Gamma> \<subseteq> insert \<psi> \<Omega>"
          "\<Gamma> \<subseteq> insert (\<psi> \<rightarrow> \<phi>) \<Omega>"
-      using \<Omega>(1) Formula_Consistent_Extension Formula_Consistent_def
+      using \<Omega>(1) formula_consistent_Extension formula_consistent_def
       by auto
     hence "insert \<psi> \<Omega> \<in> ?\<Gamma>_Extensions
              \<or> insert (\<psi> \<rightarrow> \<phi>) \<Omega> \<in> ?\<Gamma>_Extensions"
@@ -792,10 +792,10 @@ proof -
   assume "\<phi>-MCS \<Gamma>"
   {
     assume "\<Gamma> \<tturnstile> \<psi>"
-    moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "~ \<Gamma> \<tturnstile> \<phi>"
+    moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "\<not> \<Gamma> \<tturnstile> \<phi>"
       unfolding
         Formula_Maximally_Consistent_Set_def
-        Formula_Consistent_def
+        formula_consistent_def
       by auto
     ultimately have "\<psi> \<in> \<Gamma>"
       using set_deduction_reflection set_deduction_modus_ponens

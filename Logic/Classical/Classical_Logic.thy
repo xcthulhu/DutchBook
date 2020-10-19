@@ -146,7 +146,7 @@ text \<open> \<^emph>\<open>Relativized\<close> maximally consistent sets were i
        which does not make \<^term>\<open>\<phi>\<close> true. \<close>
 
 text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\<close> is maximally
-       consistent if and only if  \<^term>\<open>~ (\<Gamma> \<tturnstile> \<bottom>)\<close> and
+       consistent if and only if  \<^term>\<open>\<not> (\<Gamma> \<tturnstile> \<bottom>)\<close> and
        \<^term>\<open>\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>\<close>. This conventional presentation
        will come up when formulating \textsc{MaxSat} in
        \S\ref{sec:abstract-maxsat}. This in turn allows us to formulate
@@ -185,7 +185,7 @@ proof -
       using \<open>\<phi>-MCS \<Gamma>\<close>
       unfolding
         Formula_Maximally_Consistent_Set_def
-        Formula_Consistent_def
+        formula_consistent_def
       by simp
   }
   thus ?thesis by blast
@@ -211,7 +211,7 @@ proof -
         unfolding
           Formula_Maximally_Consistent_Set_def
           Consistent_def
-          Formula_Consistent_def
+          formula_consistent_def
         by metis
       moreover {
         fix \<psi>
@@ -254,7 +254,7 @@ proof -
       ultimately show ?thesis
         unfolding Maximally_Consistent_Set_def
                   Formula_Maximally_Consistent_Set_def
-                  Formula_Consistent_def
+                  formula_consistent_def
                   Consistent_def
         by blast
     qed

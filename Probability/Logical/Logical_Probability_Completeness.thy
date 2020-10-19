@@ -7148,7 +7148,7 @@ proof -
         by blast
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Phi> \<notin> \<Omega>"
         by (meson insert_subset
-                  Formula_Consistent_def
+                  formula_consistent_def
                   Formula_Maximal_Consistency
                   Formula_Maximally_Consistent_Extension
                   Formula_Maximally_Consistent_Set_def

@@ -130,7 +130,7 @@ lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_falsum:
         assms
         insert_Diff
         Ex_Falso_Quodlibet
-        Formula_Consistent_def
+        formula_consistent_def
         Formula_Maximally_Consistent_Set_def
         set_deduction_theorem
         set_deduction_weaken)

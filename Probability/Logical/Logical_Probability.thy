@@ -322,7 +322,7 @@ proof -
        by (simp add: conjunction_def negation_def)
      hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
        by (metis assms
-                 Formula_Consistent_def
+                 formula_consistent_def
                  Formula_Maximally_Consistent_Set_def
                  Maximally_Consistent_Set_def
                  conjunction_def
@@ -392,7 +392,7 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     using assms
-          Formula_Consistent_def
+          formula_consistent_def
           Formula_Maximally_Consistent_Set_def
           Maximally_Consistent_Set_def
           set_deduction_reflection
@@ -402,7 +402,7 @@ next
   have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
     by (simp add: disjunction_def,
         meson assms
-              Formula_Consistent_def
+              formula_consistent_def
               Formula_Maximally_Consistent_Set_def
               Formula_Maximally_Consistent_Set_implication
               Maximally_Consistent_Set_def
