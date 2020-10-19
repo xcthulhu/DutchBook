@@ -14,16 +14,16 @@ text \<open> This theory presents \<^emph>\<open>classical propositional logic\<
 subsection \<open> Axiomatization \<close>
 
 text \<open> Classical propositional logic can be given by the following
-       Hilbert-style axiom system.  It is @{class Implication_Logic}
+       Hilbert-style axiom system.  It is @{class implication_logic}
        extended with \<^emph>\<open>falsum\<close> and double negation. \<close>
 
-class Classical_Logic = Implication_Logic +
+class classical_logic = implication_logic +
   fixes falsum :: "'a" ("\<bottom>")
   assumes Double_Negation: "\<turnstile> (((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>)"
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
 
-class Consistent_Classical_Logic = Classical_Logic +
+class Consistent_classical_logic = classical_logic +
   assumes consistency: "\<not> \<turnstile> \<bottom>"
 
 subsection \<open> Common Rules \<close>
@@ -36,12 +36,12 @@ text \<open> There are many common tautologies in classical logic.  Once we have
 text \<open> In order to bootstrap completeness, we develop some common lemmas
        using classical deduction alone. \<close>
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
   using Axiom_K Double_Negation Modus_Ponens hypothetical_syllogism
   by blast
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Contraposition: "\<turnstile> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)) \<rightarrow> \<psi> \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<bottom>"
@@ -57,15 +57,15 @@ proof -
     using list_deduction_base_theory list_deduction_theorem by blast
 qed
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson Axiom_K Modus_Ponens flip_implication)
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
 
-lemma (in Classical_Logic) Peirces_law:
+lemma (in classical_logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -98,7 +98,7 @@ proof -
     by auto
 qed
 
-lemma (in Classical_Logic) excluded_middle_elimination:
+lemma (in classical_logic) excluded_middle_elimination:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) \<rightarrow> \<psi>"
 proof -
   let ?\<Gamma> = "[\<psi> \<rightarrow> \<bottom>, \<phi> \<rightarrow> \<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>]"
@@ -154,15 +154,15 @@ text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\
        \S\ref{sec:maxsat-completeness} and a form of the
         \<^emph>\<open>Dutch Book Theorem\<close> in \S\ref{subsec:dutch-book-maxsat-reduction}.\<close>
 
-definition (in Classical_Logic)
+definition (in classical_logic)
   Consistent :: "'a set \<Rightarrow> bool" where
     [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-Consistent \<Gamma>"
 
-definition (in Classical_Logic)
+definition (in classical_logic)
   Maximally_Consistent_Set :: "'a set \<Rightarrow> bool" ("MCS") where
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Formula_Maximal_Consistent_Set_negation: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<phi> \<rightarrow> \<bottom> \<in> \<Gamma>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
@@ -194,7 +194,7 @@ qed
 text \<open> Relative maximal consistency and conventional maximal consistency in
        fact coincide in classical logic. \<close>
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Formula_Maximal_Consistency: "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
 proof -
   {
@@ -268,7 +268,7 @@ text \<open> Finally, classical logic allows us to strengthen
        @{thm Formula_Maximally_Consistent_Set_implication_elimination} to a
        biconditional. \<close>
 
-lemma (in Classical_Logic)
+lemma (in classical_logic)
   Formula_Maximally_Consistent_Set_implication:
   assumes "\<phi>-MCS \<Gamma>"
   shows "\<psi> \<rightarrow> \<chi> \<in> \<Gamma> = (\<psi> \<in> \<Gamma> \<longrightarrow> \<chi> \<in> \<Gamma>)"

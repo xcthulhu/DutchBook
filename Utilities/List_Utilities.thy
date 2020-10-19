@@ -453,30 +453,30 @@ qed
 
 subsection \<open> List Subtraction \<close>
 
-primrec listSubtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixl "\<ominus>" 70)
+primrec list_subtract :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixl "\<ominus>" 70)
   where
       "xs \<ominus> [] = xs"
     | "xs \<ominus> (y # ys) = (remove1 y (xs \<ominus> ys))"
 
-lemma listSubtract_mset_homomorphism [simp]:
+lemma list_subtract_mset_homomorphism [simp]:
   "mset (A \<ominus> B) = mset A - mset B"
   by (induct B, simp, simp)
 
-lemma listSubtract_empty [simp]:
+lemma list_subtract_empty [simp]:
   "[] \<ominus> \<Phi> = []"
   by (induct \<Phi>, simp, simp)
 
-lemma listSubtract_remove1_cons_perm:
+lemma list_subtract_remove1_cons_perm:
   "\<Phi> \<ominus> (\<phi> # \<Lambda>) <~~> (remove1 \<phi> \<Phi>) \<ominus> \<Lambda>"
   by (induct \<Lambda>, simp, simp, metis perm_remove_perm remove1_commute)
 
-lemma listSubtract_cons:
+lemma list_subtract_cons:
   assumes "\<phi> \<notin> set \<Lambda>"
   shows "(\<phi> # \<Phi>) \<ominus> \<Lambda> = \<phi> # (\<Phi> \<ominus> \<Lambda>)"
   using assms
   by (induct \<Lambda>, simp, simp, blast)
 
-lemma listSubtract_cons_absorb:
+lemma list_subtract_cons_absorb:
   assumes "count_list \<Phi> \<phi> \<ge> count_list \<Lambda> \<phi>"
   shows "\<phi> # (\<Phi> \<ominus> \<Lambda>) <~~> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
   using assms
@@ -485,7 +485,7 @@ proof -
                \<longrightarrow> \<phi> # (\<Phi> \<ominus> \<Lambda>) <~~> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
   proof (induct \<Lambda>)
     case Nil
-    thus ?case using listSubtract_cons by fastforce
+    thus ?case using list_subtract_cons by fastforce
   next
     case (Cons \<psi> \<Lambda>)
     assume inductive_hypothesis:
@@ -544,7 +544,7 @@ proof -
       proof cases
         assume "\<phi> = \<psi>"
         hence "(\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>) <~~> \<Phi> \<ominus> \<Lambda>"
-          using listSubtract_remove1_cons_perm by fastforce
+          using list_subtract_remove1_cons_perm by fastforce
         moreover have "\<phi> \<in> set \<Phi>"
           using 
             \<open>\<phi> = \<psi>\<close> 
@@ -568,7 +568,7 @@ proof -
   with assms show ?thesis by blast
 qed
 
-lemma listSubtract_remove1_perm:
+lemma list_subtract_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
   shows  "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
 proof -
@@ -579,12 +579,12 @@ proof -
     using mset_eq_perm by blast
 qed
 
-lemma listSubtract_cons_remove1_perm:
+lemma list_subtract_cons_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
   shows "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)"
-  using assms listSubtract_remove1_perm by fastforce
+  using assms list_subtract_remove1_perm by fastforce
 
-lemma listSubtract_removeAll_perm:
+lemma list_subtract_removeAll_perm:
   assumes "count_list \<Phi> \<phi> \<le> count_list \<Lambda> \<phi>"
   shows "\<Phi> \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
 proof -
@@ -624,7 +624,7 @@ proof -
                 gr_implies_not0
           by fastforce+
         hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (remove1 \<phi> (\<phi> # \<Phi>)) \<ominus> (remove1 \<phi> \<Lambda>)"
-          by (meson listSubtract_remove1_perm)
+          by (meson list_subtract_remove1_perm)
         hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)" by simp
         ultimately show ?thesis using \<open>\<xi> = \<phi>\<close> by auto
       next
@@ -633,7 +633,7 @@ proof -
         proof cases
           assume "\<xi> \<in> set \<Lambda>"
           hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> remove1 \<xi> \<Lambda>"
-            by (simp add: listSubtract_cons_remove1_perm)
+            by (simp add: list_subtract_cons_remove1_perm)
           moreover have "count_list \<Lambda> \<phi> = count_list (remove1 \<xi> \<Lambda>) \<phi>"
             using \<open>\<xi> \<noteq> \<phi>\<close> \<open>\<xi> \<in> set \<Lambda>\<close> perm_count_list perm_remove
             by force
@@ -652,18 +652,18 @@ proof -
                    (removeAll \<phi> (\<xi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
             by (simp add: \<open>\<xi> \<in> set \<Lambda>\<close>
                           filter_remove1
-                          listSubtract_cons_remove1_perm
+                          list_subtract_cons_remove1_perm
                           perm_sym
                           removeAll_filter_not_eq)
           ultimately show ?thesis by blast
         next
           assume "\<xi> \<notin> set \<Lambda>"
           hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<xi> # (\<Phi> \<ominus> \<Lambda>)"
-            by (simp add: listSubtract_cons_absorb perm_sym)
+            by (simp add: list_subtract_cons_absorb perm_sym)
           hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<xi> # ((removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>))"
             using \<open>\<Phi> \<ominus> \<Lambda> <~~> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> \<Lambda>\<close> by blast
           hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> (\<xi> # (removeAll \<phi> \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
-            by (simp add: \<open>\<xi> \<notin> set \<Lambda>\<close> listSubtract_cons)
+            by (simp add: \<open>\<xi> \<notin> set \<Lambda>\<close> list_subtract_cons)
           thus ?thesis using \<open>\<xi> \<noteq> \<phi>\<close> by auto
         qed
       qed
@@ -673,7 +673,7 @@ proof -
   with assms show ?thesis by blast
 qed
 
-lemma listSubtract_permute:
+lemma list_subtract_permute:
   assumes "\<Phi> <~~> \<Psi>"
   shows "\<Phi> \<ominus> \<Lambda> <~~> \<Psi> \<ominus> \<Lambda>"
 proof -
@@ -685,7 +685,7 @@ proof -
     using mset_eq_perm by blast
 qed
 
-lemma append_perm_listSubtract_intro:
+lemma append_perm_list_subtract_intro:
   assumes "A <~~> B @ C"
   shows "A \<ominus> C <~~> B"
 proof -
@@ -696,13 +696,13 @@ proof -
   thus ?thesis using mset_eq_perm by blast
 qed
 
-lemma listSubtract_concat:
+lemma list_subtract_concat:
   assumes "\<Psi> \<in> set \<L>"
   shows "concat (\<L> \<ominus> [\<Psi>]) <~~> (concat \<L>) \<ominus> \<Psi>"
   using assms
   by (simp,
        meson 
-         append_perm_listSubtract_intro
+         append_perm_list_subtract_intro
          concat_remove1
          perm.trans
          perm_append_swap
@@ -730,7 +730,7 @@ proof -
                = (\<Sum>\<phi>'\<leftarrow> (remove1 \<psi> \<Phi>). f \<phi>')"
         using Cons.hyps by blast
       moreover have "(remove1 \<psi> \<Phi>) \<ominus> \<Psi> <~~> \<Phi> \<ominus> (\<psi> # \<Psi>)"
-        by (meson listSubtract_remove1_cons_perm perm_sym)
+        by (meson list_subtract_remove1_cons_perm perm_sym)
       hence "(\<Sum>\<phi>'\<leftarrow>((remove1 \<psi> \<Phi>) \<ominus> \<Psi>). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>(\<Phi> \<ominus> (\<psi> # \<Psi>)). f \<phi>')"
         using perm_list_summation by blast
       ultimately have
@@ -763,12 +763,12 @@ proof -
   with assms show ?thesis by blast
 qed
 
-lemma listSubtract_set_difference_lower_bound:
+lemma list_subtract_set_difference_lower_bound:
   "set \<Gamma> - set \<Phi> \<subseteq> set (\<Gamma> \<ominus> \<Phi>)"
   using subset_Diff_insert
   by (induct \<Phi>, simp, fastforce)
 
-lemma listSubtract_set_trivial_upper_bound:
+lemma list_subtract_set_trivial_upper_bound:
   "set (\<Gamma> \<ominus> \<Phi>) \<subseteq> set \<Gamma>"
       by (induct \<Phi>,
           simp,
@@ -777,7 +777,7 @@ lemma listSubtract_set_trivial_upper_bound:
             dual_order.trans
             set_remove1_subset)
 
-lemma listSubtract_msub_eq:
+lemma list_subtract_msub_eq:
   assumes "mset \<Phi> \<subseteq># mset \<Gamma>"
       and "length (\<Gamma> \<ominus> \<Phi>) = m"
     shows "length \<Gamma> = m + length \<Phi>"
@@ -817,7 +817,7 @@ proof -
               add_right_cancel
               eq_iff
               impossible_Cons
-              listSubtract_mset_homomorphism
+              list_subtract_mset_homomorphism
               mset_subset_eq_exists_conv
               remove1_idem size_mset)
       hence "length (\<phi> # (remove1 \<phi> \<Gamma>)) = length \<Gamma>"
@@ -834,7 +834,7 @@ proof -
   thus ?thesis using assms by blast
 qed
 
-lemma listSubtract_not_member:
+lemma list_subtract_not_member:
   assumes "b \<notin> set A"
   shows "A \<ominus> B = A \<ominus> (remove1 b B)"
   using assms
@@ -846,11 +846,11 @@ lemma listSubtract_not_member:
         diff_subset_eq_self
         insert_DiffM2
         insert_subset_eq_iff
-        listSubtract_mset_homomorphism
+        list_subtract_mset_homomorphism
         remove1_idem 
         set_mset_mset)
 
-lemma listSubtract_monotonic:
+lemma list_subtract_monotonic:
   assumes "mset A \<subseteq># mset B"
   shows "mset (A \<ominus> C) \<subseteq># mset (B \<ominus> C)"
   by (simp, 
@@ -860,7 +860,7 @@ lemma listSubtract_monotonic:
         subset_mset.dual_order.refl 
         subset_mset.order_trans)
 
-lemma map_listSubtract_mset_containment:
+lemma map_list_subtract_mset_containment:
   "mset ((map f A) \<ominus> (map f B)) \<subseteq># mset (map f (A \<ominus> B))"
   by (induct B, simp, simp,
       metis 
@@ -872,13 +872,13 @@ lemma map_listSubtract_mset_containment:
         subset_eq_diff_conv
         subset_eq_diff_conv)
 
-lemma map_listSubtract_mset_equivalence:
+lemma map_list_subtract_mset_equivalence:
   assumes "mset B \<subseteq># mset A"
   shows "mset ((map f A) \<ominus> (map f B)) = mset (map f (A \<ominus> B))"
   using assms
   by (induct B, simp, simp add: image_mset_Diff)
 
-lemma msub_listSubtract_elem_cons_msub:
+lemma msub_list_subtract_elem_cons_msub:
   assumes "mset \<Xi> \<subseteq># mset \<Gamma>"
       and "\<psi> \<in> set (\<Gamma> \<ominus> \<Xi>)"
     shows "mset (\<psi> # \<Xi>) \<subseteq># mset \<Gamma>"
@@ -905,11 +905,11 @@ proof -
                         mset_eq_setD
                         subset_mset.le_iff_add
                         union_mset_add_mset_left,
-            metis listSubtract.simps(1)
-                  listSubtract.simps(2)
-                  listSubtract_monotonic
+            metis list_subtract.simps(1)
+                  list_subtract.simps(2)
+                  list_subtract_monotonic
                   remove_hd,
-            simp, metis listSubtract_remove1_cons_perm
+            simp, metis list_subtract_remove1_cons_perm
                         perm_set_eq)
       with Cons.hyps have "mset \<Gamma> = mset (\<xi> # (remove1 \<xi> \<Gamma>))"
                           "mset (\<psi> # \<Xi>) \<subseteq># mset (remove1 \<xi> \<Gamma>)"

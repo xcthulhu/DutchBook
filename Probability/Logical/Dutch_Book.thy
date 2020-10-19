@@ -47,16 +47,16 @@ lemma payoff_alt_def2:
 
 (* TODO: Cite Lehman *)
 
-definition (in Classical_Logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
+definition (in classical_logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
   [simp]: "possibility p \<equiv>    \<not> (p \<bottom>)
                            \<and> (\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> p \<phi>)
                            \<and> (\<forall> \<phi> \<psi> . p (\<phi> \<rightarrow> \<psi>) \<longrightarrow> p \<phi> \<longrightarrow> p \<psi>)
                            \<and> (\<forall> \<phi> . p \<phi> \<or> p (\<phi> \<rightarrow> \<bottom>))"
 
-definition (in Classical_Logic) possibilities :: "('a \<Rightarrow> bool) set" where
+definition (in classical_logic) possibilities :: "('a \<Rightarrow> bool) set" where
   [simp]: "possibilities = {p. possibility p}"
 
-lemma (in Classical_Logic) possibility_negation:
+lemma (in classical_logic) possibility_negation:
   assumes "possibility p"
   shows "p (\<phi> \<rightarrow> \<bottom>) = (\<not> p \<phi>)"
 proof
@@ -74,7 +74,7 @@ next
   show "\<not> p \<phi> \<Longrightarrow> p (\<phi> \<rightarrow> \<bottom>)" using \<open>possibility p\<close> by fastforce
 qed
 
-lemma (in Classical_Logic) possibilities_logical_closure:
+lemma (in classical_logic) possibilities_logical_closure:
   assumes "possibility p"
       and "{x. p x} \<tturnstile> \<phi>"
     shows "p \<phi>"
@@ -103,7 +103,7 @@ proof -
     using \<open>Collect p \<tturnstile> \<phi>\<close> set_deduction_def by auto
 qed
 
-lemma (in Classical_Logic) possibilities_are_MCS:
+lemma (in classical_logic) possibilities_are_MCS:
   assumes "possibility p"
   shows "MCS {x. p x}"
   using assms
@@ -115,7 +115,7 @@ lemma (in Classical_Logic) possibilities_are_MCS:
             possibility_def
             mem_Collect_eq)
 
-lemma (in Classical_Logic) MCSs_are_possibilities:
+lemma (in classical_logic) MCSs_are_possibilities:
   assumes "MCS s"
   shows "possibility (\<lambda> x. x \<in> s)"
 proof -
@@ -145,10 +145,10 @@ proof -
   ultimately show ?thesis by simp
 qed
 
-definition (in Classical_Logic) negate_bets ("_\<^sup>\<sim>") where
+definition (in classical_logic) negate_bets ("_\<^sup>\<sim>") where
   "bets\<^sup>\<sim> = [b \<lparr> bet := \<sim> (bet b) \<rparr>. b \<leftarrow> bets]"
 
-lemma (in Classical_Logic) possibility_payoff:
+lemma (in classical_logic) possibility_payoff:
   assumes "possibility p"
   shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = settle p (buys'\<^sup>\<sim> @ sells') + total_amount buys' - total_amount sells' - length buys'"
@@ -174,7 +174,7 @@ next
     by simp
 qed
 
-lemma (in Consistent_Classical_Logic) minimum_payoff_existence:
+lemma (in Consistent_classical_logic) minimum_payoff_existence:
   "\<exists>! x. (\<exists> p \<in> possibilities. \<pi> p bets = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q bets)"
 proof (rule ex_ex1I)
   show "\<exists>x. (\<exists>p\<in>possibilities. \<pi> p bets = x) \<and> (\<forall>q\<in>possibilities. x \<le> \<pi> q bets)"
@@ -280,11 +280,11 @@ next
   thus "x = y" by linarith
 qed
 
-definition (in Consistent_Classical_Logic)
+definition (in Consistent_classical_logic)
   minimum_payoff :: "'a book \<Rightarrow> real" ("\<pi>\<^sub>m\<^sub>i\<^sub>n") where
   "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
 
-lemma (in Classical_Logic) possibility_payoff_dual:
+lemma (in classical_logic) possibility_payoff_dual:
   assumes "possibility p"
   shows   "  \<pi> p \<lparr> buys = buys', sells = sells' \<rparr>
            = - settle p (sells'\<^sup>\<sim> @ buys')
@@ -318,7 +318,7 @@ section \<open> Market Dutch Book Theorems \label{sec:dutch-book-theorem} \<clos
 
 subsection \<open> MaxSat Reduction \label{subsec:dutch-book-maxsat-reduction} \<close>
 
-theorem (in Consistent_Classical_Logic) dutch_book_maxsat:
+theorem (in Consistent_classical_logic) dutch_book_maxsat:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (  MaxSat [bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] + (k :: real)
       \<le> total_amount buys' + length sells' - total_amount sells')"
@@ -554,7 +554,7 @@ next
     by auto
 qed
 
-lemma (in Consistent_Classical_Logic) nonstrict_dutch_book:
+lemma (in Consistent_classical_logic) nonstrict_dutch_book:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
@@ -590,7 +590,7 @@ proof -
     by (meson Dirac_Measures_subset dirac_ceiling dirac_collapse subset_eq)
 qed
 
-lemma (in Consistent_Classical_Logic) strict_dutch_book:
+lemma (in Consistent_classical_logic) strict_dutch_book:
   "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
@@ -644,7 +644,7 @@ next
     using \<open>0 < \<epsilon>\<close> by linarith
 qed
 
-theorem (in Consistent_Classical_Logic) dutch_book:
+theorem (in Consistent_classical_logic) dutch_book:
   "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> Logical_Probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells'

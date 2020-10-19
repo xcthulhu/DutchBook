@@ -92,7 +92,7 @@ next
           sup_bot.right_neutral)
 qed
 
-interpretation Classical_Logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
+interpretation classical_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
 proof standard
   fix \<phi> \<psi>
   show "\<top> = \<phi> \<Rightarrow> \<psi> \<Rightarrow> \<phi>"

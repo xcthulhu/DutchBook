@@ -3,7 +3,7 @@
 subsection \<open> Intuitionistic Logic \<close>
 
 theory Intuitionistic_Logic
-  imports Implication_Logic
+  imports implication_logic
 begin
 
 text \<open> This theory presents extends \<^emph>\<open>implicational intuitionistic logic\<close> 
@@ -13,7 +13,7 @@ text \<open> This theory presents extends \<^emph>\<open>implicational intuition
 
 subsection \<open> Axiomatization \<close>
 
-class Intuitionistic_Logic = Implication_Logic +
+class Intuitionistic_Logic = implication_logic +
   fixes falsum :: "'a" ("\<bottom>")
   fixes verum :: "'a" ("\<top>")
   fixes negation :: "'a \<Rightarrow> 'a" ("\<sim>")
