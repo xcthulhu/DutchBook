@@ -26,16 +26,16 @@ lemma verum_semantics [simp]:
 lemma (in classical_logic) verum_embedding [simp]:
   "\<^bold>\<lparr> \<top> \<^bold>\<rparr> = \<top>"
   by (simp add: classical_logic_class.verum_def verum_def)
-  
+
 
 subsection \<open> Conjunction \<close>
 
-definition (in classical_logic) 
+definition (in classical_logic)
   conjunction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixr "\<sqinter>" 67)
   where
     "\<phi> \<sqinter> \<psi> = (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
 
-primrec (in classical_logic) 
+primrec (in classical_logic)
   Arbitrary_Conjunction :: "'a list \<Rightarrow> 'a" ("\<Sqinter>")
   where
      "\<Sqinter> [] = \<top>"
@@ -43,8 +43,8 @@ primrec (in classical_logic)
 
 lemma (in classical_logic) conjunction_introduction:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> (\<phi> \<sqinter> \<psi>)"
-  by (metis 
-        Modus_Ponens
+  by (metis
+        modus_ponens
         conjunction_def
         list_flip_implication1
         list_implication.simps(1)
@@ -52,7 +52,7 @@ lemma (in classical_logic) conjunction_introduction:
 
 lemma (in classical_logic) conjunction_left_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<phi>"
-  by (metis (full_types) 
+  by (metis (full_types)
         Peirces_law
         The_Principle_of_Pseudo_Scotus
         conjunction_def
@@ -63,10 +63,10 @@ lemma (in classical_logic) conjunction_left_elimination:
 
 lemma (in classical_logic) conjunction_right_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<psi>"
-  by (metis (full_types) 
+  by (metis (full_types)
         axiom_k
         Contraposition
-        Modus_Ponens
+        modus_ponens
         conjunction_def
         flip_hypothetical_syllogism
         flip_implication)
@@ -117,17 +117,17 @@ definition (in classical_logic) negation :: "'a \<Rightarrow> 'a"  ("\<sim>")
 lemma (in classical_logic) negation_introduction:
   "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<sim> \<phi>"
   unfolding negation_def
-  by (metis axiom_k Modus_Ponens implication_absorption)
+  by (metis axiom_k modus_ponens implication_absorption)
 
 lemma (in classical_logic) negation_elimination:
   "\<turnstile> \<sim> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>)"
   unfolding negation_def
-  by (metis axiom_k Modus_Ponens implication_absorption)
+  by (metis axiom_k modus_ponens implication_absorption)
 
 lemma (in classical_logic) negation_embedding [simp]:
   "\<^bold>\<lparr> \<sim> \<phi> \<^bold>\<rparr> = \<sim> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
-  by (simp add: 
-        classical_logic_class.negation_def 
+  by (simp add:
+        classical_logic_class.negation_def
         negation_def)
 
 lemma negation_semantics [simp]:
@@ -173,7 +173,7 @@ qed
 lemma (in classical_logic) disjunction_left_introduction:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
-  by (metis Modus_Ponens
+  by (metis modus_ponens
             The_Principle_of_Pseudo_Scotus
             flip_implication)
 
@@ -202,7 +202,7 @@ primrec (in classical_logic) exclusive :: "'a list \<Rightarrow> 'a" ("\<Coprod>
 
 subsection \<open> Subtraction \<close>
 
-definition (in classical_logic) 
+definition (in classical_logic)
   subtraction :: "'a \<Rightarrow> 'a \<Rightarrow> 'a" (infixl "\<setminus>" 69)
   where
     "\<phi> \<setminus> \<psi> = \<phi> \<sqinter> \<sim> \<psi>"
@@ -218,15 +218,15 @@ subsection \<open> Biconditional Equivalence Relation \<close>
 
 lemma (in classical_logic) biconditional_reflection:
   "\<turnstile> \<phi> \<leftrightarrow> \<phi>"
-  by (meson 
-        axiom_k 
-        Modus_Ponens 
-        biconditional_introduction 
+  by (meson
+        axiom_k
+        modus_ponens
+        biconditional_introduction
         implication_absorption)
 
 lemma (in classical_logic) biconditional_symmetry:
   "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<leftrightarrow> (\<psi> \<leftrightarrow> \<phi>)"
-  by (metis (full_types) Modus_Ponens
+  by (metis (full_types) modus_ponens
                          biconditional_def
                          conjunction_def
                          flip_hypothetical_syllogism
@@ -234,7 +234,7 @@ lemma (in classical_logic) biconditional_symmetry:
 
 lemma (in classical_logic) biconditional_symmetry_rule:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<phi>"
-  by (meson Modus_Ponens
+  by (meson modus_ponens
             biconditional_introduction
             biconditional_left_elimination
             biconditional_right_elimination)
@@ -251,7 +251,7 @@ qed
 
 lemma (in classical_logic) biconditional_transitivity_rule:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> \<turnstile> \<psi> \<leftrightarrow> \<chi> \<Longrightarrow> \<turnstile> \<phi> \<leftrightarrow> \<chi>"
-  using Modus_Ponens biconditional_transitivity by blast
+  using modus_ponens biconditional_transitivity by blast
 
 subsection \<open> Biconditional Weakening \<close>
 
@@ -279,7 +279,7 @@ lemma (in classical_logic) weak_biconditional_weaken:
   by (metis assms
             biconditional_left_elimination
             biconditional_right_elimination
-            Modus_Ponens)
+            modus_ponens)
 
 subsection \<open> Conjunction Identities \<close>
 
@@ -287,7 +287,7 @@ lemma (in classical_logic) conjunction_negation_identity:
   "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>)"
   by (metis Contraposition
             Double_Negation_converse
-            Modus_Ponens
+            modus_ponens
             biconditional_introduction
             conjunction_def
             negation_def)
@@ -326,7 +326,7 @@ lemma (in classical_logic) weak_conjunction_deduction_arbitrary_equivalence [sim
 
 lemma (in classical_logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
-  by (metis (full_types) Modus_Ponens
+  by (metis (full_types) modus_ponens
                          biconditional_introduction
                          conjunction_def
                          flip_hypothetical_syllogism
@@ -377,19 +377,19 @@ proof -
               have "\<turnstile> (\<Sqinter> \<Phi> \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))) \<rightarrow>
                       (\<chi> \<sqinter> \<Sqinter> \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
               proof -
-                have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p 
-                        (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) 
-                            \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) 
+                have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p
+                        (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>))
+                            \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>)
                                    \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)"
                     by auto
-                hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) 
-                               \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) 
+                hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>))
+                               \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>)
                                       \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>) \<^bold>\<rparr>"
                   using propositional_semantics by blast
                 thus ?thesis by simp
               qed
               ultimately have "\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))"
-                using Modus_Ponens by auto
+                using modus_ponens by auto
               show ?thesis
               proof cases
                 assume "\<phi> = \<chi>"
@@ -398,10 +398,10 @@ proof -
                   fix \<phi>
                   have "\<turnstile> (\<chi> \<sqinter> \<phi>) \<rightarrow> (\<chi> \<sqinter> \<chi> \<sqinter> \<phi>)"
                     unfolding conjunction_def
-                    by (meson 
-                          Axiom_S
+                    by (meson
+                          axiom_s
                           Double_Negation
-                          Modus_Ponens
+                          modus_ponens
                           flip_hypothetical_syllogism
                           flip_implication)
                 } note tautology = this
@@ -409,7 +409,7 @@ proof -
                      \<open>\<phi> = \<chi>\<close>
                 have "\<turnstile> (\<chi> \<sqinter> \<Sqinter> (removeAll \<chi> \<Phi>)) \<rightarrow> (\<chi> \<sqinter> \<Sqinter> \<Phi>)"
                   unfolding biconditional_def
-                  by (simp, metis tautology hypothetical_syllogism Modus_Ponens)
+                  by (simp, metis tautology hypothetical_syllogism modus_ponens)
                 moreover
                 from \<open>\<turnstile> \<Sqinter> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<sqinter> \<chi> \<sqinter> \<Sqinter> (removeAll \<phi> \<Phi>))\<close>
                      \<open>\<phi> = \<chi>\<close>
@@ -418,7 +418,7 @@ proof -
                   by (simp,
                       metis conjunction_right_elimination
                             hypothetical_syllogism
-                            Modus_Ponens)
+                            modus_ponens)
                 ultimately show ?thesis
                   unfolding biconditional_def
                   by simp
@@ -440,7 +440,7 @@ proof -
           thus ?case by blast
         qed
         hence "\<turnstile> (\<psi> \<sqinter> \<Sqinter> (removeAll \<psi> \<Phi>)) \<rightarrow> \<Sqinter> \<Phi>"
-          using Modus_Ponens biconditional_right_elimination \<open>\<psi> \<in> set \<Phi>\<close>
+          using modus_ponens biconditional_right_elimination \<open>\<psi> \<in> set \<Phi>\<close>
           by blast
         moreover
         from \<open>\<psi> \<in> set \<Phi>\<close> \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> Cons.hyps
@@ -448,13 +448,13 @@ proof -
           by (simp add: subset_insert_iff insert_absorb)
         hence "\<turnstile> (\<psi> \<sqinter> \<Sqinter> \<Psi>) \<rightarrow> (\<psi> \<sqinter> \<Sqinter> (removeAll \<psi> \<Phi>))"
           unfolding conjunction_def
-          using 
-            Modus_Ponens 
-            hypothetical_syllogism 
+          using
+            modus_ponens
+            hypothetical_syllogism
             flip_hypothetical_syllogism
           by meson
         ultimately have "\<turnstile> (\<psi> \<sqinter> \<Sqinter> \<Psi>) \<rightarrow> \<Sqinter> \<Phi>"
-          using Modus_Ponens hypothetical_syllogism
+          using modus_ponens hypothetical_syllogism
           by blast
         thus ?thesis
           by simp
@@ -465,8 +465,8 @@ proof -
           by auto
         hence "\<turnstile> (\<psi> \<sqinter> \<Sqinter> \<Psi>) \<rightarrow> \<Sqinter> \<Phi>"
           unfolding conjunction_def
-          by (metis 
-                Modus_Ponens
+          by (metis
+                modus_ponens
                 conjunction_def
                 conjunction_right_elimination
                 hypothetical_syllogism)
@@ -501,10 +501,10 @@ proof (induct \<Phi>)
     unfolding biconditional_def
               conjunction_def
               verum_def
-    using 
+    using
       axiom_k
       Ex_Falso_Quodlibet
-      Modus_Ponens
+      modus_ponens
       conjunction_def
       excluded_middle_elimination
       set_deduction_base_theory
@@ -517,7 +517,7 @@ next
   have "\<turnstile> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<chi>))"
     by (simp add: biconditional_reflection)
   with Cons have "\<turnstile> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> \<Sqinter> \<Phi> \<rightarrow> \<chi>)"
-    by (metis Modus_Ponens
+    by (metis modus_ponens
               biconditional_def
               hypothetical_syllogism
               list_implication.simps(2)
@@ -525,7 +525,7 @@ next
   with curry_uncurry [where ?\<phi>="\<phi>"  and ?\<psi>="\<Sqinter> \<Phi>" and ?\<chi>="\<chi>"]
   show ?case
     unfolding biconditional_def
-    by (simp, metis Modus_Ponens hypothetical_syllogism)
+    by (simp, metis modus_ponens hypothetical_syllogism)
 qed
 
 subsection \<open> Disjunction Identities \<close>
@@ -537,7 +537,7 @@ lemma (in classical_logic) bivalence:
 lemma (in classical_logic) implication_equivalence:
   "\<turnstile> (\<sim> \<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi>)"
   by (metis Double_Negation_converse
-            Modus_Ponens
+            modus_ponens
             biconditional_introduction
             bivalence
             disjunction_def
@@ -546,7 +546,7 @@ lemma (in classical_logic) implication_equivalence:
 
 lemma (in classical_logic) disjunction_commutativity:
   "\<turnstile> (\<psi> \<squnion> \<phi>) \<leftrightarrow> (\<phi> \<squnion> \<psi>)"
-  by (meson Modus_Ponens
+  by (meson modus_ponens
             biconditional_introduction
             disjunction_elimination
             disjunction_left_introduction
@@ -596,19 +596,19 @@ proof -
               have "\<turnstile> (\<Squnion> \<Phi> \<leftrightarrow> (\<phi> \<squnion> \<Squnion> (removeAll \<phi> \<Phi>))) \<rightarrow>
                       (\<chi> \<squnion> \<Squnion> \<Phi>) \<leftrightarrow> (\<phi> \<squnion> \<chi> \<squnion> \<Squnion> (removeAll \<phi> \<Phi>))"
               proof -
-                have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p 
-                        (\<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) 
-                         \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>) 
+                have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p
+                        (\<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>))
+                         \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)
                               \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)"
                     by auto
-                  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>)) 
-                             \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>) 
+                  hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>))
+                             \<rightarrow> (\<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)
                                  \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (removeAll \<phi> \<Phi>)\<^bold>\<rangle>) \<^bold>\<rparr>"
                     using propositional_semantics by blast
                   thus ?thesis by simp
               qed
               ultimately have "\<turnstile> \<Squnion> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<squnion> \<chi> \<squnion> \<Squnion> (removeAll \<phi> \<Phi>))"
-                using Modus_Ponens by auto
+                using modus_ponens by auto
               show ?thesis
               proof cases
                 assume "\<phi> = \<chi>"
@@ -616,10 +616,10 @@ proof -
                   using \<open>\<turnstile> \<Squnion> (\<chi> # \<Phi>) \<leftrightarrow> (\<phi> \<squnion> \<chi> \<squnion> \<Squnion> (removeAll \<phi> \<Phi>))\<close>
                   unfolding biconditional_def
                   by (simp add: disjunction_def,
-                      meson 
-                        axiom_k 
-                        Modus_Ponens 
-                        flip_hypothetical_syllogism 
+                      meson
+                        axiom_k
+                        modus_ponens
+                        flip_hypothetical_syllogism
                         implication_absorption)
               next
                 assume "\<phi> \<noteq> \<chi>"
@@ -639,28 +639,28 @@ proof -
           thus ?case by blast
         qed
         hence "\<turnstile> \<Squnion> \<Phi> \<rightarrow> (\<psi> \<squnion> \<Squnion> (removeAll \<psi> \<Phi>))"
-          using Modus_Ponens biconditional_left_elimination \<open>\<psi> \<in> set \<Phi>\<close> 
+          using modus_ponens biconditional_left_elimination \<open>\<psi> \<in> set \<Phi>\<close>
           by blast
         moreover
         from \<open>\<psi> \<in> set \<Phi>\<close> \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> Cons.hyps
         have "\<turnstile> \<Squnion> (removeAll \<psi> \<Phi>) \<rightarrow> \<Squnion> \<Psi>"
           by (simp add: subset_insert_iff insert_absorb)
         hence "\<turnstile> (\<psi> \<squnion> \<Squnion> (removeAll \<psi> \<Phi>)) \<rightarrow> \<Squnion> (\<psi> # \<Psi>)"
-          using 
-            Modus_Ponens 
-            disjunction_def 
-            hypothetical_syllogism 
+          using
+            modus_ponens
+            disjunction_def
+            hypothetical_syllogism
           by fastforce
         ultimately show ?thesis
-          by (simp, metis Modus_Ponens hypothetical_syllogism)
+          by (simp, metis modus_ponens hypothetical_syllogism)
       next
         assume "\<psi> \<notin> set \<Phi>"
         hence "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<Squnion> \<Psi>"
           using Cons.hyps \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close>
           by auto
         then show ?thesis
-          by (metis 
-                Arbitrary_Disjunction.simps(2) 
+          by (metis
+                Arbitrary_Disjunction.simps(2)
                 disjunction_def
                 list_deduction_def
                 list_deduction_theorem
@@ -683,7 +683,7 @@ subsection \<open> Monotony of Conjunction and Disjunction \<close>
 lemma (in classical_logic) conjunction_monotonic_identity:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<phi> \<sqinter> \<chi>) \<rightarrow> (\<psi> \<sqinter> \<chi>)"
   unfolding conjunction_def
-  using Modus_Ponens
+  using modus_ponens
         flip_hypothetical_syllogism
   by blast
 
@@ -691,14 +691,14 @@ lemma (in classical_logic) conjunction_monotonic:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
   shows "\<turnstile> (\<phi> \<sqinter> \<chi>) \<rightarrow> (\<psi> \<sqinter> \<chi>)"
   using assms
-        Modus_Ponens
+        modus_ponens
         conjunction_monotonic_identity
   by blast
 
 lemma (in classical_logic) disjunction_monotonic_identity:
   "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<phi> \<squnion> \<chi>) \<rightarrow> (\<psi> \<squnion> \<chi>)"
   unfolding disjunction_def
-  using Modus_Ponens
+  using modus_ponens
         flip_hypothetical_syllogism
   by blast
 
@@ -706,7 +706,7 @@ lemma (in classical_logic) disjunction_monotonic:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi>"
   shows "\<turnstile> (\<phi> \<squnion> \<chi>) \<rightarrow> (\<psi> \<squnion> \<chi>)"
   using assms
-        Modus_Ponens
+        modus_ponens
         disjunction_monotonic_identity
   by blast
 
@@ -739,10 +739,10 @@ next
   have "\<turnstile> (\<Squnion> (\<psi> # \<Psi>) \<sqinter> \<phi>) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> ((\<Squnion> \<Psi>) \<sqinter> \<phi>))"
     using conjunction_distribution by auto
   moreover
-  from Cons have 
+  from Cons have
     "\<turnstile> ((\<psi> \<sqinter> \<phi>) \<squnion> ((\<Squnion> \<Psi>) \<sqinter> \<phi>)) \<leftrightarrow> ((\<psi> \<sqinter> \<phi>) \<squnion> (\<Squnion> [\<psi> \<sqinter> \<phi>. \<psi> \<leftarrow> \<Psi>]))"
     unfolding disjunction_def biconditional_def
-    by (simp, meson Modus_Ponens hypothetical_syllogism)
+    by (simp, meson modus_ponens hypothetical_syllogism)
   ultimately show ?case
     by (simp, metis biconditional_transitivity_rule)
 qed
@@ -780,13 +780,13 @@ proof (induct \<Phi>)
 next
   case (Cons \<phi> \<Phi>)
   hence " \<turnstile> (\<phi> # \<Phi>) :\<rightarrow> (\<psi> \<sqinter> \<chi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<chi>))"
-    by (metis 
-          Modus_Ponens 
+    by (metis
+          modus_ponens
           biconditional_def
           hypothetical_syllogism
           list_implication.simps(2)
           weak_conjunction_deduction_equivalence)
-  moreover 
+  moreover
   have "\<turnstile> (\<phi> \<rightarrow> (\<Phi> :\<rightarrow> \<psi> \<sqinter> \<Phi> :\<rightarrow> \<chi>)) \<leftrightarrow> (((\<phi> # \<Phi>) :\<rightarrow> \<psi>) \<sqinter> ((\<phi> # \<Phi>) :\<rightarrow> \<chi>))"
     using implication_distribution by auto
   ultimately show ?case
@@ -805,7 +805,7 @@ qed
 
 lemma (in classical_logic) biconditional_conjunction_weaken_rule:
   "\<turnstile> (\<alpha> \<leftrightarrow> \<beta>) \<Longrightarrow> \<turnstile> (\<gamma> \<sqinter> \<alpha>) \<leftrightarrow> (\<gamma> \<sqinter> \<beta>)"
-  using Modus_Ponens biconditional_conjunction_weaken by blast
+  using modus_ponens biconditional_conjunction_weaken by blast
 
 lemma (in classical_logic) disjunction_arbitrary_distribution:
   "\<turnstile> (\<phi> \<squnion> \<Sqinter> \<Psi>) \<leftrightarrow> \<Sqinter> [\<phi> \<squnion> \<psi>. \<psi> \<leftarrow> \<Psi>]"
@@ -813,7 +813,7 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     unfolding disjunction_def biconditional_def
-    using axiom_k Modus_Ponens verum_tautology
+    using axiom_k modus_ponens verum_tautology
     by (simp, blast)
 next
   case (Cons \<psi> \<Psi>)
@@ -834,9 +834,9 @@ proof (induct \<Psi>)
   case Nil
   then show ?case
     by (simp add: biconditional_def,
-        meson 
+        meson
           axiom_k
-          Modus_Ponens
+          modus_ponens
           list_implication_axiom_k
           verum_tautology)
 next
@@ -867,9 +867,9 @@ lemma (in classical_logic) double_negation_biconditional:
 
 lemma (in classical_logic) double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) = \<Gamma> \<tturnstile> \<phi>"
-  using 
-    set_deduction_weaken 
-    biconditional_weaken 
+  using
+    set_deduction_weaken
+    biconditional_weaken
     double_negation_biconditional
   by metis
 
@@ -905,10 +905,10 @@ lemma (in classical_logic) disjuction_exclusion_equivalence:
   "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>) \<equiv> \<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)"
 proof (induct \<Phi>)
   case Nil
-  then show ?case 
-    by (simp add: 
-          conjunction_right_elimination 
-          negation_def 
+  then show ?case
+    by (simp add:
+          conjunction_right_elimination
+          negation_def
           set_deduction_weaken)
 next
   case (Cons \<phi> \<Phi>)
@@ -916,18 +916,18 @@ next
     by (simp add: biconditional_reflection)
   moreover have "\<turnstile> \<sim> (\<psi> \<sqinter> (\<phi> \<squnion> \<Squnion> \<Phi>)) \<leftrightarrow> (\<sim> (\<psi> \<sqinter> \<phi>) \<sqinter> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>))"
   proof -
-    have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) 
+    have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))
                          \<leftrightarrow> (\<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<sqinter> \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))"
       by auto
-    hence "\<turnstile> \<^bold>\<lparr> \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) 
+    hence "\<turnstile> \<^bold>\<lparr> \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))
                \<leftrightarrow> (\<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<phi>\<^bold>\<rangle>) \<sqinter> \<sim> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast
     thus ?thesis by simp
   qed
-  ultimately 
+  ultimately
   have "\<turnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) \<leftrightarrow> (\<sim> (\<psi> \<sqinter> \<phi>) \<sqinter> \<sim> (\<psi> \<sqinter> \<Squnion> \<Phi>))"
     by simp
-  hence "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) = (\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>) 
+  hence "\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<Squnion> (\<phi> # \<Phi>)) = (\<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)
            \<and> (\<forall>\<phi>\<in>set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<psi> \<sqinter> \<phi>)))"
     using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
           conjunction_set_deduction_equivalence [where \<Gamma>="\<Gamma>"]
@@ -950,7 +950,7 @@ next
   case (Cons \<chi> \<Phi>)
   assume "\<Gamma> \<tturnstile> \<Coprod> (\<chi> # \<Phi>)"
   hence "\<Gamma> \<tturnstile> \<Coprod> \<Phi>" by simp
-  hence "\<forall>\<phi>\<in>set \<Phi>. \<forall>\<psi>\<in>set \<Phi>. \<phi> \<noteq> \<psi> \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)" 
+  hence "\<forall>\<phi>\<in>set \<Phi>. \<forall>\<psi>\<in>set \<Phi>. \<phi> \<noteq> \<psi> \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
     using Cons.hyps by blast
   moreover have "\<Gamma> \<tturnstile> \<sim> (\<chi> \<sqinter> \<Squnion> \<Phi>)"
     using \<open>\<Gamma> \<tturnstile> \<Coprod> (\<chi> # \<Phi>)\<close> conjunction_set_deduction_equivalence by auto
@@ -961,13 +961,13 @@ next
     have "\<turnstile> \<sim> (\<chi> \<sqinter> \<phi>) \<rightarrow> \<sim> (\<phi> \<sqinter> \<chi>)"
       unfolding negation_def
                 conjunction_def
-      using Modus_Ponens flip_hypothetical_syllogism flip_implication by blast
+      using modus_ponens flip_hypothetical_syllogism flip_implication by blast
   }
   with \<open>\<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<chi> \<sqinter> \<phi>)\<close> have "\<forall> \<phi> \<in> set \<Phi>. \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
     using set_deduction_weaken [where \<Gamma>="\<Gamma>"]
           set_deduction_modus_ponens [where \<Gamma>="\<Gamma>"]
     by blast
-  ultimately 
+  ultimately
   show "\<forall>\<phi> \<in> set (\<chi> # \<Phi>). \<forall>\<psi> \<in> set (\<chi> # \<Phi>). \<phi> \<noteq> \<psi> \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
     by simp
 qed
@@ -991,7 +991,7 @@ next
       fix \<phi> \<psi> \<chi>
       have "\<turnstile> \<sim> (\<phi> \<sqinter> (\<psi> \<squnion> \<chi>)) \<leftrightarrow> (\<sim> (\<phi> \<sqinter> \<psi>) \<sqinter> \<sim> (\<phi> \<sqinter> \<chi>))"
       proof -
-        have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) 
+        have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))
                        \<leftrightarrow> (\<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>))"
           by auto
         hence "\<turnstile> \<^bold>\<lparr> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<leftrightarrow> (\<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<chi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
@@ -1027,7 +1027,7 @@ qed
 
 lemma (in classical_logic) exclusive_equivalence:
    "\<Gamma> \<tturnstile> \<Coprod> \<Phi> =
-      ((\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and> 
+      ((\<forall>\<phi>\<in>duplicates \<Phi>. \<Gamma> \<tturnstile> \<sim> \<phi>) \<and>
          (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<Gamma> \<tturnstile> \<sim> (\<phi> \<sqinter> \<psi>)))"
 proof -
   {
@@ -1074,18 +1074,18 @@ proof -
               assume "\<phi> \<noteq> \<psi>"
               hence "\<phi> \<in> set \<Phi>" using \<open>\<phi> \<in> set (\<psi> # \<Phi>)\<close> by auto
               hence "\<turnstile> \<sim> \<phi> \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" using Cons.hyps by auto
-              moreover have "\<turnstile> (\<sim> \<phi> \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)) 
+              moreover have "\<turnstile> (\<sim> \<phi> \<leftrightarrow> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>))
                                    \<rightarrow> (\<sim> \<phi> \<leftrightarrow> \<sim> (\<phi> \<sqinter> (\<psi> \<squnion> \<Squnion> \<Phi>)))"
               proof -
                 have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
                                      (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)))"
                   by auto
-                hence "\<turnstile> \<^bold>\<lparr> (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) 
+                hence "\<turnstile> \<^bold>\<lparr> (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))
                            \<rightarrow> (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> \<sim> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))) \<^bold>\<rparr>"
                   using propositional_semantics by blast
                 thus ?thesis by simp
               qed
-              ultimately have ?thesis using Modus_Ponens by simp
+              ultimately have ?thesis using modus_ponens by simp
             }
             ultimately show ?thesis by auto
           qed
@@ -1117,13 +1117,13 @@ lemma (in classical_logic) map_negation_list_implication:
 proof (induct \<Phi>)
   case Nil
   then show ?case
-    by (simp add: 
-          biconditional_def 
-          negation_def 
+    by (simp add:
+          biconditional_def
+          negation_def
           The_Principle_of_Pseudo_Scotus)
 next
   case (Cons \<psi> \<Phi>)
-  have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>)) 
+  have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>))
           \<rightarrow> (\<sim> \<psi> \<rightarrow> \<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<psi> \<squnion> \<Squnion> \<Phi>))"
   proof -
     have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
@@ -1139,7 +1139,7 @@ next
     by (metis map_negation_def
               list.simps(9)
               Arbitrary_Disjunction.simps(2)
-              Modus_Ponens
+              modus_ponens
               list_implication.simps(2))
 qed
 
@@ -1164,7 +1164,7 @@ next
   moreover
   have "\<turnstile> (?A \<leftrightarrow> (\<phi> \<sqinter> ?B)) \<rightarrow> (((\<phi> \<sqinter> \<Sqinter> \<Psi>) \<squnion> ?A) \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> \<Psi> \<squnion> ?B))"
   proof -
-    let ?\<phi> = "(\<^bold>\<langle>?A\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?B\<^bold>\<rangle>)) \<rightarrow> 
+    let ?\<phi> = "(\<^bold>\<langle>?A\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>?B\<^bold>\<rangle>)) \<rightarrow>
                (((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Psi>\<^bold>\<rangle>) \<squnion> \<^bold>\<langle>?A\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>?B\<^bold>\<rangle>))"
     have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ?\<phi>" by fastforce
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
@@ -1172,7 +1172,7 @@ next
       by simp
   qed
   ultimately have "\<turnstile> ((\<phi> \<sqinter> \<Sqinter> \<Psi>) \<squnion> ?A) \<leftrightarrow> (\<phi> \<sqinter> \<Sqinter> \<Psi> \<squnion> ?B)"
-    using Modus_Ponens
+    using modus_ponens
     by blast
   moreover
   have "map (\<Sqinter> \<circ> (\<lambda> \<phi>s. \<phi> # \<phi>s)) \<Lambda> = map (\<lambda>\<Psi>. \<phi> \<sqinter> \<Sqinter> \<Psi>) \<Lambda>" by simp
@@ -1199,7 +1199,7 @@ next
   have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (@) \<Phi>) \<Lambda>) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))
        = \<turnstile> \<Squnion> (map \<Sqinter> (map ((@) \<Phi>) \<Lambda>)) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
     by simp
-  with Cons have 
+  with Cons have
     "\<turnstile> \<Squnion> (map \<Sqinter> (map (\<lambda> \<Psi>. \<Phi> @ \<Psi>) \<Lambda>)) \<leftrightarrow> (\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Lambda>))"
     (is "\<turnstile> \<Squnion> (map \<Sqinter> ?A) \<leftrightarrow> (?B \<sqinter> ?C)")
     by meson
@@ -1216,7 +1216,7 @@ next
       by simp
   qed
   ultimately have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (\<lambda> \<phi>s. \<phi> # \<phi>s)) ?A) \<leftrightarrow> ((\<phi> \<sqinter> ?B) \<sqinter> ?C)"
-    using Modus_Ponens conj_dnf_distribute
+    using modus_ponens conj_dnf_distribute
     by blast
   moreover
   have "\<Sqinter> \<circ> (@) (\<phi> # \<Phi>) = \<Sqinter> \<circ> (#) \<phi> \<circ> (@) \<Phi>" by auto

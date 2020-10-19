@@ -1,7 +1,7 @@
 section \<open> Kripke Semantics For Intuitionistic Logic \<close>
 
 theory Kripke_Semantics
-  imports 
+  imports
     Main
     "./Combinators"
 begin
@@ -39,7 +39,7 @@ lemma Kripke_models_S:
   "\<MM> x \<Turnstile> (\<phi> \<^bold>\<Rightarrow> \<psi> \<^bold>\<Rightarrow> \<chi>) \<^bold>\<Rightarrow> (\<phi> \<^bold>\<Rightarrow> \<psi>) \<^bold>\<Rightarrow> \<phi> \<^bold>\<Rightarrow> \<chi>"
   by (simp, meson rtranclp.rtrancl_refl rtranclp_trans)
 
-lemma Kripke_models_Modus_Ponens:
+lemma Kripke_models_modus_ponens:
   "\<MM> x \<Turnstile> \<phi> \<^bold>\<Rightarrow> \<psi> \<Longrightarrow> \<MM> x \<Turnstile> \<phi> \<Longrightarrow> \<MM> x \<Turnstile> \<psi>"
   by auto
 
@@ -71,7 +71,7 @@ proof -
     unfolding assms(3)
     using assms(1) converse_rtranclpE by fastforce
   ultimately show ?thesis
-    by (meson Kripke_models_Modus_Ponens)
+    by (meson Kripke_models_modus_ponens)
 qed
 
 lemma no_extract:

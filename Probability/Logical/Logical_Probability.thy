@@ -3,8 +3,9 @@
 chapter \<open> Probability Logic \label{chapter:probability} \<close>
 
 theory Logical_Probability
-  imports "../../Logic/Classical/Classical_Connectives"
-          HOL.Real
+  imports
+    "../../Logic/Classical/Classical_Connectives"
+    HOL.Real
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -13,7 +14,7 @@ section \<open> Definition of Probability Logic \label{sec:definition-of-probabi
 
 text \<open> TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary Theory of Probability" \<close>
 
-class Logical_Probability = classical_logic +
+class logical_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Non_Negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
@@ -28,7 +29,7 @@ text \<open> TODO: Discuss the value of traditional probability theory and cite 
 
 subsection \<open> Basic Properties of Probability Logic \<close>
 
-lemma (in Logical_Probability) Additivity:
+lemma (in logical_probability) Additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -37,17 +38,17 @@ lemma (in Logical_Probability) Additivity:
             negation_def
   by (simp add: Implicational_Additivity)
 
-lemma (in Logical_Probability) Alternate_Additivity:
+lemma (in logical_probability) Alternate_Additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
   by (metis Additivity
             Double_Negation_converse
-            Modus_Ponens
+            modus_ponens
             conjunction_def
             negation_def)
 
-lemma (in Logical_Probability) complementation:
+lemma (in logical_probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis Alternate_Additivity
             Unity
@@ -56,7 +57,7 @@ lemma (in Logical_Probability) complementation:
             add.commute
             add_diff_cancel_left')
 
-lemma (in Logical_Probability) unity_upper_bound:
+lemma (in logical_probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
 
@@ -72,7 +73,7 @@ class Weatherson_Probability = classical_logic +
   assumes Monotonicity: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
   assumes Sum_Rule: "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
 
-sublocale Weatherson_Probability \<subseteq> Logical_Probability
+sublocale Weatherson_Probability \<subseteq> logical_probability
 proof
   fix \<phi>
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
@@ -88,7 +89,7 @@ next
               eq_iff
               axiom_k
               Ex_Falso_Quodlibet
-              Modus_Ponens
+              modus_ponens
               verum_def)
 next
   fix \<phi> \<psi>
@@ -106,7 +107,7 @@ next
               weak_biconditional_weaken)
 qed
 
-lemma (in Logical_Probability) monotonicity:
+lemma (in logical_probability) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
 proof -
   assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -125,15 +126,15 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in Logical_Probability) biconditional_equivalence:
+lemma (in logical_probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
   by (meson eq_iff
-            Modus_Ponens
+            modus_ponens
             biconditional_left_elimination
             biconditional_right_elimination
             monotonicity)
 
-lemma (in Logical_Probability) sum_rule:
+lemma (in logical_probability) sum_rule:
   "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
 proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
@@ -183,7 +184,7 @@ proof -
     by simp
 qed
 
-sublocale Logical_Probability \<subseteq> Weatherson_Probability
+sublocale logical_probability \<subseteq> Weatherson_Probability
 proof
   show "Pr \<top> = 1"
     by (simp add: Unity)
@@ -208,12 +209,12 @@ next
     by (metis sum_rule add.commute)
 qed
 
-sublocale Logical_Probability \<subseteq> Consistent_classical_logic
+sublocale logical_probability \<subseteq> Consistent_classical_logic
 proof
   show "\<not> \<turnstile> \<bottom>" using Unity Antithesis by auto
 qed
 
-lemma (in Logical_Probability) subtraction_identity:
+lemma (in logical_probability) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
 proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
@@ -249,7 +250,7 @@ proof -
     by auto
 qed
 
-lemma (in Logical_Probability) disjunction_sum_inequality:
+lemma (in logical_probability) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
 proof -
   have "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
@@ -258,7 +259,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in Logical_Probability) arbitrary_disjunction_list_summation_inequality:
+lemma (in logical_probability) arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
@@ -272,37 +273,37 @@ next
   then show ?case by simp
 qed
 
-lemma (in Logical_Probability) implication_list_summation_inequality:
+lemma (in logical_probability) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_list_summation_inequality monotonicity order_trans
   by blast
 
-lemma (in Logical_Probability) arbitrary_disjunction_set_summation_inequality:
+lemma (in logical_probability) arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (metis arbitrary_disjunction_list_summation_inequality
             arbitrary_disjunction_remdups
             biconditional_equivalence
             sum.set_conv_list)
 
-lemma (in Logical_Probability) implication_set_summation_inequality:
+lemma (in logical_probability) implication_set_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
   using assms arbitrary_disjunction_set_summation_inequality monotonicity order_trans
   by blast
 
-definition (in classical_logic) Logical_Probabilities :: "('a \<Rightarrow> real) set"
-  where "Logical_Probabilities =
-         {Pr. class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
+definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real) set"
+  where "logical_probabilities =
+         {Pr. class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 definition (in classical_logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
   where "Dirac_Measures =
-         { Pr.   class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
+         { Pr.   class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
 lemma (in classical_logic) Dirac_Measures_subset:
-  "Dirac_Measures \<subseteq> Logical_Probabilities"
-  unfolding Logical_Probabilities_def Dirac_Measures_def
+  "Dirac_Measures \<subseteq> logical_probabilities"
+  unfolding logical_probabilities_def Dirac_Measures_def
   by fastforce
 
 lemma (in classical_logic) MCS_Dirac_Measure:
@@ -310,10 +311,10 @@ lemma (in classical_logic) MCS_Dirac_Measure:
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Dirac_Measures"
       (is "?Pr \<in> Dirac_Measures")
 proof -
-  have "class.Logical_Probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
+  have "class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
          meson assms
-               Formula_Maximally_Consistent_Set_reflection
+               formula_maximally_consistent_set_reflection
                Maximally_Consistent_Set_def
                set_deduction_weaken)
      fix \<phi> \<psi>
@@ -323,7 +324,7 @@ proof -
      hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
        by (metis assms
                  formula_consistent_def
-                 Formula_Maximally_Consistent_Set_def
+                 formula_maximally_consistent_set_def
                  Maximally_Consistent_Set_def
                  conjunction_def
                  conjunction_negation_identity
@@ -333,7 +334,7 @@ proof -
                  weak_biconditional_weaken)
      hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
        using assms
-             Formula_Maximally_Consistent_Set_reflection
+             formula_maximally_consistent_set_reflection
              Maximally_Consistent_Set_def
              conjunction_set_deduction_equivalence
        by meson
@@ -341,7 +342,7 @@ proof -
      have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
        by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close>
                  assms
-                 Formula_Maximally_Consistent_Set_implication
+                 formula_maximally_consistent_set_implication
                  Maximally_Consistent_Set_def
                  conjunction_def
                  disjunction_def)
@@ -393,7 +394,7 @@ proof (induct \<Psi>)
   then show ?case
     using assms
           formula_consistent_def
-          Formula_Maximally_Consistent_Set_def
+          formula_maximally_consistent_set_def
           Maximally_Consistent_Set_def
           set_deduction_reflection
     by (simp, blast)
@@ -403,8 +404,8 @@ next
     by (simp add: disjunction_def,
         meson assms
               formula_consistent_def
-              Formula_Maximally_Consistent_Set_def
-              Formula_Maximally_Consistent_Set_implication
+              formula_maximally_consistent_set_def
+              formula_maximally_consistent_set_implication
               Maximally_Consistent_Set_def
               set_deduction_reflection)
   thus ?case using Cons.hyps by simp

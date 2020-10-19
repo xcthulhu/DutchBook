@@ -26,11 +26,11 @@ inductive Classical_Propositional_Calculus ::
   where
      axiom_k [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
-   | Axiom_S [Classical_Propositional_Calculus]:
+   | axiom_s [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<chi>) \<^bold>\<rightarrow> (\<phi> \<^bold>\<rightarrow> \<psi>) \<^bold>\<rightarrow> \<phi> \<^bold>\<rightarrow> \<chi>"
    | Double_Negation [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<phi> \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<phi>"
-   | Modus_Ponens [Classical_Propositional_Calculus]:
+   | modus_ponens [Classical_Propositional_Calculus]:
         "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
 
 instantiation Classical_Propositional_Formula
@@ -92,7 +92,7 @@ next
     unfolding strong_classical_propositional_deduction_def
     by (metis assms
               Maximally_Consistent_Set_def
-              Formula_Maximally_Consistent_Set_implication
+              formula_maximally_consistent_set_implication
               Classical_Propositional_Semantics.simps(2)
               implication_Classical_Propositional_Formula_def
               set_deduction_modus_ponens
@@ -133,7 +133,7 @@ proof -
     proof -
       from \<open>\<not> \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>\<close> obtain \<Omega> where \<Omega>: "\<Gamma> \<subseteq> \<Omega>" "\<phi>-MCS \<Omega>"
         by (meson formula_consistent_def
-                  Formula_Maximally_Consistent_Extension
+                  formula_maximally_consistent_extension
                   strong_classical_propositional_deduction_def)
       hence "(\<phi> \<rightarrow> \<bottom>) \<in> \<Omega>"
         using Formula_Maximal_Consistent_Set_negation by blast
@@ -141,7 +141,7 @@ proof -
         using \<Omega>
               formula_consistent_def
               Formula_Maximal_Consistency
-              Formula_Maximally_Consistent_Set_def
+              formula_maximally_consistent_set_def
               Truth_Lemma
         unfolding strong_classical_propositional_deduction_def
         by blast
@@ -187,7 +187,7 @@ primrec (in classical_logic)
 theorem (in classical_logic) propositional_calculus:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Classical_Propositional_Calculus.induct,
-      (simp add: axiom_k Axiom_S Double_Negation Modus_Ponens)+)
+      (simp add: axiom_k axiom_s Double_Negation modus_ponens)+)
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"

@@ -1,5 +1,5 @@
 theory Snippets
-  imports 
+  imports
     "HOL-Library.LaTeXsugar"
     "../Logic/Intuitionistic/Implication/Combinators"
     "../Logic/Intuitionistic/Implication/Kripke_Semantics"
@@ -125,8 +125,8 @@ text \<open>
 @{thm[mode=Axiom] Kripke_models_S}
 }%EndSnippet
 
-\DefineSnippet{Kripke_models_Modus_Ponens}{
-@{thm[mode=Rule] Kripke_models_Modus_Ponens}
+\DefineSnippet{Kripke_models_modus_ponens}{
+@{thm[mode=Rule] Kripke_models_modus_ponens}
 }%EndSnippet
 
 \DefineSnippet{Combinator_Typing_Kripke_Soundness_alt}{

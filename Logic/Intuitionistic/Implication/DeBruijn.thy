@@ -1,7 +1,7 @@
 (*:maxLineLen=78:*)
 
 theory DeBruijn
-  imports 
+  imports
     Main
     "HOL-Library.Lattice_Syntax"
 begin

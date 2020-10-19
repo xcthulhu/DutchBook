@@ -1,6 +1,6 @@
 theory LaTeX_Snippets
   imports
-    "../Logic/Intuitionistic/implication_logic"
+    "../Logic/Intuitionistic/Implication_Logic"
     "HOL-Library.LaTeXsugar"
 begin
 
@@ -9,10 +9,10 @@ text (in implication_logic) \<open>
    @{thm [display] implication_logic.axiom_k}
  }%EndSnippet
  \DefineSnippet{Axiom S}{
-   @{thm [display] implication_logic.Axiom_S}
+   @{thm [display] implication_logic.axiom_s}
  }%EndSnippet
  \DefineSnippet{Modus Ponens}{
-   @{thm [mode=Rule] implication_logic.Modus_Ponens} {\sc MP}
+   @{thm [mode=Rule] implication_logic.modus_ponens} {\sc MP}
  }%EndSnippet
 \<close>
 

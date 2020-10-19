@@ -3,7 +3,7 @@
 chapter \<open>Dutch Book Theorem\<close>
 
 theory Dutch_Book
-  imports 
+  imports
     "../../Logic/Classical/Classical_Connectives"
     "Logical_Probability_Completeness"
     "HOL.Real"
@@ -109,7 +109,7 @@ lemma (in classical_logic) possibilities_are_MCS:
   using assms
   by (metis (mono_tags, lifting)
             formula_consistent_def
-            Formula_Maximally_Consistent_Set_def
+            formula_maximally_consistent_set_def
             Maximally_Consistent_Set_def
             possibilities_logical_closure
             possibility_def
@@ -122,24 +122,24 @@ proof -
   have "\<bottom> \<notin> s"
     using \<open>MCS s\<close>
           formula_consistent_def
-          Formula_Maximally_Consistent_Set_def
+          formula_maximally_consistent_set_def
           Maximally_Consistent_Set_def
           set_deduction_reflection
     by blast
   moreover have "\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> \<phi> \<in> s"
     using \<open>MCS s\<close>
-          Formula_Maximally_Consistent_Set_reflection
+          formula_maximally_consistent_set_reflection
           Maximally_Consistent_Set_def
           set_deduction_weaken
     by blast
   moreover have "\<forall> \<phi> \<psi>. (\<phi> \<rightarrow> \<psi>) \<in> s \<longrightarrow> \<phi> \<in> s \<longrightarrow> \<psi> \<in> s"
     using \<open>MCS s\<close>
           Formula_Maximal_Consistency
-          Formula_Maximally_Consistent_Set_implication
+          formula_maximally_consistent_set_implication
     by blast
   moreover have "\<forall> \<phi>. \<phi> \<in> s \<or> (\<phi> \<rightarrow> \<bottom>) \<in> s"
     using assms
-          Formula_Maximally_Consistent_Set_implication
+          formula_maximally_consistent_set_implication
           Maximally_Consistent_Set_def
     by blast
   ultimately show ?thesis by simp
@@ -259,7 +259,7 @@ proof (rule ex_ex1I)
     from this obtain \<Gamma> where "MCS \<Gamma>"
       by (meson formula_consistent_def
                 Formula_Maximal_Consistency
-                Formula_Maximally_Consistent_Extension)
+                formula_maximally_consistent_extension)
     hence "(\<lambda> \<gamma>. \<gamma> \<in> \<Gamma>) \<in> possibilities"
       using MCSs_are_possibilities possibilities_def by blast
     ultimately show False
@@ -353,7 +353,7 @@ proof
       by (meson \<open>possibility p\<close>
                 possibilities_are_MCS [of p]
                 formula_consistent_def
-                Formula_Maximally_Consistent_Set_def
+                formula_maximally_consistent_set_def
                 Maximally_Consistent_Set_def
                 list_deduction_monotonic
                 set_deduction_def)
@@ -367,7 +367,7 @@ proof
     from this obtain \<Omega>\<^sub>\<Psi> where "MCS \<Omega>\<^sub>\<Psi>" and "set \<Psi> \<subseteq> \<Omega>\<^sub>\<Psi>"
       by (meson formula_consistent_def
                 Formula_Maximal_Consistency
-                Formula_Maximally_Consistent_Extension
+                formula_maximally_consistent_extension
                 list_deduction_monotonic
                 set_deduction_def)
     let ?q = "\<lambda>\<phi> . \<phi> \<in> \<Omega>\<^sub>\<Psi>"
@@ -439,7 +439,7 @@ next
   from this obtain \<Omega>\<^sub>\<Phi> where "MCS \<Omega>\<^sub>\<Phi>" and "set \<Phi> \<subseteq> \<Omega>\<^sub>\<Phi>"
     by (meson formula_consistent_def
               Formula_Maximal_Consistency
-              Formula_Maximally_Consistent_Extension
+              formula_maximally_consistent_extension
               list_deduction_monotonic
               set_deduction_def)
   let ?p = "\<lambda>\<phi> . \<phi> \<in> \<Omega>\<^sub>\<Phi>"
@@ -465,7 +465,7 @@ next
                 \<open>MCS \<Omega>\<^sub>\<Phi>\<close>
                 inter_set_filter
                 formula_consistent_def
-                Formula_Maximally_Consistent_Set_def
+                formula_maximally_consistent_set_def
                 Maximally_Consistent_Set_def
                 set_deduction_def
                 subsetI)
@@ -556,7 +556,7 @@ qed
 
 lemma (in Consistent_classical_logic) nonstrict_dutch_book:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> Logical_Probabilities.
+   = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = _")
@@ -592,7 +592,7 @@ qed
 
 lemma (in Consistent_classical_logic) strict_dutch_book:
   "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> Logical_Probabilities.
+   = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = ?rhs")
@@ -600,7 +600,7 @@ proof
   assume ?lhs
   from this obtain \<epsilon> where "0 < \<epsilon>" "k + \<epsilon> \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr>buys = buys', sells = sells'\<rparr>"
     using less_diff_eq by fastforce
-  hence "\<forall>Pr \<in> Logical_Probabilities.
+  hence "\<forall>Pr \<in> logical_probabilities.
             (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + (k + \<epsilon>)
           \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys'"
     using nonstrict_dutch_book [of "k + \<epsilon>" buys' sells'] by auto
@@ -621,9 +621,9 @@ next
   let ?tot_ss = "total_amount sells'" and ?tot_bs = "total_amount buys'"
   let ?c = "?tot_ss + k - ?tot_bs"
   assume ?rhs
-  have "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + ?c < (\<Sum>s\<leftarrow>sells'. Pr (bet s))"
+  have "\<forall> Pr \<in> logical_probabilities. (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + ?c < (\<Sum>s\<leftarrow>sells'. Pr (bet s))"
     using \<open>?rhs\<close> by fastforce
-  hence "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + ?c < (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
+  hence "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + ?c < (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using \<star> by auto
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (\<lfloor>?c\<rfloor> + 1) \<le> (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using strict_dirac_collapse [of ?buy_\<phi>s ?c ?sell_\<phi>s]
@@ -646,7 +646,7 @@ qed
 
 theorem (in Consistent_classical_logic) dutch_book:
   "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> Logical_Probabilities.
+   = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells'
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   by (simp add: strict_dutch_book)

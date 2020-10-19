@@ -163,13 +163,13 @@ proof -
       hence "mset (map fst (remove1 (hd \<Phi>) \<Phi>)) \<subseteq># mset (remove1 ?\<delta> \<Delta>)"
         using \<open>\<Phi> \<noteq> []\<close> \<Phi>(2)
         by (simp,
-            metis 
+            metis
               diff_single_eq_union
               hd_in_set
               image_mset_add_mset
               insert_subset_eq_iff
               set_mset_mset)
-      moreover have "remove1 (hd \<Phi>) \<Phi> = tl \<Phi>" 
+      moreover have "remove1 (hd \<Phi>) \<Phi> = tl \<Phi>"
         using \<open>\<Phi> \<noteq> []\<close>
         by (induct \<Phi>, simp+)
       moreover from \<Phi>(1) have "map snd (tl \<Phi>) = \<Sigma>"
@@ -194,13 +194,13 @@ proof -
       hence "mset (map fst (remove1 (hd \<Psi>) \<Psi>)) \<subseteq># mset (remove1 ?\<gamma> \<Gamma>)"
         using \<open>\<Psi> \<noteq> []\<close> \<Psi>(2)
         by (simp,
-            metis 
+            metis
               diff_single_eq_union
               hd_in_set
               image_mset_add_mset
               insert_subset_eq_iff
               set_mset_mset)
-      moreover from \<open>\<Psi> \<noteq> []\<close> have "remove1 (hd \<Psi>) \<Psi> = tl \<Psi>" 
+      moreover from \<open>\<Psi> \<noteq> []\<close> have "remove1 (hd \<Psi>) \<Psi> = tl \<Psi>"
         by (induct \<Psi>, simp+)
       moreover from \<Psi>(1) have "map snd (tl \<Psi>) = (remove1 ?\<delta> \<Delta>)"
         by (simp add: map_tl)
@@ -222,7 +222,7 @@ proof -
       moreover from \<Phi>(1) \<Psi>(1) have "\<sigma> = snd (hd \<Phi>)" "?\<delta> = snd (hd \<Psi>)" by fastforce+
       with \<Phi>(3) \<Psi>(3) \<open>\<Phi> \<noteq> []\<close> \<open>\<Psi> \<noteq> []\<close> hd_in_set have "\<turnstile> ?\<delta> \<rightarrow> \<sigma>" "\<turnstile> ?\<gamma> \<rightarrow> ?\<delta>"
         by fastforce+
-      hence "\<turnstile> ?\<gamma> \<rightarrow> \<sigma>" using Modus_Ponens hypothetical_syllogism by blast
+      hence "\<turnstile> ?\<gamma> \<rightarrow> \<sigma>" using modus_ponens hypothetical_syllogism by blast
       with \<Omega>\<^sub>0(3) have "\<forall> (\<gamma>,\<sigma>) \<in> set ?\<Omega>. \<turnstile> \<gamma> \<rightarrow> \<sigma>"
         by auto
       ultimately have "(\<sigma> # \<Sigma>) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
@@ -649,7 +649,7 @@ next
     case (Cons \<gamma> \<Gamma>)
     have "\<turnstile> (\<bottom> \<squnion> \<gamma>) \<rightarrow> \<gamma>"
       unfolding disjunction_def
-      using Ex_Falso_Quodlibet Modus_Ponens excluded_middle_elimination
+      using Ex_Falso_Quodlibet modus_ponens excluded_middle_elimination
       by blast
     then show ?case using Cons
       by (simp add: stronger_theory_left_right_cons)
@@ -822,7 +822,7 @@ proof -
             by fastforce
           hence "\<turnstile> (?\<psi> \<squnion> ?\<gamma>) \<rightarrow> (?\<psi> \<squnion> ?\<sigma>)"
             unfolding disjunction_def
-            using Modus_Ponens hypothetical_syllogism
+            using modus_ponens hypothetical_syllogism
             by blast
           moreover have
             "(\<lambda>(\<psi>, \<sigma>, \<gamma>). (\<psi> \<squnion> \<gamma>, \<psi> \<squnion> \<sigma>)) =
@@ -881,7 +881,7 @@ proof -
               using Cons.prems(2) mset_subset_eqD \<Delta>(3)
               by fastforce
             hence "\<turnstile> (?\<psi> \<rightarrow> ?\<gamma>) \<rightarrow> (?\<psi> \<rightarrow> ?\<sigma>)"
-              using Modus_Ponens hypothetical_syllogism
+              using modus_ponens hypothetical_syllogism
               by blast
             moreover have
               "(\<lambda>(\<psi>, \<sigma>, \<gamma>). (\<psi> \<rightarrow> \<gamma>, \<psi> \<rightarrow> \<sigma>)) =
@@ -980,7 +980,7 @@ proof (rule iffI)
                     subtraction_def
                     conjunction_def
                     negation_def
-          by (meson Modus_Ponens
+          by (meson modus_ponens
                     flip_implication
                     hypothetical_syllogism)
       } note tautology = this
@@ -1035,7 +1035,7 @@ proof (rule iffI)
             unfolding disjunction_def
                       conjunction_def
                       negation_def
-            by (meson Modus_Ponens
+            by (meson modus_ponens
                       flip_implication
                       hypothetical_syllogism)
         } note tautology = this
@@ -1095,7 +1095,7 @@ next
                   subtraction_def
                   conjunction_def
                   negation_def
-        by (meson Modus_Ponens
+        by (meson modus_ponens
                   flip_implication
                   hypothetical_syllogism)
     } note tautology = this
@@ -1129,7 +1129,7 @@ next
           unfolding disjunction_def
                     conjunction_def
                     negation_def
-          by (meson Modus_Ponens
+          by (meson modus_ponens
                     flip_implication
                     hypothetical_syllogism)
       } note tautology = this
@@ -1162,7 +1162,7 @@ next
     using segmented_deduction.simps(2) by blast
 qed
 
-lemma (in Logical_Probability) segmented_deduction_summation_introduction:
+lemma (in logical_probability) segmented_deduction_summation_introduction:
   assumes "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof -
@@ -1614,7 +1614,7 @@ proof -
     {
       fix \<Psi>
       have "\<turnstile> (uncurry (\<rightarrow>)) \<delta> \<rightarrow> (uncurry (\<rightarrow>)) \<delta>"
-        using axiom_k Modus_Ponens implication_absorption by blast
+        using axiom_k modus_ponens implication_absorption by blast
       have
         "(map (uncurry (\<rightarrow>)) (\<delta> # \<Delta>) @
           map (uncurry (\<rightarrow>)) \<Psi> \<ominus> map snd (\<BB> \<Psi> (\<delta> # \<Delta>))) \<preceq>
@@ -1839,7 +1839,7 @@ proof -
         hence "\<JJ> \<Psi> (\<delta> # \<Delta>) = \<delta> # \<JJ> \<Psi> \<Delta>"
           by simp
         moreover have "\<turnstile> (uncurry (\<squnion>)) \<delta> \<rightarrow> (uncurry (\<squnion>)) \<delta>"
-          by (metis axiom_k Axiom_S Modus_Ponens)
+          by (metis axiom_k axiom_s modus_ponens)
         ultimately show ?thesis using Cons
           by (simp add: stronger_theory_left_right_cons)
       next
@@ -2139,7 +2139,7 @@ proof (rule iffI)
     proof (induct \<Psi>)
       case Nil
       then show ?case
-        using axiom_k Modus_Ponens
+        using axiom_k modus_ponens
         by fastforce
     next
       case (Cons \<delta> \<Psi>)
@@ -2159,7 +2159,7 @@ proof (rule iffI)
         {
           fix \<alpha> \<beta> \<gamma>
           have "\<turnstile> (\<alpha> \<rightarrow> \<beta> \<rightarrow> \<gamma>) \<rightarrow> ((\<alpha> \<rightarrow> \<beta>) \<rightarrow> \<alpha> \<rightarrow> \<gamma>)"
-            using Axiom_S by auto
+            using axiom_s by auto
         }
         ultimately have "?\<Sigma> :\<turnstile> (\<psi> \<rightarrow> (uncurry (\<squnion>)) \<delta>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
           using list_deduction_weaken [where ?\<Gamma>="?\<Sigma>"]
@@ -2188,7 +2188,7 @@ proof (rule iffI)
     case Nil
     then show ?case
       unfolding disjunction_def
-      using axiom_k Modus_Ponens
+      using axiom_k modus_ponens
       by fastforce
   next
     case (Cons \<nu> \<Psi>)
@@ -2197,9 +2197,9 @@ proof (rule iffI)
     let ?\<Sigma> = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) \<Psi>) (map snd \<Psi>))"
     let ?\<Sigma>' = "map (uncurry (\<squnion>)) (zip (map (\<lambda> (\<chi>,\<gamma>). \<psi> \<squnion> \<chi>) (\<nu> # \<Psi>)) (map snd (\<nu> # \<Psi>)))"
     have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Delta> :\<rightarrow> \<phi>"
-      by (simp, metis axiom_k Axiom_S Modus_Ponens)
+      by (simp, metis axiom_k axiom_s modus_ponens)
     with Cons have "\<turnstile> (?\<Delta>' :\<rightarrow>  \<phi>) \<rightarrow> (uncurry (\<squnion>)) \<nu> \<rightarrow> ?\<Sigma> :\<rightarrow> (\<psi> \<squnion> \<phi>)"
-      using hypothetical_syllogism Modus_Ponens
+      using hypothetical_syllogism modus_ponens
       by blast
     hence "(?\<Delta>' :\<rightarrow>  \<phi>) # ((uncurry (\<squnion>)) \<nu>) # ?\<Sigma> :\<turnstile> \<psi> \<squnion> \<phi>"
       by (simp add: list_deduction_def)
@@ -2262,7 +2262,7 @@ proof (rule iffI)
   qed
   with \<Psi>(2) have "map (uncurry (\<squnion>)) ?\<Psi>\<^sub>1 :\<turnstile> (\<psi> \<squnion> \<phi>)"
     unfolding list_deduction_def
-    using Modus_Ponens
+    using modus_ponens
     by blast
   moreover have "mset (map snd ?\<Psi>\<^sub>1) \<subseteq># mset \<Gamma>" using \<Psi>(1) by simp
   ultimately show "\<Gamma> $\<turnstile> (\<psi> \<squnion> \<phi> # \<psi> \<rightarrow> \<phi> # \<Phi>)"
@@ -2296,7 +2296,7 @@ next
     moreover
     have "\<turnstile> (\<psi> \<squnion> \<phi>) \<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> \<phi>"
       unfolding disjunction_def
-      using Modus_Ponens excluded_middle_elimination flip_implication
+      using modus_ponens excluded_middle_elimination flip_implication
       by blast
     ultimately show ?thesis
       using list_deduction_weaken list_deduction_modus_ponens
@@ -3192,7 +3192,7 @@ proof -
         fix \<phi>
         have "\<turnstile> (\<bottom> \<squnion> \<phi>) \<rightarrow> \<phi>"
           unfolding disjunction_def
-          using Ex_Falso_Quodlibet Modus_Ponens excluded_middle_elimination by blast
+          using Ex_Falso_Quodlibet modus_ponens excluded_middle_elimination by blast
       }
       note tautology = this
       have "map (uncurry (\<squnion>)) \<Sigma> \<preceq> map (uncurry (\<squnion>)) (\<EE> \<Sigma> [])"
@@ -3794,7 +3794,7 @@ proof -
         hence "uncurry (\<rightarrow>) \<delta> = ?\<alpha> \<rightarrow> ?\<beta>" by auto
         moreover have "\<turnstile> (?\<alpha> \<rightarrow> (?\<gamma> \<squnion> ?\<alpha>) \<rightarrow> ?\<beta>) \<rightarrow> ?\<alpha> \<rightarrow> ?\<beta>"
           unfolding disjunction_def
-          using axiom_k Axiom_S Modus_Ponens flip_implication
+          using axiom_k axiom_s modus_ponens flip_implication
           by blast
         ultimately show ?thesis
           using Cons \<sigma>
@@ -4368,7 +4368,7 @@ proof -
         moreover
         have "\<turnstile> ((\<chi> \<rightarrow> \<delta>) \<rightarrow> \<delta>) \<rightarrow> (\<chi> \<squnion> \<delta>)"
           unfolding disjunction_def
-          using Modus_Ponens
+          using modus_ponens
                 The_Principle_of_Pseudo_Scotus
                 flip_hypothetical_syllogism
           by blast
@@ -5215,7 +5215,7 @@ proof (induct \<Psi>)
     unfolding biconditional_def
               disjunction_def
     using axiom_k
-          Modus_Ponens
+          modus_ponens
           verum_tautology
     by (simp, blast)
 next
@@ -5266,7 +5266,7 @@ proof -
     qed
   }
   ultimately have "\<turnstile> \<WW>\<^sub>\<squnion> \<phi> \<Psi> :\<rightarrow> \<phi> \<leftrightarrow> ((\<phi> \<squnion> \<Sqinter> \<Psi>) \<rightarrow> \<phi>)"
-    using Modus_Ponens
+    using modus_ponens
           biconditional_transitivity_rule
           core_optimal_witness_conjunction_identity
     by blast
@@ -5323,7 +5323,7 @@ next
   qed
   ultimately
   have " \<turnstile> ((\<xi> \<rightarrow> ?X \<squnion> \<psi>) \<rightarrow> (?X \<squnion> \<xi>) \<rightarrow> ?A) \<rightarrow> (((\<xi> \<rightarrow> ?X) \<rightarrow> \<psi>) \<rightarrow> (?X \<rightarrow> \<xi>) \<rightarrow> ?B) \<rightarrow> \<xi> \<rightarrow> ?X"
-    using Modus_Ponens
+    using modus_ponens
     by blast
   thus ?case by simp
 qed
@@ -5362,7 +5362,7 @@ proof (induct \<Phi>)
   then show ?case
     by (simp,
         meson Ex_Falso_Quodlibet
-              Modus_Ponens
+              modus_ponens
               biconditional_introduction
               disjunction_elimination
               disjunction_right_introduction
@@ -5377,7 +5377,7 @@ next
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
   qed
-  then show ?case using Cons Modus_Ponens by simp
+  then show ?case using Cons modus_ponens by simp
 qed
 
 lemma (in classical_logic) arbitrary_conj_concat_equiv:
@@ -5386,7 +5386,7 @@ proof (induct \<Phi>)
   case Nil
   then show ?case
     by (simp,
-        meson Modus_Ponens
+        meson modus_ponens
               biconditional_introduction
               conjunction_introduction
               conjunction_right_elimination
@@ -5401,7 +5401,7 @@ next
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
   qed
-  then show ?case using Cons Modus_Ponens by simp
+  then show ?case using Cons modus_ponens by simp
 qed
 
 lemma (in classical_logic) conj_absorption:
@@ -5428,7 +5428,7 @@ next
     then show ?thesis
       by (metis Cons.prems
                 Arbitrary_Conjunction.simps(2)
-                Modus_Ponens
+                modus_ponens
                 arbitrary_conjunction_antitone
                 biconditional_introduction
                 remdups.simps(2)
@@ -5453,7 +5453,7 @@ next
     hence "\<turnstile> \<^bold>\<lparr> ?\<phi> \<^bold>\<rparr>" using propositional_semantics by blast
     thus ?thesis by simp
   qed
-  then show ?case using Cons Modus_Ponens by simp
+  then show ?case using Cons modus_ponens by simp
 qed
 
 lemma (in classical_logic) conj_multi_extract:
@@ -5479,7 +5479,7 @@ next
   qed
   hence
     "\<turnstile> (\<Sqinter> (\<Delta> @ \<sigma>) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (@) \<Delta>) \<Sigma>)) \<leftrightarrow> (\<Sqinter> \<Delta> \<sqinter> (\<Sqinter> \<sigma> \<squnion> \<Squnion> (map \<Sqinter> \<Sigma>)))"
-    using Cons.hyps arbitrary_conj_concat_equiv Modus_Ponens by blast
+    using Cons.hyps arbitrary_conj_concat_equiv modus_ponens by blast
   then show ?case by simp
 qed
 
@@ -5489,7 +5489,7 @@ proof (induct \<Delta>)
   case Nil
   then show ?case
     by (simp,
-        meson Modus_Ponens
+        meson modus_ponens
               biconditional_introduction
               conjunction_introduction
               conjunction_right_elimination
@@ -5524,7 +5524,7 @@ next
   qed
   ultimately have "\<turnstile> \<Squnion> (map (\<lambda>\<phi>. ?\<chi>' \<sqinter> \<Sqinter> (?\<Delta>' @ map snd \<phi>)) \<Psi>)
                   \<leftrightarrow> ((?\<chi>' \<sqinter> \<Sqinter> ?\<Delta>') \<sqinter> \<Squnion> (map (\<lambda>\<phi>. \<Sqinter> (map snd \<phi>)) \<Psi>))"
-    using Modus_Ponens by blast
+    using modus_ponens by blast
   thus ?case by simp
 qed
 
@@ -5538,7 +5538,7 @@ proof -
     case Nil
     then show ?case
       by (simp,
-          meson Modus_Ponens
+          meson modus_ponens
                 biconditional_introduction
                 conjunction_introduction
                 conjunction_right_elimination
@@ -5572,7 +5572,7 @@ proof -
         ultimately have
           "\<turnstile>    \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> (@) \<Delta>)) \<Psi>)
              \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>)) \<sqinter> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>))"
-          using Cons.hyps Modus_Ponens by blast
+          using Cons.hyps modus_ponens by blast
         moreover have "map snd \<circ> remdups \<circ> (@) (\<delta> # \<Delta>) = map snd \<circ> remdups \<circ> (@) \<Delta>"
           using \<open>\<delta> \<in> set \<Delta>\<close> by fastforce
         ultimately show ?thesis using Cons by simp
@@ -5650,7 +5650,7 @@ proof -
                       \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> (@) (\<delta> # \<Delta>))) \<Psi>))
                   \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))
                       \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
-              using \<star> \<diamondsuit> \<spadesuit> Modus_Ponens by blast
+              using \<star> \<diamondsuit> \<spadesuit> modus_ponens by blast
             thus ?thesis using \<open>\<delta> \<notin> set \<Delta>\<close> \<open>\<delta> \<in> set \<psi>\<close>
               by (simp add: \<dagger>)
           next
@@ -5682,7 +5682,7 @@ proof -
                     \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> (@) (\<delta> # \<Delta>))) \<Psi>))
                  \<leftrightarrow> ((snd \<delta> \<sqinter> \<Sqinter> (map snd \<Delta>))
                     \<sqinter> (\<Sqinter> (map snd (remdups \<psi>)) \<squnion> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups)) \<Psi>)))"
-              using \<star> \<diamondsuit> Modus_Ponens by blast
+              using \<star> \<diamondsuit> modus_ponens by blast
             then show ?thesis using \<open>\<delta> \<notin> set \<psi>\<close> \<open>\<delta> \<notin> set \<Delta>\<close> by (simp add: \<dagger>)
           qed
         qed
@@ -5964,7 +5964,7 @@ proof -
             ultimately have
               "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
                   (\<Squnion> (map \<Sqinter> ?\<Phi> @ map \<Sqinter> ?\<Psi>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Delta> @ map \<Sqinter> ?\<Omega>) \<rightarrow> \<phi>)"
-              using Modus_Ponens by blast
+              using modus_ponens by blast
             moreover have "(#) (\<Delta>, \<delta>) = (@) [(\<Delta>, \<delta>)]" by fastforce
             ultimately have
               "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)) \<rightarrow>
@@ -5973,7 +5973,7 @@ proof -
           }
           hence
             "\<turnstile> ((\<Squnion> (map \<Sqinter> ?\<Sigma>\<^sub>\<alpha>') \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>') \<rightarrow> \<phi>))"
-            using Cons Modus_Ponens by blast
+            using Cons modus_ponens by blast
           moreover have "\<Delta>\<delta> = (?\<Delta>,?\<delta>)" by fastforce
           ultimately show ?case by metis
         qed
@@ -6043,7 +6043,7 @@ proof -
         hence
           "\<turnstile>    ((?\<Xi> :\<rightarrow> \<phi> \<rightarrow> ?\<delta>) \<rightarrow> ?\<Psi>' :\<rightarrow> \<phi>)
              \<leftrightarrow> (\<Squnion> (map \<Sqinter> (map ((#) ?\<delta>) ?\<Sigma>\<^sub>\<alpha>) @ map \<Sqinter> (map ((@) ?\<Xi>) ?\<Sigma>\<^sub>\<alpha>)) \<rightarrow> \<phi>)"
-          using A B C D E Modus_Ponens by blast
+          using A B C D E modus_ponens by blast
         thus ?case using \<dagger> by simp
       qed
       ultimately show ?thesis using biconditional_transitivity_rule \<Psi>\<^sub>0 by blast
@@ -6423,11 +6423,11 @@ proof -
   moreover
   let ?\<Sigma> = "map ((@) \<Phi>) \<Sigma>\<^sub>0"
   have "\<forall>\<phi> \<psi> \<chi>. \<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<chi> \<rightarrow> \<psi> \<or> \<not> \<turnstile> \<chi> \<rightarrow> \<phi>"
-    by (meson Modus_Ponens flip_hypothetical_syllogism)
+    by (meson modus_ponens flip_hypothetical_syllogism)
   hence "\<turnstile> ((\<Sqinter> \<Phi> \<sqinter> \<Squnion> (map \<Sqinter> \<Sigma>\<^sub>0)) \<rightarrow> \<phi>) \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
     using append_dnf_distribute biconditional_def by fastforce
   ultimately have "\<turnstile> (\<Phi> @ \<Psi>) :\<rightarrow> \<phi> \<leftrightarrow> (\<Squnion> (map \<Sqinter> ?\<Sigma>) \<rightarrow> \<phi>)"
-    using Modus_Ponens biconditional_transitivity_rule
+    using modus_ponens biconditional_transitivity_rule
     by blast
   moreover
   {
@@ -6494,7 +6494,7 @@ proof (rule iffI)
       have "\<not> ?\<Sigma>\<^sub>B :\<turnstile> \<phi>"
         by (metis (no_types, lifting)
                   \<Xi>(1) \<open>?\<Sigma>\<^sub>A :\<turnstile> \<phi>\<close>
-                  Modus_Ponens list_deduction_def
+                  modus_ponens list_deduction_def
                   optimal_witness_split_identity
                   unproving_core_def
                   mem_Collect_eq)
@@ -6566,7 +6566,7 @@ proof (rule iffI)
           hence "\<turnstile> \<Squnion> (map \<Sqinter> \<Sigma>) \<rightarrow> \<phi>"
             using weak_disj_of_conj_equiv by blast
           hence "?A @ ?B :\<turnstile> \<phi>"
-            using \<Sigma>(1) Modus_Ponens list_deduction_def weak_biconditional_weaken
+            using \<Sigma>(1) modus_ponens list_deduction_def weak_biconditional_weaken
             by blast
           moreover have "set (?A @ ?B) = set \<Psi>"
             using list_diff_intersect_comp union_code set_mset_mset by metis
@@ -6770,7 +6770,7 @@ next
       thus ?thesis by simp
   qed
   ultimately have "\<turnstile> ((?\<chi> \<squnion> ?\<xi>) \<rightarrow> ?\<Sigma>\<^sub>A :\<rightarrow> \<phi>) \<rightarrow> (((?\<chi> \<rightarrow> ?\<xi>) \<rightarrow> \<phi>) \<sqinter> \<Sqinter> ?\<Sigma>\<^sub>B) \<rightarrow> \<phi>"
-    using Modus_Ponens by blast
+    using modus_ponens by blast
   moreover
   have "(\<lambda> \<sigma>. (fst \<sigma> \<rightarrow> snd \<sigma>) \<rightarrow> \<phi>) = (\<lambda> (\<chi>, \<xi>). (\<chi> \<rightarrow> \<xi>) \<rightarrow> \<phi>)"
        "uncurry (\<squnion>) = (\<lambda> \<sigma>. fst \<sigma> \<squnion> snd \<sigma>)"
@@ -7085,7 +7085,7 @@ next
   ultimately show ?thesis by metis
 qed
 
-lemma (in Logical_Probability) list_probability_upper_bound:
+lemma (in logical_probability) list_probability_upper_bound:
   "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) \<le> real (length \<Gamma>)"
 proof (induct \<Gamma>)
   case Nil
@@ -7105,7 +7105,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding Dirac_Measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
@@ -7131,8 +7131,8 @@ proof -
               unproving_core_existence
               stratified_deduction_tautology_weaken
         by blast
-      from this obtain \<Phi> where \<Phi>: 
-        "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)" 
+      from this obtain \<Phi> where \<Phi>:
+        "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
         "mset \<Phi> \<subseteq># mset \<Gamma>"
         unfolding map_negation_def
         by (metis (mono_tags, lifting)
@@ -7150,8 +7150,8 @@ proof -
         by (meson insert_subset
                   formula_consistent_def
                   Formula_Maximal_Consistency
-                  Formula_Maximally_Consistent_Extension
-                  Formula_Maximally_Consistent_Set_def
+                  formula_maximally_consistent_extension
+                  formula_maximally_consistent_set_def
                   set_deduction_base_theory
                   set_deduction_reflection
                   set_deduction_theorem)
@@ -7159,7 +7159,7 @@ proof -
       from \<Omega> have "?Pr \<in> Dirac_Measures"
         using MCS_Dirac_Measure by blast
       moreover
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
         unfolding Dirac_Measures_def
         by auto
       have "\<forall> \<phi> \<in> set \<Phi>. ?Pr \<phi> = 0"
@@ -7244,7 +7244,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding Dirac_Measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
@@ -7271,7 +7271,7 @@ proof -
         "real (length \<Phi>) * Pr \<top> > (\<Sum>\<gamma>\<leftarrow> (\<^bold>\<sim> \<Phi> @ \<Gamma>). Pr \<gamma>)"
         using binary_limited_stratified_deduction_completeness
         by fastforce
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding Dirac_Measures_def
         by auto
       from Pr(2) have "real (length \<Phi>) > (\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) + (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
@@ -7287,13 +7287,13 @@ proof -
 qed
 
 theorem (in classical_logic) segmented_deduction_completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Logical_Probabilities"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Logical_Probabilities_def
+    assume "Pr \<in> logical_probabilities"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      unfolding logical_probabilities_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7306,7 +7306,7 @@ proof -
 qed
 
 theorem (in classical_logic) weakly_additive_completeness_collapse:
-  "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "  (\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
    = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   by (simp add: binary_segmented_deduction_completeness
                 segmented_deduction_completeness)
@@ -7427,13 +7427,13 @@ qed
 
 lemma (in classical_logic) dirac_ceiling:
   "\<forall> Pr \<in> Dirac_Measures.
-      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
+      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
         = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof -
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
-    have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
+    have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
             = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
     proof (rule iffI)
       assume assm: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7462,24 +7462,24 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in Logical_Probability) probability_replicate_verum:
+lemma (in logical_probability) probability_replicate_verum:
   fixes n :: nat
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n = (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>)"
   using Unity
   by (induct n, auto)
 
 lemma (in classical_logic) dirac_collapse:
-  "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
      = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
-  assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  assume "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using Dirac_Measures_subset by fastforce
   thus "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using dirac_ceiling by blast
 next
   assume assm: "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-  show "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  show "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   proof (cases "c \<ge> 0")
     case True
     from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
@@ -7493,7 +7493,7 @@ next
     {
       fix Pr
       assume "Pr \<in> Dirac_Measures"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7503,20 +7503,20 @@ next
               probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
         by metis
     }
-    hence "\<forall> Pr \<in> Dirac_Measures. 
+    hence "\<forall> Pr \<in> Dirac_Measures.
               (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       by blast
-    hence \<dagger>: "\<forall> Pr \<in> Logical_Probabilities.
+    hence \<dagger>: "\<forall> Pr \<in> logical_probabilities.
               (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using weakly_additive_completeness_collapse by blast
     {
       fix Pr
-      assume "Pr \<in> Logical_Probabilities"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Logical_Probabilities_def
+      assume "Pr \<in> logical_probabilities"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+        unfolding logical_probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-        using \<dagger> \<open>Pr \<in> Logical_Probabilities\<close> by blast
+        using \<dagger> \<open>Pr \<in> logical_probabilities\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         using \<open>real n = \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
@@ -7526,12 +7526,12 @@ next
   next
     case False
     hence "\<lceil>c\<rceil> \<le> 0" by auto
-    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>" 
+    from this obtain n :: nat where "real n = - \<lceil>c\<rceil>"
       by (metis neg_0_le_iff_le of_nat_nat)
     {
       fix Pr
       assume "Pr \<in> Dirac_Measures"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7541,20 +7541,20 @@ next
               probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
         by linarith
     }
-    hence "\<forall> Pr \<in> Dirac_Measures. 
+    hence "\<forall> Pr \<in> Dirac_Measures.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       by blast
-    hence \<ddagger>: "\<forall> Pr \<in> Logical_Probabilities.
+    hence \<ddagger>: "\<forall> Pr \<in> logical_probabilities.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       using weakly_additive_completeness_collapse by blast
     {
       fix Pr
-      assume "Pr \<in> Logical_Probabilities"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding Logical_Probabilities_def
+      assume "Pr \<in> logical_probabilities"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+        unfolding logical_probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
-        using \<ddagger> \<open>Pr \<in> Logical_Probabilities\<close> by blast
+        using \<ddagger> \<open>Pr \<in> logical_probabilities\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         using \<open>real n = - \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
@@ -7566,7 +7566,7 @@ qed
 
 lemma (in classical_logic) dirac_strict_floor:
   "\<forall> Pr \<in> Dirac_Measures.
-      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
+      ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
         = ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
   fix Pr :: "'a \<Rightarrow> real"
@@ -7574,16 +7574,16 @@ proof
   assume "Pr \<in> Dirac_Measures"
   hence "\<forall> \<phi>. Pr \<phi> = ?Pr' \<phi>"
     unfolding Dirac_Measures_def
-    by (metis (mono_tags, lifting) 
-          mem_Collect_eq 
-          of_int_0 
-          of_int_1 
+    by (metis (mono_tags, lifting)
+          mem_Collect_eq
+          of_int_0
+          of_int_1
           of_int_floor_cancel)
   hence A: "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>)"
     by (induct \<Phi>, auto)
   have B: "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) = (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>)"
     using \<open>\<forall> \<phi>. Pr \<phi> = ?Pr' \<phi>\<close> by (induct \<Gamma>, auto)
-  have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) 
+  have "((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
           = ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>))"
     unfolding A B by auto
   also have "\<dots> = ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?Pr' \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?Pr' \<gamma>))"
@@ -7594,10 +7594,10 @@ proof
 qed
 
 lemma (in classical_logic) strict_dirac_collapse:
-  "  (\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "  (\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
    = (\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
-  assume "\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  assume "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using Dirac_Measures_subset by blast
   thus "\<forall> Pr \<in> Dirac_Measures. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
@@ -7606,14 +7606,14 @@ next
   assume "\<forall> Pr \<in> Dirac_Measures. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   moreover have "\<lfloor>c\<rfloor> + 1 = \<lceil> (\<lfloor>c\<rfloor> + 1) :: real\<rceil>"
     by simp
-  ultimately have \<star>: 
-    "\<forall> Pr \<in> Logical_Probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  ultimately have \<star>:
+    "\<forall> Pr \<in> logical_probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
     using dirac_collapse [of \<Phi> "\<lfloor>c\<rfloor> + 1" \<Gamma>]
     by auto
-  show "\<forall> Pr \<in> Logical_Probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  show "\<forall> Pr \<in> logical_probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Logical_Probabilities"
+    assume "Pr \<in> logical_probabilities"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using \<star> by auto
     thus "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7713,7 +7713,7 @@ next
       from this obtain \<Sigma> where "\<Sigma> \<in> \<C> ((\<sim> \<top>) # \<Phi>) \<phi>"
         using unproving_core_existence by fastforce
       have "[(\<sim> \<top>)] :\<turnstile> \<phi>"
-        by (metis Modus_Ponens
+        by (metis modus_ponens
                   Peirces_law
                   The_Principle_of_Pseudo_Scotus
                   list_deduction_theorem
@@ -7776,11 +7776,11 @@ qed
 
 section \<open>\textsc{MaxSat} Completeness For Probability Inequality Identities \label{sec:maxsat-completeness}\<close>
 
-(* TODO: Cite that conference paper on probabilistic satisfaction where 
+(* TODO: Cite that conference paper on probabilistic satisfaction where
          this is remarked at the end *)
 
 lemma (in Consistent_classical_logic) binary_inequality_elim:
-  assumes "\<forall> Pr \<in> Dirac_Measures. 
+  assumes "\<forall> Pr \<in> Dirac_Measures.
                 (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     shows "(MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
 proof (cases "c \<ge> 0")
@@ -7790,7 +7790,7 @@ proof (cases "c \<ge> 0")
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7818,7 +7818,7 @@ next
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding Dirac_Measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7846,7 +7846,7 @@ proof (cases "\<turnstile> \<bottom>")
   {
     fix Pr
     assume "Pr \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding Dirac_Measures_def
       by auto
     have "False"
@@ -7874,7 +7874,7 @@ next
     {
       fix Pr
       assume "Pr \<in> Dirac_Measures"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7902,7 +7902,7 @@ next
     {
       fix Pr
       assume "Pr \<in> Dirac_Measures"
-      from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding Dirac_Measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
@@ -7927,7 +7927,7 @@ lemma (in Consistent_classical_logic) binary_inequality_equiv:
   using binary_inequality_elim binary_inequality_intro consistency by auto
 
 lemma (in Consistent_classical_logic) probability_inequality_equiv:
-   "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+   "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
       = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   unfolding dirac_collapse
   using binary_inequality_equiv dirac_ceiling by blast

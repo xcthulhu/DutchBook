@@ -14,7 +14,7 @@ proof -
   {
     fix \<delta> :: "'a \<Rightarrow> real"
     assume "\<delta> \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
       unfolding Dirac_Measures_def
       by auto
     assume "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -25,12 +25,12 @@ proof -
   moreover {
     assume "\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
     from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Psi> \<notin> \<Omega>"
-      by (meson 
+      by (meson
             insert_subset
             formula_consistent_def
             Formula_Maximal_Consistency
-            Formula_Maximally_Consistent_Extension
-            Formula_Maximally_Consistent_Set_def
+            formula_maximally_consistent_extension
+            formula_maximally_consistent_set_def
             set_deduction_base_theory
             set_deduction_reflection
             set_deduction_theorem)
@@ -49,12 +49,12 @@ proof -
 qed
 
 theorem (in classical_logic) list_summation_completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> Pr \<in> logical_probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
   hence "\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
-    unfolding Dirac_Measures_def Logical_Probabilities_def
+    unfolding Dirac_Measures_def logical_probabilities_def
     by blast
   thus ?rhs
     using Dirac_list_summation_completeness by blast
@@ -63,9 +63,9 @@ next
   show ?lhs
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Logical_Probabilities"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Logical_Probabilities_def
+    assume "Pr \<in> logical_probabilities"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      unfolding logical_probabilities_def
       by auto
     show "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
       using \<open>?rhs\<close> implication_list_summation_inequality
@@ -76,7 +76,7 @@ qed
 lemma (in classical_logic) Dirac_Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis Dirac_list_summation_completeness
-            Modus_Ponens
+            modus_ponens
             arbitrary_disjunction_remdups
             biconditional_left_elimination
             biconditional_right_elimination
@@ -84,13 +84,13 @@ lemma (in classical_logic) Dirac_Set_Summation_Completeness:
             sum.set_conv_list)
 
 theorem (in classical_logic) Set_Summation_Completeness:
-  "(\<forall> \<delta> \<in> Logical_Probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> \<delta> \<in> logical_probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis Dirac_list_summation_completeness
             Dirac_Set_Summation_Completeness
             list_summation_completeness
             sum.set_conv_list)
 
-lemma (in Logical_Probability) exclusive_sum_list_identity:
+lemma (in logical_probability) exclusive_sum_list_identity:
   assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
   using assms
@@ -117,8 +117,8 @@ lemma sum_list_monotone:
   using assms
 proof -
   assume "\<forall> x. f x \<ge> 0"
-  have "\<forall>\<Phi>. set \<Phi> \<subseteq> set \<Psi> 
-             \<longrightarrow> distinct \<Phi> 
+  have "\<forall>\<Phi>. set \<Phi> \<subseteq> set \<Psi>
+             \<longrightarrow> distinct \<Phi>
              \<longrightarrow> (\<Sum>\<phi>\<leftarrow>\<Phi>. f \<phi>) \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. f \<psi>)"
   proof (induct \<Psi>)
     case Nil
@@ -145,10 +145,10 @@ proof -
           from \<open>\<psi> \<in> set \<Phi>\<close> have "set \<Phi> = insert \<psi> (set (removeAll \<psi> \<Phi>))"
             by auto
           with \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> have "set (removeAll \<psi> \<Phi>) \<subseteq> set \<Psi>"
-            by (metis 
-                  insert_subset 
-                  list.simps(15) 
-                  set_removeAll 
+            by (metis
+                  insert_subset
+                  list.simps(15)
+                  set_removeAll
                   subset_insert_iff)
           moreover from \<open>distinct \<Phi>\<close> have "distinct (removeAll \<psi> \<Phi>)"
             by (meson distinct_removeAll)
@@ -157,7 +157,7 @@ proof -
             by simp
           moreover from \<open>\<psi> \<in> set \<Phi>\<close> \<open>distinct \<Phi>\<close>
           have "(\<Sum>\<phi>\<leftarrow>\<Phi>. f \<phi>) = f \<psi> + (\<Sum>\<phi>\<leftarrow>(removeAll \<psi> \<Phi>). f \<phi>)"
-            using distinct_remove1_removeAll sum_list_map_remove1 
+            using distinct_remove1_removeAll sum_list_map_remove1
             by fastforce
           ultimately have ?thesis using \<open>\<forall> x. f x \<ge> 0\<close>
             by simp
@@ -173,7 +173,7 @@ qed
 
 lemma count_remove_all_sum_list:
   fixes f :: "'a \<Rightarrow> real"
-  shows "real (count_list xs x) * f x + (\<Sum>x'\<leftarrow>(removeAll x xs). f x') 
+  shows "real (count_list xs x) * f x + (\<Sum>x'\<leftarrow>(removeAll x xs). f x')
            = (\<Sum>x\<leftarrow>xs. f x)"
   by (induct xs, simp, simp,
       metis (no_types, hide_lams)
@@ -187,7 +187,7 @@ proof -
   {
     fix \<delta>
     assume "\<delta> \<in> Dirac_Measures"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
       unfolding Dirac_Measures_def
       by simp
     assume "\<turnstile> \<Coprod> \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
@@ -209,14 +209,14 @@ proof -
         by (meson insert_subset
                 formula_consistent_def
                 Formula_Maximal_Consistency
-                Formula_Maximally_Consistent_Extension
-                Formula_Maximally_Consistent_Set_def
+                formula_maximally_consistent_extension
+                formula_maximally_consistent_set_def
                 set_deduction_base_theory
                 set_deduction_reflection
                 set_deduction_theorem)
       let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "\<phi> \<in> \<Omega>" "\<chi> \<in> \<Omega>"
-         by (metis Formula_Maximally_Consistent_Set_implication
+         by (metis formula_maximally_consistent_set_implication
                    Maximally_Consistent_Set_def
                    conjunction_def
                    negation_def)+
@@ -239,8 +239,8 @@ proof -
         by (meson insert_subset
                   formula_consistent_def
                   Formula_Maximal_Consistency
-                  Formula_Maximally_Consistent_Extension
-                  Formula_Maximally_Consistent_Set_def
+                  formula_maximally_consistent_extension
+                  formula_maximally_consistent_set_def
                   set_deduction_base_theory
                   set_deduction_reflection
                   set_deduction_theorem)
@@ -275,8 +275,8 @@ proof -
       by (meson insert_subset
                 formula_consistent_def
                 Formula_Maximal_Consistency
-                Formula_Maximally_Consistent_Extension
-                Formula_Maximally_Consistent_Set_def
+                formula_maximally_consistent_extension
+                formula_maximally_consistent_set_def
                 arbitrary_disjunction_exclusion_MCS
                 set_deduction_base_theory
                 set_deduction_reflection
@@ -305,7 +305,7 @@ proof -
 qed
 
 theorem (in classical_logic) Exclusive_Implication_Completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
@@ -318,9 +318,9 @@ next
   show ?lhs
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> Logical_Probabilities"
-    from this interpret Logical_Probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding Logical_Probabilities_def
+    assume "Pr \<in> logical_probabilities"
+    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      unfolding logical_probabilities_def
       by simp
     show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
       using \<open>?rhs\<close>
@@ -348,7 +348,7 @@ proof -
 qed
 
 theorem (in classical_logic) Inequality_Completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+  "(\<forall> Pr \<in> logical_probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
@@ -371,7 +371,7 @@ lemma (in classical_logic) Dirac_Exclusive_list_summation_completeness:
             trivial_implication)
 
 theorem (in classical_logic) Exclusive_list_summation_completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
             Exclusive_Implication_Completeness
             list_summation_completeness
@@ -388,7 +388,7 @@ lemma (in classical_logic) Dirac_Exclusive_Set_Summation_Completeness:
             sum.set_conv_list)
 
 theorem (in classical_logic) Exclusive_Set_Summation_Completeness:
-  "(\<forall> Pr \<in> Logical_Probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             Exclusive_Implication_Completeness
@@ -397,7 +397,7 @@ theorem (in classical_logic) Exclusive_Set_Summation_Completeness:
             set_remdups
             sum.set_conv_list)
 
-lemma (in Logical_Probability) exclusive_list_set_inequality:
+lemma (in logical_probability) exclusive_list_set_inequality:
   assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>)"
 proof -

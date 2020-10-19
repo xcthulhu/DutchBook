@@ -38,7 +38,7 @@ text \<open> In order to bootstrap completeness, we develop some common lemmas
 
 lemma (in classical_logic)
   Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-  using axiom_k Double_Negation Modus_Ponens hypothetical_syllogism
+  using axiom_k Double_Negation modus_ponens hypothetical_syllogism
   by blast
 
 lemma (in classical_logic)
@@ -59,11 +59,11 @@ qed
 
 lemma (in classical_logic)
   Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-  by (meson axiom_k Modus_Ponens flip_implication)
+  by (meson axiom_k modus_ponens flip_implication)
 
 lemma (in classical_logic)
   The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
-  using Ex_Falso_Quodlibet Modus_Ponens hypothetical_syllogism by blast
+  using Ex_Falso_Quodlibet modus_ponens hypothetical_syllogism by blast
 
 lemma (in classical_logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
@@ -170,7 +170,7 @@ proof -
     assume "\<phi> \<rightarrow> \<bottom> \<notin> \<Gamma>"
     hence "(\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<in> \<Gamma>"
       using \<open>\<phi>-MCS \<Gamma>\<close>
-      unfolding Formula_Maximally_Consistent_Set_def
+      unfolding formula_maximally_consistent_set_def
       by blast
     hence "\<Gamma> \<tturnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
       using set_deduction_reflection
@@ -184,7 +184,7 @@ proof -
     hence "False"
       using \<open>\<phi>-MCS \<Gamma>\<close>
       unfolding
-        Formula_Maximally_Consistent_Set_def
+        formula_maximally_consistent_set_def
         formula_consistent_def
       by simp
   }
@@ -209,7 +209,7 @@ proof -
           set_deduction_weaken [where \<Gamma>="\<Gamma>"]
           set_deduction_modus_ponens
         unfolding
-          Formula_Maximally_Consistent_Set_def
+          formula_maximally_consistent_set_def
           Consistent_def
           formula_consistent_def
         by metis
@@ -220,7 +220,7 @@ proof -
           assume "\<psi> \<rightarrow> \<bottom> \<notin> \<Gamma>"
           hence "(\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<in> \<Gamma>"
             using \<open>\<phi>-MCS \<Gamma>\<close>
-            unfolding Formula_Maximally_Consistent_Set_def
+            unfolding formula_maximally_consistent_set_def
             by blast
           hence "\<Gamma> \<tturnstile> (\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<phi>"
             using set_deduction_reflection
@@ -247,13 +247,13 @@ proof -
             by metis
           thus ?thesis
             using \<open>\<phi>-MCS \<Gamma>\<close>
-                  Formula_Maximally_Consistent_Set_reflection
+                  formula_maximally_consistent_set_reflection
             by blast
        qed
       }
       ultimately show ?thesis
         unfolding Maximally_Consistent_Set_def
-                  Formula_Maximally_Consistent_Set_def
+                  formula_maximally_consistent_set_def
                   formula_consistent_def
                   Consistent_def
         by blast
@@ -265,11 +265,11 @@ proof -
 qed
 
 text \<open> Finally, classical logic allows us to strengthen
-       @{thm Formula_Maximally_Consistent_Set_implication_elimination} to a
+       @{thm formula_maximally_consistent_set_implication_elimination} to a
        biconditional. \<close>
 
 lemma (in classical_logic)
-  Formula_Maximally_Consistent_Set_implication:
+  formula_maximally_consistent_set_implication:
   assumes "\<phi>-MCS \<Gamma>"
   shows "\<psi> \<rightarrow> \<chi> \<in> \<Gamma> = (\<psi> \<in> \<Gamma> \<longrightarrow> \<chi> \<in> \<Gamma>)"
 proof -
@@ -280,21 +280,21 @@ proof -
       have "\<forall>\<psi>. \<phi> \<rightarrow> \<psi> \<in> \<Gamma>"
         by (meson assms
                   Formula_Maximal_Consistent_Set_negation
-                  Formula_Maximally_Consistent_Set_implication_elimination
-                  Formula_Maximally_Consistent_Set_reflection
+                  formula_maximally_consistent_set_implication_elimination
+                  formula_maximally_consistent_set_reflection
                   The_Principle_of_Pseudo_Scotus set_deduction_weaken)
       then have "\<forall>\<chi> \<psi>. insert \<chi> \<Gamma> \<tturnstile> \<psi> \<or> \<chi> \<rightarrow> \<phi> \<notin> \<Gamma>"
         by (meson assms
                   axiom_k
-                  Formula_Maximally_Consistent_Set_reflection
+                  formula_maximally_consistent_set_reflection
                   set_deduction_modus_ponens
                   set_deduction_theorem
                   set_deduction_weaken)
       hence "\<psi> \<rightarrow> \<chi> \<in> \<Gamma>"
         by (meson \<open>\<psi> \<notin> \<Gamma>\<close>
                   assms
-                  Formula_Maximally_Consistent_Set_def
-                  Formula_Maximally_Consistent_Set_reflection
+                  formula_maximally_consistent_set_def
+                  formula_maximally_consistent_set_reflection
                   set_deduction_theorem)
     }
     moreover {
@@ -303,14 +303,14 @@ proof -
         by (metis assms
                   calculation
                   insert_absorb
-                  Formula_Maximally_Consistent_Set_reflection
+                  formula_maximally_consistent_set_reflection
                   set_deduction_theorem)
     }
     ultimately have  "\<psi> \<rightarrow> \<chi> \<in> \<Gamma>" using hypothesis by blast
   }
   thus ?thesis
     using assms
-          Formula_Maximally_Consistent_Set_implication_elimination
+          formula_maximally_consistent_set_implication_elimination
     by metis
 qed
 

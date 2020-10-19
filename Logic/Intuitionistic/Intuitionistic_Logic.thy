@@ -6,8 +6,8 @@ theory Intuitionistic_Logic
   imports implication_logic
 begin
 
-text \<open> This theory presents extends \<^emph>\<open>implicational intuitionistic logic\<close> 
- to full \<^emph>\<open>intuitionistic logic\<close>.  Intuitionistic logic include binary logical 
+text \<open> This theory presents extends \<^emph>\<open>implicational intuitionistic logic\<close>
+ to full \<^emph>\<open>intuitionistic logic\<close>.  Intuitionistic logic include binary logical
  connectives for \<^emph>\<open>conjunction\<close> and \<^emph>\<open>disjunction\<close> as well as \<^emph>\<open>negation\<close>,
  \<^emph>\<open>falsum\<close> and \<^emph>\<open>verum\<close>. \<close>
 
@@ -36,16 +36,16 @@ class Intuitionistic_Logic = implication_logic +
 
 subsection \<open> Maximally Consistent Sets \<close>
 
-theorem (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_conjunction:
+theorem (in Intuitionistic_Logic) formula_maximally_consistent_set_conjunction:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<sqinter> \<chi>) \<in> \<Omega> \<equiv> \<psi> \<in> \<Omega> \<and> \<chi> \<in> \<Omega>"
 proof -
   {
     assume "(\<psi> \<sqinter> \<chi>) \<in> \<Omega>"
     hence "\<psi> \<in> \<Omega>" "\<chi> \<in> \<Omega>"
-      using 
+      using
         assms
-        Formula_Maximally_Consistent_Set_reflection
+        formula_maximally_consistent_set_reflection
         Conjunction_Right_Elimination
         Conjunction_Left_Elimination
         set_deduction_modus_ponens
@@ -61,8 +61,8 @@ proof -
         Set.set_insert
         insert_iff
         Conjunction_Introduction [where \<phi>="\<psi>" and \<psi>="\<chi>"]
-        Formula_Maximally_Consistent_Set_reflection [where \<Gamma>="\<Omega>" and \<phi>="\<phi>"]
-        Modus_Ponens
+        formula_maximally_consistent_set_reflection [where \<Gamma>="\<Omega>" and \<phi>="\<phi>"]
+        modus_ponens
         implication_absorption
         set_deduction_theorem
         set_deduction_weaken
@@ -72,7 +72,7 @@ proof -
     by linarith
 qed
 
-lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_disjunction:
+lemma (in Intuitionistic_Logic) formula_maximally_consistent_set_disjunction:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<squnion> \<chi>) \<in> \<Omega> \<equiv> \<psi> \<in> \<Omega> \<or> \<chi> \<in> \<Omega>"
 proof -
@@ -81,10 +81,10 @@ proof -
     {
       assume "\<psi> \<notin> \<Omega>" "\<chi> \<notin> \<Omega>"
       hence "\<Omega> \<tturnstile> \<psi> \<rightarrow> \<phi>" "\<Omega> \<tturnstile> \<chi> \<rightarrow> \<phi>"
-        using assms Formula_Maximally_Consistent_Set_def set_deduction_reflection
+        using assms formula_maximally_consistent_set_def set_deduction_reflection
         by blast+
       hence "\<Omega> \<tturnstile> \<phi>"
-        using 
+        using
           \<open>(\<psi> \<squnion> \<chi>) \<in> \<Omega>\<close>
           set_deduction_weaken [where \<Gamma>="\<Omega>"]
           set_deduction_modus_ponens [where \<Gamma>="\<Omega>"]
@@ -99,9 +99,9 @@ proof -
   {
     assume "\<psi> \<in> \<Omega> \<or> \<chi> \<in> \<Omega>"
     hence "(\<psi> \<squnion> \<chi>) \<in> \<Omega>"
-      using 
+      using
         assms
-        Formula_Maximally_Consistent_Set_reflection
+        formula_maximally_consistent_set_reflection
         Disjunction_Left_Introduction
         Disjunction_Right_Introduction
         set_deduction_modus_ponens
@@ -112,47 +112,47 @@ proof -
     by linarith
 qed
 
-lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_verum:
+lemma (in Intuitionistic_Logic) formula_maximally_consistent_set_verum:
   assumes "\<phi>-MCS \<Omega>"
   shows "\<top> \<in> \<Omega>"
-  using 
+  using
     assms
-    Formula_Maximally_Consistent_Set_reflection
-    Modus_Ponens
+    formula_maximally_consistent_set_reflection
+    modus_ponens
     Verum_Rule
     set_deduction_weaken
   by blast
 
-lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_falsum:
+lemma (in Intuitionistic_Logic) formula_maximally_consistent_set_falsum:
   assumes "\<phi>-MCS \<Omega>"
   shows "\<bottom> \<notin> \<Omega>"
-  by (metis 
+  by (metis
         assms
         insert_Diff
         Ex_Falso_Quodlibet
         formula_consistent_def
-        Formula_Maximally_Consistent_Set_def
+        formula_maximally_consistent_set_def
         set_deduction_theorem
         set_deduction_weaken)
 
-lemma (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_negation:
+lemma (in Intuitionistic_Logic) formula_maximally_consistent_set_negation:
   assumes "\<phi>-MCS \<Omega>"
   shows "\<psi> \<rightarrow> \<bottom> \<in> \<Omega> = (\<sim> \<psi> \<in> \<Omega>)"
   by (metis
         assms
-        Formula_Maximally_Consistent_Set_reflection
+        formula_maximally_consistent_set_reflection
         Negation_Elimination
         Negation_Introduction
         set_deduction_modus_ponens
         set_deduction_weaken)
 
-theorem (in Intuitionistic_Logic) Formula_Maximally_Consistent_Set_biconditional_elimination:
+theorem (in Intuitionistic_Logic) formula_maximally_consistent_set_biconditional_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<leftrightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<longleftrightarrow> \<chi> \<in> \<Omega>"
-  by (meson 
+  by (meson
         assms
-        Formula_Maximally_Consistent_Set_implication_elimination
-        Formula_Maximally_Consistent_Set_reflection
+        formula_maximally_consistent_set_implication_elimination
+        formula_maximally_consistent_set_reflection
         Biconditional_Left_Elimination
         Biconditional_Right_Elimination
         set_deduction_weaken)

@@ -83,7 +83,7 @@ text \<open>A useful lemma is the type of the \<^emph>\<open>identity\<close> co
 lemma Identity_type: "S \<cdot> K \<cdot> K \<Colon> \<phi> \<^bold>\<Rightarrow> \<phi>"
   using K_type S_type Application_type by blast
 
-text \<open>Another significant combinator is the \<open>C\<close> combinator, which 
+text \<open>Another significant combinator is the \<open>C\<close> combinator, which
       corresponds to \<^verbatim>\<open>flip\<close> in Haskell.\<close>
 
 lemma C_type:
@@ -130,6 +130,6 @@ primrec (in implication_logic) Simple_Type_interpretation
 lemma (in implication_logic) Curry_Howard_correspondence:
   "X \<Colon> \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Simply_Typed_SKComb.induct,
-      (simp add: axiom_k Axiom_S Modus_Ponens)+)
+      (simp add: axiom_k axiom_s modus_ponens)+)
 
 end

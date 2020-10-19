@@ -5,7 +5,7 @@ section \<open>Finite Boolean Algebra\<close>
 (* TODO: Cite Birkoff and Priestley *)
 
 theory Finite_Boolean_Algebra
-  imports 
+  imports
     "HOL-Library.Finite_Lattice"
     "HOL-Library.Lattice_Syntax"
     "HOL.Transcendental"
@@ -19,7 +19,7 @@ class finite_boolean_algebra = boolean_algebra + finite + Inf + Sup +
 begin
 
 subclass finite_distrib_lattice_complete
-  using 
+  using
     Inf_fin.coboundedI
     Sup_fin.coboundedI
     finite_UNIV
@@ -54,7 +54,7 @@ proof
       unfolding join_prime_def
       by force
     hence "y \<le> y \<sqinter> -y"
-      by (metis 
+      by (metis
             \<open>x = x \<squnion> y\<close>
             inf.orderE
             inf_compl_bot_right
@@ -124,7 +124,7 @@ definition (in bounded_lattice_bot) join_primes ("\<J>") where
 fun (in order) descending_chain_list :: "'a list \<Rightarrow> bool" where
   "descending_chain_list [] = True"
 | "descending_chain_list [x] = True"
-| "descending_chain_list (x # x' # xs) 
+| "descending_chain_list (x # x' # xs)
      = (x < x' \<and> descending_chain_list (x' # xs))"
 
 lemma (in order) descending_chain_list_tail:
@@ -151,7 +151,7 @@ lemma (in order) descending_chain_list_distinct:
   using assms
   by (induct S,
       simp,
-      meson 
+      meson
         descending_chain_list_less_than_others
         descending_chain_list_tail
         distinct.simps(2)
@@ -169,13 +169,13 @@ proof (rule ccontr)
     by fastforce
   {
     fix n :: nat
-    have "\<exists> S . descending_chain_list S 
-                \<and> length S = n 
+    have "\<exists> S . descending_chain_list S
+                \<and> length S = n
                 \<and> (\<forall>s \<in> set S. s \<noteq> \<bottom> \<and> s \<le> x)"
     proof (induct n)
       case 0
-      have "descending_chain_list [] 
-            \<and> length [] = 0 
+      have "descending_chain_list []
+            \<and> length [] = 0
             \<and> (\<forall>s \<in> set []. s \<noteq> \<bottom> \<and> s \<le> x)"
         by auto
       then show ?case by simp
@@ -183,8 +183,8 @@ proof (rule ccontr)
       case (Suc n)
       then show ?case proof (cases "n = 0")
         case True
-        hence "descending_chain_list [x] 
-               \<and> length [x] = Suc n 
+        hence "descending_chain_list [x]
+               \<and> length [x] = Suc n
                \<and> (\<forall>s \<in> set [x]. s \<noteq> \<bottom> \<and> s \<le> x)"
           using \<open>x \<noteq> \<bottom>\<close>
           by simp
@@ -229,7 +229,7 @@ proof (rule ccontr)
     using card_mono finite_UNIV by blast
 qed
 
-definition (in bounded_lattice_bot) 
+definition (in bounded_lattice_bot)
   join_prime_embedding :: "'a \<Rightarrow> 'a set" ("\<lbrace> _ \<rbrace>" [50]) where
   "\<lbrace> x \<rbrace> \<equiv> {a \<in> \<J>. a \<le> x}"
 
