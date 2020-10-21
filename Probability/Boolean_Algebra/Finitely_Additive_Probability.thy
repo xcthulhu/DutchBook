@@ -17,7 +17,7 @@ no_notation
   falsum ("\<bottom>") and
   disjunction (infixr "\<squnion>" 67) and
   conjunction (infixr "\<sqinter>" 67) and
-  Arbitrary_Conjunction ("\<Sqinter>") and
+  arbitrary_conjunction ("\<Sqinter>") and
   Arbitrary_Disjunction ("\<Squnion>")
 
 class \<P> =

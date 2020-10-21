@@ -36,7 +36,7 @@ definition (in classical_logic)
     "\<phi> \<sqinter> \<psi> = (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
 
 primrec (in classical_logic)
-  Arbitrary_Conjunction :: "'a list \<Rightarrow> 'a" ("\<Sqinter>")
+  arbitrary_conjunction :: "'a list \<Rightarrow> 'a" ("\<Sqinter>")
   where
      "\<Sqinter> [] = \<top>"
   |  "\<Sqinter> (\<phi> # \<Phi>) = \<phi> \<sqinter> \<Sqinter> \<Phi>"

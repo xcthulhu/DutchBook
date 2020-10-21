@@ -9,13 +9,13 @@ begin
 sledgehammer_params [smt_proofs = false]
 
 lemma (in classical_logic) Dirac_list_summation_completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
     fix \<delta> :: "'a \<Rightarrow> real"
-    assume "\<delta> \<in> Dirac_Measures"
+    assume "\<delta> \<in> dirac_measures"
     from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
-      unfolding Dirac_Measures_def
+      unfolding dirac_measures_def
       by auto
     assume "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
     hence "\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
@@ -42,7 +42,7 @@ proof -
     hence "\<not> ?\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. ?\<delta> \<psi>)"
       by (simp add: \<Omega>(2))
     hence
-      "\<exists> \<delta> \<in> Dirac_Measures. \<not> (\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
+      "\<exists> \<delta> \<in> dirac_measures. \<not> (\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
       using \<Omega>(1) MCS_Dirac_Measure by auto
   }
   ultimately show ?thesis by blast
@@ -53,8 +53,8 @@ theorem (in classical_logic) list_summation_completeness:
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
-  hence "\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
-    unfolding Dirac_Measures_def logical_probabilities_def
+  hence "\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
+    unfolding dirac_measures_def logical_probabilities_def
     by blast
   thus ?rhs
     using Dirac_list_summation_completeness by blast
@@ -74,7 +74,7 @@ next
 qed
 
 lemma (in classical_logic) Dirac_Set_Summation_Completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis Dirac_list_summation_completeness
             modus_ponens
             arbitrary_disjunction_remdups
@@ -182,13 +182,13 @@ lemma count_remove_all_sum_list:
             add.left_commute)
 
 lemma (in classical_logic) Dirac_Exclusive_Implication_Completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  "(\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
     fix \<delta>
-    assume "\<delta> \<in> Dirac_Measures"
+    assume "\<delta> \<in> dirac_measures"
     from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
-      unfolding Dirac_Measures_def
+      unfolding dirac_measures_def
       by simp
     assume "\<turnstile> \<Coprod> \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>"
@@ -199,7 +199,7 @@ proof -
     assume "\<not> \<turnstile> \<Coprod> \<Phi>"
     hence "(\<exists> \<phi> \<in> set \<Phi>. \<exists> \<psi> \<in> set \<Phi>. \<phi> \<noteq> \<psi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)) \<or> (\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>)"
       using exclusive_equivalence set_deduction_base_theory by blast
-    hence "\<not> (\<forall> \<delta> \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
+    hence "\<not> (\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
     proof (elim disjE)
       assume "\<exists> \<phi> \<in> set \<Phi>. \<exists> \<chi> \<in> set \<Phi>. \<phi> \<noteq> \<chi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
       from this obtain \<phi> and \<chi>
@@ -297,7 +297,7 @@ proof -
         by (simp, metis Cons.hyps Cons.prems(1) \<phi>(2) set_ConsD)
     qed
     hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" using \<psi> by auto
-    hence "\<not> (\<forall> \<delta> \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
+    hence "\<not> (\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
       using \<Omega>(1) MCS_Dirac_Measure
       by auto
   }
@@ -311,7 +311,7 @@ proof
   assume ?lhs
   thus ?rhs
     by (meson Dirac_Exclusive_Implication_Completeness
-              Dirac_Measures_subset
+              dirac_measures_subset
               subset_eq)
 next
   assume ?rhs
@@ -332,7 +332,7 @@ qed
 
 
 lemma (in classical_logic) Dirac_Inequality_Completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> \<phi> \<le> \<delta> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> \<delta> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
@@ -364,7 +364,7 @@ proof -
 qed
 
 lemma (in classical_logic) Dirac_Exclusive_list_summation_completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
             Dirac_Exclusive_Implication_Completeness
             Dirac_list_summation_completeness
@@ -378,7 +378,7 @@ theorem (in classical_logic) Exclusive_list_summation_completeness:
             trivial_implication)
 
 lemma (in classical_logic) Dirac_Exclusive_Set_Summation_Completeness:
-  "(\<forall> \<delta> \<in> Dirac_Measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             Dirac_Exclusive_Implication_Completeness

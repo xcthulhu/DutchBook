@@ -296,20 +296,20 @@ definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real
   where "logical_probabilities =
          {Pr. class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
-definition (in classical_logic) Dirac_Measures :: "('a \<Rightarrow> real) set"
-  where "Dirac_Measures =
+definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
+  where "dirac_measures =
          { Pr.   class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
-lemma (in classical_logic) Dirac_Measures_subset:
-  "Dirac_Measures \<subseteq> logical_probabilities"
-  unfolding logical_probabilities_def Dirac_Measures_def
+lemma (in classical_logic) dirac_measures_subset:
+  "dirac_measures \<subseteq> logical_probabilities"
+  unfolding logical_probabilities_def dirac_measures_def
   by fastforce
 
 lemma (in classical_logic) MCS_Dirac_Measure:
   assumes "MCS \<Omega>"
-    shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> Dirac_Measures"
-      (is "?Pr \<in> Dirac_Measures")
+    shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> dirac_measures"
+      (is "?Pr \<in> dirac_measures")
 proof -
   have "class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
@@ -382,7 +382,7 @@ proof -
        unfolding disjunction_def .
   qed
   thus ?thesis
-    unfolding Dirac_Measures_def
+    unfolding dirac_measures_def
     by simp
 qed
 

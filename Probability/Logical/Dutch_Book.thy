@@ -572,7 +572,7 @@ proof -
     by linarith
   also have "\<dots> = (MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (?tot_ss - ?tot_bs + k) \<le> length ?sell_\<phi>s)"
     by simp
-  finally have I: "?lhs = (\<forall> Pr \<in> Dirac_Measures.
+  finally have I: "?lhs = (\<forall> Pr \<in> dirac_measures.
     (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (?tot_ss - ?tot_bs + k) \<le> (\<Sum>\<gamma>\<leftarrow>?sell_\<phi>s. Pr \<gamma>))"
     using binary_inequality_equiv [of ?buy_\<phi>s "?tot_ss - ?tot_bs + k" ?sell_\<phi>s]
     by blast
@@ -587,7 +587,7 @@ proof -
       by linarith
   }
   ultimately show ?thesis
-    by (meson Dirac_Measures_subset dirac_ceiling dirac_collapse subset_eq)
+    by (meson dirac_measures_subset dirac_ceiling dirac_collapse subset_eq)
 qed
 
 lemma (in Consistent_classical_logic) strict_dutch_book:
@@ -625,7 +625,7 @@ next
     using \<open>?rhs\<close> by fastforce
   hence "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + ?c < (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using \<star> by auto
-  hence "\<forall> Pr \<in> Dirac_Measures. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (\<lfloor>?c\<rfloor> + 1) \<le> (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
+  hence "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (\<lfloor>?c\<rfloor> + 1) \<le> (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using strict_dirac_collapse [of ?buy_\<phi>s ?c ?sell_\<phi>s]
     by auto
   hence "MaxSat (\<^bold>\<sim> ?sell_\<phi>s @ ?buy_\<phi>s) + (\<lfloor>?c\<rfloor> + 1) \<le> length ?sell_\<phi>s"
