@@ -43,7 +43,7 @@ lemma (in logical_probability) Alternate_Additivity:
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
   by (metis Additivity
-            Double_Negation_converse
+            double_negation_converse
             modus_ponens
             conjunction_def
             negation_def)
@@ -77,7 +77,7 @@ sublocale Weatherson_Probability \<subseteq> logical_probability
 proof
   fix \<phi>
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-    by (simp add: Ex_Falso_Quodlibet)
+    by (simp add: ex_falso_quodlibet)
   thus "0 \<le> Pr \<phi>"
     using Antithesis Monotonicity by fastforce
 next
@@ -88,7 +88,7 @@ next
               Monotonicity
               eq_iff
               axiom_k
-              Ex_Falso_Quodlibet
+              ex_falso_quodlibet
               modus_ponens
               verum_def)
 next
@@ -98,7 +98,7 @@ next
     by (metis add.left_neutral
               eq_iff
               Antithesis
-              Ex_Falso_Quodlibet
+              ex_falso_quodlibet
               Monotonicity
               Sum_Rule
               conjunction_negation_identity
@@ -192,7 +192,7 @@ next
   show "Pr \<bottom> = 0"
     by (metis add_cancel_left_right
             Additivity
-            Ex_Falso_Quodlibet
+            ex_falso_quodlibet
             Unity
             bivalence
             conjunction_right_elimination
@@ -315,7 +315,7 @@ proof -
   proof (standard, simp,
          meson assms
                formula_maximally_consistent_set_reflection
-               Maximally_Consistent_Set_def
+               maximally_consistent_set_def
                set_deduction_weaken)
      fix \<phi> \<psi>
      assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
@@ -325,7 +325,7 @@ proof -
        by (metis assms
                  formula_consistent_def
                  formula_maximally_consistent_set_def
-                 Maximally_Consistent_Set_def
+                 maximally_consistent_set_def
                  conjunction_def
                  conjunction_negation_identity
                  set_deduction_modus_ponens
@@ -335,7 +335,7 @@ proof -
      hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
        using assms
              formula_maximally_consistent_set_reflection
-             Maximally_Consistent_Set_def
+             maximally_consistent_set_def
              conjunction_set_deduction_equivalence
        by meson
 
@@ -343,7 +343,7 @@ proof -
        by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close>
                  assms
                  formula_maximally_consistent_set_implication
-                 Maximally_Consistent_Set_def
+                 maximally_consistent_set_def
                  conjunction_def
                  disjunction_def)
      have "?Pr (\<phi> \<squnion> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
@@ -395,7 +395,7 @@ proof (induct \<Psi>)
     using assms
           formula_consistent_def
           formula_maximally_consistent_set_def
-          Maximally_Consistent_Set_def
+          maximally_consistent_set_def
           set_deduction_reflection
     by (simp, blast)
 next
@@ -406,7 +406,7 @@ next
               formula_consistent_def
               formula_maximally_consistent_set_def
               formula_maximally_consistent_set_implication
-              Maximally_Consistent_Set_def
+              maximally_consistent_set_def
               set_deduction_reflection)
   thus ?case using Cons.hyps by simp
 qed

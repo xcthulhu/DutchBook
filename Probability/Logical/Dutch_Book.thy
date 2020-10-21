@@ -65,7 +65,7 @@ proof
   proof
     assume "p \<phi>"
     have "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
-      by (simp add: Double_Negation_converse)
+      by (simp add: double_negation_converse)
     hence "p ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>)"
       using \<open>p \<phi>\<close> \<open>possibility p\<close> by auto
     thus "False" using \<open>p (\<phi> \<rightarrow> \<bottom>)\<close> \<open>possibility p\<close> by auto
@@ -110,7 +110,7 @@ lemma (in classical_logic) possibilities_are_MCS:
   by (metis (mono_tags, lifting)
             formula_consistent_def
             formula_maximally_consistent_set_def
-            Maximally_Consistent_Set_def
+            maximally_consistent_set_def
             possibilities_logical_closure
             possibility_def
             mem_Collect_eq)
@@ -123,24 +123,24 @@ proof -
     using \<open>MCS s\<close>
           formula_consistent_def
           formula_maximally_consistent_set_def
-          Maximally_Consistent_Set_def
+          maximally_consistent_set_def
           set_deduction_reflection
     by blast
   moreover have "\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> \<phi> \<in> s"
     using \<open>MCS s\<close>
           formula_maximally_consistent_set_reflection
-          Maximally_Consistent_Set_def
+          maximally_consistent_set_def
           set_deduction_weaken
     by blast
   moreover have "\<forall> \<phi> \<psi>. (\<phi> \<rightarrow> \<psi>) \<in> s \<longrightarrow> \<phi> \<in> s \<longrightarrow> \<psi> \<in> s"
     using \<open>MCS s\<close>
-          Formula_Maximal_Consistency
+          formula_maximal_consistency
           formula_maximally_consistent_set_implication
     by blast
   moreover have "\<forall> \<phi>. \<phi> \<in> s \<or> (\<phi> \<rightarrow> \<bottom>) \<in> s"
     using assms
           formula_maximally_consistent_set_implication
-          Maximally_Consistent_Set_def
+          maximally_consistent_set_def
     by blast
   ultimately show ?thesis by simp
 qed
@@ -258,7 +258,7 @@ proof (rule ex_ex1I)
       using consistency set_deduction_base_theory by auto
     from this obtain \<Gamma> where "MCS \<Gamma>"
       by (meson formula_consistent_def
-                Formula_Maximal_Consistency
+                formula_maximal_consistency
                 formula_maximally_consistent_extension)
     hence "(\<lambda> \<gamma>. \<gamma> \<in> \<Gamma>) \<in> possibilities"
       using MCSs_are_possibilities possibilities_def by blast
@@ -354,7 +354,7 @@ proof
                 possibilities_are_MCS [of p]
                 formula_consistent_def
                 formula_maximally_consistent_set_def
-                Maximally_Consistent_Set_def
+                maximally_consistent_set_def
                 list_deduction_monotonic
                 set_deduction_def)
     thus ?thesis
@@ -366,7 +366,7 @@ proof
     assume "mset \<Psi> \<subseteq># mset ?props" and "\<not> \<Psi> :\<turnstile> \<bottom>"
     from this obtain \<Omega>\<^sub>\<Psi> where "MCS \<Omega>\<^sub>\<Psi>" and "set \<Psi> \<subseteq> \<Omega>\<^sub>\<Psi>"
       by (meson formula_consistent_def
-                Formula_Maximal_Consistency
+                formula_maximal_consistency
                 formula_maximally_consistent_extension
                 list_deduction_monotonic
                 set_deduction_def)
@@ -438,7 +438,7 @@ next
     using unproving_core_def by blast
   from this obtain \<Omega>\<^sub>\<Phi> where "MCS \<Omega>\<^sub>\<Phi>" and "set \<Phi> \<subseteq> \<Omega>\<^sub>\<Phi>"
     by (meson formula_consistent_def
-              Formula_Maximal_Consistency
+              formula_maximal_consistency
               formula_maximally_consistent_extension
               list_deduction_monotonic
               set_deduction_def)
@@ -466,7 +466,7 @@ next
                 inter_set_filter
                 formula_consistent_def
                 formula_maximally_consistent_set_def
-                Maximally_Consistent_Set_def
+                maximally_consistent_set_def
                 set_deduction_def
                 subsetI)
     hence "length [ b \<leftarrow> ?props. ?p b] \<le> length \<Phi>"

@@ -28,7 +28,7 @@ inductive Classical_Propositional_Calculus ::
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
    | axiom_s [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<chi>) \<^bold>\<rightarrow> (\<phi> \<^bold>\<rightarrow> \<psi>) \<^bold>\<rightarrow> \<phi> \<^bold>\<rightarrow> \<chi>"
-   | Double_Negation [Classical_Propositional_Calculus]:
+   | double_negation [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p ((\<phi> \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<^bold>\<bottom>) \<^bold>\<rightarrow> \<phi>"
    | modus_ponens [Classical_Propositional_Calculus]:
         "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
@@ -91,7 +91,7 @@ next
   thus ?case
     unfolding strong_classical_propositional_deduction_def
     by (metis assms
-              Maximally_Consistent_Set_def
+              maximally_consistent_set_def
               formula_maximally_consistent_set_implication
               Classical_Propositional_Semantics.simps(2)
               implication_Classical_Propositional_Formula_def
@@ -140,13 +140,13 @@ proof -
       hence "\<not> \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
         using \<Omega>
               formula_consistent_def
-              Formula_Maximal_Consistency
+              formula_maximal_consistency
               formula_maximally_consistent_set_def
               Truth_Lemma
         unfolding strong_classical_propositional_deduction_def
         by blast
       moreover have "\<forall> \<gamma> \<in> \<Gamma>. \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>"
-        using Formula_Maximal_Consistency Truth_Lemma \<Omega> set_deduction_reflection
+        using formula_maximal_consistency Truth_Lemma \<Omega> set_deduction_reflection
         unfolding strong_classical_propositional_deduction_def
         by blast
       ultimately show ?thesis by auto
@@ -187,7 +187,7 @@ primrec (in classical_logic)
 theorem (in classical_logic) propositional_calculus:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
   by (induct rule: Classical_Propositional_Calculus.induct,
-      (simp add: axiom_k axiom_s Double_Negation modus_ponens)+)
+      (simp add: axiom_k axiom_s double_negation modus_ponens)+)
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"

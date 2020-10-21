@@ -649,7 +649,7 @@ next
     case (Cons \<gamma> \<Gamma>)
     have "\<turnstile> (\<bottom> \<squnion> \<gamma>) \<rightarrow> \<gamma>"
       unfolding disjunction_def
-      using Ex_Falso_Quodlibet modus_ponens excluded_middle_elimination
+      using ex_falso_quodlibet modus_ponens excluded_middle_elimination
       by blast
     then show ?case using Cons
       by (simp add: stronger_theory_left_right_cons)
@@ -2741,7 +2741,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in implication_logic) XComponent_YComponent_connection:
+lemma (in implication_logic) xcomponent_ycomponent_connection:
   "map (uncurry (\<rightarrow>)) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
 proof -
   have "\<forall> \<Psi>. map (uncurry (\<rightarrow>)) (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>) = map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>)"
@@ -2854,7 +2854,7 @@ proof -
         "{#x \<rightarrow> y. (x, y) \<in># mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>)#} = mset (map snd (\<YY>\<^sub>\<bullet> \<Psi> \<Delta>))"
     by (simp add: subset_mset.diff_add_assoc,
         simp add: XWitness_secondComponent_diff_decomposition,
-        metis XComponent_YComponent_connection mset_map uncurry_def)
+        metis xcomponent_ycomponent_connection mset_map uncurry_def)
   hence "mset ((?A \<ominus> ?D @ ?F) @ ?D @ (\<Gamma> \<ominus> ?J) \<ominus> map snd ?C)
        = mset (?A @ (?B @ \<Gamma> \<ominus> ?J) \<ominus> (?H @ map snd ?C))"
         "{#x \<rightarrow> y. (x, y) \<in># mset (\<XX>\<^sub>\<bullet> \<Psi> \<Delta>)#} + image_mset snd (mset \<Psi> - mset (\<AA> \<Psi> \<Delta>))
@@ -3192,7 +3192,7 @@ proof -
         fix \<phi>
         have "\<turnstile> (\<bottom> \<squnion> \<phi>) \<rightarrow> \<phi>"
           unfolding disjunction_def
-          using Ex_Falso_Quodlibet modus_ponens excluded_middle_elimination by blast
+          using ex_falso_quodlibet modus_ponens excluded_middle_elimination by blast
       }
       note tautology = this
       have "map (uncurry (\<squnion>)) \<Sigma> \<preceq> map (uncurry (\<squnion>)) (\<EE> \<Sigma> [])"
@@ -4524,7 +4524,7 @@ proof -
     using segmented_exchange
     by blast
   also have "... = (\<sim> \<phi> # \<Gamma>) $\<turnstile> (\<bottom> # \<Phi>)"
-    using Ex_Falso_Quodlibet
+    using ex_falso_quodlibet
           segmented_tautology_right_cancel
     by blast
   finally show ?thesis .
@@ -5342,7 +5342,7 @@ lemma (in classical_logic) weak_disj_of_conj_equiv:
 proof (induct \<Sigma>)
   case Nil
   then show ?case
-    by (simp add: Ex_Falso_Quodlibet)
+    by (simp add: ex_falso_quodlibet)
 next
   case (Cons \<sigma> \<Sigma>)
   have "(\<forall>\<sigma>'\<in>set (\<sigma> # \<Sigma>). \<sigma>' :\<turnstile> \<phi>) = (\<sigma> :\<turnstile> \<phi> \<and> (\<forall>\<sigma>'\<in>set \<Sigma>. \<sigma>' :\<turnstile> \<phi>))" by simp
@@ -5361,7 +5361,7 @@ proof (induct \<Phi>)
   case Nil
   then show ?case
     by (simp,
-        meson Ex_Falso_Quodlibet
+        meson ex_falso_quodlibet
               modus_ponens
               biconditional_introduction
               disjunction_elimination
@@ -5441,7 +5441,7 @@ lemma (in classical_logic) conj_extract: "\<turnstile> \<Squnion> (map ((\<sqint
 proof (induct \<Psi>)
   case Nil
   then show ?case
-    by (simp add: Ex_Falso_Quodlibet biconditional_def conjunction_right_elimination)
+    by (simp add: ex_falso_quodlibet biconditional_def conjunction_right_elimination)
 next
   case (Cons \<psi> \<Psi>)
   have "\<turnstile> \<Squnion> (map ((\<sqinter>) \<phi>) \<Psi>) \<leftrightarrow> (\<phi> \<sqinter> \<Squnion> \<Psi>)
@@ -7149,7 +7149,7 @@ proof -
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Phi> \<notin> \<Omega>"
         by (meson insert_subset
                   formula_consistent_def
-                  Formula_Maximal_Consistency
+                  formula_maximal_consistency
                   formula_maximally_consistent_extension
                   formula_maximally_consistent_set_def
                   set_deduction_base_theory
@@ -7313,13 +7313,13 @@ theorem (in classical_logic) weakly_additive_completeness_collapse:
 
 lemma (in classical_logic) stronger_theory_double_negation_right:
   "\<Phi> \<preceq> \<^bold>\<sim> (\<^bold>\<sim> \<Phi>)"
-  by (induct \<Phi>, simp, simp add: Double_Negation negation_def stronger_theory_left_right_cons)
+  by (induct \<Phi>, simp, simp add: double_negation negation_def stronger_theory_left_right_cons)
 
 lemma (in classical_logic) stronger_theory_double_negation_left:
   "\<^bold>\<sim> (\<^bold>\<sim> \<Phi>) \<preceq> \<Phi>"
   by (induct \<Phi>,
       simp,
-      simp add: Double_Negation_converse negation_def stronger_theory_left_right_cons)
+      simp add: double_negation_converse negation_def stronger_theory_left_right_cons)
 
 lemma (in classical_logic) segmented_left_commute:
   "(\<Phi> @ \<Psi>) $\<turnstile> \<Xi> = (\<Psi> @ \<Phi>) $\<turnstile> \<Xi>"

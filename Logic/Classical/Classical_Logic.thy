@@ -19,7 +19,7 @@ text \<open> Classical propositional logic can be given by the following
 
 class classical_logic = implication_logic +
   fixes falsum :: "'a" ("\<bottom>")
-  assumes Double_Negation: "\<turnstile> (((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>)"
+  assumes double_negation: "\<turnstile> (((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>) \<rightarrow> \<phi>)"
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
 
@@ -37,8 +37,8 @@ text \<open> In order to bootstrap completeness, we develop some common lemmas
        using classical deduction alone. \<close>
 
 lemma (in classical_logic)
-  Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
-  using axiom_k Double_Negation modus_ponens hypothetical_syllogism
+  ex_falso_quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
+  using axiom_k double_negation modus_ponens hypothetical_syllogism
   by blast
 
 lemma (in classical_logic)
@@ -51,19 +51,19 @@ proof -
   hence "[\<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
     using list_deduction_theorem by blast
   hence "[\<psi>, (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<psi> \<rightarrow> \<bottom>)] :\<turnstile> \<phi>"
-    using Double_Negation list_deduction_weaken list_deduction_modus_ponens
+    using double_negation list_deduction_weaken list_deduction_modus_ponens
     by blast
   thus ?thesis
     using list_deduction_base_theory list_deduction_theorem by blast
 qed
 
 lemma (in classical_logic)
-  Double_Negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
+  double_negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson axiom_k modus_ponens flip_implication)
 
 lemma (in classical_logic)
   The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
-  using Ex_Falso_Quodlibet modus_ponens hypothetical_syllogism by blast
+  using ex_falso_quodlibet modus_ponens hypothetical_syllogism by blast
 
 lemma (in classical_logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"
@@ -89,7 +89,7 @@ proof -
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
     using list_deduction_theorem by blast
   hence "[(\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi>"
-    using Double_Negation
+    using double_negation
           list_deduction_modus_ponens
           list_deduction_weaken
     by blast
@@ -114,7 +114,7 @@ proof -
           set_subset_Cons)
   hence "?\<Gamma> :\<turnstile> \<phi>"
     using
-      Double_Negation
+      double_negation
       list_deduction_modus_ponens
       list_deduction_weaken
     by blast
@@ -156,10 +156,10 @@ text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\
 
 definition (in classical_logic)
   Consistent :: "'a set \<Rightarrow> bool" where
-    [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-Consistent \<Gamma>"
+    [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-consistent \<Gamma>"
 
 definition (in classical_logic)
-  Maximally_Consistent_Set :: "'a set \<Rightarrow> bool" ("MCS") where
+  maximally_consistent_set :: "'a set \<Rightarrow> bool" ("MCS") where
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
 lemma (in classical_logic)
@@ -195,7 +195,7 @@ text \<open> Relative maximal consistency and conventional maximal consistency i
        fact coincide in classical logic. \<close>
 
 lemma (in classical_logic)
-  Formula_Maximal_Consistency: "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
+  formula_maximal_consistency: "(\<exists>\<phi>. \<phi>-MCS \<Gamma>) = MCS \<Gamma>"
 proof -
   {
     fix \<phi>
@@ -205,7 +205,7 @@ proof -
       have "Consistent \<Gamma>"
         using
           \<open>\<phi>-MCS \<Gamma>\<close>
-          Ex_Falso_Quodlibet [where \<phi>="\<phi>"]
+          ex_falso_quodlibet [where \<phi>="\<phi>"]
           set_deduction_weaken [where \<Gamma>="\<Gamma>"]
           set_deduction_modus_ponens
         unfolding
@@ -239,7 +239,7 @@ proof -
                   set_deduction_modus_ponens
             by metis
           hence "\<Gamma> \<tturnstile> \<psi>"
-            using Double_Negation
+            using double_negation
                     [where \<phi>="\<psi>"]
                   set_deduction_weaken
                     [where \<Gamma>="\<Gamma>"]
@@ -252,7 +252,7 @@ proof -
        qed
       }
       ultimately show ?thesis
-        unfolding Maximally_Consistent_Set_def
+        unfolding maximally_consistent_set_def
                   formula_maximally_consistent_set_def
                   formula_consistent_def
                   Consistent_def
@@ -260,7 +260,7 @@ proof -
     qed
   }
   thus ?thesis
-    unfolding Maximally_Consistent_Set_def
+    unfolding maximally_consistent_set_def
     by metis
 qed
 

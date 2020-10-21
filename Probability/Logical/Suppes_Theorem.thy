@@ -28,7 +28,7 @@ proof -
       by (meson
             insert_subset
             formula_consistent_def
-            Formula_Maximal_Consistency
+            formula_maximal_consistency
             formula_maximally_consistent_extension
             formula_maximally_consistent_set_def
             set_deduction_base_theory
@@ -208,7 +208,7 @@ proof -
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> (\<phi> \<sqinter> \<chi>) \<notin> \<Omega>"
         by (meson insert_subset
                 formula_consistent_def
-                Formula_Maximal_Consistency
+                formula_maximal_consistency
                 formula_maximally_consistent_extension
                 formula_maximally_consistent_set_def
                 set_deduction_base_theory
@@ -217,7 +217,7 @@ proof -
       let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "\<phi> \<in> \<Omega>" "\<chi> \<in> \<Omega>"
          by (metis formula_maximally_consistent_set_implication
-                   Maximally_Consistent_Set_def
+                   maximally_consistent_set_def
                    conjunction_def
                    negation_def)+
       with \<phi>\<chi>_properties have "(\<Sum>\<phi>\<leftarrow>[\<phi>, \<chi>]. ?\<delta> \<phi>) = 2"
@@ -238,7 +238,7 @@ proof -
       from \<phi> obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> \<phi> \<notin> \<Omega>"
         by (meson insert_subset
                   formula_consistent_def
-                  Formula_Maximal_Consistency
+                  formula_maximal_consistency
                   formula_maximally_consistent_extension
                   formula_maximally_consistent_set_def
                   set_deduction_base_theory
@@ -274,7 +274,7 @@ proof -
                             and \<phi>: "\<phi> \<in> set \<Phi>" "\<phi> \<in> \<Omega>"
       by (meson insert_subset
                 formula_consistent_def
-                Formula_Maximal_Consistency
+                formula_maximal_consistency
                 formula_maximally_consistent_extension
                 formula_maximally_consistent_set_def
                 arbitrary_disjunction_exclusion_MCS

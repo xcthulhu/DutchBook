@@ -115,7 +115,7 @@ text \<open> The lemmas @{thm list_implication_axiom_k} and
        the role of a \<^emph>\<open>background theory\<close> of @{term "(:\<turnstile>)"}. \<close>
 
 context implication_logic begin
-interpretation List_Deduction_Logic:
+interpretation list_deduction_logic:
    implication_logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed
   (meson
@@ -656,9 +656,9 @@ text \<open> Since implication logic does not have \<^emph>\<open>falsum\<close>
        defined relative to a formula \<^term>\<open>\<phi>\<close>. \<close>
 
 definition (in implication_logic)
-  formula_consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-Consistent _" [100] 100)
+  formula_consistent :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-consistent _" [100] 100)
   where
-    [simp]: "\<phi>-Consistent \<Gamma> \<equiv> \<not> (\<Gamma> \<tturnstile> \<phi>)"
+    [simp]: "\<phi>-consistent \<Gamma> \<equiv> \<not> (\<Gamma> \<tturnstile> \<phi>)"
 
 text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>\<close>,
        \<^emph>\<open>maximal consistency\<close> is presented as asserting that either
@@ -669,7 +669,7 @@ text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>
 definition (in implication_logic)
   formula_maximally_consistent_set :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
   where
-    [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-Consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
+    [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
 
 text \<open> Every consistent set \<^term>\<open>\<Gamma>\<close> may be extended to a maximally
        consistent set. \<close>
@@ -681,31 +681,31 @@ text \<open> As a result, typical proofs that assume a countable domain are not
        suitable.  Our proof leverages \<^emph>\<open>Zorn's lemma\<close>. \<close>
 
 lemma (in implication_logic) formula_consistent_extension:
-  assumes "\<phi>-Consistent \<Gamma>"
-  shows "(\<phi>-Consistent (insert \<psi> \<Gamma>)) \<or> (\<phi>-Consistent (insert (\<psi> \<rightarrow> \<phi>) \<Gamma>))"
+  assumes "\<phi>-consistent \<Gamma>"
+  shows "(\<phi>-consistent (insert \<psi> \<Gamma>)) \<or> (\<phi>-consistent (insert (\<psi> \<rightarrow> \<phi>) \<Gamma>))"
 proof -
   {
-    assume "\<not> \<phi>-Consistent insert \<psi> \<Gamma>"
+    assume "\<not> \<phi>-consistent insert \<psi> \<Gamma>"
     hence "\<Gamma> \<tturnstile> \<psi> \<rightarrow> \<phi>"
       using set_deduction_theorem
       unfolding formula_consistent_def
       by simp
-    hence "\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>"
+    hence "\<phi>-consistent insert (\<psi> \<rightarrow> \<phi>) \<Gamma>"
      by (metis Un_absorb assms formula_consistent_def set_deduction_cut_rule)
   }
   thus ?thesis by blast
 qed
 
 theorem (in implication_logic) formula_maximally_consistent_extension:
-  assumes "\<phi>-Consistent \<Gamma>"
+  assumes "\<phi>-consistent \<Gamma>"
   shows "\<exists> \<Omega>. (\<phi>-MCS \<Omega>) \<and> \<Gamma> \<subseteq> \<Omega>"
 proof -
-  let ?\<Gamma>_extensions = "{\<Sigma>. (\<phi>-Consistent \<Sigma>) \<and> \<Gamma> \<subseteq> \<Sigma>}"
+  let ?\<Gamma>_extensions = "{\<Sigma>. (\<phi>-consistent \<Sigma>) \<and> \<Gamma> \<subseteq> \<Sigma>}"
   have "\<exists> \<Omega> \<in> ?\<Gamma>_extensions. \<forall>\<Sigma> \<in> ?\<Gamma>_extensions. \<Omega> \<subseteq> \<Sigma> \<longrightarrow> \<Sigma> = \<Omega>"
   proof (rule subset_Zorn)
     fix \<C> :: "'a set set"
     assume subset_chain_\<C>: "subset.chain ?\<Gamma>_extensions \<C>"
-    hence \<C>:  "\<forall> \<Sigma> \<in> \<C>. \<Gamma> \<subseteq> \<Sigma>" "\<forall> \<Sigma> \<in> \<C>. \<phi>-Consistent \<Sigma>"
+    hence \<C>:  "\<forall> \<Sigma> \<in> \<C>. \<Gamma> \<subseteq> \<Sigma>" "\<forall> \<Sigma> \<in> \<C>. \<phi>-consistent \<Sigma>"
       unfolding subset.chain_def
       by blast+
     show "\<exists> \<Omega> \<in> ?\<Gamma>_extensions. \<forall> \<Sigma> \<in> \<C>. \<Sigma> \<subseteq> \<Omega>"
@@ -715,14 +715,14 @@ proof -
       let ?\<Omega> = "\<Union> \<C>"
       assume "\<C> \<noteq> {}"
       hence "\<Gamma> \<subseteq> ?\<Omega>" by (simp add: \<C>(1) less_eq_Sup)
-      moreover have "\<phi>-Consistent ?\<Omega>"
+      moreover have "\<phi>-consistent ?\<Omega>"
       proof -
         {
-          assume "\<not> \<phi>-Consistent ?\<Omega>"
+          assume "\<not> \<phi>-consistent ?\<Omega>"
           then obtain \<omega> where \<omega>:
             "finite \<omega>"
             "\<omega> \<subseteq> ?\<Omega>"
-            "\<not> \<phi>-Consistent \<omega>"
+            "\<not> \<phi>-consistent \<omega>"
             unfolding
               formula_consistent_def
               set_deduction_def
@@ -748,7 +748,7 @@ proof -
               using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
             thus ?case using \<Sigma>\<^sub>1 \<Sigma>\<^sub>2 by blast
           qed
-          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-Consistent \<Sigma>) \<and> \<not> (\<phi>-Consistent \<Sigma>)"
+          hence "\<exists> \<Sigma> \<in> \<C>. (\<phi>-consistent \<Sigma>) \<and> \<not> (\<phi>-consistent \<Sigma>)"
             using \<C>(2) \<omega>(3)
             unfolding
               formula_consistent_def
@@ -767,7 +767,7 @@ proof -
     by auto+
   {
     fix \<psi>
-    have "(\<phi>-Consistent insert \<psi> \<Omega>) \<or> (\<phi>-Consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
+    have "(\<phi>-consistent insert \<psi> \<Omega>) \<or> (\<phi>-consistent insert (\<psi> \<rightarrow> \<phi>) \<Omega>)"
          "\<Gamma> \<subseteq> insert \<psi> \<Omega>"
          "\<Gamma> \<subseteq> insert (\<psi> \<rightarrow> \<phi>) \<Omega>"
       using \<Omega>(1) formula_consistent_extension formula_consistent_def

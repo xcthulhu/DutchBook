@@ -140,7 +140,7 @@ qed
 
 lemmas axiom_k = axiom_k
 lemmas axiom_s = axiom_s
-lemmas Double_Negation = Double_Negation
+lemmas double_negation = double_negation
 lemmas modus_ponens = modus_ponens
 
 lemma probabilities_alt_def:

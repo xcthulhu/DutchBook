@@ -32,7 +32,7 @@ class Intuitionistic_Logic = implication_logic +
   assumes Negation_Introduction: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<sim> \<phi>)"
   assumes Negation_Elimination: "\<turnstile> \<sim> \<phi> \<rightarrow> \<phi> \<rightarrow> \<bottom>"
   assumes Verum_Rule: "\<turnstile> \<phi> \<rightarrow> \<top>"
-  assumes Ex_Falso_Quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
+  assumes ex_falso_quodlibet: "\<turnstile> \<bottom> \<rightarrow> \<phi>"
 
 subsection \<open> Maximally Consistent Sets \<close>
 
@@ -129,7 +129,7 @@ lemma (in Intuitionistic_Logic) formula_maximally_consistent_set_falsum:
   by (metis
         assms
         insert_Diff
-        Ex_Falso_Quodlibet
+        ex_falso_quodlibet
         formula_consistent_def
         formula_maximally_consistent_set_def
         set_deduction_theorem

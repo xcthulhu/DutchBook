@@ -286,7 +286,7 @@ subsection \<open> Conjunction Identities \<close>
 lemma (in classical_logic) conjunction_negation_identity:
   "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>)"
   by (metis Contraposition
-            Double_Negation_converse
+            double_negation_converse
             modus_ponens
             biconditional_introduction
             conjunction_def
@@ -400,7 +400,7 @@ proof -
                     unfolding conjunction_def
                     by (meson
                           axiom_s
-                          Double_Negation
+                          double_negation
                           modus_ponens
                           flip_hypothetical_syllogism
                           flip_implication)
@@ -503,7 +503,7 @@ proof (induct \<Phi>)
               verum_def
     using
       axiom_k
-      Ex_Falso_Quodlibet
+      ex_falso_quodlibet
       modus_ponens
       conjunction_def
       excluded_middle_elimination
@@ -532,11 +532,11 @@ subsection \<open> Disjunction Identities \<close>
 
 lemma (in classical_logic) bivalence:
   "\<turnstile> \<sim> \<phi> \<squnion> \<phi>"
-  by (simp add: Double_Negation disjunction_def negation_def)
+  by (simp add: double_negation disjunction_def negation_def)
 
 lemma (in classical_logic) implication_equivalence:
   "\<turnstile> (\<sim> \<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<rightarrow> \<psi>)"
-  by (metis Double_Negation_converse
+  by (metis double_negation_converse
             modus_ponens
             biconditional_introduction
             bivalence
@@ -731,7 +731,7 @@ lemma (in classical_logic) conjunction_arbitrary_distribution:
 proof (induct \<Psi>)
   case Nil
   then show ?case
-    by (simp add: Ex_Falso_Quodlibet
+    by (simp add: ex_falso_quodlibet
                   biconditional_def
                   conjunction_left_elimination)
 next
@@ -863,7 +863,7 @@ subsection \<open> Negation \<close>
 lemma (in classical_logic) double_negation_biconditional:
   "\<turnstile> \<sim> (\<sim> \<phi>) \<leftrightarrow> \<phi>"
   unfolding biconditional_def negation_def
-  by (simp add: Double_Negation Double_Negation_converse)
+  by (simp add: double_negation double_negation_converse)
 
 lemma (in classical_logic) double_negation_elimination [simp]:
   "\<Gamma> \<tturnstile> \<sim> (\<sim> \<phi>) = \<Gamma> \<tturnstile> \<phi>"
