@@ -478,7 +478,7 @@ proof -
 qed
 
 context implication_logic begin
-interpretation Set_Deduction_Logic:
+interpretation set_deduction_logic:
   implication_logic "\<lambda> \<phi>. \<Gamma> \<tturnstile> \<phi>" "(\<rightarrow>)"
 proof
    fix \<phi> \<psi>

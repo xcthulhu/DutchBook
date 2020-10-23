@@ -306,7 +306,7 @@ lemma (in classical_logic) dirac_measures_subset:
   unfolding logical_probabilities_def dirac_measures_def
   by fastforce
 
-lemma (in classical_logic) MCS_Dirac_Measure:
+lemma (in classical_logic) MCS_Dirac_measure:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> dirac_measures"
       (is "?Pr \<in> dirac_measures")

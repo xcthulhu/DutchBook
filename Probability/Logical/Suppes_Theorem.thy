@@ -43,7 +43,7 @@ proof -
       by (simp add: \<Omega>(2))
     hence
       "\<exists> \<delta> \<in> dirac_measures. \<not> (\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
-      using \<Omega>(1) MCS_Dirac_Measure by auto
+      using \<Omega>(1) MCS_Dirac_measure by auto
   }
   ultimately show ?thesis by blast
 qed
@@ -228,7 +228,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" using sum_list_monotone by metis
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Dirac_Measure
+        using \<Omega>(1) MCS_Dirac_measure
         by auto
     next
       assume "\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>"
@@ -262,7 +262,7 @@ proof -
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" by auto
       thus ?thesis
-        using \<Omega>(1) MCS_Dirac_Measure
+        using \<Omega>(1) MCS_Dirac_measure
         by auto
     qed
   }
@@ -298,7 +298,7 @@ proof -
     qed
     hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" using \<psi> by auto
     hence "\<not> (\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
-      using \<Omega>(1) MCS_Dirac_Measure
+      using \<Omega>(1) MCS_Dirac_measure
       by auto
   }
   ultimately show ?thesis by blast

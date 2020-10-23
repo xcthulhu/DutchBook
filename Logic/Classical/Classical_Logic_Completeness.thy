@@ -65,19 +65,19 @@ definition strong_classical_propositional_deduction ::
   where
     [simp]: "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<tturnstile> \<phi>"
 
-definition Strong_Classical_Propositional_Models ::
+definition strong_classical_propositional_tarski_truth ::
   "'a classical_propositional_formula set
     \<Rightarrow> 'a classical_propositional_formula \<Rightarrow> bool"
   (infix "\<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p" 65)
   where
     [simp]: "\<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<forall> \<MM>.(\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>) \<longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
 
-definition Theory_Propositions ::
+definition theory_propositions ::
   "'a classical_propositional_formula set \<Rightarrow> 'a set" ("\<^bold>\<lbrace> _ \<^bold>\<rbrace>" [50])
   where
     [simp]: "\<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> = {p . \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p Proposition p}"
 
-lemma Truth_Lemma:
+lemma truth_lemma:
   assumes "MCS \<Gamma>"
   shows "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
 proof (induct \<phi>)
@@ -99,7 +99,7 @@ next
               set_deduction_reflection)
 qed
 
-theorem classical_propositional_calculus_Strong_Soundness_And_Completeness:
+theorem classical_propositional_calculus_strong_soundness_and_completeness:
   "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
 proof -
   have soundness: "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
@@ -124,7 +124,7 @@ proof -
       with \<Gamma>'(2) have "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>" by blast
     }
     thus "\<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
-      using Strong_Classical_Propositional_Models_def by blast
+      using strong_classical_propositional_tarski_truth_def by blast
   qed
   have completeness: "\<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   proof (erule contrapos_pp)
@@ -142,17 +142,17 @@ proof -
               formula_consistent_def
               formula_maximal_consistency
               formula_maximally_consistent_set_def_def
-              Truth_Lemma
+              truth_lemma
         unfolding strong_classical_propositional_deduction_def
         by blast
       moreover have "\<forall> \<gamma> \<in> \<Gamma>. \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>"
-        using formula_maximal_consistency Truth_Lemma \<Omega> set_deduction_reflection
+        using formula_maximal_consistency truth_lemma \<Omega> set_deduction_reflection
         unfolding strong_classical_propositional_deduction_def
         by blast
       ultimately show ?thesis by auto
     qed
     thus "\<not> \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
-      unfolding Strong_Classical_Propositional_Models_def
+      unfolding strong_classical_propositional_tarski_truth_def
       by simp
   qed
   from soundness completeness show "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
@@ -162,10 +162,10 @@ qed
 theorem classical_propositional_calculus_soundness_and_completeness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = (\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>)"
   using classical_propositional_calculus_soundness [where \<phi>="\<phi>"]
-        classical_propositional_calculus_Strong_Soundness_And_Completeness
+        classical_propositional_calculus_strong_soundness_and_completeness
           [where \<phi>="\<phi>" and \<Gamma>="{}"]
         strong_classical_propositional_deduction_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        Strong_Classical_Propositional_Models_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
+        strong_classical_propositional_tarski_truth_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
         deduction_classical_propositional_formula_def [where \<phi>="\<phi>"]
         set_deduction_base_theory [where \<phi>="\<phi>"]
   by metis

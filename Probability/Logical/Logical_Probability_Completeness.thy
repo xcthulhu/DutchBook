@@ -7157,7 +7157,7 @@ proof -
                   set_deduction_theorem)
       let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "?Pr \<in> dirac_measures"
-        using MCS_Dirac_Measure by blast
+        using MCS_Dirac_measure by blast
       moreover
       from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
         unfolding dirac_measures_def
