@@ -7151,7 +7151,7 @@ proof -
                   formula_consistent_def
                   formula_maximal_consistency
                   formula_maximally_consistent_extension
-                  formula_maximally_consistent_set_def
+                  formula_maximally_consistent_set_def_def
                   set_deduction_base_theory
                   set_deduction_reflection
                   set_deduction_theorem)

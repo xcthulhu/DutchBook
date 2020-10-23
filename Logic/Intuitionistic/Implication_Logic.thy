@@ -667,7 +667,7 @@ text \<open> Since consistency is defined relative to some \<^term>\<open>\<phi>
        classical logic when \<^term>\<open>\<phi>\<close> is \<^emph>\<open>falsum\<close>. \<close>
 
 definition (in implication_logic)
-  formula_maximally_consistent_set :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
+  formula_maximally_consistent_set_def :: "'a \<Rightarrow> 'a set \<Rightarrow> bool" ("_-MCS _" [100] 100)
   where
     [simp]: "\<phi>-MCS \<Gamma> \<equiv> (\<phi>-consistent \<Gamma>) \<and> (\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>)"
 
@@ -779,14 +779,14 @@ proof -
   }
   thus ?thesis
     using \<Omega>(1)
-    unfolding formula_maximally_consistent_set_def
+    unfolding formula_maximally_consistent_set_def_def
     by blast
 qed
 
 text \<open> Finally, maximally consistent sets contain anything that can be deduced
        from them, and model a form of \<^emph>\<open>modus ponens\<close>. \<close>
 
-lemma (in implication_logic) formula_maximally_consistent_set_reflection:
+lemma (in implication_logic) formula_maximally_consistent_set_def_reflection:
   "\<phi>-MCS \<Gamma> \<Longrightarrow> \<psi> \<in> \<Gamma> = \<Gamma> \<tturnstile> \<psi>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
@@ -794,7 +794,7 @@ proof -
     assume "\<Gamma> \<tturnstile> \<psi>"
     moreover from \<open>\<phi>-MCS \<Gamma>\<close> have "\<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>" "\<not> \<Gamma> \<tturnstile> \<phi>"
       unfolding
-        formula_maximally_consistent_set_def
+        formula_maximally_consistent_set_def_def
         formula_consistent_def
       by auto
     ultimately have "\<psi> \<in> \<Gamma>"
@@ -806,12 +806,12 @@ proof -
     by metis
 qed
 
-theorem (in implication_logic) formula_maximally_consistent_set_implication_elimination:
+theorem (in implication_logic) formula_maximally_consistent_set_def_implication_elimination:
   assumes "\<phi>-MCS \<Omega>"
   shows "(\<psi> \<rightarrow> \<chi>) \<in> \<Omega> \<Longrightarrow> \<psi> \<in> \<Omega> \<Longrightarrow> \<chi> \<in> \<Omega>"
   using
     assms
-    formula_maximally_consistent_set_reflection
+    formula_maximally_consistent_set_def_reflection
     set_deduction_modus_ponens
   by blast
 

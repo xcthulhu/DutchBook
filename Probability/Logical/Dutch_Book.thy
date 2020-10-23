@@ -109,7 +109,7 @@ lemma (in classical_logic) possibilities_are_MCS:
   using assms
   by (metis (mono_tags, lifting)
             formula_consistent_def
-            formula_maximally_consistent_set_def
+            formula_maximally_consistent_set_def_def
             maximally_consistent_set_def
             possibilities_logical_closure
             possibility_def
@@ -122,24 +122,24 @@ proof -
   have "\<bottom> \<notin> s"
     using \<open>MCS s\<close>
           formula_consistent_def
-          formula_maximally_consistent_set_def
+          formula_maximally_consistent_set_def_def
           maximally_consistent_set_def
           set_deduction_reflection
     by blast
   moreover have "\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> \<phi> \<in> s"
     using \<open>MCS s\<close>
-          formula_maximally_consistent_set_reflection
+          formula_maximally_consistent_set_def_reflection
           maximally_consistent_set_def
           set_deduction_weaken
     by blast
   moreover have "\<forall> \<phi> \<psi>. (\<phi> \<rightarrow> \<psi>) \<in> s \<longrightarrow> \<phi> \<in> s \<longrightarrow> \<psi> \<in> s"
     using \<open>MCS s\<close>
           formula_maximal_consistency
-          formula_maximally_consistent_set_implication
+          formula_maximally_consistent_set_def_implication
     by blast
   moreover have "\<forall> \<phi>. \<phi> \<in> s \<or> (\<phi> \<rightarrow> \<bottom>) \<in> s"
     using assms
-          formula_maximally_consistent_set_implication
+          formula_maximally_consistent_set_def_implication
           maximally_consistent_set_def
     by blast
   ultimately show ?thesis by simp
@@ -353,7 +353,7 @@ proof
       by (meson \<open>possibility p\<close>
                 possibilities_are_MCS [of p]
                 formula_consistent_def
-                formula_maximally_consistent_set_def
+                formula_maximally_consistent_set_def_def
                 maximally_consistent_set_def
                 list_deduction_monotonic
                 set_deduction_def)
@@ -465,7 +465,7 @@ next
                 \<open>MCS \<Omega>\<^sub>\<Phi>\<close>
                 inter_set_filter
                 formula_consistent_def
-                formula_maximally_consistent_set_def
+                formula_maximally_consistent_set_def_def
                 maximally_consistent_set_def
                 set_deduction_def
                 subsetI)

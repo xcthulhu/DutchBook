@@ -30,7 +30,7 @@ proof -
             formula_consistent_def
             formula_maximal_consistency
             formula_maximally_consistent_extension
-            formula_maximally_consistent_set_def
+            formula_maximally_consistent_set_def_def
             set_deduction_base_theory
             set_deduction_reflection
             set_deduction_theorem)
@@ -73,7 +73,7 @@ next
   qed
 qed
 
-lemma (in classical_logic) Dirac_Set_Summation_Completeness:
+lemma (in classical_logic) Dirac_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis Dirac_list_summation_completeness
             modus_ponens
@@ -83,10 +83,10 @@ lemma (in classical_logic) Dirac_Set_Summation_Completeness:
             hypothetical_syllogism
             sum.set_conv_list)
 
-theorem (in classical_logic) Set_Summation_Completeness:
+theorem (in classical_logic) set_summation_completeness:
   "(\<forall> \<delta> \<in> logical_probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis Dirac_list_summation_completeness
-            Dirac_Set_Summation_Completeness
+            Dirac_set_summation_completeness
             list_summation_completeness
             sum.set_conv_list)
 
@@ -210,13 +210,13 @@ proof -
                 formula_consistent_def
                 formula_maximal_consistency
                 formula_maximally_consistent_extension
-                formula_maximally_consistent_set_def
+                formula_maximally_consistent_set_def_def
                 set_deduction_base_theory
                 set_deduction_reflection
                 set_deduction_theorem)
       let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "\<phi> \<in> \<Omega>" "\<chi> \<in> \<Omega>"
-         by (metis formula_maximally_consistent_set_implication
+         by (metis formula_maximally_consistent_set_def_implication
                    maximally_consistent_set_def
                    conjunction_def
                    negation_def)+
@@ -240,7 +240,7 @@ proof -
                   formula_consistent_def
                   formula_maximal_consistency
                   formula_maximally_consistent_extension
-                  formula_maximally_consistent_set_def
+                  formula_maximally_consistent_set_def_def
                   set_deduction_base_theory
                   set_deduction_reflection
                   set_deduction_theorem)
@@ -276,7 +276,7 @@ proof -
                 formula_consistent_def
                 formula_maximal_consistency
                 formula_maximally_consistent_extension
-                formula_maximally_consistent_set_def
+                formula_maximally_consistent_set_def_def
                 arbitrary_disjunction_exclusion_MCS
                 set_deduction_base_theory
                 set_deduction_reflection
@@ -377,22 +377,22 @@ theorem (in classical_logic) Exclusive_list_summation_completeness:
             list_summation_completeness
             trivial_implication)
 
-lemma (in classical_logic) Dirac_Exclusive_Set_Summation_Completeness:
+lemma (in classical_logic) Dirac_exclusive_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             Dirac_exclusive_implication_completeness
-            Dirac_Set_Summation_Completeness
+            Dirac_set_summation_completeness
             trivial_implication
             set_remdups
             sum.set_conv_list)
 
-theorem (in classical_logic) Exclusive_Set_Summation_Completeness:
+theorem (in classical_logic) Exclusive_set_summation_completeness:
   "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
             exclusive_implication_completeness
-            Set_Summation_Completeness
+            set_summation_completeness
             trivial_implication
             set_remdups
             sum.set_conv_list)

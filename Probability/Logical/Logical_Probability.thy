@@ -314,7 +314,7 @@ proof -
   have "class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
          meson assms
-               formula_maximally_consistent_set_reflection
+               formula_maximally_consistent_set_def_reflection
                maximally_consistent_set_def
                set_deduction_weaken)
      fix \<phi> \<psi>
@@ -324,7 +324,7 @@ proof -
      hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
        by (metis assms
                  formula_consistent_def
-                 formula_maximally_consistent_set_def
+                 formula_maximally_consistent_set_def_def
                  maximally_consistent_set_def
                  conjunction_def
                  conjunction_negation_identity
@@ -334,7 +334,7 @@ proof -
                  weak_biconditional_weaken)
      hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
        using assms
-             formula_maximally_consistent_set_reflection
+             formula_maximally_consistent_set_def_reflection
              maximally_consistent_set_def
              conjunction_set_deduction_equivalence
        by meson
@@ -342,7 +342,7 @@ proof -
      have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
        by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close>
                  assms
-                 formula_maximally_consistent_set_implication
+                 formula_maximally_consistent_set_def_implication
                  maximally_consistent_set_def
                  conjunction_def
                  disjunction_def)
@@ -394,7 +394,7 @@ proof (induct \<Psi>)
   then show ?case
     using assms
           formula_consistent_def
-          formula_maximally_consistent_set_def
+          formula_maximally_consistent_set_def_def
           maximally_consistent_set_def
           set_deduction_reflection
     by (simp, blast)
@@ -404,8 +404,8 @@ next
     by (simp add: disjunction_def,
         meson assms
               formula_consistent_def
-              formula_maximally_consistent_set_def
-              formula_maximally_consistent_set_implication
+              formula_maximally_consistent_set_def_def
+              formula_maximally_consistent_set_def_implication
               maximally_consistent_set_def
               set_deduction_reflection)
   thus ?case using Cons.hyps by simp
