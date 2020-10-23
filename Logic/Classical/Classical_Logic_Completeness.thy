@@ -10,11 +10,11 @@ sledgehammer_params [smt_proofs = false]
 
 subsection \<open> Syntax \<close>
 
-datatype 'a Classical_Propositional_Formula =
+datatype 'a classical_propositional_formula =
       Falsum ("\<^bold>\<bottom>")
     | Proposition 'a ("\<^bold>\<langle> _ \<^bold>\<rangle>" [45])
-    | Implication "'a Classical_Propositional_Formula"
-                  "'a Classical_Propositional_Formula" (infixr "\<^bold>\<rightarrow>" 70)
+    | Implication "'a classical_propositional_formula"
+                  "'a classical_propositional_formula" (infixr "\<^bold>\<rightarrow>" 70)
 
 subsection \<open> Propositional Calculus \<close>
 
@@ -22,7 +22,7 @@ named_theorems Classical_Propositional_Calculus
   "Rules for the Propositional Calculus"
 
 inductive Classical_Propositional_Calculus ::
-  "'a Classical_Propositional_Formula \<Rightarrow> bool" ("\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p _" [60] 55)
+  "'a classical_propositional_formula \<Rightarrow> bool" ("\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p _" [60] 55)
   where
      axiom_k [Classical_Propositional_Calculus]:
        "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rightarrow> \<phi>"
@@ -33,7 +33,7 @@ inductive Classical_Propositional_Calculus ::
    | modus_ponens [Classical_Propositional_Calculus]:
         "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>"
 
-instantiation Classical_Propositional_Formula
+instantiation classical_propositional_formula
   :: (type) classical_logic
 begin
 definition [simp]: "\<bottom> = \<^bold>\<bottom>"
@@ -44,36 +44,36 @@ end
 
 subsection \<open> Propositional Semantics \<close>
 
-primrec Classical_Propositional_Semantics ::
-  "'a set \<Rightarrow> 'a Classical_Propositional_Formula \<Rightarrow> bool"
+primrec classical_propositional_semantics ::
+  "'a set \<Rightarrow> 'a classical_propositional_formula \<Rightarrow> bool"
   (infix "\<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p" 65)
   where
        "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p Proposition p = (p \<in> \<MM>)"
     |  "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<^bold>\<rightarrow> \<psi> = (\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<psi>)"
     |  "\<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<bottom> = False"
 
-theorem Classical_Propositional_Calculus_Soundness:
+theorem classical_propositional_calculus_soundness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   by (induct rule: Classical_Propositional_Calculus.induct, simp+)
 
 subsection \<open> Propositional Soundness and Completeness \<close>
 
 definition strong_classical_propositional_deduction ::
-  "'a Classical_Propositional_Formula set
-    \<Rightarrow> 'a Classical_Propositional_Formula \<Rightarrow> bool"
+  "'a classical_propositional_formula set
+    \<Rightarrow> 'a classical_propositional_formula \<Rightarrow> bool"
   (infix "\<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p" 65)
   where
     [simp]: "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<Gamma> \<tturnstile> \<phi>"
 
 definition Strong_Classical_Propositional_Models ::
-  "'a Classical_Propositional_Formula set
-    \<Rightarrow> 'a Classical_Propositional_Formula \<Rightarrow> bool"
+  "'a classical_propositional_formula set
+    \<Rightarrow> 'a classical_propositional_formula \<Rightarrow> bool"
   (infix "\<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p" 65)
   where
     [simp]: "\<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<equiv> \<forall> \<MM>.(\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>) \<longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
 
 definition Theory_Propositions ::
-  "'a Classical_Propositional_Formula set \<Rightarrow> 'a set" ("\<^bold>\<lbrace> _ \<^bold>\<rbrace>" [50])
+  "'a classical_propositional_formula set \<Rightarrow> 'a set" ("\<^bold>\<lbrace> _ \<^bold>\<rbrace>" [50])
   where
     [simp]: "\<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> = {p . \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p Proposition p}"
 
@@ -93,8 +93,8 @@ next
     by (metis assms
               maximally_consistent_set_def
               formula_maximally_consistent_set_implication
-              Classical_Propositional_Semantics.simps(2)
-              implication_Classical_Propositional_Formula_def
+              classical_propositional_semantics.simps(2)
+              implication_classical_propositional_formula_def
               set_deduction_modus_ponens
               set_deduction_reflection)
 qed
@@ -115,7 +115,7 @@ proof -
       proof (induct \<Gamma>')
         case Nil
         then show ?case
-          by (simp add: Classical_Propositional_Calculus_Soundness
+          by (simp add: classical_propositional_calculus_soundness
                         list_deduction_def)
       next
         case (Cons \<psi> \<Gamma>')
@@ -136,7 +136,7 @@ proof -
                   formula_maximally_consistent_extension
                   strong_classical_propositional_deduction_def)
       hence "(\<phi> \<rightarrow> \<bottom>) \<in> \<Omega>"
-        using Formula_Maximal_Consistent_Set_negation by blast
+        using formula_maximal_consistent_set_negation by blast
       hence "\<not> \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
         using \<Omega>
               formula_consistent_def
@@ -159,27 +159,27 @@ proof -
     by linarith
 qed
 
-theorem Classical_Propositional_Calculus_Soundness_And_Completeness:
+theorem classical_propositional_calculus_soundness_and_completeness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = (\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>)"
-  using Classical_Propositional_Calculus_Soundness [where \<phi>="\<phi>"]
+  using classical_propositional_calculus_soundness [where \<phi>="\<phi>"]
         Classical_Propositional_Calculus_Strong_Soundness_And_Completeness
           [where \<phi>="\<phi>" and \<Gamma>="{}"]
         strong_classical_propositional_deduction_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
         Strong_Classical_Propositional_Models_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        deduction_Classical_Propositional_Formula_def [where \<phi>="\<phi>"]
+        deduction_classical_propositional_formula_def [where \<phi>="\<phi>"]
         set_deduction_base_theory [where \<phi>="\<phi>"]
   by metis
 
-instantiation Classical_Propositional_Formula
+instantiation classical_propositional_formula
   :: (type) Consistent_classical_logic
 begin
 instance by standard
-  (simp add: Classical_Propositional_Calculus_Soundness_And_Completeness)
+  (simp add: classical_propositional_calculus_soundness_and_completeness)
 end
 
 primrec (in classical_logic)
-   Classical_Propositional_Formula_embedding
-   :: "'a Classical_Propositional_Formula \<Rightarrow> 'a" ("\<^bold>\<lparr> _ \<^bold>\<rparr>" [50]) where
+   classical_propositional_formula_embedding
+   :: "'a classical_propositional_formula \<Rightarrow> 'a" ("\<^bold>\<lparr> _ \<^bold>\<rparr>" [50]) where
      "\<^bold>\<lparr> \<^bold>\<langle> p \<^bold>\<rangle> \<^bold>\<rparr> = p"
    | "\<^bold>\<lparr> \<phi> \<^bold>\<rightarrow> \<psi> \<^bold>\<rparr> = \<^bold>\<lparr> \<phi> \<^bold>\<rparr> \<rightarrow> \<^bold>\<lparr> \<psi> \<^bold>\<rparr>"
    | "\<^bold>\<lparr> \<^bold>\<bottom> \<^bold>\<rparr> = \<bottom>"
@@ -191,7 +191,7 @@ theorem (in classical_logic) propositional_calculus:
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
-  by (simp add: Classical_Propositional_Calculus_Soundness_And_Completeness
+  by (simp add: classical_propositional_calculus_soundness_and_completeness
                 propositional_calculus)
 
 end

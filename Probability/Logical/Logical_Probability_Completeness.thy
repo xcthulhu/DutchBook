@@ -4369,7 +4369,7 @@ proof -
         have "\<turnstile> ((\<chi> \<rightarrow> \<delta>) \<rightarrow> \<delta>) \<rightarrow> (\<chi> \<squnion> \<delta>)"
           unfolding disjunction_def
           using modus_ponens
-                The_Principle_of_Pseudo_Scotus
+                pseudo_scotus
                 flip_hypothetical_syllogism
           by blast
         ultimately have "(?\<Sigma>\<^sub>A @ ?\<Sigma>\<^sub>B @ (\<Delta> @ \<Gamma>) \<ominus> map snd ?\<Sigma>') $\<turnstile> (\<Delta> @ \<Phi>)"
@@ -5461,7 +5461,7 @@ lemma (in classical_logic) conj_multi_extract:
 proof (induct \<Sigma>)
   case Nil
   then show ?case
-    by (simp, metis list.simps(8) Arbitrary_Disjunction.simps(1) conj_extract)
+    by (simp, metis list.simps(8) arbitrary_disjunction.simps(1) conj_extract)
 next
   case (Cons \<sigma> \<Sigma>)
   moreover have
@@ -5587,7 +5587,7 @@ proof -
         proof (induct \<Psi>)
           case Nil
           then show ?case
-            by (simp, metis list.simps(8) Arbitrary_Disjunction.simps(1) conj_extract)
+            by (simp, metis list.simps(8) arbitrary_disjunction.simps(1) conj_extract)
         next
           case (Cons \<psi> \<Psi>)
           have "\<turnstile> \<Squnion> (map (\<Sqinter> \<circ> (map snd \<circ> remdups \<circ> (@) \<Delta>)) [\<psi>])
@@ -7715,7 +7715,7 @@ next
       have "[(\<sim> \<top>)] :\<turnstile> \<phi>"
         by (metis modus_ponens
                   Peirces_law
-                  The_Principle_of_Pseudo_Scotus
+                  pseudo_scotus
                   list_deduction_theorem
                   list_deduction_weaken
                   negation_def

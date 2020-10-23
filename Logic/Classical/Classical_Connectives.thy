@@ -54,7 +54,7 @@ lemma (in classical_logic) conjunction_left_elimination:
   "\<turnstile> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<phi>"
   by (metis (full_types)
         Peirces_law
-        The_Principle_of_Pseudo_Scotus
+        pseudo_scotus
         conjunction_def
         list_deduction_base_theory
         list_deduction_modus_ponens
@@ -141,7 +141,7 @@ definition (in classical_logic) disjunction :: "'a \<Rightarrow> 'a \<Rightarrow
   where
     "\<phi> \<squnion> \<psi> = (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>"
 
-primrec (in classical_logic) Arbitrary_Disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
+primrec (in classical_logic) arbitrary_disjunction :: "'a list \<Rightarrow> 'a" ("\<Squnion>")
   where
      "\<Squnion> [] = \<bottom>"
   |  "\<Squnion> (\<phi> # \<Phi>) = \<phi> \<squnion> \<Squnion> \<Phi>"
@@ -174,7 +174,7 @@ lemma (in classical_logic) disjunction_left_introduction:
   "\<turnstile> \<phi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   unfolding disjunction_def
   by (metis modus_ponens
-            The_Principle_of_Pseudo_Scotus
+            pseudo_scotus
             flip_implication)
 
 lemma (in classical_logic) disjunction_right_introduction:
@@ -349,7 +349,7 @@ proof -
   proof (induct \<Psi>)
     case Nil
     then show ?case
-      by (simp add: The_Principle_of_Pseudo_Scotus verum_def)
+      by (simp add: pseudo_scotus verum_def)
   next
     case (Cons \<psi> \<Psi>)
     {
@@ -660,7 +660,7 @@ proof -
           by auto
         then show ?thesis
           by (metis
-                Arbitrary_Disjunction.simps(2)
+                arbitrary_disjunction.simps(2)
                 disjunction_def
                 list_deduction_def
                 list_deduction_theorem
@@ -1120,7 +1120,7 @@ proof (induct \<Phi>)
     by (simp add:
           biconditional_def
           negation_def
-          The_Principle_of_Pseudo_Scotus)
+          pseudo_scotus)
 next
   case (Cons \<psi> \<Phi>)
   have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>))
@@ -1138,7 +1138,7 @@ next
   with Cons show ?case
     by (metis map_negation_def
               list.simps(9)
-              Arbitrary_Disjunction.simps(2)
+              arbitrary_disjunction.simps(2)
               modus_ponens
               list_implication.simps(2))
 qed

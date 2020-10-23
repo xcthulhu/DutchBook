@@ -18,7 +18,7 @@ no_notation
   disjunction (infixr "\<squnion>" 67) and
   conjunction (infixr "\<sqinter>" 67) and
   arbitrary_conjunction ("\<Sqinter>") and
-  Arbitrary_Disjunction ("\<Squnion>")
+  arbitrary_disjunction ("\<Squnion>")
 
 class \<P> =
   fixes \<P> :: "'a \<Rightarrow> real"

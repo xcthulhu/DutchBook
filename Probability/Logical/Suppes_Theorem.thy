@@ -181,7 +181,7 @@ lemma count_remove_all_sum_list:
             add.commute
             add.left_commute)
 
-lemma (in classical_logic) Dirac_Exclusive_Implication_Completeness:
+lemma (in classical_logic) Dirac_exclusive_implication_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
@@ -304,13 +304,13 @@ proof -
   ultimately show ?thesis by blast
 qed
 
-theorem (in classical_logic) Exclusive_Implication_Completeness:
+theorem (in classical_logic) exclusive_implication_completeness:
   "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
   thus ?rhs
-    by (meson Dirac_Exclusive_Implication_Completeness
+    by (meson Dirac_exclusive_implication_completeness
               dirac_measures_subset
               subset_eq)
 next
@@ -337,13 +337,13 @@ proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
   hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
-    by (metis Arbitrary_Disjunction.simps(1)
-              Arbitrary_Disjunction.simps(2)
+    by (metis arbitrary_disjunction.simps(1)
+              arbitrary_disjunction.simps(2)
               disjunction_def implication_equivalence
               negation_def
               weak_biconditional_weaken)
   thus ?thesis
-    using Dirac_Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"]
+    using Dirac_exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
     by auto
 qed
 
@@ -353,27 +353,27 @@ proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
   hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
-    by (metis Arbitrary_Disjunction.simps(1)
-              Arbitrary_Disjunction.simps(2)
+    by (metis arbitrary_disjunction.simps(1)
+              arbitrary_disjunction.simps(2)
               disjunction_def implication_equivalence
               negation_def
               weak_biconditional_weaken)
   thus ?thesis
-    using Exclusive_Implication_Completeness [where \<Phi>="[\<phi>]"]
+    using exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
     by simp
 qed
 
 lemma (in classical_logic) Dirac_Exclusive_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
-            Dirac_Exclusive_Implication_Completeness
+            Dirac_exclusive_implication_completeness
             Dirac_list_summation_completeness
             trivial_implication)
 
 theorem (in classical_logic) Exclusive_list_summation_completeness:
   "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
-            Exclusive_Implication_Completeness
+            exclusive_implication_completeness
             list_summation_completeness
             trivial_implication)
 
@@ -381,7 +381,7 @@ lemma (in classical_logic) Dirac_Exclusive_Set_Summation_Completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
-            Dirac_Exclusive_Implication_Completeness
+            Dirac_exclusive_implication_completeness
             Dirac_Set_Summation_Completeness
             trivial_implication
             set_remdups
@@ -391,7 +391,7 @@ theorem (in classical_logic) Exclusive_Set_Summation_Completeness:
   "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis (mono_tags, hide_lams)
             eq_iff
-            Exclusive_Implication_Completeness
+            exclusive_implication_completeness
             Set_Summation_Completeness
             trivial_implication
             set_remdups

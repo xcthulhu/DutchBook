@@ -62,7 +62,7 @@ lemma (in classical_logic)
   by (meson axiom_k modus_ponens flip_implication)
 
 lemma (in classical_logic)
-  The_Principle_of_Pseudo_Scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
+  pseudo_scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using ex_falso_quodlibet modus_ponens hypothetical_syllogism by blast
 
 lemma (in classical_logic) Peirces_law:
@@ -70,7 +70,7 @@ lemma (in classical_logic) Peirces_law:
 proof -
   have "[\<phi> \<rightarrow> \<bottom>, (\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>] :\<turnstile> \<phi> \<rightarrow> \<psi>"
     using
-      The_Principle_of_Pseudo_Scotus
+      pseudo_scotus
       list_deduction_theorem
       list_deduction_weaken
     by blast
@@ -163,7 +163,7 @@ definition (in classical_logic)
     [simp]: "MCS \<Gamma> \<equiv> \<bottom>-MCS \<Gamma>"
 
 lemma (in classical_logic)
-  Formula_Maximal_Consistent_Set_negation: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<phi> \<rightarrow> \<bottom> \<in> \<Gamma>"
+  formula_maximal_consistent_set_negation: "\<phi>-MCS \<Gamma> \<Longrightarrow> \<phi> \<rightarrow> \<bottom> \<in> \<Gamma>"
 proof -
   assume "\<phi>-MCS \<Gamma>"
   {
@@ -227,7 +227,7 @@ proof -
             by simp
           also have "\<Gamma> \<tturnstile> \<phi> \<rightarrow> \<bottom>"
             using \<open>\<phi>-MCS \<Gamma>\<close>
-                  Formula_Maximal_Consistent_Set_negation
+                  formula_maximal_consistent_set_negation
                   set_deduction_reflection
             by simp
           hence "\<Gamma> \<tturnstile> (\<psi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
@@ -279,10 +279,10 @@ proof -
       assume "\<psi> \<notin> \<Gamma>"
       have "\<forall>\<psi>. \<phi> \<rightarrow> \<psi> \<in> \<Gamma>"
         by (meson assms
-                  Formula_Maximal_Consistent_Set_negation
+                  formula_maximal_consistent_set_negation
                   formula_maximally_consistent_set_implication_elimination
                   formula_maximally_consistent_set_reflection
-                  The_Principle_of_Pseudo_Scotus set_deduction_weaken)
+                  pseudo_scotus set_deduction_weaken)
       then have "\<forall>\<chi> \<psi>. insert \<chi> \<Gamma> \<tturnstile> \<psi> \<or> \<chi> \<rightarrow> \<phi> \<notin> \<Gamma>"
         by (meson assms
                   axiom_k

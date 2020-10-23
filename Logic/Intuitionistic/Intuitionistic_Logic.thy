@@ -26,7 +26,7 @@ class Intuitionistic_Logic = implication_logic +
   assumes Biconditional_Introduction: "\<turnstile> (\<phi> \<rightarrow> \<psi>) \<rightarrow> (\<psi> \<rightarrow> \<phi>) \<rightarrow> (\<phi> \<leftrightarrow> \<psi>)"
   assumes Biconditional_Left_Elimination: "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   assumes Biconditional_Right_Elimination: "\<turnstile> (\<phi> \<leftrightarrow> \<psi>) \<rightarrow> \<psi> \<rightarrow> \<phi>"
-  assumes Disjunction_Elimination: "\<turnstile> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>"
+  assumes disjunction_elimination: "\<turnstile> (\<phi> \<rightarrow> \<chi>) \<rightarrow> (\<psi> \<rightarrow> \<chi>) \<rightarrow> (\<phi> \<squnion> \<psi>) \<rightarrow> \<chi>"
   assumes Disjunction_Left_Introduction: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   assumes Disjunction_Right_Introduction: "\<turnstile> \<psi> \<rightarrow> (\<phi> \<squnion> \<psi>)"
   assumes Negation_Introduction: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> (\<sim> \<phi>)"
@@ -89,7 +89,7 @@ proof -
           set_deduction_weaken [where \<Gamma>="\<Omega>"]
           set_deduction_modus_ponens [where \<Gamma>="\<Omega>"]
           set_deduction_reflection [where \<Gamma>="\<Omega>" and \<phi>="\<psi> \<squnion> \<chi>"]
-          Disjunction_Elimination [where \<phi>="\<psi>" and \<psi>="\<chi>" and \<chi>="\<phi>"]
+          disjunction_elimination [where \<phi>="\<psi>" and \<psi>="\<chi>" and \<chi>="\<phi>"]
         by blast
       hence "False" using assms by simp
     }
