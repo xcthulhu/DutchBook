@@ -107,11 +107,11 @@ subsection \<open> List Mapping \<close>
 text \<open> The following notation for permutations is slightly nicer when 
        formatted in \LaTeX. \<close>
 
-notation perm ("op \<rightleftharpoons>")
+notation perm (infix "\<rightleftharpoons>" 50)
 
 lemma map_perm:
-  assumes "A <~~> B"
-  shows "map f A <~~> map f B"
+  assumes "A \<rightleftharpoons> B"
+  shows "map f A \<rightleftharpoons> map f B"
   by (metis assms mset_eq_perm mset_map)
 
 lemma map_monotonic:
@@ -120,10 +120,10 @@ lemma map_monotonic:
   by (simp add: assms image_mset_subseteq_mono)
 
 lemma perm_map_perm_list_exists:
-  assumes "A <~~> map f B"
-  shows "\<exists> B'. A = map f B' \<and> B' <~~> B"
+  assumes "A \<rightleftharpoons> map f B"
+  shows "\<exists> B'. A = map f B' \<and> B' \<rightleftharpoons> B"
 proof -
-  have "\<forall>B. A <~~> map f B \<longrightarrow> (\<exists> B'. A = map f B' \<and> B' <~~> B)"
+  have "\<forall>B. A \<rightleftharpoons> map f B \<longrightarrow> (\<exists> B'. A = map f B' \<and> B' \<rightleftharpoons> B)"
   proof (induct A)
     case Nil
     then show ?case by simp
@@ -131,7 +131,7 @@ proof -
     case (Cons a A)
     {
       fix B
-      assume "a # A <~~> map f B"
+      assume "a # A \<rightleftharpoons> map f B"
       from this obtain b where b:
         "b \<in> set B"
         "f b = a"
@@ -142,14 +142,14 @@ proof -
               mset_eq_perm
               set_map
               set_mset_mset)
-      hence "A <~~> (remove1 (f b) (map f B))"
-            "B <~~> b # remove1 b B"
+      hence "A \<rightleftharpoons> (remove1 (f b) (map f B))"
+            "B \<rightleftharpoons> b # remove1 b B"
         by (metis
-              \<open>a # A <~~> map f B\<close>
+              \<open>a # A \<rightleftharpoons> map f B\<close>
               perm_remove_perm
               remove_hd,
             meson b(1) perm_remove)
-      hence "A <~~> (map f (remove1 b B))"
+      hence "A \<rightleftharpoons> (map f (remove1 b B))"
         by (metis (no_types)
               list.simps(9)
               mset_eq_perm
@@ -158,11 +158,11 @@ proof -
               remove_hd)
       from this obtain B' where B':
         "A = map f B'"
-        "B' <~~> (remove1 b B)"
+        "B' \<rightleftharpoons> (remove1 b B)"
         using Cons.hyps by blast
       with b have "a # A = map f (b # B')"
         by simp
-      moreover have "B <~~> b # B'"
+      moreover have "B \<rightleftharpoons> b # B'"
         by (meson
               B'(2)
               b(1)
@@ -170,7 +170,7 @@ proof -
               perm.trans
               perm_remove
               perm_sym)
-      ultimately have "\<exists>B'. a # A = map f B' \<and> B' <~~> B"
+      ultimately have "\<exists>B'. a # A = map f B' \<and> B' \<rightleftharpoons> B"
         by (meson perm_sym)
     }
     thus ?case by blast
@@ -195,7 +195,7 @@ proof -
       have "\<exists>\<Phi>'. mset \<Phi>' \<subseteq># mset (\<gamma> # \<Gamma>) \<and> \<Phi> = map f \<Phi>'"
       proof cases
         assume "f \<gamma> \<in> set \<Phi>"
-        hence "f \<gamma> # (remove1 (f \<gamma>) \<Phi>) <~~> \<Phi>"
+        hence "f \<gamma> # (remove1 (f \<gamma>) \<Phi>) \<rightleftharpoons> \<Phi>"
           by (simp add: perm_remove perm_sym)
         with \<open>mset \<Phi> \<subseteq># mset (map f (\<gamma> # \<Gamma>))\<close>
         have "mset (remove1 (f \<gamma>) \<Phi>) \<subseteq># mset (map f \<Gamma>)"
@@ -213,11 +213,11 @@ proof -
         hence "mset (\<gamma> # \<Phi>') \<subseteq># mset (\<gamma> # \<Gamma>)"
           and "f \<gamma> # (remove1 (f \<gamma>) \<Phi>) = map f (\<gamma> # \<Phi>')"
           by simp+
-        hence "\<Phi> <~~> map f (\<gamma> # \<Phi>')"
+        hence "\<Phi> \<rightleftharpoons> map f (\<gamma> # \<Phi>')"
           using \<open>f \<gamma> \<in> set \<Phi>\<close> perm_remove by force
         from this obtain \<Phi>'' where \<Phi>'':
           "\<Phi> = map f \<Phi>''"
-          "\<Phi>'' <~~> \<gamma> # \<Phi>'"
+          "\<Phi>'' \<rightleftharpoons> \<gamma> # \<Phi>'"
           using perm_map_perm_list_exists
           by blast
         hence "mset \<Phi>'' \<subseteq># mset (\<gamma> # \<Gamma>)"
@@ -283,10 +283,10 @@ qed
 subsection \<open> Permutations \<close>
 
 lemma perm_count_list:
-  assumes "\<Phi> <~~> \<Psi>"
+  assumes "\<Phi> \<rightleftharpoons> \<Psi>"
   shows "count_list \<Phi> \<phi> = count_list \<Psi> \<phi>"
 proof -
-  have "\<forall>\<Psi>. \<Phi> <~~> \<Psi> \<longrightarrow> count_list \<Phi> \<phi> = count_list \<Psi> \<phi>"
+  have "\<forall>\<Psi>. \<Phi> \<rightleftharpoons> \<Psi> \<longrightarrow> count_list \<Phi> \<phi> = count_list \<Psi> \<phi>"
   proof (induct \<Phi>)
     case Nil
     then show ?case
@@ -295,13 +295,13 @@ proof -
     case (Cons \<chi> \<Phi>)
     {
       fix \<Psi>
-      assume "\<chi> # \<Phi> <~~> \<Psi>"
+      assume "\<chi> # \<Phi> \<rightleftharpoons> \<Psi>"
       hence "\<chi> \<in> set \<Psi>"
         using perm_set_eq by fastforce
-      hence "\<Psi> <~~> \<chi> # (remove1 \<chi> \<Psi>)"
+      hence "\<Psi> \<rightleftharpoons> \<chi> # (remove1 \<chi> \<Psi>)"
         by (simp add: perm_remove)
-      hence "\<Phi> <~~> (remove1 \<chi> \<Psi>)"
-        using \<open>\<chi> # \<Phi> <~~> \<Psi>\<close> perm.trans by auto
+      hence "\<Phi> \<rightleftharpoons> (remove1 \<chi> \<Psi>)"
+        using \<open>\<chi> # \<Phi> \<rightleftharpoons> \<Psi>\<close> perm.trans by auto
       hence \<diamondsuit>: "count_list \<Phi> \<phi> = count_list (remove1 \<chi> \<Psi>) \<phi>"
         using Cons.hyps by blast
       have "count_list (\<chi> # \<Phi>) \<phi> = count_list \<Psi> \<phi>"
@@ -336,14 +336,14 @@ lemma count_list_append:
 
 lemma append_set_containment:
   assumes "a \<in> set A"
-      and "A <~~> B @ C"
+      and "A \<rightleftharpoons> B @ C"
     shows "a \<in> set B \<or> a \<in> set C"
   using assms
   by (simp add: perm_set_eq)
 
 lemma concat_remove1:
   assumes "\<Psi> \<in> set \<L>"
-  shows "concat \<L> <~~> \<Psi> @ concat (remove1 \<Psi> \<L>)"
+  shows "concat \<L> \<rightleftharpoons> \<Psi> @ concat (remove1 \<Psi> \<L>)"
     using assms
     by (induct \<L>,
         simp,
@@ -354,7 +354,7 @@ lemma concat_remove1:
               perm_append_swap)
 
 lemma concat_set_membership_mset_containment:
-  assumes "concat \<Gamma> <~~> \<Lambda>"
+  assumes "concat \<Gamma> \<rightleftharpoons> \<Lambda>"
   and     "\<Phi> \<in> set \<Gamma>"
   shows   "mset \<Phi> \<subseteq># mset \<Lambda>"
   using assms
@@ -363,10 +363,10 @@ lemma concat_set_membership_mset_containment:
         meson concat_remove1 mset_le_perm_append perm.trans perm_sym)
 
 lemma (in comm_monoid_add) perm_list_summation:
-  assumes "\<Psi> <~~> \<Phi>"
+  assumes "\<Psi> \<rightleftharpoons> \<Phi>"
   shows "(\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
 proof -
-  have "\<forall> \<Phi>. \<Psi> <~~> \<Phi> \<longrightarrow> (\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
+  have "\<forall> \<Phi>. \<Psi> \<rightleftharpoons> \<Phi> \<longrightarrow> (\<Sum>\<psi>'\<leftarrow>\<Psi>. f \<psi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
   proof (induct \<Psi>)
     case Nil
     then show ?case by simp
@@ -374,8 +374,8 @@ proof -
     case (Cons \<psi> \<Psi>)
     {
       fix \<Phi>
-      assume hypothesis: "\<psi> # \<Psi> <~~> \<Phi>"
-      hence "\<Psi> <~~> (remove1 \<psi> \<Phi>)"
+      assume hypothesis: "\<psi> # \<Psi> \<rightleftharpoons> \<Phi>"
+      hence "\<Psi> \<rightleftharpoons> (remove1 \<psi> \<Phi>)"
         by (metis perm_remove_perm remove_hd)
       hence "(\<Sum>\<psi>' \<leftarrow> \<Psi>. f \<psi>') = (\<Sum>\<phi>' \<leftarrow> (remove1 \<psi> \<Phi>). f \<phi>')"
         using Cons.hyps by blast
@@ -472,7 +472,7 @@ lemma list_subtract_empty [simp]:
   by (induct \<Phi>, simp, simp)
 
 lemma list_subtract_remove1_cons_perm:
-  "\<Phi> \<ominus> (\<phi> # \<Lambda>) <~~> (remove1 \<phi> \<Phi>) \<ominus> \<Lambda>"
+  "\<Phi> \<ominus> (\<phi> # \<Lambda>) \<rightleftharpoons> (remove1 \<phi> \<Phi>) \<ominus> \<Lambda>"
   by (induct \<Lambda>, simp, simp, metis perm_remove_perm remove1_commute)
 
 lemma list_subtract_cons:
@@ -483,11 +483,11 @@ lemma list_subtract_cons:
 
 lemma list_subtract_cons_absorb:
   assumes "count_list \<Phi> \<phi> \<ge> count_list \<Lambda> \<phi>"
-  shows "\<phi> # (\<Phi> \<ominus> \<Lambda>) <~~> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
+  shows "\<phi> # (\<Phi> \<ominus> \<Lambda>) \<rightleftharpoons> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
   using assms
 proof -
   have "\<forall> \<Phi>. count_list \<Phi> \<phi> \<ge> count_list \<Lambda> \<phi>
-               \<longrightarrow> \<phi> # (\<Phi> \<ominus> \<Lambda>) <~~> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
+               \<longrightarrow> \<phi> # (\<Phi> \<ominus> \<Lambda>) \<rightleftharpoons> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
   proof (induct \<Lambda>)
     case Nil
     thus ?case using list_subtract_cons by fastforce
@@ -495,7 +495,7 @@ proof -
     case (Cons \<psi> \<Lambda>)
     assume inductive_hypothesis:
            " \<forall>\<Phi>. count_list \<Lambda> \<phi> \<le> count_list \<Phi> \<phi>
-                   \<longrightarrow> \<phi> # \<Phi> \<ominus> \<Lambda> <~~> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
+                   \<longrightarrow> \<phi> # \<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (\<phi> # \<Phi>) \<ominus> \<Lambda>"
     {
       fix \<Phi> :: "'a list"
       assume "count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>"
@@ -507,7 +507,7 @@ proof -
           by auto
         moreover from this have "\<phi> \<in> set \<Phi>"
           using not_one_le_zero by fastforce
-        hence "\<Phi> <~~> \<phi> # (remove1 \<psi> \<Phi>)"
+        hence "\<Phi> \<rightleftharpoons> \<phi> # (remove1 \<psi> \<Phi>)"
           using True
           by (simp add: True perm_remove)
         ultimately show ?thesis by (simp add: perm_count_list)
@@ -539,16 +539,16 @@ proof -
           using \<open>count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>\<close>
           by auto
       qed
-      hence "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) <~~> (\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda>"
+      hence "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) \<rightleftharpoons> (\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda>"
           using inductive_hypothesis by blast
-      moreover have "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) <~~> \<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>))"
+      moreover have "\<phi> # ((remove1 \<psi> \<Phi>) \<ominus> \<Lambda>) \<rightleftharpoons> \<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>))"
         by (induct \<Lambda>, simp, simp add: perm_remove_perm remove1_commute)
-      ultimately have \<star>: "\<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>)) <~~> (\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda>"
+      ultimately have \<star>: "\<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>)) \<rightleftharpoons> (\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda>"
         by (meson perm.trans perm_sym)
-      have "\<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>)) <~~> (\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>)"
+      have "\<phi> # (\<Phi> \<ominus> (\<psi> # \<Lambda>)) \<rightleftharpoons> (\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>)"
       proof cases
         assume "\<phi> = \<psi>"
-        hence "(\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>) <~~> \<Phi> \<ominus> \<Lambda>"
+        hence "(\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>) \<rightleftharpoons> \<Phi> \<ominus> \<Lambda>"
           using list_subtract_remove1_cons_perm by fastforce
         moreover have "\<phi> \<in> set \<Phi>"
           using
@@ -556,14 +556,14 @@ proof -
             \<open>count_list (\<psi> # \<Lambda>) \<phi> \<le> count_list \<Phi> \<phi>\<close>
             leD
           by force
-        hence "\<Phi> \<ominus> \<Lambda> <~~> (\<phi> # (remove1 \<phi> \<Phi>)) \<ominus> \<Lambda>"
+        hence "\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (\<phi> # (remove1 \<phi> \<Phi>)) \<ominus> \<Lambda>"
           by (induct \<Lambda>, simp add: perm_remove, simp add: perm_remove_perm)
         ultimately show ?thesis
           using \<star>
           by (metis \<open>\<phi> = \<psi>\<close> mset_eq_perm)
       next
         assume "\<phi> \<noteq> \<psi>"
-        hence "(\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda> <~~> (\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>)"
+        hence "(\<phi> # (remove1 \<psi> \<Phi>)) \<ominus> \<Lambda> \<rightleftharpoons> (\<phi> # \<Phi>) \<ominus> (\<psi> # \<Lambda>)"
           by (induct \<Lambda>, simp, simp add: perm_remove_perm remove1_commute)
         then show ?thesis using \<star> by blast
       qed
@@ -575,7 +575,7 @@ qed
 
 lemma list_subtract_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
-  shows  "\<Phi> \<ominus> \<Lambda> <~~> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
+  shows  "\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>)"
 proof -
   from \<open>\<phi> \<in> set \<Lambda>\<close>
   have "mset (\<Phi> \<ominus> \<Lambda>) = mset ((remove1 \<phi> \<Phi>) \<ominus> (remove1 \<phi> \<Lambda>))"
@@ -586,15 +586,15 @@ qed
 
 lemma list_subtract_cons_remove1_perm:
   assumes "\<phi> \<in> set \<Lambda>"
-  shows "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)"
+  shows "(\<phi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)"
   using assms list_subtract_remove1_perm by fastforce
 
 lemma list_subtract_removeAll_perm:
   assumes "count_list \<Phi> \<phi> \<le> count_list \<Lambda> \<phi>"
-  shows "\<Phi> \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
+  shows "\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
 proof -
   have "\<forall> \<Lambda>. count_list \<Phi> \<phi> \<le> count_list \<Lambda> \<phi>
-               \<longrightarrow> \<Phi> \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
+               \<longrightarrow> \<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
   proof (induct \<Phi>)
     case Nil
     thus ?case by auto
@@ -603,14 +603,14 @@ proof -
     {
       fix \<Lambda>
       assume "count_list (\<xi> # \<Phi>) \<phi> \<le> count_list \<Lambda> \<phi>"
-      hence "\<Phi> \<ominus> \<Lambda> <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
+      hence "\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>)"
         by (metis
               Cons.hyps
               count_list.simps(2)
               dual_order.trans
               le_add_same_cancel1
               zero_le_one)
-      have "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> (removeAll \<phi> (\<xi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
+      have "(\<xi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> (removeAll \<phi> (\<xi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
       proof cases
         assume "\<xi> = \<phi>"
         hence "count_list \<Phi> \<phi> < count_list \<Lambda> \<phi>"
@@ -619,25 +619,25 @@ proof -
         hence "count_list \<Phi> \<phi> \<le> count_list (remove1 \<phi> \<Lambda>) \<phi>"
           by (induct \<Lambda>, simp, auto)
         hence "\<Phi> \<ominus> (remove1 \<phi> \<Lambda>)
-                 <~~> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> (remove1 \<phi> \<Lambda>)"
+                 \<rightleftharpoons> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> (remove1 \<phi> \<Lambda>)"
           using Cons.hyps by blast
-        hence "\<Phi> \<ominus> (remove1 \<phi> \<Lambda>) <~~> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> \<Lambda>"
+        hence "\<Phi> \<ominus> (remove1 \<phi> \<Lambda>) \<rightleftharpoons> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> \<Lambda>"
           by (simp add: filter_remove1 removeAll_filter_not_eq)
         moreover have "\<phi> \<in> set \<Lambda>" and "\<phi> \<in> set (\<phi> # \<Phi>)"
           using \<open>\<xi> = \<phi>\<close>
                 \<open>count_list (\<xi> # \<Phi>) \<phi> \<le> count_list \<Lambda> \<phi>\<close>
                 gr_implies_not0
           by fastforce+
-        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> (remove1 \<phi> (\<phi> # \<Phi>)) \<ominus> (remove1 \<phi> \<Lambda>)"
+        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> (remove1 \<phi> (\<phi> # \<Phi>)) \<ominus> (remove1 \<phi> \<Lambda>)"
           by (meson list_subtract_remove1_perm)
-        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)" by simp
+        hence "(\<phi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> \<Phi> \<ominus> (remove1 \<phi> \<Lambda>)" by simp
         ultimately show ?thesis using \<open>\<xi> = \<phi>\<close> by auto
       next
         assume "\<xi> \<noteq> \<phi>"
         show ?thesis
         proof cases
           assume "\<xi> \<in> set \<Lambda>"
-          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<Phi> \<ominus> remove1 \<xi> \<Lambda>"
+          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> \<Phi> \<ominus> remove1 \<xi> \<Lambda>"
             by (simp add: list_subtract_cons_remove1_perm)
           moreover have "count_list \<Lambda> \<phi> = count_list (remove1 \<xi> \<Lambda>) \<phi>"
             using \<open>\<xi> \<noteq> \<phi>\<close> \<open>\<xi> \<in> set \<Lambda>\<close> perm_count_list perm_remove
@@ -645,15 +645,15 @@ proof -
           hence "count_list \<Phi> \<phi> \<le> count_list (remove1 \<xi> \<Lambda>) \<phi>"
             using \<open>\<xi> \<noteq> \<phi>\<close> \<open>count_list (\<xi> # \<Phi>) \<phi> \<le> count_list \<Lambda> \<phi>\<close> by auto
           hence "\<Phi> \<ominus> remove1 \<xi> \<Lambda>
-                   <~~> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>))"
+                   \<rightleftharpoons> (removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>))"
             using Cons.hyps by blast
           moreover
-          have "(removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>)) <~~>
+          have "(removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>)) \<rightleftharpoons>
                   (removeAll \<phi> \<Phi>) \<ominus> (remove1 \<xi> (removeAll \<phi> \<Lambda>))"
             by (induct \<Lambda>,
                   simp,
                   simp add: filter_remove1 removeAll_filter_not_eq)
-          hence "(removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>)) <~~>
+          hence "(removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> (remove1 \<xi> \<Lambda>)) \<rightleftharpoons>
                    (removeAll \<phi> (\<xi> # \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
             by (simp add: \<open>\<xi> \<in> set \<Lambda>\<close>
                           filter_remove1
@@ -663,11 +663,11 @@ proof -
           ultimately show ?thesis by blast
         next
           assume "\<xi> \<notin> set \<Lambda>"
-          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<xi> # (\<Phi> \<ominus> \<Lambda>)"
+          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> \<xi> # (\<Phi> \<ominus> \<Lambda>)"
             by (simp add: list_subtract_cons_absorb perm_sym)
-          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> \<xi> # ((removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>))"
-            using \<open>\<Phi> \<ominus> \<Lambda> <~~> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> \<Lambda>\<close> by blast
-          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> <~~> (\<xi> # (removeAll \<phi> \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
+          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> \<xi> # ((removeAll \<phi> \<Phi>) \<ominus> (removeAll \<phi> \<Lambda>))"
+            using \<open>\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> removeAll \<phi> \<Phi> \<ominus> removeAll \<phi> \<Lambda>\<close> by blast
+          hence "(\<xi> # \<Phi>) \<ominus> \<Lambda> \<rightleftharpoons> (\<xi> # (removeAll \<phi> \<Phi>)) \<ominus> (removeAll \<phi> \<Lambda>)"
             by (simp add: \<open>\<xi> \<notin> set \<Lambda>\<close> list_subtract_cons)
           thus ?thesis using \<open>\<xi> \<noteq> \<phi>\<close> by auto
         qed
@@ -679,10 +679,10 @@ proof -
 qed
 
 lemma list_subtract_permute:
-  assumes "\<Phi> <~~> \<Psi>"
-  shows "\<Phi> \<ominus> \<Lambda> <~~> \<Psi> \<ominus> \<Lambda>"
+  assumes "\<Phi> \<rightleftharpoons> \<Psi>"
+  shows "\<Phi> \<ominus> \<Lambda> \<rightleftharpoons> \<Psi> \<ominus> \<Lambda>"
 proof -
-  from \<open>\<Phi> <~~> \<Psi>\<close> have "mset \<Phi> = mset \<Psi>"
+  from \<open>\<Phi> \<rightleftharpoons> \<Psi>\<close> have "mset \<Phi> = mset \<Psi>"
     by (simp add: mset_eq_perm)
   hence "mset (\<Phi> \<ominus> \<Lambda>) = mset (\<Psi> \<ominus> \<Lambda>)"
     by simp
@@ -691,10 +691,10 @@ proof -
 qed
 
 lemma append_perm_list_subtract_intro:
-  assumes "A <~~> B @ C"
-  shows "A \<ominus> C <~~> B"
+  assumes "A \<rightleftharpoons> B @ C"
+  shows "A \<ominus> C \<rightleftharpoons> B"
 proof -
-  from \<open>A <~~> B @ C\<close> have "mset A = mset (B @ C)"
+  from \<open>A \<rightleftharpoons> B @ C\<close> have "mset A = mset (B @ C)"
     using mset_eq_perm by blast
   hence "mset (A \<ominus> C) = mset B"
     by simp
@@ -703,7 +703,7 @@ qed
 
 lemma list_subtract_concat:
   assumes "\<Psi> \<in> set \<L>"
-  shows "concat (\<L> \<ominus> [\<Psi>]) <~~> (concat \<L>) \<ominus> \<Psi>"
+  shows "concat (\<L> \<ominus> [\<Psi>]) \<rightleftharpoons> (concat \<L>) \<ominus> \<Psi>"
   using assms
   by (simp,
        meson
@@ -734,7 +734,7 @@ proof -
         "(\<Sum>\<psi>' \<leftarrow> \<Psi>. f \<psi>') + (\<Sum>\<phi>'\<leftarrow>((remove1 \<psi> \<Phi>) \<ominus> \<Psi>). f \<phi>')
                = (\<Sum>\<phi>'\<leftarrow> (remove1 \<psi> \<Phi>). f \<phi>')"
         using Cons.hyps by blast
-      moreover have "(remove1 \<psi> \<Phi>) \<ominus> \<Psi> <~~> \<Phi> \<ominus> (\<psi> # \<Psi>)"
+      moreover have "(remove1 \<psi> \<Phi>) \<ominus> \<Psi> \<rightleftharpoons> \<Phi> \<ominus> (\<psi> # \<Psi>)"
         by (meson list_subtract_remove1_cons_perm perm_sym)
       hence "(\<Sum>\<phi>'\<leftarrow>((remove1 \<psi> \<Phi>) \<ominus> \<Psi>). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>(\<Phi> \<ominus> (\<psi> # \<Psi>)). f \<phi>')"
         using perm_list_summation by blast
@@ -753,7 +753,7 @@ proof -
               list.set_intros(1)
               mset_le_perm_append
               perm_set_eq)
-      hence "(\<psi> # (remove1 \<psi> \<Phi>)) <~~> \<Phi>"
+      hence "(\<psi> # (remove1 \<psi> \<Phi>)) \<rightleftharpoons> \<Phi>"
         by (simp add: perm_remove perm_sym)
       hence "(\<Sum>\<phi>' \<leftarrow> (\<psi> # (remove1 \<psi> \<Phi>)). f \<phi>') = (\<Sum>\<phi>'\<leftarrow>\<Phi>. f \<phi>')"
         using perm_list_summation by blast

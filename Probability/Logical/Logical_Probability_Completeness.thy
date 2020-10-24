@@ -58,7 +58,7 @@ lemma (in implication_logic) stronger_theory_empty_list_intro [simp]:
   using assms stronger_theory_relation_def by simp
 
 lemma (in implication_logic) stronger_theory_right_permutation:
-  assumes "\<Gamma> <~~> \<Delta>"
+  assumes "\<Gamma> \<rightleftharpoons> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
     shows "\<Sigma> \<preceq> \<Delta>"
 proof -
@@ -70,11 +70,11 @@ proof -
 qed
 
 lemma (in implication_logic) stronger_theory_left_permutation:
-  assumes "\<Sigma> <~~> \<Delta>"
+  assumes "\<Sigma> \<rightleftharpoons> \<Delta>"
       and "\<Sigma> \<preceq> \<Gamma>"
     shows "\<Delta> \<preceq> \<Gamma>"
 proof -
-  have "\<forall> \<Sigma> \<Gamma>. \<Sigma> <~~> \<Delta> \<longrightarrow> \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Delta> \<preceq> \<Gamma>"
+  have "\<forall> \<Sigma> \<Gamma>. \<Sigma> \<rightleftharpoons> \<Delta> \<longrightarrow> \<Sigma> \<preceq> \<Gamma> \<longrightarrow> \<Delta> \<preceq> \<Gamma>"
   proof (induct \<Delta>)
     case Nil
     then show ?case by simp
@@ -82,13 +82,13 @@ proof -
     case (Cons \<delta> \<Delta>)
     {
       fix \<Sigma> \<Gamma>
-      assume "\<Sigma> <~~> (\<delta> # \<Delta>)" "\<Sigma> \<preceq> \<Gamma>"
+      assume "\<Sigma> \<rightleftharpoons> (\<delta> # \<Delta>)" "\<Sigma> \<preceq> \<Gamma>"
       from this obtain \<Phi> where \<Phi>:
         "map snd \<Phi> = \<Sigma>"
         "mset (map fst \<Phi>) \<subseteq># mset \<Gamma>"
         "\<forall> (\<gamma>,\<delta>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<delta>"
         using stronger_theory_relation_def by fastforce
-      with \<open>\<Sigma> <~~> (\<delta> # \<Delta>)\<close> have "\<delta> \<in># mset (map snd \<Phi>)"
+      with \<open>\<Sigma> \<rightleftharpoons> (\<delta> # \<Delta>)\<close> have "\<delta> \<in># mset (map snd \<Phi>)"
         by (simp add: perm_set_eq)
       from this obtain \<gamma> where \<gamma>: "(\<gamma>, \<delta>) \<in># mset \<Phi>"
         by (induct \<Phi>, fastforce+)
@@ -104,12 +104,12 @@ proof -
       with \<Phi>(3) have "\<forall> (\<gamma>,\<delta>) \<in> set ?\<Phi>\<^sub>0. \<turnstile> \<gamma> \<rightarrow> \<delta>" by fastforce
       ultimately have "?\<Sigma>\<^sub>0 \<preceq> remove1 \<gamma> \<Gamma>"
         unfolding stronger_theory_relation_def by blast
-      moreover have "\<Delta> <~~> (remove1 \<delta> \<Sigma>)" using \<open>\<Sigma> <~~> (\<delta> # \<Delta>)\<close>
+      moreover have "\<Delta> \<rightleftharpoons> (remove1 \<delta> \<Sigma>)" using \<open>\<Sigma> \<rightleftharpoons> (\<delta> # \<Delta>)\<close>
         by (metis perm_remove_perm perm_sym remove_hd)
       moreover from \<gamma> \<Phi>(1) have "mset ?\<Sigma>\<^sub>0 = mset (remove1 \<delta> \<Sigma>)"
         using remove1_pairs_list_projections_snd
         by fastforce
-      hence "?\<Sigma>\<^sub>0 <~~> remove1 \<delta> \<Sigma>"
+      hence "?\<Sigma>\<^sub>0 \<rightleftharpoons> remove1 \<delta> \<Sigma>"
         using mset_eq_perm by blast
       ultimately have "\<Delta> \<preceq> remove1 \<gamma> \<Gamma>" using Cons
         by (meson perm.trans perm_sym)
@@ -128,7 +128,7 @@ proof -
         unfolding stronger_theory_relation_def by metis
       moreover from \<gamma> \<Phi>(2) have "\<gamma> \<in># mset \<Gamma>"
         using mset_subset_eqD by fastforce
-      hence "(\<gamma> # (remove1 \<gamma> \<Gamma>)) <~~> \<Gamma>"
+      hence "(\<gamma> # (remove1 \<gamma> \<Gamma>)) \<rightleftharpoons> \<Gamma>"
         by (simp add: perm_remove perm_sym)
       ultimately have "(\<delta> # \<Delta>) \<preceq> \<Gamma>"
         using stronger_theory_right_permutation by blast
@@ -178,7 +178,7 @@ proof -
         by (simp add: \<open>\<Phi> \<noteq> []\<close> list.set_sel(2))
       ultimately have "\<Sigma> \<preceq> remove1 ?\<delta> \<Delta>"
         using stronger_theory_relation_def by auto
-      from \<open>?\<delta> \<in># mset \<Delta>\<close> have "?\<delta> # (remove1 ?\<delta> \<Delta>) <~~> \<Delta>"
+      from \<open>?\<delta> \<in># mset \<Delta>\<close> have "?\<delta> # (remove1 ?\<delta> \<Delta>) \<rightleftharpoons> \<Delta>"
         by (simp add: perm_remove perm_sym)
       with \<open>\<Delta> \<preceq> \<Gamma>\<close> have "(?\<delta> # (remove1 ?\<delta> \<Delta>)) \<preceq> \<Gamma>"
         using stronger_theory_left_permutation perm_sym by blast
@@ -228,7 +228,7 @@ proof -
       ultimately have "(\<sigma> # \<Sigma>) \<preceq> (?\<gamma> # (remove1 ?\<gamma> \<Gamma>))"
         unfolding stronger_theory_relation_def
         by metis
-      moreover from \<open>?\<gamma> \<in># mset \<Gamma>\<close> have "(?\<gamma> # (remove1 ?\<gamma> \<Gamma>)) <~~> \<Gamma>"
+      moreover from \<open>?\<gamma> \<in># mset \<Gamma>\<close> have "(?\<gamma> # (remove1 ?\<gamma> \<Gamma>)) \<rightleftharpoons> \<Gamma>"
         by (simp add: perm_remove perm_sym)
       ultimately have "(\<sigma> # \<Sigma>) \<preceq> \<Gamma>"
         using stronger_theory_right_permutation
@@ -270,7 +270,7 @@ proof (rule iffI)
   moreover from \<gamma> \<Phi>(1) have "mset ?\<Sigma>\<^sub>0 = mset (remove1 \<sigma> \<Sigma>)"
     using remove1_pairs_list_projections_snd
     by fastforce
-  hence "?\<Sigma>\<^sub>0 <~~> remove1 \<sigma> \<Sigma>"
+  hence "?\<Sigma>\<^sub>0 \<rightleftharpoons> remove1 \<sigma> \<Sigma>"
     using mset_eq_perm by blast
   ultimately have "remove1 \<sigma> \<Sigma> \<preceq> remove1 \<gamma> \<Gamma>"
     using stronger_theory_left_permutation by auto
@@ -293,7 +293,7 @@ next
     by auto
   ultimately have "(\<sigma> # (remove1 \<sigma> \<Sigma>)) \<preceq> \<Gamma>"
     unfolding stronger_theory_relation_def by metis
-  moreover from assms have "\<sigma> # (remove1 \<sigma> \<Sigma>) <~~> \<Sigma>"
+  moreover from assms have "\<sigma> # (remove1 \<sigma> \<Sigma>) \<rightleftharpoons> \<Sigma>"
     by (simp add: perm_remove perm_sym)
   ultimately show "\<Sigma> \<preceq> \<Gamma>"
     using stronger_theory_left_permutation by blast
@@ -442,7 +442,7 @@ proof -
           moreover
           have "\<sigma> \<in> set \<Sigma>"
             by (metis \<Phi>(1) \<sigma> set_mset_mset set_zip_rightD zip_map_fst_snd)
-          hence "\<Sigma> <~~> \<sigma> # (remove1 \<sigma> \<Sigma>)"
+          hence "\<Sigma> \<rightleftharpoons> \<sigma> # (remove1 \<sigma> \<Sigma>)"
              by (simp add: perm_remove)
           hence "\<Sigma> \<preceq> (\<sigma> # (remove1 \<sigma> \<Sigma>))"
             using stronger_theory_reflexive
@@ -717,9 +717,9 @@ proof -
           by (metis stronger_theory_relation_def)
         moreover have "\<phi> \<in> set \<Phi>"
           using \<Sigma>(1) \<phi> by force
-        hence "(\<phi> # remove1 \<phi> \<Phi>) <~~> \<Phi>"
+        hence "(\<phi> # remove1 \<phi> \<Phi>) \<rightleftharpoons> \<Phi>"
           by (simp add: perm_remove perm_sym)
-        hence "(\<phi> # remove1 \<phi> \<Phi> @ \<Psi>) <~~> \<Phi> @ \<Psi>"
+        hence "(\<phi> # remove1 \<phi> \<Phi> @ \<Psi>) \<rightleftharpoons> \<Phi> @ \<Psi>"
           by (metis append_Cons perm_append2)
         ultimately show ?thesis
           using stronger_theory_left_permutation by blast
@@ -1449,7 +1449,7 @@ proof -
           using \<open>find (\<lambda>\<psi>. uncurry (\<rightarrow>) \<psi> = snd \<delta>) \<Psi> = None\<close>
           by simp
         obtain diff :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" where
-          "\<forall>x0 x1. (\<exists>v2. x1 @ v2 <~~> x0) = (x1 @ diff x0 x1 <~~> x0)"
+          "\<forall>x0 x1. (\<exists>v2. x1 @ v2 \<rightleftharpoons> x0) = (x1 @ diff x0 x1 \<rightleftharpoons> x0)"
           by moura
         then have E: "mset (map snd (\<BB> \<Psi> (\<delta> # \<Delta>))
                     @ diff (map (uncurry (\<rightarrow>)) \<Psi>) (map snd (\<BB> \<Psi> (\<delta> # \<Delta>))))
@@ -7224,7 +7224,7 @@ proof -
       with \<Omega>(2) have "real (length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)) < real n * ?Pr \<phi>"
         by simp
       moreover
-      have "(\<^bold>\<sim> (\<Gamma> \<ominus> \<Phi>)) <~~> (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
+      have "(\<^bold>\<sim> (\<Gamma> \<ominus> \<Phi>)) \<rightleftharpoons> (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"
         unfolding map_negation_def
         by (metis \<Phi>(2) map_list_subtract_mset_equivalence mset_eq_perm)
       with perm_length have "length (\<Gamma> \<ominus> \<Phi>) = length (\<^bold>\<sim> \<Gamma> \<ominus> \<^bold>\<sim> \<Phi>)"

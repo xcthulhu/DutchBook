@@ -71,7 +71,7 @@ theorem classical_propositional_calculus_soundness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   by (induct rule: classical_propositional_calculus.induct, simp+)
 
-subsection \<open> Propositional Soundness and Completeness \<close>
+subsection \<open> Soundness and Completeness Proofs \<close>
 
 definition strong_classical_propositional_deduction ::
   "'a classical_propositional_formula set
@@ -91,6 +91,8 @@ definition theory_propositions ::
   "'a classical_propositional_formula set \<Rightarrow> 'a set" ("\<^bold>\<lbrace> _ \<^bold>\<rbrace>" [50])
   where
     [simp]: "\<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> = {p . \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p Proposition p}"
+
+text \<open> TODO: cite modal logic, and give reference to previous MCS stuff \<close>
 
 lemma truth_lemma:
   assumes "MCS \<Gamma>"
@@ -131,8 +133,9 @@ proof -
       proof (induct \<Gamma>')
         case Nil
         then show ?case
-          by (simp add: classical_propositional_calculus_soundness
-                        list_deduction_def)
+          by (simp add: 
+                classical_propositional_calculus_soundness
+                list_deduction_def)
       next
         case (Cons \<psi> \<Gamma>')
         thus ?case using list_deduction_theorem by fastforce

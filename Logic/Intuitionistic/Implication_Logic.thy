@@ -119,12 +119,12 @@ interpretation list_deduction_logic:
    implication_logic "\<lambda> \<phi>. \<Gamma> :\<turnstile> \<phi>" "(\<rightarrow>)"
 proof qed
   (meson
-       list_deduction_def
-       axiom_k
-       axiom_s
-       modus_ponens
-       list_implication_axiom_k
-       list_implication_axiom_s)+
+     list_deduction_def
+     axiom_k
+     axiom_s
+     modus_ponens
+     list_implication_axiom_k
+     list_implication_axiom_s)+
 end
 
 text \<open> The following \<^emph>\<open>weakening\<close> rule can also be derived. \<close>
@@ -230,19 +230,19 @@ proof -
       have "\<turnstile> \<Gamma> :\<rightarrow> (\<chi> \<rightarrow> \<psi>) \<rightarrow> removeAll \<phi> (\<chi> # \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<chi> \<rightarrow> \<psi>)" by simp
       hence "\<turnstile> \<Gamma> :\<rightarrow> (\<chi> \<rightarrow> \<psi>) \<rightarrow> removeAll \<phi> (\<chi> # \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
         by (metis
-                calculation
-                modus_ponens
-                implication_absorption
-                list_flip_implication1
-                list_flip_implication2
-                list_implication.simps(2))
+              calculation
+              modus_ponens
+              implication_absorption
+              list_flip_implication1
+              list_flip_implication2
+              list_implication.simps(2))
       ultimately have "\<turnstile> (\<chi> # \<Gamma>) :\<rightarrow> \<psi> \<rightarrow> removeAll \<phi> (\<chi> # \<Gamma>) :\<rightarrow> (\<phi> \<rightarrow> \<psi>)"
         by (simp,
               metis
-                  modus_ponens
-                  hypothetical_syllogism
-                  list_flip_implication1
-                  list_implication.simps(2))
+                modus_ponens
+                hypothetical_syllogism
+                list_flip_implication1
+                list_implication.simps(2))
     }
     ultimately show ?case by simp
   qed
@@ -261,10 +261,10 @@ proof -
     case Nil
     then show ?case
       by (metis
-              list_implication.simps(1)
-              list_implication_axiom_k
-              set_empty
-              subset_empty)
+            list_implication.simps(1)
+            list_implication_axiom_k
+            set_empty
+            subset_empty)
   next
     case (Cons \<psi> \<Gamma>)
     assume
@@ -328,14 +328,14 @@ text \<open> The monotonic nature of deduction allows us to prove another form o
 theorem (in implication_logic) alternate_list_deduction_theorem:
     "(\<phi> # \<Gamma>) :\<turnstile> \<psi> = (removeAll \<phi> \<Gamma>) :\<turnstile> \<phi> \<rightarrow> \<psi>"
   by (metis
-          list_deduction_def
-          modus_ponens
-          filter_is_subset
-          list_deduction_monotonic
-          list_deduction_theorem
-          list_implication_removeAll
-          removeAll.simps(2)
-          removeAll_filter_not_eq)
+        list_deduction_def
+        modus_ponens
+        filter_is_subset
+        list_deduction_monotonic
+        list_deduction_theorem
+        list_implication_removeAll
+        removeAll.simps(2)
+        removeAll_filter_not_eq)
 
 subsection \<open> Reflection \<close>
 
@@ -347,13 +347,13 @@ text \<open> In logic the \<^emph>\<open>reflection\<close> principle sometimes 
 lemma (in implication_logic) list_deduction_reflection:
   "\<phi> \<in> set \<Gamma> \<Longrightarrow> \<Gamma> :\<turnstile> \<phi>"
   by (metis
-          list_deduction_def
-          insert_subset
-          list.simps(15)
-          list_deduction_monotonic
-          list_implication.simps(2)
-          list_implication_axiom_k
-          order_refl)
+        list_deduction_def
+        insert_subset
+        list.simps(15)
+        list_deduction_monotonic
+        list_implication.simps(2)
+        list_implication_axiom_k
+        order_refl)
 
 subsection \<open> The Cut Rule \<close>
 
