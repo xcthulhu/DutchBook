@@ -9,16 +9,16 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
-text \<open> The following presents soundness completeness of basic 
-       propositional logic for propositional semantics. 
-       A concrete algebraic data type is given for propositional 
-       formulae in \S\ref{subsec:classical-calculus-syntax}. Logic for these 
-       formulae is defined inductively.  The Tarski truth relation \<open>\<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p\<close> 
-       is also defined inductively, and is presented in 
+text \<open> The following presents soundness completeness of basic
+       propositional logic for propositional semantics.
+       A concrete algebraic data type is given for propositional
+       formulae in \S\ref{subsec:classical-calculus-syntax}. Logic for these
+       formulae is defined inductively.  The Tarski truth relation \<open>\<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p\<close>
+       is also defined inductively, and is presented in
        \S\ref{subsec:propositional-semantics}.\<close>
 
-text \<open> The most significant results here are the \<^emph>\<open>embedding theorems\<close>.  
-       These theorems show that the propositional calculus 
+text \<open> The most significant results here are the \<^emph>\<open>embedding theorems\<close>.
+       These theorems show that the propositional calculus
        can be embedded in any logic extending @{class classical_logic}.
        These theorems are proved in \S\ref{subsec:propositional-embedding}. \<close>
 
@@ -27,7 +27,7 @@ subsection \<open> Syntax \label{subsec:classical-calculus-syntax} \<close>
 datatype 'a classical_propositional_formula =
       Falsum ("\<^bold>\<bottom>")
     | Proposition 'a ("\<^bold>\<langle> _ \<^bold>\<rangle>" [45])
-    | Implication 
+    | Implication
         "'a classical_propositional_formula"
         "'a classical_propositional_formula" (infixr "\<^bold>\<rightarrow>" 70)
 
@@ -98,7 +98,7 @@ text \<open> Below we give the main lemma for completeness: the \<^emph>\<open>t
        \S\ref{subsec:propositional-semantics}. \<close>
 
 text \<open> All together, the technique we are using essentially follows
-       Blackburn et al.'s approach in \<^emph>\<open>Modal Logic\<close> (2001, \S 4.2, pgs. 
+       Blackburn et al.'s approach in \<^emph>\<open>Modal Logic\<close> (2001, \S 4.2, pgs.
        196-201) @{cite blackburnCanonicalModels2001}. \<close>
 
 lemma truth_lemma:
@@ -114,7 +114,7 @@ next
   case (Implication \<psi> \<chi>)
   thus ?case
     unfolding strong_classical_propositional_deduction_def
-    by (metis 
+    by (metis
           assms
           maximally_consistent_set_def
           formula_maximally_consistent_set_def_implication
@@ -125,7 +125,7 @@ next
 qed
 
 text \<open> Here the truth lemma above is combined with @{thm formula_maximally_consistent_extension}
- proven in \S\ref{subsec:propositional-semantics}.  These theorems together 
+ proven in \S\ref{subsec:propositional-semantics}.  These theorems together
   give rise to completeness for the propositional calculus. \<close>
 
 theorem classical_propositional_calculus_strong_soundness_and_completeness:
@@ -144,7 +144,7 @@ proof -
       proof (induct \<Gamma>')
         case Nil
         then show ?case
-          by (simp add: 
+          by (simp add:
                 classical_propositional_calculus_soundness
                 list_deduction_def)
       next
@@ -162,7 +162,7 @@ proof -
     hence "\<exists> \<MM>. (\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>) \<and> \<not> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
     proof -
       from \<open>\<not> \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>\<close> obtain \<Omega> where \<Omega>: "\<Gamma> \<subseteq> \<Omega>" "\<phi>-MCS \<Omega>"
-        by (meson 
+        by (meson
               formula_consistent_def
               formula_maximally_consistent_extension
               strong_classical_propositional_deduction_def)
@@ -177,10 +177,10 @@ proof -
         unfolding strong_classical_propositional_deduction_def
         by blast
       moreover have "\<forall> \<gamma> \<in> \<Gamma>. \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>"
-        using 
-          formula_maximal_consistency 
-          truth_lemma 
-          \<Omega> 
+        using
+          formula_maximal_consistency
+          truth_lemma
+          \<Omega>
           set_deduction_reflection
         unfolding strong_classical_propositional_deduction_def
         by blast
@@ -199,9 +199,9 @@ theorem classical_propositional_calculus_soundness_and_completeness:
   using classical_propositional_calculus_soundness [where \<phi>="\<phi>"]
         classical_propositional_calculus_strong_soundness_and_completeness
             [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        strong_classical_propositional_deduction_def 
+        strong_classical_propositional_deduction_def
             [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        strong_classical_propositional_tarski_truth_def 
+        strong_classical_propositional_tarski_truth_def
             [where \<phi>="\<phi>" and \<Gamma>="{}"]
         deduction_classical_propositional_formula_def [where \<phi>="\<phi>"]
         set_deduction_base_theory [where \<phi>="\<phi>"]
@@ -230,7 +230,7 @@ theorem (in classical_logic) propositional_calculus:
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
-  by (simp add: 
+  by (simp add:
         classical_propositional_calculus_soundness_and_completeness
         propositional_calculus)
 

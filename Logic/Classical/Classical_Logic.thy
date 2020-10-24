@@ -61,7 +61,7 @@ lemma (in classical_logic)
   double_negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson axiom_k modus_ponens flip_implication)
 
-text \<open>The following lemma is sometimes referred to as 
+text \<open>The following lemma is sometimes referred to as
       \<^emph>\<open>The Principle of Pseudo-Scotus\<close>@{cite bobenriethm.OriginsUseArgument2010}.\<close>
 
 lemma (in classical_logic)

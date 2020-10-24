@@ -104,7 +104,7 @@ qed
 
 subsection \<open> List Mapping \<close>
 
-text \<open> The following notation for permutations is slightly nicer when 
+text \<open> The following notation for permutations is slightly nicer when
        formatted in \LaTeX. \<close>
 
 notation perm (infix "\<rightleftharpoons>" 50)
@@ -904,30 +904,30 @@ proof -
          "\<xi> \<in> set \<Gamma>"
          "mset \<Xi> \<subseteq># mset (remove1 \<xi> \<Gamma>)"
          "\<psi> \<in> set ((remove1 \<xi> \<Gamma>) \<ominus> \<Xi>)"
-        by (simp, 
-            metis 
+        by (simp,
+            metis
               ex_mset
               list.set_intros(1)
               mset.simps(2)
               mset_eq_setD
               subset_mset.le_iff_add
               union_mset_add_mset_left,
-            metis 
+            metis
               list_subtract.simps(1)
               list_subtract.simps(2)
               list_subtract_monotonic
               remove_hd,
-            simp, 
-            metis 
+            simp,
+            metis
               list_subtract_remove1_cons_perm
               perm_set_eq)
-      with Cons.hyps have 
+      with Cons.hyps have
         "mset \<Gamma> = mset (\<xi> # (remove1 \<xi> \<Gamma>))"
         "mset (\<psi> # \<Xi>) \<subseteq># mset (remove1 \<xi> \<Gamma>)"
         by (simp, blast)
       hence "mset (\<psi> # \<xi> # \<Xi>) \<subseteq># mset \<Gamma>"
-        by (simp, 
-            metis 
+        by (simp,
+            metis
               add_mset_commute
               mset_subset_eq_add_mset_cancel)
     }
@@ -1019,7 +1019,7 @@ next
   from Cons obtain \<Omega> where \<Omega>:
     "map (\<lambda> (\<psi>, \<sigma>, _). (\<psi>, \<sigma>)) \<Omega> = \<Psi>"
     "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) \<Omega>) \<subseteq># mset \<Delta>"
-    by (metis 
+    by (metis
           (no_types, lifting)
           diff_subset_eq_self
           list.set_intros(1)
@@ -1035,7 +1035,7 @@ next
     by simp
   then have "mset \<Sigma> - {#?\<sigma>#} - image_mset snd (mset \<Psi>)
                 \<noteq> mset \<Sigma> - image_mset snd (mset \<Psi>)"
-    by (metis 
+    by (metis
           (no_types)
           insert_subset_eq_iff
           mset_subset_eq_insertD
@@ -1049,7 +1049,7 @@ next
           Cons.prems
           \<open>mset \<Sigma> \<subseteq># mset (map snd \<Delta>)\<close>
           subset_mset.dual_order.trans)
-  then have 
+  then have
     "mset (map snd \<Delta>) - mset (map snd (\<psi> # \<Psi>)) + ({#} + {#snd \<psi>#})
        = mset (map snd \<Delta>) + ({#} + {#snd \<psi>#})
            - add_mset (snd \<psi>) (mset (map snd \<Psi>))"
@@ -1058,7 +1058,7 @@ next
           list.simps(9)
           mset.simps(2)
           mset_subset_eq_multiset_union_diff_commute)
-  then have 
+  then have
     "mset (map snd \<Delta>) - mset (map snd (\<psi> # \<Psi>)) + ({#} + {#snd \<psi>#})
        = mset (map snd \<Delta>) - mset (map snd \<Psi>)"
     by auto
@@ -1093,9 +1093,9 @@ next
              + {# case (snd \<psi>, \<gamma>) of (a, c) \<Rightarrow> (c, a) #}
            = mset (map (\<lambda>(b, a, c). (c, a)) ((fst \<psi>, snd \<psi>, \<gamma>) # \<Omega>))"
     by simp
-  obtain mm 
-     :: "('c \<times> 'a) multiset 
-     \<Rightarrow> ('c \<times> 'a) multiset 
+  obtain mm
+     :: "('c \<times> 'a) multiset
+     \<Rightarrow> ('c \<times> 'a) multiset
      \<Rightarrow> ('c \<times> 'a) multiset"
     where "\<forall>x0 x1. (\<exists>v2. x0 = x1 + v2) = (x0 = x1 + mm x0 x1)"
     by moura
@@ -1103,7 +1103,7 @@ next
                         + mm (mset \<Delta>) (mset (map (\<lambda>(b, a, c). (c, a)) \<Omega>))"
     by (metis \<Omega>(2) subset_mset.le_iff_add)
   then have "mset (map (\<lambda> (_, \<sigma>, \<gamma>). (\<gamma>, \<sigma>)) ?\<Omega>) \<subseteq># mset \<Delta>"
-    using A B by 
+    using A B by
       (metis
          \<gamma>
          add_diff_cancel_left'
