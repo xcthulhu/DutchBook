@@ -1170,7 +1170,7 @@ proof -
   proof (induct \<Phi>)
     case Nil
     then show ?case
-      by (simp, metis (full_types) ex_map_conv Non_Negative sum_list_nonneg)
+      by (simp, metis (full_types) ex_map_conv probability_non_negative sum_list_nonneg)
   next
     case (Cons \<phi> \<Phi>)
     {

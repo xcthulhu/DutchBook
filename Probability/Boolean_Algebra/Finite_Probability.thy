@@ -28,9 +28,9 @@ subsection \<open> Definition of Finitely Additive Probability \<close>
 text \<open> TODO: cite @{cite booleChapterXVIIGeneral1853}, @{cite broderickBooleanAlgebraProbability1940}, ``Elementary Theory of Probability'' @{cite kolmogoroffGrundbegriffeWahrscheinlichkeitsrechnung1933}\<close>
 
 class finitely_additive_probability = \<P> + boolean_algebra +
-  assumes Non_Negative: "\<P> \<phi> \<ge> 0"
+  assumes probability_non_negative: "\<P> \<phi> \<ge> 0"
   assumes Unity: "\<P> \<top> = 1"
-  assumes Finite_Additivity: "\<phi> \<sqinter> \<psi> = \<bottom> \<Longrightarrow> \<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
+  assumes finite_additivity: "\<phi> \<sqinter> \<psi> = \<bottom> \<Longrightarrow> \<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
 
 context boolean_algebra begin
 
@@ -158,7 +158,7 @@ proof
     proof standard
       fix \<phi>
       show "0 \<le> \<P> \<phi>"
-        by (simp add: Non_Negative)
+        by (simp add: probability_non_negative)
     next
       fix \<phi>
       show "\<top> = \<phi> \<Longrightarrow> \<P> \<phi> = 1"
@@ -171,7 +171,7 @@ proof
         using compl_top_eq by auto
       thus "\<P> ((\<phi> \<Rightarrow> \<bottom>) \<Rightarrow> \<psi>) = \<P> \<phi> + \<P> \<psi>"
         unfolding residual_def
-        by (simp add: Finite_Additivity)
+        by (simp add: finite_additivity)
     qed
     thus "\<P> \<in> { \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }" by auto
   qed
@@ -188,7 +188,7 @@ next
     proof standard
       fix \<phi>
       show "0 \<le> \<P> \<phi>"
-        by (simp add: Non_Negative)
+        by (simp add: probability_non_negative)
     next
       show "\<P> \<top> = 1"
         using Unity by blast
@@ -196,7 +196,7 @@ next
       fix \<phi> \<psi>
       assume "\<phi> \<sqinter> \<psi> = \<bottom>"
       thus "\<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
-        using Implicational_Additivity
+        using probability_implicational_additivity
               compl_bot_eq
               sup_bot.right_neutral
               residual_def
@@ -266,7 +266,7 @@ proof -
     by auto
   have "\<P> \<psi> > 0"
     using \<open>\<P> \<psi> \<noteq> 0\<close>
-          Non_Negative
+          probability_non_negative
           order_class.dual_order.order_iff_strict
     by blast
   let ?\<P>' = "\<lambda> \<phi>. \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>"
@@ -275,7 +275,7 @@ proof -
   proof standard
     fix \<phi>
     show "0 \<le> \<P> (\<phi> \<sqinter> \<psi>) / \<P> \<psi>"
-      by (simp add: Non_Negative)
+      by (simp add: probability_non_negative)
   next
     show "\<P> (\<top> \<sqinter> \<psi>) / \<P> \<psi> = 1"
       using \<open>0 < \<P> \<psi>\<close> inf_top_left by auto
@@ -283,7 +283,7 @@ proof -
     fix \<phi> \<chi>
     assume "\<phi> \<sqinter> \<chi> = \<bottom>"
     hence "\<P> ((\<phi> \<squnion> \<chi>) \<sqinter> \<psi>) = \<P> (\<phi> \<sqinter> \<psi>) + \<P> (\<chi> \<sqinter> \<psi>)"
-      by (metis Finite_Additivity
+      by (metis finite_additivity
                 inf.assoc
                 inf.commute
                 inf_bot_right
@@ -305,9 +305,9 @@ proof -
   from assms interpret finitely_additive_probability \<P>
     unfolding probabilities_def
     by auto
-  note \<P>_Non_Negative = Non_Negative
+  note \<P>_probability_non_negative = probability_non_negative
   note \<P>_Unity = Unity
-  note \<P>_Finite_Additivity = Finite_Additivity
+  note \<P>_finite_additivity = finite_additivity
   from assms interpret finitely_additive_probability \<Q>
     unfolding probabilities_def
     by auto
@@ -316,7 +316,7 @@ proof -
   proof standard
     fix \<phi>
     show "0 \<le> \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi>"
-      by (simp add: \<P>_Non_Negative Non_Negative \<open>0 \<le> \<alpha>\<close> \<open>\<alpha> \<le> 1\<close>)
+      by (simp add: \<P>_probability_non_negative probability_non_negative \<open>0 \<le> \<alpha>\<close> \<open>\<alpha> \<le> 1\<close>)
   next
     show "\<alpha> * \<P> \<top> + (1 - \<alpha>) * \<Q> \<top> = 1"
       using \<P>_Unity Unity by auto
@@ -325,7 +325,7 @@ proof -
     assume "\<phi> \<sqinter> \<psi> = \<bottom>"
     thus "  \<alpha> * \<P> (\<phi> \<squnion> \<psi>) + (1 - \<alpha>) * \<Q> (\<phi> \<squnion> \<psi>)
           = \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi> + (\<alpha> * \<P> \<psi> + (1 - \<alpha>) * \<Q> \<psi>)"
-      by (simp add: \<P>_Finite_Additivity distrib_left Finite_Additivity)
+      by (simp add: \<P>_finite_additivity distrib_left finite_additivity)
   qed
   thus ?thesis
     unfolding probabilities_def
@@ -379,7 +379,7 @@ next
   hence "\<phi> \<sqinter> \<alpha> = \<bottom>"
     by (metis inf_absorb1 inf_compl_bot_right)
   hence "\<P> (\<phi> \<sqinter> \<alpha>) / \<P> \<alpha> = 0"
-    using Finite_Additivity inf_bot_right sup_bot.right_neutral by fastforce
+    using finite_additivity inf_bot_right sup_bot.right_neutral by fastforce
   then show ?thesis
     using \<open>\<not> \<alpha> \<le> \<phi>\<close> by auto
 qed
@@ -391,7 +391,7 @@ proof -
   have "\<P> (\<top> \<sqinter> \<alpha>) / \<P> \<alpha> = 1"
     using assms top_greatest by auto
   hence "\<P> \<alpha> > 0"
-    using less_eq_real_def Non_Negative by fastforce
+    using less_eq_real_def probability_non_negative by fastforce
   hence "\<alpha> \<noteq> \<bottom>"
     using Antithesis by auto
   moreover
@@ -418,7 +418,7 @@ proof -
       hence "0 > \<P> (\<phi> \<sqinter> \<psi> \<sqinter> \<alpha>)"
         using \<open>0 < \<P> \<alpha>\<close> by linarith
       thus False
-        using Non_Negative not_le by blast
+        using probability_non_negative not_le by blast
     qed
   }
   ultimately show ?thesis
@@ -439,7 +439,7 @@ lemmas Antithesis = Antithesis
 
 lemma complementation: "\<P> (- \<phi>) = 1 - \<P> \<phi>"
   by (metis add_diff_cancel_left'
-            Finite_Additivity
+            finite_additivity
             Unity
             inf_compl_bot
             sup_compl_top)
@@ -519,7 +519,7 @@ next
   moreover have "\<P> ?UA = (\<Sum> a \<in> A. \<P> a)"
     using insert by blast
   ultimately show ?case
-    by (simp add: \<open>finite A\<close> \<open>a \<notin> A\<close> Finite_Additivity)
+    by (simp add: \<open>finite A\<close> \<open>a \<notin> A\<close> finite_additivity)
 qed
 
 end
@@ -603,7 +603,7 @@ proof -
             add.right_neutral
             add_diff_cancel_left'
             diff_ge_0_iff_ge
-            Non_Negative
+            probability_non_negative
             sum_rule
             order_class.eq_iff)
     ultimately have "\<delta> y \<noteq> 0 \<or> \<delta> z \<noteq> 0"
@@ -948,7 +948,7 @@ next
         hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha>' \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?to_\<delta> \<alpha>' \<gamma>)"
           using \<star> by blast
         moreover have "0 \<le> \<P> \<alpha>'"
-          by (simp add: Non_Negative)
+          by (simp add: probability_non_negative)
         ultimately have
           "\<P> \<alpha>' * ((\<Sum>\<phi>\<leftarrow>\<Phi>. ?to_\<delta> \<alpha>' \<phi>) + \<lceil>c\<rceil>) \<le> \<P> \<alpha>' * (\<Sum>\<gamma>\<leftarrow>\<Gamma>. ?to_\<delta> \<alpha>' \<gamma>)"
           using mult_left_mono by blast

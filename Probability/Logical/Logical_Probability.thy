@@ -16,9 +16,9 @@ text \<open> TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary 
 
 class logical_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
-  assumes Non_Negative: "Pr \<phi> \<ge> 0"
+  assumes probability_non_negative: "Pr \<phi> \<ge> 0"
   assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
-  assumes Implicational_Additivity:
+  assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
 
 subsection \<open> Why Finitely Additive Logic? \<close>
@@ -36,7 +36,7 @@ lemma (in logical_probability) Additivity:
   unfolding disjunction_def
             conjunction_def
             negation_def
-  by (simp add: Implicational_Additivity)
+  by (simp add: probability_implicational_additivity)
 
 lemma (in logical_probability) alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
@@ -59,21 +59,21 @@ lemma (in logical_probability) complementation:
 
 lemma (in logical_probability) unity_upper_bound:
   "Pr \<phi> \<le> 1"
-  by (metis (no_types) diff_ge_0_iff_ge Non_Negative complementation)
+  by (metis (no_types) diff_ge_0_iff_ge probability_non_negative complementation)
 
 subsection \<open> Alternate Definition \<close>
 
 text \<open> Alternate axiomatization of logical probability following Brian Weatherson in
         https://doi.org/10.1305/ndjfl/1082637807 \<close>
 
-class Weatherson_Probability = classical_logic +
+class weatherson_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes Thesis: "Pr \<top> = 1"
   assumes Antithesis: "Pr \<bottom> = 0"
   assumes Monotonicity: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
   assumes Sum_Rule: "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
 
-sublocale Weatherson_Probability \<subseteq> logical_probability
+sublocale weatherson_probability \<subseteq> logical_probability
 proof
   fix \<phi>
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
@@ -184,7 +184,7 @@ proof -
     by simp
 qed
 
-sublocale logical_probability \<subseteq> Weatherson_Probability
+sublocale logical_probability \<subseteq> weatherson_probability
 proof
   show "Pr \<top> = 1"
     by (simp add: Unity)
@@ -255,7 +255,7 @@ lemma (in logical_probability) disjunction_sum_inequality:
 proof -
   have "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
        "0 \<le> Pr (\<phi> \<sqinter> \<psi>)"
-    by (simp add: sum_rule, simp add: Non_Negative)
+    by (simp add: sum_rule, simp add: probability_non_negative)
   thus ?thesis by linarith
 qed
 

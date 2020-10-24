@@ -2,19 +2,34 @@
 
 section \<open> Classical Soundness and Completeness \label{sec:classical-propositional-calculus} \<close>
 
+
 theory Classical_Logic_Completeness
   imports Classical_Logic
 begin
 
 sledgehammer_params [smt_proofs = false]
 
-subsection \<open> Syntax \<close>
+text \<open> The following presents soundness completeness of basic 
+       propositional logic for propositional semantics. 
+       A concrete algebraic data type is given for propositional 
+       formulae in \S\ref{subsec:classical-calculus-syntax}. Logic for these 
+       formulae is defined inductively.  The Tarski truth relation \<open>\<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p\<close> 
+       is also defined inductively, and is presented in 
+       \S\ref{subsec:propositional-semantics}.\<close>
+
+text \<open> The most significant results here are the \<^emph>\<open>embedding theorems\<close>.  
+       These theorems show that the propositional calculus 
+       can be embedded in any logic extending @{class classical_logic}.
+       These theorems are proved in \S\ref{subsec:propositional-embedding}. \<close>
+
+subsection \<open> Syntax \label{subsec:classical-calculus-syntax} \<close>
 
 datatype 'a classical_propositional_formula =
       Falsum ("\<^bold>\<bottom>")
     | Proposition 'a ("\<^bold>\<langle> _ \<^bold>\<rangle>" [45])
-    | Implication "'a classical_propositional_formula"
-                  "'a classical_propositional_formula" (infixr "\<^bold>\<rightarrow>" 70)
+    | Implication 
+        "'a classical_propositional_formula"
+        "'a classical_propositional_formula" (infixr "\<^bold>\<rightarrow>" 70)
 
 subsection \<open> Propositional Calculus \<close>
 
@@ -42,7 +57,7 @@ definition [simp]: "\<phi> \<rightarrow> \<psi> = \<phi> \<^bold>\<rightarrow> \
 instance by standard (simp add: classical_propositional_calculus)+
 end
 
-subsection \<open> Propositional Semantics \<close>
+subsection \<open> Propositional Semantics \label{subsec:propositional-semantics}\<close>
 
 primrec classical_propositional_semantics ::
   "'a set \<Rightarrow> 'a classical_propositional_formula \<Rightarrow> bool"
@@ -133,9 +148,10 @@ proof -
     hence "\<exists> \<MM>. (\<forall> \<gamma> \<in> \<Gamma>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>) \<and> \<not> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
     proof -
       from \<open>\<not> \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>\<close> obtain \<Omega> where \<Omega>: "\<Gamma> \<subseteq> \<Omega>" "\<phi>-MCS \<Omega>"
-        by (meson formula_consistent_def
-                  formula_maximally_consistent_extension
-                  strong_classical_propositional_deduction_def)
+        by (meson 
+              formula_consistent_def
+              formula_maximally_consistent_extension
+              strong_classical_propositional_deduction_def)
       hence "(\<phi> \<rightarrow> \<bottom>) \<in> \<Omega>"
         using formula_maximally_consistent_set_def_negation by blast
       hence "\<not> \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
@@ -147,7 +163,11 @@ proof -
         unfolding strong_classical_propositional_deduction_def
         by blast
       moreover have "\<forall> \<gamma> \<in> \<Gamma>. \<^bold>\<lbrace> \<Omega> \<^bold>\<rbrace> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<gamma>"
-        using formula_maximal_consistency truth_lemma \<Omega> set_deduction_reflection
+        using 
+          formula_maximal_consistency 
+          truth_lemma 
+          \<Omega> 
+          set_deduction_reflection
         unfolding strong_classical_propositional_deduction_def
         by blast
       ultimately show ?thesis by auto
@@ -164,9 +184,11 @@ theorem classical_propositional_calculus_soundness_and_completeness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = (\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>)"
   using classical_propositional_calculus_soundness [where \<phi>="\<phi>"]
         classical_propositional_calculus_strong_soundness_and_completeness
-          [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        strong_classical_propositional_deduction_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
-        strong_classical_propositional_tarski_truth_def [where \<phi>="\<phi>" and \<Gamma>="{}"]
+            [where \<phi>="\<phi>" and \<Gamma>="{}"]
+        strong_classical_propositional_deduction_def 
+            [where \<phi>="\<phi>" and \<Gamma>="{}"]
+        strong_classical_propositional_tarski_truth_def 
+            [where \<phi>="\<phi>" and \<Gamma>="{}"]
         deduction_classical_propositional_formula_def [where \<phi>="\<phi>"]
         set_deduction_base_theory [where \<phi>="\<phi>"]
   by metis
@@ -177,6 +199,8 @@ begin
 instance by standard
   (simp add: classical_propositional_calculus_soundness_and_completeness)
 end
+
+subsection \<open> Embedding Theorem For the Propositional Calculus \label{subsec:propositional-embedding} \<close>
 
 primrec (in classical_logic)
    classical_propositional_formula_embedding

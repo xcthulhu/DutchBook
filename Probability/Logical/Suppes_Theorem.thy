@@ -347,7 +347,7 @@ proof -
     by auto
 qed
 
-theorem (in classical_logic) Inequality_Completeness:
+theorem (in classical_logic) inequality_completeness:
   "(\<forall> Pr \<in> logical_probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"

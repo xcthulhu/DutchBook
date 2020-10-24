@@ -61,9 +61,15 @@ lemma (in classical_logic)
   double_negation_converse: "\<turnstile> \<phi> \<rightarrow> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<bottom>"
   by (meson axiom_k modus_ponens flip_implication)
 
+text \<open>The following lemma is sometimes referred to as 
+      \<^emph>\<open>The Principle of Pseudo-Scotus\<close>@{cite bobenriethm.OriginsUseArgument2010}.\<close>
+
 lemma (in classical_logic)
   pseudo_scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
   using ex_falso_quodlibet modus_ponens hypothetical_syllogism by blast
+
+text \<open>Another popular lemma is attributed to Charles Sanders Peirce,
+      and has come to be known as \<^emph>\<open>Peirces Law\<close>@{cite peirceAlgebraLogicContribution1885}.\<close>
 
 lemma (in classical_logic) Peirces_law:
   "\<turnstile> ((\<phi> \<rightarrow> \<psi>) \<rightarrow> \<phi>) \<rightarrow> \<phi>"

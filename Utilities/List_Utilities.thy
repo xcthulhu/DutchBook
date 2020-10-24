@@ -104,6 +104,11 @@ qed
 
 subsection \<open> List Mapping \<close>
 
+text \<open> The following notation for permutations is slightly nicer when 
+       formatted in \LaTeX. \<close>
+
+notation perm ("op \<rightleftharpoons>")
+
 lemma map_perm:
   assumes "A <~~> B"
   shows "map f A <~~> map f B"
