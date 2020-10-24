@@ -38,7 +38,7 @@ lemma (in logical_probability) Additivity:
             negation_def
   by (simp add: Implicational_Additivity)
 
-lemma (in logical_probability) Alternate_Additivity:
+lemma (in logical_probability) alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -50,7 +50,7 @@ lemma (in logical_probability) Alternate_Additivity:
 
 lemma (in logical_probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
-  by (metis Alternate_Additivity
+  by (metis alternate_additivity
             Unity
             bivalence
             negation_elimination
@@ -162,7 +162,7 @@ proof -
     thus ?thesis by simp
   qed
   hence "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
-    using Alternate_Additivity biconditional_equivalence calculation by auto
+    using alternate_additivity biconditional_equivalence calculation by auto
   moreover have "\<turnstile> \<psi> \<leftrightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
@@ -179,7 +179,7 @@ proof -
     unfolding subtraction_def negation_def conjunction_def
     using conjunction_def conjunction_right_elimination by auto
   hence "Pr \<psi> = Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) + Pr (\<phi> \<sqinter> \<psi>)"
-    using Alternate_Additivity biconditional_equivalence calculation by auto
+    using alternate_additivity biconditional_equivalence calculation by auto
   ultimately show ?thesis
     by simp
 qed

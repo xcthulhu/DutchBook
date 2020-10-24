@@ -4,7 +4,7 @@ section \<open>Boolean Algebra Probability\<close>
 
 (* TODO: Cite Bool's laws of thought, Dempster, Nils Nilsson's Probabilisitic Logic *)
 
-theory Finitely_Additive_Probability
+theory Finite_Probability
   imports
     "../Logical/Logical_Probability"
     Finite_Boolean_Algebra

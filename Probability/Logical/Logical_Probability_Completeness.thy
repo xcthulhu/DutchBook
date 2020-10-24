@@ -2761,7 +2761,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in classical_logic) XWitness_YWitness_segmented_deduction_intro:
+lemma (in classical_logic) xwitness_ywitness_segmented_deduction_intro:
   assumes "mset (map snd \<Psi>) \<subseteq># mset \<Gamma>"
       and "mset (map snd \<Delta>) \<subseteq># mset (map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>))"
       and "map (uncurry (\<rightarrow>)) \<Delta> @ (map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> map snd \<Psi>) \<ominus> map snd \<Delta> $\<turnstile> \<Phi>"
@@ -2893,7 +2893,7 @@ proof -
   have "(map (uncurry (\<rightarrow>)) ?\<Delta>' @ ?\<Gamma>\<^sub>1 \<ominus> (map snd ?\<Delta>')) $\<turnstile> \<Phi>"
        "map (uncurry (\<squnion>)) \<Psi> \<preceq> map (uncurry (\<squnion>)) ?\<Delta>'"
     using \<Psi>(1) \<Delta>(1) \<Delta>(3)
-          XWitness_YWitness_segmented_deduction_intro
+          xwitness_ywitness_segmented_deduction_intro
           YWitness_left_stronger_theory
     by auto
   hence "?\<Gamma>\<^sub>1 $\<turnstile> (\<phi> # \<Phi>)"

@@ -331,7 +331,7 @@ next
 qed
 
 
-lemma (in classical_logic) Dirac_Inequality_Completeness:
+lemma (in classical_logic) Dirac_inequality_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> \<delta> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
@@ -363,7 +363,7 @@ proof -
     by simp
 qed
 
-lemma (in classical_logic) Dirac_Exclusive_list_summation_completeness:
+lemma (in classical_logic) Dirac_exclusive_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis antisym_conv
             Dirac_exclusive_implication_completeness

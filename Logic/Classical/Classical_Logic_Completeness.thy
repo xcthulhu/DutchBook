@@ -90,13 +90,14 @@ next
   case (Implication \<psi> \<chi>)
   thus ?case
     unfolding strong_classical_propositional_deduction_def
-    by (metis assms
-              maximally_consistent_set_def
-              formula_maximally_consistent_set_def_implication
-              classical_propositional_semantics.simps(2)
-              implication_classical_propositional_formula_def
-              set_deduction_modus_ponens
-              set_deduction_reflection)
+    by (metis 
+          assms
+          maximally_consistent_set_def
+          formula_maximally_consistent_set_def_implication
+          classical_propositional_semantics.simps(2)
+          implication_classical_propositional_formula_def
+          set_deduction_modus_ponens
+          set_deduction_reflection)
 qed
 
 theorem classical_propositional_calculus_strong_soundness_and_completeness:
@@ -191,7 +192,8 @@ theorem (in classical_logic) propositional_calculus:
 
 theorem (in classical_logic) propositional_semantics:
   "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<turnstile> \<^bold>\<lparr> \<phi> \<^bold>\<rparr>"
-  by (simp add: classical_propositional_calculus_soundness_and_completeness
-                propositional_calculus)
+  by (simp add: 
+        classical_propositional_calculus_soundness_and_completeness
+        propositional_calculus)
 
 end

@@ -29,7 +29,7 @@ session DutchBook = "HOL" +
     "HOL.Transcendental"
   theories
     "Probability/Logical/Suppes_Theorem"
-    "Probability/Boolean_Algebra/Finitely_Additive_Probability"
+    "Probability/Boolean_Algebra/Finite_Probability"
     "Probability/Logical/Logical_Probability_Completeness"
     "Probability/Logical/Dutch_Book"
   document_files
