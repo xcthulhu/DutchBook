@@ -142,7 +142,7 @@ proof -
     by simp
 qed
 
-subsection \<open> Maximally Consistent Sets For Classical Logic\<close>
+subsection \<open> Maximally Consistent Sets For Classical Logic \label{subsec:mcs}\<close>
 
 text \<open> \<^emph>\<open>Relativized\<close> maximally consistent sets were introduced in
        \S\ref{sec:implicational-maximally-consistent-sets}.

@@ -92,7 +92,14 @@ definition theory_propositions ::
   where
     [simp]: "\<^bold>\<lbrace> \<Gamma> \<^bold>\<rbrace> = {p . \<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p Proposition p}"
 
-text \<open> TODO: cite modal logic, and give reference to previous MCS stuff \<close>
+text \<open> Below we give the main lemma for completeness: the \<^emph>\<open>truth lemma\<close>.
+       This proof connects the maximally consistent sets developed in \S\ref{sec:implicational-maximally-consistent-sets}
+       and \S\ref{subsec:mcs} with the semantics given in
+       \S\ref{subsec:propositional-semantics}. \<close>
+
+text \<open> All together, the technique we are using essentially follows
+       Blackburn et al.'s approach in \<^emph>\<open>Modal Logic\<close> (2001, \S 4.2, pgs. 
+       196-201) @{cite blackburnCanonicalModels2001}. \<close>
 
 lemma truth_lemma:
   assumes "MCS \<Gamma>"
@@ -116,6 +123,10 @@ next
           set_deduction_modus_ponens
           set_deduction_reflection)
 qed
+
+text \<open> Here the truth lemma above is combined with @{thm formula_maximally_consistent_extension}
+ proven in \S\ref{subsec:propositional-semantics}.  These theorems together 
+  give rise to completeness for the propositional calculus. \<close>
 
 theorem classical_propositional_calculus_strong_soundness_and_completeness:
   "\<Gamma> \<tturnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> = \<Gamma> \<TTurnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
