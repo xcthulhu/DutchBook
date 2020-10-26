@@ -2,11 +2,19 @@
 
 section \<open> Classical Logic Connectives \label{sec:logical-connectives}\<close>
 
+text \<open> Here the usual connectives for logic are given.  \<close>
+
 theory Classical_Connectives
   imports
     Classical_Logic_Completeness
     "../../Utilities/List_Utilities"
 begin
+
+text \<open> It elegant to use axiom classes for each connective and 
+       have the @{class classical_logic} class extend those classes.  
+       However, this would have complicated the completeness proof 
+       provided in \S\ref{subsec:classical-logic-completeness}. Instead,
+       typical definitions of logical symbols are provided. \<close>
 
 sledgehammer_params [smt_proofs = false]
 

@@ -12,7 +12,10 @@ sledgehammer_params [smt_proofs = false]
 
 section \<open> Definition of Probability Logic \label{sec:definition-of-probability-logic} \<close>
 
-text \<open> TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary Theory of Probability" \<close>
+text \<open> Probability logic is defined in terms of an operator over 
+       classical logic obeying certain axioms. Scholars often credit 
+       George Boole for first conceiving this formulation @{cite booleChapterXVITheory1853}. 
+       Theodore Hailperin in particular has written extensively on this subject .TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary Theory of Probability" \<close>
 
 class logical_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"

@@ -71,7 +71,7 @@ theorem classical_propositional_calculus_soundness:
   "\<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<Longrightarrow> \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi>"
   by (induct rule: classical_propositional_calculus.induct, simp+)
 
-subsection \<open> Soundness and Completeness Proofs \<close>
+subsection \<open> Soundness and Completeness Proofs \label{subsec:classical-logic-completeness}\<close>
 
 definition strong_classical_propositional_deduction ::
   "'a classical_propositional_formula set

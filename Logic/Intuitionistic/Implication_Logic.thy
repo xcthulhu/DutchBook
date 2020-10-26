@@ -40,7 +40,7 @@ subsection \<open> Axiomatization \<close>
 text \<open> Implication logic can be given by the a Hilbert-style
        axiom system, following Troelstra and Schwichtenberg's
        \<^emph>\<open>Basic Proof Theory\<close> (1999, \S 1.3.9, pg. 33)
-       @{cite troelstraBasicProofTheory2000}. \<close>
+       @{cite troelstraBasicProofTheory2000a}. \<close>
 
 class implication_logic =
   fixes deduction :: "'a \<Rightarrow> bool" ("\<turnstile> _" [60] 55)

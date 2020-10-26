@@ -1,10 +1,14 @@
 (*:maxLineLen=78:*)
 
+section \<open>Probability Logic Completeness\<close>
+
 theory Logical_Probability_Completeness
   imports Logical_Probability
 begin
 
 sledgehammer_params [smt_proofs = false]
+
+subsection \<open> Segmented Deduction \<close>
 
 definition uncurry :: "('a \<Rightarrow> 'b \<Rightarrow> 'c) \<Rightarrow> 'a \<times> 'b \<Rightarrow> 'c"
   where uncurry_def [simp]: "uncurry f = (\<lambda> (x, y). f x y)"
@@ -13,16 +17,18 @@ primrec (in classical_logic)
   segmented_deduction :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" ("_ $\<turnstile> _" [60,100] 60)
   where
     "\<Gamma> $\<turnstile> [] = True"
-  | "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma> \<and>
-                           map (uncurry (\<squnion>)) \<Psi> :\<turnstile> \<phi> \<and>
-                           map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
+  | "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = 
+       (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma>
+                 \<and> map (uncurry (\<squnion>)) \<Psi> :\<turnstile> \<phi>
+                 \<and> map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
 
 definition (in implication_logic)
   stronger_theory_relation :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<preceq>" 100)
   where
-    "\<Sigma> \<preceq> \<Gamma> = (\<exists> \<Phi>. map snd \<Phi> = \<Sigma> \<and>
-                    mset (map fst \<Phi>) \<subseteq># mset \<Gamma> \<and>
-                    (\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
+    "\<Sigma> \<preceq> \<Gamma> = 
+       (\<exists> \<Phi>. map snd \<Phi> = \<Sigma> 
+            \<and> mset (map fst \<Phi>) \<subseteq># mset \<Gamma> 
+            \<and> (\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
 
 abbreviation (in implication_logic)
   stronger_theory_relation_op :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<succeq>" 100)
@@ -4643,7 +4649,7 @@ proof -
     by (metis append_Nil2 stratified_segmented_deduction_replicate)
 qed
 
-(**************************************)
+subsection \<open>MaxSAT\<close>
 
 definition (in implication_logic) unproving_core :: "'a list \<Rightarrow> 'a \<Rightarrow> 'a list set" ("\<C>")
   where
