@@ -99,7 +99,7 @@ text \<open> Below we give the main lemma for completeness: the \<^emph>\<open>t
 
 text \<open> All together, the technique we are using essentially follows
        Blackburn et al.'s approach in \<^emph>\<open>Modal Logic\<close> (2001, \S 4.2, pgs.
-       196-201) @{cite blackburnCanonicalModels2001}. \<close>
+       196-201) @{cite blackburnSectionCanonicalModels2001}. \<close>
 
 lemma truth_lemma:
   assumes "MCS \<Gamma>"

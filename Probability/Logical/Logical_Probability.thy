@@ -14,8 +14,16 @@ section \<open> Definition of Probability Logic \label{sec:definition-of-probabi
 
 text \<open> Probability logic is defined in terms of an operator over 
        classical logic obeying certain axioms. Scholars often credit 
-       George Boole for first conceiving this formulation @{cite booleChapterXVITheory1853}. 
-       Theodore Hailperin in particular has written extensively on this subject .TODO: Hailperin "Probability Valued Logic", Kolmogorov "Elementary Theory of Probability" \<close>
+       George Boole for first conceiving this kind of formulation @{cite booleChapterXVITheory1853}. 
+       Theodore Hailperin in particular has written extensively on this subject 
+       @{cite hailperinBooleLogicProbability1986 
+         and hailperinProbabilityLogic1984 
+         and hailperinSententialProbabilityLogic1996}. \<close>
+
+text \<open> The presentation below roughly follows Kolmogorov's axiomatization 
+       @{cite kolmogoroffChapterElementareWahrscheinlichkeitsrechnung1933}.
+       A key difference is that we only require \<^emph>\<open>finite additivity\<close>, rather
+       than \<^emph>\<open>countable additivity\<close>. \<close>
 
 class logical_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -26,7 +34,10 @@ class logical_probability = classical_logic +
 
 subsection \<open> Why Finitely Additive Logic? \<close>
 
-text \<open> TODO: cite Tarski, argue we won't be able to use SMT solvers. \<close>
+text \<open> Finite additivity is employed in our axiomatization of 
+      @{class logical_probability} out of apparent necessity. A theorem of 
+      Horn and Tarski establishes that there can be no \<open>\<sigma>\<close>-measure over a 
+      countable atomless Boolean algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}.\<close>
 
 text \<open> TODO: Discuss the value of traditional probability theory and cite Bouffon's needle. @{cite eberlBuffonNeedleProblem2017}\<close>
 

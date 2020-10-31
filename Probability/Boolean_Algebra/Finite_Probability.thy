@@ -25,7 +25,7 @@ class \<P> =
 
 subsection \<open> Definition of Finitely Additive Probability \<close>
 
-text \<open> TODO: cite @{cite booleChapterXVIIGeneral1853}, @{cite broderickBooleanAlgebraProbability1940}, ``Elementary Theory of Probability'' @{cite kolmogoroffGrundbegriffeWahrscheinlichkeitsrechnung1933} \<close>
+text \<open> TODO: cite @{cite booleChapterXVIIGeneral1853}, @{cite broderickBooleanAlgebraProbability1940}, ``Elementary Theory of Probability'' @{cite kolmogoroffChapterElementareWahrscheinlichkeitsrechnung1933} \<close>
 
 class finitely_additive_probability = \<P> + boolean_algebra +
   assumes probability_non_negative: "\<P> \<phi> \<ge> 0"
