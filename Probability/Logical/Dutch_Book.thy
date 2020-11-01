@@ -174,7 +174,7 @@ next
     by simp
 qed
 
-lemma (in Consistent_classical_logic) minimum_payoff_existence:
+lemma (in consistent_classical_logic) minimum_payoff_existence:
   "\<exists>! x. (\<exists> p \<in> possibilities. \<pi> p bets = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q bets)"
 proof (rule ex_ex1I)
   show "\<exists>x. (\<exists>p\<in>possibilities. \<pi> p bets = x) \<and> (\<forall>q\<in>possibilities. x \<le> \<pi> q bets)"
@@ -280,7 +280,7 @@ next
   thus "x = y" by linarith
 qed
 
-definition (in Consistent_classical_logic)
+definition (in consistent_classical_logic)
   minimum_payoff :: "'a book \<Rightarrow> real" ("\<pi>\<^sub>m\<^sub>i\<^sub>n") where
   "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
 
@@ -318,7 +318,7 @@ section \<open> Market Dutch Book Theorems \label{sec:dutch-book-theorem} \<clos
 
 subsection \<open> MaxSat Reduction \label{subsec:dutch-book-maxsat-reduction} \<close>
 
-theorem (in Consistent_classical_logic) dutch_book_maxsat:
+theorem (in consistent_classical_logic) dutch_book_maxsat:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (  MaxSat [bet b . b \<leftarrow> sells'\<^sup>\<sim> @ buys'] + (k :: real)
       \<le> total_amount buys' + length sells' - total_amount sells')"
@@ -554,7 +554,7 @@ next
     by auto
 qed
 
-lemma (in Consistent_classical_logic) nonstrict_dutch_book:
+lemma (in consistent_classical_logic) nonstrict_dutch_book:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
@@ -590,7 +590,7 @@ proof -
     by (meson dirac_measures_subset dirac_ceiling dirac_collapse subset_eq)
 qed
 
-lemma (in Consistent_classical_logic) strict_dutch_book:
+lemma (in consistent_classical_logic) strict_dutch_book:
   "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
@@ -644,7 +644,7 @@ next
     using \<open>0 < \<epsilon>\<close> by linarith
 qed
 
-theorem (in Consistent_classical_logic) dutch_book:
+theorem (in consistent_classical_logic) dutch_book:
   "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
    = (\<forall> Pr \<in> logical_probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells'

@@ -23,7 +23,7 @@ class classical_logic = implication_logic +
 
 text \<open> In some cases it is useful to assume consistency as an axiom: \<close>
 
-class Consistent_classical_logic = classical_logic +
+class consistent_classical_logic = classical_logic +
   assumes consistency: "\<not> \<turnstile> \<bottom>"
 
 subsection \<open> Common Rules \<close>

@@ -7785,7 +7785,7 @@ section \<open>\textsc{MaxSat} Completeness For Probability Inequality Identitie
 (* TODO: Cite that conference paper on probabilistic satisfaction where
          this is remarked at the end *)
 
-lemma (in Consistent_classical_logic) binary_inequality_elim:
+lemma (in consistent_classical_logic) binary_inequality_elim:
   assumes "\<forall> Pr \<in> dirac_measures.
                 (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     shows "(MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
@@ -7927,12 +7927,12 @@ qed
 
 (* TODO: Rename me *)
 
-lemma (in Consistent_classical_logic) binary_inequality_equiv:
+lemma (in consistent_classical_logic) binary_inequality_equiv:
    "(\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
       = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   using binary_inequality_elim binary_inequality_intro consistency by auto
 
-lemma (in Consistent_classical_logic) probability_inequality_equiv:
+lemma (in consistent_classical_logic) probability_inequality_equiv:
    "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
       = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   unfolding dirac_collapse

@@ -207,7 +207,7 @@ theorem classical_propositional_calculus_soundness_and_completeness:
   by metis
 
 instantiation classical_propositional_formula
-  :: (type) Consistent_classical_logic
+  :: (type) consistent_classical_logic
 begin
 instance by standard
   (simp add: classical_propositional_calculus_soundness_and_completeness)

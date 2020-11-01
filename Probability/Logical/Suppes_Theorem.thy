@@ -97,13 +97,14 @@ lemma (in logical_probability) exclusive_sum_list_identity:
 proof (induct \<Phi>)
   case Nil
   then show ?case
-    by (simp add: Antithesis)
+    by (simp add: weatherson_antithesis)
 next
   case (Cons \<phi> \<Phi>)
   assume "\<turnstile> \<Coprod> (\<phi> # \<Phi>)"
   hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" "\<turnstile> \<Coprod> \<Phi>" by simp+
   hence "Pr (\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + Pr (\<Squnion> \<Phi>)"
-        "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" using Cons.hyps Additivity by auto
+        "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" 
+    using Cons.hyps additivity by auto
   hence "Pr (\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" by auto
   thus ?case by simp
 qed
@@ -142,7 +143,7 @@ proof -
         moreover
         {
           assume "\<psi> \<in> set \<Phi>"
-          from \<open>\<psi> \<in> set \<Phi>\<close> have "set \<Phi> = insert \<psi> (set (removeAll \<psi> \<Phi>))"
+          hence "set \<Phi> = insert \<psi> (set (removeAll \<psi> \<Phi>))"
             by auto
           with \<open>set \<Phi> \<subseteq> set (\<psi> # \<Psi>)\<close> have "set (removeAll \<psi> \<Phi>) \<subseteq> set \<Psi>"
             by (metis
@@ -176,10 +177,11 @@ lemma count_remove_all_sum_list:
   shows "real (count_list xs x) * f x + (\<Sum>x'\<leftarrow>(removeAll x xs). f x')
            = (\<Sum>x\<leftarrow>xs. f x)"
   by (induct xs, simp, simp,
-      metis (no_types, hide_lams)
-            semiring_normalization_rules(3)
-            add.commute
-            add.left_commute)
+      metis 
+        (no_types, hide_lams)
+        semiring_normalization_rules(3)
+        add.commute
+        add.left_commute)
 
 lemma (in classical_logic) Dirac_exclusive_implication_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
@@ -197,34 +199,42 @@ proof -
   moreover
   {
     assume "\<not> \<turnstile> \<Coprod> \<Phi>"
-    hence "(\<exists> \<phi> \<in> set \<Phi>. \<exists> \<psi> \<in> set \<Phi>. \<phi> \<noteq> \<psi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)) \<or> (\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>)"
+    hence "(\<exists> \<phi> \<in> set \<Phi>. \<exists> \<psi> \<in> set \<Phi>. 
+              \<phi> \<noteq> \<psi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)) \<or> (\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>)"
       using exclusive_equivalence set_deduction_base_theory by blast
     hence "\<not> (\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>)"
     proof (elim disjE)
       assume "\<exists> \<phi> \<in> set \<Phi>. \<exists> \<chi> \<in> set \<Phi>. \<phi> \<noteq> \<chi> \<and> \<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
       from this obtain \<phi> and \<chi>
-        where \<phi>\<chi>_properties: "\<phi> \<in> set \<Phi>" "\<chi> \<in> set \<Phi>" "\<phi> \<noteq> \<chi>" "\<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
+        where \<phi>\<chi>_properties: 
+          "\<phi> \<in> set \<Phi>" 
+          "\<chi> \<in> set \<Phi>" 
+          "\<phi> \<noteq> \<chi>" 
+          "\<not> \<turnstile> \<sim> (\<phi> \<sqinter> \<chi>)"
         by blast
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> (\<phi> \<sqinter> \<chi>) \<notin> \<Omega>"
-        by (meson insert_subset
-                formula_consistent_def
-                formula_maximal_consistency
-                formula_maximally_consistent_extension
-                formula_maximally_consistent_set_def_def
-                set_deduction_base_theory
-                set_deduction_reflection
-                set_deduction_theorem)
+        by (meson 
+              insert_subset
+              formula_consistent_def
+              formula_maximal_consistency
+              formula_maximally_consistent_extension
+              formula_maximally_consistent_set_def_def
+              set_deduction_base_theory
+              set_deduction_reflection
+              set_deduction_theorem)
       let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "\<phi> \<in> \<Omega>" "\<chi> \<in> \<Omega>"
-         by (metis formula_maximally_consistent_set_def_implication
-                   maximally_consistent_set_def
-                   conjunction_def
-                   negation_def)+
-      with \<phi>\<chi>_properties have "(\<Sum>\<phi>\<leftarrow>[\<phi>, \<chi>]. ?\<delta> \<phi>) = 2"
-                              "set [\<phi>, \<chi>] \<subseteq> set \<Phi>"
-                              "distinct [\<phi>, \<chi>]"
-                              "\<forall>\<phi>. ?\<delta> \<phi> \<ge> 0"
-         by simp+
+        by (metis 
+              formula_maximally_consistent_set_def_implication
+              maximally_consistent_set_def
+              conjunction_def
+              negation_def)+
+      with \<phi>\<chi>_properties have 
+          "(\<Sum>\<phi>\<leftarrow>[\<phi>, \<chi>]. ?\<delta> \<phi>) = 2"
+          "set [\<phi>, \<chi>] \<subseteq> set \<Phi>"
+          "distinct [\<phi>, \<chi>]"
+          "\<forall>\<phi>. ?\<delta> \<phi> \<ge> 0"
+        by simp+
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" using sum_list_monotone by metis
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" by auto
       thus ?thesis
@@ -233,21 +243,25 @@ proof -
     next
       assume "\<exists> \<phi> \<in> duplicates \<Phi>. \<not> \<turnstile> \<sim> \<phi>"
       from this obtain \<phi> where \<phi>: "\<phi> \<in> duplicates \<Phi>" "\<not> \<turnstile> \<sim> \<phi>"
-        using exclusive_equivalence [where \<Gamma>="{}"] set_deduction_base_theory
+        using 
+          exclusive_equivalence [where \<Gamma>="{}"] 
+          set_deduction_base_theory
         by blast
       from \<phi> obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<sim> \<phi> \<notin> \<Omega>"
-        by (meson insert_subset
-                  formula_consistent_def
-                  formula_maximal_consistency
-                  formula_maximally_consistent_extension
-                  formula_maximally_consistent_set_def_def
-                  set_deduction_base_theory
-                  set_deduction_reflection
-                  set_deduction_theorem)
+        by (meson 
+              insert_subset
+              formula_consistent_def
+              formula_maximal_consistency
+              formula_maximally_consistent_extension
+              formula_maximally_consistent_set_def_def
+              set_deduction_base_theory
+              set_deduction_reflection
+              set_deduction_theorem)
       hence "\<phi> \<in> \<Omega>"
         using negation_def by auto
       let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
-      from \<phi> have "count_list \<Phi> \<phi> \<ge> 2" using duplicates_alt_def [where xs="\<Phi>"]
+      from \<phi> have "count_list \<Phi> \<phi> \<ge> 2" 
+        using duplicates_alt_def [where xs="\<Phi>"]
         by blast
       hence "real (count_list \<Phi> \<phi>) * ?\<delta> \<phi> \<ge> 2" using \<open>\<phi> \<in> \<Omega>\<close> by simp
       moreover
@@ -256,9 +270,11 @@ proof -
         have "(\<Sum>\<phi>\<leftarrow>\<Psi>. ?\<delta> \<phi>) \<ge> 0" by (induct \<Psi>, simp, simp)
       }
       moreover have "(0::real) \<le> (\<Sum>a\<leftarrow>removeAll \<phi> \<Phi>. if a \<in> \<Omega> then 1 else 0)"
-        using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close> by presburger
+        using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close> 
+        by presburger
       ultimately have "real (count_list \<Phi> \<phi>) * ?\<delta> \<phi> + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?\<delta> \<phi>) \<ge> 2"
-        using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close> by linarith
+        using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close> 
+        by linarith
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
       hence "\<not> (\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<le> ?\<delta> (\<psi>)" by auto
       thus ?thesis
@@ -269,18 +285,21 @@ proof -
   moreover
   {
     assume "\<not> \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
-    from this obtain \<Omega> \<phi> where \<Omega>: "MCS \<Omega>"
-                            and \<psi>: "\<psi> \<notin> \<Omega>"
-                            and \<phi>: "\<phi> \<in> set \<Phi>" "\<phi> \<in> \<Omega>"
-      by (meson insert_subset
-                formula_consistent_def
-                formula_maximal_consistency
-                formula_maximally_consistent_extension
-                formula_maximally_consistent_set_def_def
-                arbitrary_disjunction_exclusion_MCS
-                set_deduction_base_theory
-                set_deduction_reflection
-                set_deduction_theorem)
+    from this obtain \<Omega> \<phi> 
+      where
+        \<Omega>: "MCS \<Omega>"
+        and \<psi>: "\<psi> \<notin> \<Omega>"
+        and \<phi>: "\<phi> \<in> set \<Phi>" "\<phi> \<in> \<Omega>"
+      by (meson 
+            insert_subset
+            formula_consistent_def
+            formula_maximal_consistency
+            formula_maximally_consistent_extension
+            formula_maximally_consistent_set_def_def
+            arbitrary_disjunction_exclusion_MCS
+            set_deduction_base_theory
+            set_deduction_reflection
+            set_deduction_theorem)
     let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
     from \<phi> have "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 1"
     proof (induct \<Phi>)
@@ -305,14 +324,16 @@ proof -
 qed
 
 theorem (in classical_logic) exclusive_implication_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  "(\<forall> Pr \<in> logical_probabilities. 
+     (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
   thus ?rhs
-    by (meson Dirac_exclusive_implication_completeness
-              dirac_measures_subset
-              subset_eq)
+    by (meson 
+          Dirac_exclusive_implication_completeness
+          dirac_measures_subset
+          subset_eq)
 next
   assume ?rhs
   show ?lhs
@@ -323,9 +344,10 @@ next
       unfolding logical_probabilities_def
       by simp
     show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
-      using \<open>?rhs\<close>
-            exclusive_sum_list_identity
-            monotonicity
+      using 
+        \<open>?rhs\<close>
+        exclusive_sum_list_identity
+        monotonicity
       by fastforce
   qed
 qed
@@ -337,11 +359,12 @@ proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
   hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
-    by (metis arbitrary_disjunction.simps(1)
-              arbitrary_disjunction.simps(2)
-              disjunction_def implication_equivalence
-              negation_def
-              weak_biconditional_weaken)
+    by (metis 
+          arbitrary_disjunction.simps(1)
+          arbitrary_disjunction.simps(2)
+          disjunction_def implication_equivalence
+          negation_def
+          weak_biconditional_weaken)
   thus ?thesis
     using Dirac_exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
     by auto
@@ -353,11 +376,12 @@ proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
   hence "(\<turnstile> \<Coprod> [\<phi>] \<and>  \<turnstile> \<Squnion> [\<phi>] \<rightarrow> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
-    by (metis arbitrary_disjunction.simps(1)
-              arbitrary_disjunction.simps(2)
-              disjunction_def implication_equivalence
-              negation_def
-              weak_biconditional_weaken)
+    by (metis 
+          arbitrary_disjunction.simps(1)
+          arbitrary_disjunction.simps(2)
+          disjunction_def implication_equivalence
+          negation_def
+          weak_biconditional_weaken)
   thus ?thesis
     using exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
     by simp
@@ -365,37 +389,43 @@ qed
 
 lemma (in classical_logic) Dirac_exclusive_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
-  by (metis antisym_conv
-            Dirac_exclusive_implication_completeness
-            Dirac_list_summation_completeness
-            trivial_implication)
+  by (metis 
+        antisym_conv
+        Dirac_exclusive_implication_completeness
+        Dirac_list_summation_completeness
+        trivial_implication)
 
 theorem (in classical_logic) Exclusive_list_summation_completeness:
   "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
-  by (metis antisym_conv
-            exclusive_implication_completeness
-            list_summation_completeness
-            trivial_implication)
+  by (metis 
+        antisym_conv
+        exclusive_implication_completeness
+        list_summation_completeness
+        trivial_implication)
 
 lemma (in classical_logic) Dirac_exclusive_set_summation_completeness:
-  "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
-  by (metis (mono_tags, hide_lams)
-            eq_iff
-            Dirac_exclusive_implication_completeness
-            Dirac_set_summation_completeness
-            trivial_implication
-            set_remdups
-            sum.set_conv_list)
+  "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>)) 
+      = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  by (metis 
+        (mono_tags, hide_lams)
+        eq_iff
+        Dirac_exclusive_implication_completeness
+        Dirac_set_summation_completeness
+        trivial_implication
+        set_remdups
+        sum.set_conv_list)
 
 theorem (in classical_logic) Exclusive_set_summation_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
-  by (metis (mono_tags, hide_lams)
-            eq_iff
-            exclusive_implication_completeness
-            set_summation_completeness
-            trivial_implication
-            set_remdups
-            sum.set_conv_list)
+  "(\<forall> Pr \<in> logical_probabilities. 
+        Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
+  by (metis 
+        (mono_tags, hide_lams)
+        eq_iff
+        exclusive_implication_completeness
+        set_summation_completeness
+        trivial_implication
+        set_remdups
+        sum.set_conv_list)
 
 lemma (in logical_probability) exclusive_list_set_inequality:
   assumes "\<turnstile> \<Coprod> \<Phi>"
@@ -415,15 +445,17 @@ proof -
     by blast
   ultimately have
     "(\<forall>\<phi>\<in>duplicates (remdups \<Phi>). \<turnstile> \<sim> \<phi>)
-   \<and> (\<forall> \<phi> \<in> set (remdups \<Phi>). \<forall> \<psi> \<in> set (remdups \<Phi>). (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
+   \<and> (\<forall> \<phi> \<in> set (remdups \<Phi>). \<forall> \<psi> \<in> set (remdups \<Phi>). 
+          (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
     by auto
   hence "\<turnstile> \<Coprod> (remdups \<Phi>)"
     by (meson exclusive_equivalence set_deduction_base_theory)
   hence "(\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>) = Pr (\<Squnion> \<Phi>)"
-    by (metis arbitrary_disjunction_remdups
-              biconditional_equivalence
-              exclusive_sum_list_identity
-              sum.set_conv_list)
+    by (metis 
+          arbitrary_disjunction_remdups
+          biconditional_equivalence
+          exclusive_sum_list_identity
+          sum.set_conv_list)
   moreover have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = Pr (\<Squnion> \<Phi>)"
     by (simp add: assms exclusive_sum_list_identity)
   ultimately show ?thesis by metis
