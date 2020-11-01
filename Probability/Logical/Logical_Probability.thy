@@ -16,8 +16,8 @@ text \<open> Probability logic is defined in terms of an operator over
        classical logic obeying certain axioms. Scholars often credit 
        George Boole for first conceiving this kind of formulation @{cite booleChapterXVITheory1853}. 
        Theodore Hailperin in particular has written extensively on this subject 
-       @{cite hailperinBooleLogicProbability1986 
-         and hailperinProbabilityLogic1984 
+       @{cite hailperinProbabilityLogic1984
+         and hailperinBooleLogicProbability1986 
          and hailperinSententialProbabilityLogic1996}. \<close>
 
 text \<open> The presentation below roughly follows Kolmogorov's axiomatization 
