@@ -29,7 +29,7 @@ text \<open> TODO: cite @{cite booleChapterXVIIGeneral1853}, @{cite broderickBoo
 
 class finitely_additive_probability = \<P> + boolean_algebra +
   assumes probability_non_negative: "\<P> \<phi> \<ge> 0"
-  assumes Unity: "\<P> \<top> = 1"
+  assumes probability_unity: "\<P> \<top> = 1"
   assumes finite_additivity: "\<phi> \<sqinter> \<psi> = \<bottom> \<Longrightarrow> \<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
 
 context boolean_algebra begin
@@ -162,7 +162,7 @@ proof
     next
       fix \<phi>
       show "\<top> = \<phi> \<Longrightarrow> \<P> \<phi> = 1"
-        using Unity by blast
+        using probability_unity by blast
     next
       fix \<phi> \<psi>
       assume "\<top> = (\<phi> \<Rightarrow> \<psi> \<Rightarrow> \<bottom>)"
@@ -191,7 +191,7 @@ next
         by (simp add: probability_non_negative)
     next
       show "\<P> \<top> = 1"
-        using Unity by blast
+        using probability_unity by blast
     next
       fix \<phi> \<psi>
       assume "\<phi> \<sqinter> \<psi> = \<bottom>"
@@ -306,7 +306,7 @@ proof -
     unfolding probabilities_def
     by auto
   note \<P>_probability_non_negative = probability_non_negative
-  note \<P>_Unity = Unity
+  note \<P>_probability_unity = probability_unity
   note \<P>_finite_additivity = finite_additivity
   from assms interpret finitely_additive_probability \<Q>
     unfolding probabilities_def
@@ -319,7 +319,7 @@ proof -
       by (simp add: \<P>_probability_non_negative probability_non_negative \<open>0 \<le> \<alpha>\<close> \<open>\<alpha> \<le> 1\<close>)
   next
     show "\<alpha> * \<P> \<top> + (1 - \<alpha>) * \<Q> \<top> = 1"
-      using \<P>_Unity Unity by auto
+      using \<P>_probability_unity probability_unity by auto
   next
     fix \<phi> \<psi>
     assume "\<phi> \<sqinter> \<psi> = \<bottom>"
@@ -440,7 +440,7 @@ lemmas Antithesis = Antithesis
 lemma complementation: "\<P> (- \<phi>) = 1 - \<P> \<phi>"
   by (metis add_diff_cancel_left'
             finite_additivity
-            Unity
+            probability_unity
             inf_compl_bot
             sup_compl_top)
 
@@ -451,7 +451,7 @@ lemma finite_certainty:
 proof (induct A rule: finite_induct)
   case empty
   show "\<P> (Finite_Set.fold (\<sqinter>) \<top> {}) = 1"
-    by (simp add: Unity)
+    by (simp add: probability_unity)
 next
   case (insert a A)
   have \<star>: "\<P> (Finite_Set.fold (\<sqinter>) \<top> (insert a A))
@@ -593,7 +593,7 @@ proof -
       by fastforce
     hence "\<delta> (y \<squnion> z) = 1"
       by (metis
-            Unity
+            probability_unity
             monotonicity
             sup.cobounded2
             sup_top_left
@@ -980,7 +980,7 @@ next
       using
         join_prime_decomposition [where \<phi>="\<top>"]
         \<open>\<P> \<in> probabilities\<close>
-        Unity
+        probability_unity
       by auto
     hence "  (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>)) + \<lceil>c\<rceil>
           \<le> (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"

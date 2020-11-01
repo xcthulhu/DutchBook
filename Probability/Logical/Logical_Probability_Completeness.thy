@@ -7281,7 +7281,7 @@ proof -
         unfolding dirac_measures_def
         by auto
       from Pr(2) have "real (length \<Phi>) > (\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) + (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
-        by (simp add: Unity)
+        by (simp add: probability_unity)
       moreover have "(\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) = real (length \<Phi>) - (\<Sum>\<gamma>\<leftarrow> \<Phi>. Pr \<gamma>)"
         using complementation
         by (induct \<Phi>, auto)
@@ -7471,7 +7471,7 @@ qed
 lemma (in logical_probability) probability_replicate_verum:
   fixes n :: nat
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n = (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>)"
-  using Unity
+  using probability_unity
   by (induct n, auto)
 
 lemma (in classical_logic) dirac_collapse:

@@ -28,7 +28,7 @@ text \<open> The presentation below roughly follows Kolmogorov's axiomatization
 class logical_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes probability_non_negative: "Pr \<phi> \<ge> 0"
-  assumes Unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
+  assumes probability_unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
 
@@ -65,7 +65,7 @@ lemma (in logical_probability) alternate_additivity:
 lemma (in logical_probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis alternate_additivity
-            Unity
+            probability_unity
             bivalence
             negation_elimination
             add.commute
@@ -201,13 +201,13 @@ qed
 sublocale logical_probability \<subseteq> weatherson_probability
 proof
   show "Pr \<top> = 1"
-    by (simp add: Unity)
+    by (simp add: probability_unity)
 next
   show "Pr \<bottom> = 0"
     by (metis add_cancel_left_right
             Additivity
             ex_falso_quodlibet
-            Unity
+            probability_unity
             bivalence
             conjunction_right_elimination
             negation_def)
@@ -225,7 +225,7 @@ qed
 
 sublocale logical_probability \<subseteq> Consistent_classical_logic
 proof
-  show "\<not> \<turnstile> \<bottom>" using Unity Antithesis by auto
+  show "\<not> \<turnstile> \<bottom>" using probability_unity Antithesis by auto
 qed
 
 lemma (in logical_probability) subtraction_identity:
