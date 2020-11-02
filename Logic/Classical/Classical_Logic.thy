@@ -154,9 +154,9 @@ text \<open> \<^emph>\<open>Relativized\<close> maximally consistent sets were i
 text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\<close> is maximally
        consistent if and only if  \<^term>\<open>\<not> (\<Gamma> \<tturnstile> \<bottom>)\<close> and
        \<^term>\<open>\<forall> \<psi>. \<psi> \<in> \<Gamma> \<or> (\<psi> \<rightarrow> \<phi>) \<in> \<Gamma>\<close>. This conventional presentation
-       will come up when formulating \textsc{MaxSat} in
+       will come up when formulating \textsc{MaxSAT} in
        \S\ref{sec:abstract-maxsat}. This in turn allows us to formulate
-       \textsc{MaxSat} completeness for probability inequalities in
+       \textsc{MaxSAT} completeness for probability inequalities in
        \S\ref{sec:maxsat-completeness} and a form of the
         \<^emph>\<open>Dutch Book Theorem\<close> in \S\ref{subsec:dutch-book-maxsat-reduction}.\<close>
 

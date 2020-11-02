@@ -4871,15 +4871,15 @@ next
   qed
 qed
 
-section \<open> Abstract \textsc{MaxSat} \label{sec:abstract-maxsat} \<close>
+section \<open> Abstract \textsc{MaxSAT} \label{sec:abstract-maxsat} \<close>
 
 definition (in implication_logic) core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<bar> _ \<bar>\<^sub>_" [45])
   where
     "(\<bar> \<Gamma> \<bar>\<^sub>\<phi>) = (if \<C> \<Gamma> \<phi> = {} then 0 else Max { length \<Phi> | \<Phi>. \<Phi> \<in> \<C> \<Gamma> \<phi> })"
 
-abbreviation (in classical_logic) MaxSat :: "'a list \<Rightarrow> nat"
+abbreviation (in classical_logic) MaxSAT :: "'a list \<Rightarrow> nat"
   where
-    "MaxSat \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
+    "MaxSAT \<Gamma> \<equiv> \<bar> \<Gamma> \<bar>\<^sub>\<bottom>"
 
 definition (in implication_logic) complement_core_size :: "'a list \<Rightarrow> 'a \<Rightarrow> nat" ("\<parallel> _ \<parallel>\<^sub>_" [45])
   where
@@ -7780,7 +7780,7 @@ next
   thus ?case using Suc by simp
 qed
 
-section \<open>\textsc{MaxSat} Completeness For Probability Inequality Identities \label{sec:maxsat-completeness}\<close>
+section \<open>\textsc{MaxSAT} Completeness For Probability Inequality Identities \label{sec:maxsat-completeness}\<close>
 
 (* TODO: Cite that conference paper on probabilistic satisfaction where
          this is remarked at the end *)
@@ -7788,7 +7788,7 @@ section \<open>\textsc{MaxSat} Completeness For Probability Inequality Identitie
 lemma (in consistent_classical_logic) binary_inequality_elim:
   assumes "\<forall> Pr \<in> dirac_measures.
                 (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-    shows "(MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+    shows "(MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
 proof (cases "c \<ge> 0")
   case True
   from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
@@ -7845,7 +7845,7 @@ next
 qed
 
 lemma (in classical_logic) binary_inequality_intro:
-  assumes "MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>"
+  assumes "MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>"
   shows "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof (cases "\<turnstile> \<bottom>")
   assume "\<turnstile> \<bottom>"
@@ -7929,12 +7929,12 @@ qed
 
 lemma (in consistent_classical_logic) binary_inequality_equiv:
    "(\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + (c :: real) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-      = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+      = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   using binary_inequality_elim binary_inequality_intro consistency by auto
 
 lemma (in consistent_classical_logic) probability_inequality_equiv:
    "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
-      = (MaxSat (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
+      = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   unfolding dirac_collapse
   using binary_inequality_equiv dirac_ceiling by blast
 
