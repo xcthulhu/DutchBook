@@ -1168,7 +1168,7 @@ next
     using segmented_deduction.simps(2) by blast
 qed
 
-lemma (in logical_probability) segmented_deduction_summation_introduction:
+lemma (in probability_logic) segmented_deduction_summation_introduction:
   assumes "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
 proof -
@@ -7091,7 +7091,7 @@ next
   ultimately show ?thesis by metis
 qed
 
-lemma (in logical_probability) list_probability_upper_bound:
+lemma (in probability_logic) list_probability_upper_bound:
   "(\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>) \<le> real (length \<Gamma>)"
 proof (induct \<Gamma>)
   case Nil
@@ -7111,7 +7111,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding dirac_measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)"
@@ -7165,7 +7165,7 @@ proof -
       from \<Omega> have "?Pr \<in> dirac_measures"
         using MCS_Dirac_measure by blast
       moreover
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
         unfolding dirac_measures_def
         by auto
       have "\<forall> \<phi> \<in> set \<Phi>. ?Pr \<phi> = 0"
@@ -7250,7 +7250,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding dirac_measures_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
@@ -7277,7 +7277,7 @@ proof -
         "real (length \<Phi>) * Pr \<top> > (\<Sum>\<gamma>\<leftarrow> (\<^bold>\<sim> \<Phi> @ \<Gamma>). Pr \<gamma>)"
         using binary_limited_stratified_deduction_completeness
         by fastforce
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding dirac_measures_def
         by auto
       from Pr(2) have "real (length \<Phi>) > (\<Sum>\<gamma>\<leftarrow> \<^bold>\<sim> \<Phi>. Pr \<gamma>) + (\<Sum>\<gamma>\<leftarrow> \<Gamma>. Pr \<gamma>)"
@@ -7298,7 +7298,7 @@ proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> logical_probabilities"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding logical_probabilities_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
@@ -7468,7 +7468,7 @@ proof -
   thus ?thesis by blast
 qed
 
-lemma (in logical_probability) probability_replicate_verum:
+lemma (in probability_logic) probability_replicate_verum:
   fixes n :: nat
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n = (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>)"
   using probability_unity
@@ -7499,7 +7499,7 @@ next
     {
       fix Pr
       assume "Pr \<in> dirac_measures"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding dirac_measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7518,7 +7518,7 @@ next
     {
       fix Pr
       assume "Pr \<in> logical_probabilities"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding logical_probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7537,7 +7537,7 @@ next
     {
       fix Pr
       assume "Pr \<in> dirac_measures"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding dirac_measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7556,7 +7556,7 @@ next
     {
       fix Pr
       assume "Pr \<in> logical_probabilities"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding logical_probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
@@ -7796,7 +7796,7 @@ proof (cases "c \<ge> 0")
   {
     fix Pr
     assume "Pr \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding dirac_measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7824,7 +7824,7 @@ next
   {
     fix Pr
     assume "Pr \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding dirac_measures_def
       by auto
     have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7852,7 +7852,7 @@ proof (cases "\<turnstile> \<bottom>")
   {
     fix Pr
     assume "Pr \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding dirac_measures_def
       by auto
     have "False"
@@ -7880,7 +7880,7 @@ next
     {
       fix Pr
       assume "Pr \<in> dirac_measures"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding dirac_measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7908,7 +7908,7 @@ next
     {
       fix Pr
       assume "Pr \<in> dirac_measures"
-      from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+      from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
         unfolding dirac_measures_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"

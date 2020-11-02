@@ -14,7 +14,7 @@ proof -
   {
     fix \<delta> :: "'a \<Rightarrow> real"
     assume "\<delta> \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
       unfolding dirac_measures_def
       by auto
     assume "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -64,7 +64,7 @@ next
   proof
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> logical_probabilities"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding logical_probabilities_def
       by auto
     show "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
@@ -90,7 +90,7 @@ theorem (in classical_logic) set_summation_completeness:
             list_summation_completeness
             sum.set_conv_list)
 
-lemma (in logical_probability) exclusive_sum_list_identity:
+lemma (in probability_logic) exclusive_sum_list_identity:
   assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
   using assms
@@ -189,7 +189,7 @@ proof -
   {
     fix \<delta>
     assume "\<delta> \<in> dirac_measures"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "\<delta>"
       unfolding dirac_measures_def
       by simp
     assume "\<turnstile> \<Coprod> \<Phi>" "\<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>"
@@ -340,7 +340,7 @@ next
   proof
     fix Pr :: "'a \<Rightarrow> real"
     assume "Pr \<in> logical_probabilities"
-    from this interpret logical_probability "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
       unfolding logical_probabilities_def
       by simp
     show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
@@ -427,7 +427,7 @@ theorem (in classical_logic) Exclusive_set_summation_completeness:
         set_remdups
         sum.set_conv_list)
 
-lemma (in logical_probability) exclusive_list_set_inequality:
+lemma (in probability_logic) exclusive_list_set_inequality:
   assumes "\<turnstile> \<Coprod> \<Phi>"
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) = (\<Sum>\<phi>\<in>set \<Phi>. Pr \<phi>)"
 proof -

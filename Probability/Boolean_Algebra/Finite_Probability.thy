@@ -144,9 +144,9 @@ lemmas double_negation = double_negation
 lemmas modus_ponens = modus_ponens
 
 lemma probabilities_alt_def:
-  "probabilities = { \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
+  "probabilities = { \<P>. class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
 proof
-  show "probabilities \<subseteq> { \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
+  show "probabilities \<subseteq> { \<P>. class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
   proof
     fix \<P>
     assume "\<P> \<in> probabilities"
@@ -154,7 +154,7 @@ proof
       finitely_additive_probability \<P>
       unfolding probabilities_def
       by auto
-    have "class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
+    have "class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
     proof standard
       fix \<phi>
       show "0 \<le> \<P> \<phi>"
@@ -173,14 +173,14 @@ proof
         unfolding residual_def
         by (simp add: finite_additivity)
     qed
-    thus "\<P> \<in> { \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }" by auto
+    thus "\<P> \<in> { \<P>. class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }" by auto
   qed
 next
-  show "{ \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> } \<subseteq> probabilities"
+  show "{ \<P>. class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> } \<subseteq> probabilities"
   proof
     fix \<P>
-    assume "\<P> \<in> { \<P>. class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
-    from this interpret logical_probability "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
+    assume "\<P> \<in> { \<P>. class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P> }"
+    from this interpret probability_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
       by auto
     have
       "class.finitely_additive_probability
@@ -213,7 +213,7 @@ definition dirac_measures where
 
 lemma dirac_measures_alt_def:
   "dirac_measures =
-     { \<delta>. class.logical_probability
+     { \<delta>. class.probability_logic
             ((=) \<top>) (\<Rightarrow>) \<bottom> \<delta> \<and> (\<forall>x. \<delta> x = 0 \<or> \<delta> x = 1) }"
   unfolding dirac_measures_def
             probabilities_alt_def
@@ -224,7 +224,7 @@ lemma join_prime_to_dirac_measure:
   shows "(\<lambda> \<phi>. if \<alpha> \<le> \<phi> then 1 else 0) \<in> dirac_measures"
   (is "?\<delta> \<in> dirac_measures")
 proof -
-  have "class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> ?\<delta>"
+  have "class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> ?\<delta>"
   proof standard
     fix \<phi>
     show "0 \<le> ?\<delta> \<phi>"
@@ -336,7 +336,7 @@ end
 
 context finitely_additive_probability begin
 
-interpretation logical_probability "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
+interpretation probability_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
 proof -
   have "class.finitely_additive_probability
           \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top>"
@@ -344,7 +344,7 @@ proof -
   hence "\<P> \<in> probabilities"
     unfolding probabilities_def
     by auto
-  thus "class.logical_probability ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
+  thus "class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
     unfolding probabilities_alt_def
     by blast
 qed

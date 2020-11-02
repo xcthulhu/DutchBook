@@ -25,7 +25,7 @@ text \<open> The presentation below roughly follows Kolmogorov's axiomatization
        A key difference is that we only require \<^emph>\<open>finite additivity\<close>, rather
        than \<^emph>\<open>countable additivity\<close>. \<close>
 
-class logical_probability = classical_logic +
+class probability_logic = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
   assumes probability_non_negative: "Pr \<phi> \<ge> 0"
   assumes probability_unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
@@ -37,7 +37,7 @@ subsection \<open> Why Finite Additivity? \<close>
 
 text \<open> In this section we briefly touch on why we have chosen to
        employ finite additivity in our axiomatization of
-       @{class logical_probability} and deviate from conventional
+       @{class probability_logic} and deviate from conventional
        probability theory. The argument here is essentially due to
        Giaangiacomo Gerla @{cite \<open>Section 3\<close> gerlaInferencesProbabilityLogic1994}. \<close>
 
@@ -50,7 +50,7 @@ text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>cou
        which amounts to mere \<^emph>\<open>finite additivity\<close>. \<close>
 
 text \<open> Requiring an analogue of countable additivity in
-       @{class logical_probability} would prevent us from establishing
+       @{class probability_logic} would prevent us from establishing
        the Dutch book theorem from Chapter \ref{chap:dutch-book-theorem}
        in certain practical settings. \<close>
 
@@ -78,7 +78,7 @@ text \<open> But a software trading system might use data structures
 text \<open> Hence, if we insist on countably additivity then the Dutch Book theorem
        presented in \S\ref{subsec:probability-dutch-book} cannot be obtained
        for certain programs we may reasonably wish to write. Not only
-       is our formulation in @{class logical_probability} suitable for
+       is our formulation in @{class probability_logic} suitable for
        obtaining the Dutch book theorem, it is not obvious what more we can
        demand and still obtain our result. \<close>
 
@@ -143,7 +143,7 @@ class weatherson_probability = classical_logic +
   assumes weatherson_monotonicity: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
   assumes weatherson_sum_rule: "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
 
-sublocale weatherson_probability \<subseteq> logical_probability
+sublocale weatherson_probability \<subseteq> probability_logic
 proof
   fix \<phi>
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
@@ -179,7 +179,7 @@ next
           weak_biconditional_weaken)
 qed
 
-lemma (in logical_probability) monotonicity:
+lemma (in probability_logic) monotonicity:
   "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
 proof -
   assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
@@ -199,7 +199,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in logical_probability) biconditional_equivalence:
+lemma (in probability_logic) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
   by (meson
         eq_iff
@@ -208,7 +208,7 @@ lemma (in logical_probability) biconditional_equivalence:
         biconditional_right_elimination
         monotonicity)
 
-lemma (in logical_probability) sum_rule:
+lemma (in probability_logic) sum_rule:
   "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
 proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
@@ -273,7 +273,7 @@ proof -
     by simp
 qed
 
-sublocale logical_probability \<subseteq> weatherson_probability
+sublocale probability_logic \<subseteq> weatherson_probability
 proof
   show "Pr \<top> = 1"
     by (simp add: probability_unity)
@@ -299,12 +299,12 @@ next
     by (metis sum_rule add.commute)
 qed
 
-sublocale logical_probability \<subseteq> consistent_classical_logic
+sublocale probability_logic \<subseteq> consistent_classical_logic
 proof
   show "\<not> \<turnstile> \<bottom>" using probability_unity weatherson_antithesis by auto
 qed
 
-lemma (in logical_probability) subtraction_identity:
+lemma (in probability_logic) subtraction_identity:
   "Pr (\<phi> \<setminus> \<psi>) = Pr \<phi> - Pr (\<phi> \<sqinter> \<psi>)"
 proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
@@ -342,7 +342,7 @@ proof -
     by auto
 qed
 
-lemma (in logical_probability) disjunction_sum_inequality:
+lemma (in probability_logic) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
 proof -
   have "Pr (\<phi> \<squnion> \<psi>) + Pr (\<phi> \<sqinter> \<psi>) = Pr \<phi> + Pr \<psi>"
@@ -351,7 +351,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in logical_probability)
+lemma (in probability_logic)
   arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
@@ -366,7 +366,7 @@ next
   then show ?case by simp
 qed
 
-lemma (in logical_probability) implication_list_summation_inequality:
+lemma (in probability_logic) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
   using
@@ -376,7 +376,7 @@ lemma (in logical_probability) implication_list_summation_inequality:
     order_trans
   by blast
 
-lemma (in logical_probability)
+lemma (in probability_logic)
   arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (metis
@@ -385,7 +385,7 @@ lemma (in logical_probability)
         biconditional_equivalence
         sum.set_conv_list)
 
-lemma (in logical_probability) implication_set_summation_inequality:
+lemma (in probability_logic) implication_set_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
   using
@@ -397,11 +397,11 @@ lemma (in logical_probability) implication_set_summation_inequality:
 
 definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real) set"
   where "logical_probabilities =
-         {Pr. class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
+         {Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
   where "dirac_measures =
-         { Pr.   class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
+         { Pr.   class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
 lemma (in classical_logic) dirac_measures_subset:
@@ -414,7 +414,7 @@ lemma (in classical_logic) MCS_Dirac_measure:
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> dirac_measures"
       (is "?Pr \<in> dirac_measures")
 proof -
-  have "class.logical_probability (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
+  have "class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
          meson assms
                formula_maximally_consistent_set_def_reflection
