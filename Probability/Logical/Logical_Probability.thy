@@ -31,6 +31,7 @@ class logical_probability = classical_logic +
   assumes probability_unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
+begin
 
 subsection \<open> Why Finite Additivity? \<close>
 
@@ -44,7 +45,8 @@ text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>cou
        Roughly, it states if \<open>?S\<close> is a countable set of sets which are
        pairwise disjoint, then the limit \<open>\<Sum> s \<in> ?S. Pr s\<close> exists and
        \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than
-       @{thm logical_probability.probability_implicational_additivity},
+       @{lemma \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>\<close> 
+          by (metis probability_implicational_additivity) },
        which amounts to mere \<^emph>\<open>finite additivity\<close>. \<close>
 
 text \<open> Requiring an analogue of countable additivity in
@@ -52,21 +54,21 @@ text \<open> Requiring an analogue of countable additivity in
        the Dutch book theorem from Chapter \ref{chap:dutch-book-theorem}
        in certain practical settings. \<close>
 
-text \<open> A theorem of Horn and Tarski establishes that there can be
-       no \<open>\<sigma>\<close>-measure over a countable atomless Boolean
-       algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}. \<close>
+text \<open> The reason boils down to a theorem of Horn and Tarski,
+       which establishes that there can be no \<open>\<sigma>\<close>-measure over a countable 
+       atomless Boolean algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}. \<close>
 
-text \<open> In particular, the type @{typ "'a classical_propositional_formula"}
-       does not have a \<open>\<sigma>\<close>-measure in general. The quotient type of
-       @{typ "'a classical_propositional_formula"} under
-       @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra, known
-       as the \<^emph>\<open>Lindenbaum algebra\<close>.  In the case of
+text \<open> In particular, this means the type @{typ "'a classical_propositional_formula"}
+       does not have a corresponding \<open>\<sigma>\<close>-measure in general. Specifically, 
+       the quotient type of @{typ "'a classical_propositional_formula"} 
+       under @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra, 
+       known as the \<^emph>\<open>Lindenbaum algebra\<close>.  In the case of
        @{typ "nat classical_propositional_formula"} this algebra is countable,
        and hence has no \<open>\<sigma>\<close>-measure. \<close>
 
 text \<open> But a software trading system might use data structures
        like @{typ "'a classical_propositional_formula"} when analyzing
-       fixed odds gambling markets as described in
+       fixed odds gambling markets. We go into detail regarding this in
        \S\ref{sec:fixed-odds-markets}.  Both \<^emph>\<open>Haskell\<close> and
        \<^emph>\<open>Rust\<close> allow for declaring data types like @{typ "'a classical_propositional_formula"}.
        These languages share a heritage from ML languages just like
@@ -75,20 +77,20 @@ text \<open> But a software trading system might use data structures
 
 text \<open> Hence, if we insist on countably additivity then the Dutch Book theorem
        presented in \S\ref{subsec:probability-dutch-book} cannot be obtained
-       for certain programs we may reasonably wish to write. So not only
+       for certain programs we may reasonably wish to write. Not only
        is our formulation in @{class logical_probability} suitable for
        obtaining the Dutch book theorem, it is not obvious what more we can
        demand and still obtain our result. \<close>
 
 text \<open> The above argument is not intended as a refutation of conventional
        probability theory. It is simply an impossibility result with respect
-       to our Dutch book theorem. Plenty of classic results
+       to our Dutch book theorem. Plenty of classic results in probability
        rely on countable additivity. A nice example recently formalized in
        Isabelle/HOL is Bouffon's needle @{cite eberlBuffonNeedleProblem2017}. \<close>
 
 subsection \<open> Basic Properties of Probability Logic \<close>
 
-lemma (in logical_probability) additivity:
+lemma additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -98,7 +100,7 @@ lemma (in logical_probability) additivity:
     negation_def
   by (simp add: probability_implicational_additivity)
 
-lemma (in logical_probability) alternate_additivity:
+lemma alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -109,7 +111,7 @@ lemma (in logical_probability) alternate_additivity:
         conjunction_def
         negation_def)
 
-lemma (in logical_probability) complementation:
+lemma complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis
         alternate_additivity
@@ -119,9 +121,15 @@ lemma (in logical_probability) complementation:
         add.commute
         add_diff_cancel_left')
 
-lemma (in logical_probability) unity_upper_bound:
+lemma unity_upper_bound:
   "Pr \<phi> \<le> 1"
-  by (metis (no_types) diff_ge_0_iff_ge probability_non_negative complementation)
+  by (metis 
+        (no_types) 
+        diff_ge_0_iff_ge 
+        probability_non_negative 
+        complementation)
+
+end
 
 subsection \<open> Alternate Definition \<close>
 
