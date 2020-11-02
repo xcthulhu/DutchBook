@@ -1,6 +1,6 @@
 (*:maxLineLen=78:*)
 
-chapter \<open>Dutch Book Theorem\<close>
+chapter \<open>Dutch Book Theorem \label{chap:dutch-book-theorem}\<close>
 
 theory Dutch_Book
   imports
@@ -8,6 +8,8 @@ theory Dutch_Book
     "Logical_Probability_Completeness"
     "HOL.Real"
 begin
+
+section \<open> Fixed Odds Markets \label{sec:fixed-odds-markets} \<close>
 
 record 'p bet_offer =
   bet :: 'p
@@ -48,10 +50,11 @@ lemma payoff_alt_def2:
 (* TODO: Cite Lehman *)
 
 definition (in classical_logic) possibility :: "('a \<Rightarrow> bool) \<Rightarrow> bool" where
-  [simp]: "possibility p \<equiv>    \<not> (p \<bottom>)
-                           \<and> (\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> p \<phi>)
-                           \<and> (\<forall> \<phi> \<psi> . p (\<phi> \<rightarrow> \<psi>) \<longrightarrow> p \<phi> \<longrightarrow> p \<psi>)
-                           \<and> (\<forall> \<phi> . p \<phi> \<or> p (\<phi> \<rightarrow> \<bottom>))"
+  [simp]: "possibility p \<equiv>
+                \<not> (p \<bottom>)
+              \<and> (\<forall> \<phi>. \<turnstile> \<phi> \<longrightarrow> p \<phi>)
+              \<and> (\<forall> \<phi> \<psi> . p (\<phi> \<rightarrow> \<psi>) \<longrightarrow> p \<phi> \<longrightarrow> p \<psi>)
+              \<and> (\<forall> \<phi> . p \<phi> \<or> p (\<phi> \<rightarrow> \<bottom>))"
 
 definition (in classical_logic) possibilities :: "('a \<Rightarrow> bool) set" where
   [simp]: "possibilities = {p. possibility p}"
@@ -107,13 +110,14 @@ lemma (in classical_logic) possibilities_are_MCS:
   assumes "possibility p"
   shows "MCS {x. p x}"
   using assms
-  by (metis (mono_tags, lifting)
-            formula_consistent_def
-            formula_maximally_consistent_set_def_def
-            maximally_consistent_set_def
-            possibilities_logical_closure
-            possibility_def
-            mem_Collect_eq)
+  by (metis
+        (mono_tags, lifting)
+        formula_consistent_def
+        formula_maximally_consistent_set_def_def
+        maximally_consistent_set_def
+        possibilities_logical_closure
+        possibility_def
+        mem_Collect_eq)
 
 lemma (in classical_logic) MCSs_are_possibilities:
   assumes "MCS s"
@@ -314,9 +318,9 @@ lemma settle_alt_def: "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \
   unfolding settle_def settle_bet_def
   by (induct bets, simp+)
 
-section \<open> Market Dutch Book Theorems \label{sec:dutch-book-theorem} \<close>
+section \<open> Dutch Book Theorems \label{sec:dutch-book-theorem} \<close>
 
-subsection \<open> MaxSat Reduction \label{subsec:dutch-book-maxsat-reduction} \<close>
+subsection \<open> MaxSAT Dutch Book \label{subsec:dutch-book-maxsat-reduction} \<close>
 
 theorem (in consistent_classical_logic) dutch_book_maxsat:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
@@ -553,6 +557,8 @@ next
     using \<open>k \<le> \<pi> ?p ?bets\<close>
     by auto
 qed
+
+subsection \<open> Probability Dutch Book \label{subsec:probability-dutch-book} \<close>
 
 lemma (in consistent_classical_logic) nonstrict_dutch_book:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)

@@ -1,6 +1,6 @@
 (*:maxLineLen=78:*)
 
-chapter \<open> Logical Foundations \<close>
+chapter \<open> Logical Foundations \label{chap:logical-foundations}\<close>
 
 text \<open> The logical formulation of probability presented in
        \S\ref{chapter:probability} relies essentially on automated

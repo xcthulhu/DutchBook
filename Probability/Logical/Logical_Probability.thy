@@ -12,15 +12,15 @@ sledgehammer_params [smt_proofs = false]
 
 section \<open> Definition of Probability Logic \label{sec:definition-of-probability-logic} \<close>
 
-text \<open> Probability logic is defined in terms of an operator over 
-       classical logic obeying certain axioms. Scholars often credit 
-       George Boole for first conceiving this kind of formulation @{cite booleChapterXVITheory1853}. 
-       Theodore Hailperin in particular has written extensively on this subject 
+text \<open> Probability logic is defined in terms of an operator over
+       classical logic obeying certain axioms. Scholars often credit
+       George Boole for first conceiving this kind of formulation @{cite booleChapterXVITheory1853}.
+       Theodore Hailperin in particular has written extensively on this subject
        @{cite hailperinProbabilityLogic1984
-         and hailperinBooleLogicProbability1986 
+         and hailperinBooleLogicProbability1986
          and hailperinSententialProbabilityLogic1996}. \<close>
 
-text \<open> The presentation below roughly follows Kolmogorov's axiomatization 
+text \<open> The presentation below roughly follows Kolmogorov's axiomatization
        @{cite kolmogoroffChapterElementareWahrscheinlichkeitsrechnung1933}.
        A key difference is that we only require \<^emph>\<open>finite additivity\<close>, rather
        than \<^emph>\<open>countable additivity\<close>. \<close>
@@ -32,14 +32,59 @@ class logical_probability = classical_logic +
   assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
 
-subsection \<open> Why Finitely Additive Logic? \<close>
+subsection \<open> Why Finite Additivity? \<close>
 
-text \<open> Finite additivity is employed in our axiomatization of 
-      @{class logical_probability} out of apparent necessity. A theorem of 
-      Horn and Tarski establishes that there can be no \<open>\<sigma>\<close>-measure over a 
-      countable atomless Boolean algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}.\<close>
+text \<open> In this section we briefly touch on why we have chosen to
+       employ finite additivity in our axiomatization of
+       @{class logical_probability} and deviate from conventional
+       probability theory. The argument here is essentially due to
+       Giaangiacomo Gerla @{cite \<open>Section 3\<close> gerlaInferencesProbabilityLogic1994}. \<close>
 
-text \<open> TODO: Discuss the value of traditional probability theory and cite Bouffon's needle. @{cite eberlBuffonNeedleProblem2017}\<close>
+text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>countable additivity\<close>.
+       Roughly, it states if \<open>?S\<close> is a countable set of sets which are
+       pairwise disjoint, then the limit \<open>\<Sum> s \<in> ?S. Pr s\<close> exists and
+       \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than
+       @{thm logical_probability.probability_implicational_additivity},
+       which amounts to mere \<^emph>\<open>finite additivity\<close>. \<close>
+
+text \<open> Requiring an analogue of countable additivity in
+       @{class logical_probability} would prevent us from establishing
+       the Dutch book theorem from Chapter \ref{chap:dutch-book-theorem}
+       in certain practical settings. \<close>
+
+text \<open> A theorem of Horn and Tarski establishes that there can be
+       no \<open>\<sigma>\<close>-measure over a countable atomless Boolean
+       algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}. \<close>
+
+text \<open> In particular, the type @{typ "'a classical_propositional_formula"}
+       does not have a \<open>\<sigma>\<close>-measure in general. The quotient type of
+       @{typ "'a classical_propositional_formula"} under
+       @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra, known
+       as the \<^emph>\<open>Lindenbaum algebra\<close>.  In the case of
+       @{typ "nat classical_propositional_formula"} this algebra is countable,
+       and hence has no \<open>\<sigma>\<close>-measure. \<close>
+
+text \<open> But a software trading system might use data structures
+       like @{typ "'a classical_propositional_formula"} when analyzing
+       fixed odds gambling markets as described in
+       \S\ref{sec:fixed-odds-markets}.  Both \<^emph>\<open>Haskell\<close> and
+       \<^emph>\<open>Rust\<close> allow for declaring data types like @{typ "'a classical_propositional_formula"}.
+       These languages share a heritage from ML languages just like
+       Isabelle/HOL. Certain implementations might even model markets
+       using data types with countable inhabitants. \<close>
+
+text \<open> Hence, if we insist on countably additivity then the Dutch Book theorem
+       presented in \S\ref{subsec:probability-dutch-book} cannot be obtained
+       for certain programs we may reasonably wish to write. So not only
+       is our formulation in @{class logical_probability} suitable for
+       obtaining the Dutch book theorem, it is not obvious what more we can
+       demand and still obtain our result. \<close>
+
+text \<open> The above argument is not intended as a refutation of conventional
+       probability theory. It is simply an impossibility result with respect
+       to our Dutch book theorem. Plenty of classic results
+       rely on countable additivity. A nice example recently formalized in
+       Isabelle/HOL is Bouffon's needle @{cite eberlBuffonNeedleProblem2017}. \<close>
 
 subsection \<open> Basic Properties of Probability Logic \<close>
 
@@ -47,7 +92,7 @@ lemma (in logical_probability) additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
-  unfolding 
+  unfolding
     disjunction_def
     conjunction_def
     negation_def
@@ -57,7 +102,7 @@ lemma (in logical_probability) alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
-  by (metis 
+  by (metis
         additivity
         double_negation_converse
         modus_ponens
@@ -66,7 +111,7 @@ lemma (in logical_probability) alternate_additivity:
 
 lemma (in logical_probability) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
-  by (metis 
+  by (metis
         alternate_additivity
         probability_unity
         bivalence
@@ -101,7 +146,7 @@ next
   fix \<phi>
   assume "\<turnstile> \<phi>"
   thus "Pr \<phi> = 1"
-    by (metis 
+    by (metis
           weatherson_thesis
           weatherson_monotonicity
           eq_iff
@@ -113,7 +158,7 @@ next
   fix \<phi> \<psi>
   assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   thus "Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
-    by (metis 
+    by (metis
           add.left_neutral
           eq_iff
           weatherson_antithesis
@@ -132,7 +177,7 @@ proof -
   assume "\<turnstile> \<phi> \<rightarrow> \<psi>"
   hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<sim> \<psi>)"
     unfolding negation_def conjunction_def
-    by (metis 
+    by (metis
           conjunction_def
           exclusion_contrapositive_equivalence
           negation_def
@@ -148,7 +193,7 @@ qed
 
 lemma (in logical_probability) biconditional_equivalence:
   "\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>"
-  by (meson 
+  by (meson
         eq_iff
         modus_ponens
         biconditional_left_elimination
@@ -161,49 +206,49 @@ proof -
   have "\<turnstile> (\<phi> \<squnion> \<psi>) \<leftrightarrow> (\<phi> \<squnion> \<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding 
+      unfolding
         classical_logic_class.subtraction_def
         classical_logic_class.negation_def
         classical_logic_class.biconditional_def
         classical_logic_class.conjunction_def
         classical_logic_class.disjunction_def
       by simp
-    hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" 
+    hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
       using propositional_semantics by blast
     thus ?thesis by simp
   qed
   moreover have "\<turnstile> \<phi> \<rightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) \<rightarrow> \<bottom>"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom>"
-      unfolding 
+      unfolding
         classical_logic_class.subtraction_def
         classical_logic_class.negation_def
         classical_logic_class.biconditional_def
         classical_logic_class.conjunction_def
         classical_logic_class.disjunction_def
       by simp
-    hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom> \<^bold>\<rparr>" 
+    hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<rightarrow> \<bottom> \<^bold>\<rparr>"
       using propositional_semantics by blast
     thus ?thesis by simp
   qed
   hence "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
-    using 
-      alternate_additivity 
-      biconditional_equivalence 
-      calculation 
+    using
+      alternate_additivity
+      biconditional_equivalence
+      calculation
     by auto
   moreover have "\<turnstile> \<psi> \<leftrightarrow> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding 
+      unfolding
         classical_logic_class.subtraction_def
         classical_logic_class.negation_def
         classical_logic_class.biconditional_def
         classical_logic_class.conjunction_def
         classical_logic_class.disjunction_def
       by auto
-    hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>" 
-      using propositional_semantics by 
+    hence "\<turnstile> \<^bold>\<lparr> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<setminus> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+      using propositional_semantics by
       blast
     thus ?thesis by simp
   qed
@@ -211,10 +256,10 @@ proof -
     unfolding subtraction_def negation_def conjunction_def
     using conjunction_def conjunction_right_elimination by auto
   hence "Pr \<psi> = Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) + Pr (\<phi> \<sqinter> \<psi>)"
-    using 
-      alternate_additivity 
-      biconditional_equivalence 
-      calculation 
+    using
+      alternate_additivity
+      biconditional_equivalence
+      calculation
     by auto
   ultimately show ?thesis
     by simp
@@ -226,7 +271,7 @@ proof
     by (simp add: probability_unity)
 next
   show "Pr \<bottom> = 0"
-    by (metis 
+    by (metis
           add_cancel_left_right
           additivity
           ex_falso_quodlibet
@@ -257,7 +302,7 @@ proof -
   have "\<turnstile> \<phi> \<leftrightarrow> ((\<phi> \<setminus> \<psi>) \<squnion> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<leftrightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<squnion> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding 
+      unfolding
         classical_logic_class.subtraction_def
         classical_logic_class.negation_def
         classical_logic_class.biconditional_def
@@ -274,7 +319,7 @@ proof -
   moreover have "\<turnstile> \<sim>((\<phi> \<setminus> \<psi>) \<sqinter> (\<phi> \<sqinter> \<psi>))"
   proof -
     have "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<sim>((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<setminus> \<^bold>\<langle>\<psi>\<^bold>\<rangle>) \<sqinter> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<psi>\<^bold>\<rangle>))"
-      unfolding 
+      unfolding
         classical_logic_class.subtraction_def
         classical_logic_class.negation_def
         classical_logic_class.conjunction_def
@@ -298,7 +343,7 @@ proof -
   thus ?thesis by linarith
 qed
 
-lemma (in logical_probability) 
+lemma (in logical_probability)
   arbitrary_disjunction_list_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
@@ -316,17 +361,17 @@ qed
 lemma (in logical_probability) implication_list_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
-  using 
-    assms 
-    arbitrary_disjunction_list_summation_inequality 
-    monotonicity 
+  using
+    assms
+    arbitrary_disjunction_list_summation_inequality
+    monotonicity
     order_trans
   by blast
 
-lemma (in logical_probability) 
+lemma (in logical_probability)
   arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
-  by (metis 
+  by (metis
         arbitrary_disjunction_list_summation_inequality
         arbitrary_disjunction_remdups
         biconditional_equivalence
@@ -335,10 +380,10 @@ lemma (in logical_probability)
 lemma (in logical_probability) implication_set_summation_inequality:
   assumes "\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   shows "Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>)"
-  using 
-    assms 
-    arbitrary_disjunction_set_summation_inequality 
-    monotonicity 
+  using
+    assms
+    arbitrary_disjunction_set_summation_inequality
+    monotonicity
     order_trans
   by blast
 

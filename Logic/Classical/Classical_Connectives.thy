@@ -10,9 +10,9 @@ theory Classical_Connectives
     "../../Utilities/List_Utilities"
 begin
 
-text \<open> It elegant to use axiom classes for each connective and 
-       have the @{class classical_logic} class extend those classes.  
-       However, this would have complicated the completeness proof 
+text \<open> It elegant to use axiom classes for each connective and
+       have the @{class classical_logic} class extend those classes.
+       However, this would have complicated the completeness proof
        provided in \S\ref{subsec:classical-logic-completeness}. Instead,
        typical definitions of logical symbols are provided. \<close>
 

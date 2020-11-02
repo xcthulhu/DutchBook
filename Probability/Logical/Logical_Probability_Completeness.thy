@@ -17,7 +17,7 @@ primrec (in classical_logic)
   segmented_deduction :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" ("_ $\<turnstile> _" [60,100] 60)
   where
     "\<Gamma> $\<turnstile> [] = True"
-  | "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) = 
+  | "\<Gamma> $\<turnstile> (\<phi> # \<Phi>) =
        (\<exists> \<Psi>. mset (map snd \<Psi>) \<subseteq># mset \<Gamma>
                  \<and> map (uncurry (\<squnion>)) \<Psi> :\<turnstile> \<phi>
                  \<and> map (uncurry (\<rightarrow>)) \<Psi> @ \<Gamma> \<ominus> (map snd \<Psi>) $\<turnstile> \<Phi>)"
@@ -25,9 +25,9 @@ primrec (in classical_logic)
 definition (in implication_logic)
   stronger_theory_relation :: "'a list \<Rightarrow> 'a list \<Rightarrow> bool" (infix "\<preceq>" 100)
   where
-    "\<Sigma> \<preceq> \<Gamma> = 
-       (\<exists> \<Phi>. map snd \<Phi> = \<Sigma> 
-            \<and> mset (map fst \<Phi>) \<subseteq># mset \<Gamma> 
+    "\<Sigma> \<preceq> \<Gamma> =
+       (\<exists> \<Phi>. map snd \<Phi> = \<Sigma>
+            \<and> mset (map fst \<Phi>) \<subseteq># mset \<Gamma>
             \<and> (\<forall> (\<gamma>,\<sigma>) \<in> set \<Phi>. \<turnstile> \<gamma> \<rightarrow> \<sigma>))"
 
 abbreviation (in implication_logic)

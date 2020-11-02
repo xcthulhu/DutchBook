@@ -161,8 +161,8 @@ text \<open> A more conventional presentation says that \<^term>\<open>\<Gamma>\
         \<^emph>\<open>Dutch Book Theorem\<close> in \S\ref{subsec:dutch-book-maxsat-reduction}.\<close>
 
 definition (in classical_logic)
-  Consistent :: "'a set \<Rightarrow> bool" where
-    [simp]: "Consistent \<Gamma> \<equiv> \<bottom>-consistent \<Gamma>"
+  consistent :: "'a set \<Rightarrow> bool" where
+    [simp]: "consistent \<Gamma> \<equiv> \<bottom>-consistent \<Gamma>"
 
 definition (in classical_logic)
   maximally_consistent_set :: "'a set \<Rightarrow> bool" ("MCS") where
@@ -208,7 +208,7 @@ proof -
     have "\<phi>-MCS \<Gamma> \<Longrightarrow> MCS \<Gamma>"
     proof -
       assume "\<phi>-MCS \<Gamma>"
-      have "Consistent \<Gamma>"
+      have "consistent \<Gamma>"
         using
           \<open>\<phi>-MCS \<Gamma>\<close>
           ex_falso_quodlibet [where \<phi>="\<phi>"]
@@ -216,7 +216,7 @@ proof -
           set_deduction_modus_ponens
         unfolding
           formula_maximally_consistent_set_def_def
-          Consistent_def
+          consistent_def
           formula_consistent_def
         by metis
       moreover {
@@ -261,7 +261,7 @@ proof -
         unfolding maximally_consistent_set_def
                   formula_maximally_consistent_set_def_def
                   formula_consistent_def
-                  Consistent_def
+                  consistent_def
         by blast
     qed
   }
