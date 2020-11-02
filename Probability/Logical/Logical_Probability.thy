@@ -45,7 +45,7 @@ text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>cou
        Roughly, it states if \<open>?S\<close> is a countable set of sets which are
        pairwise disjoint, then the limit \<open>\<Sum> s \<in> ?S. Pr s\<close> exists and
        \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than
-       @{lemma \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>\<close> 
+       @{lemma \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>\<close>
           by (metis probability_implicational_additivity) },
        which amounts to mere \<^emph>\<open>finite additivity\<close>. \<close>
 
@@ -55,13 +55,13 @@ text \<open> Requiring an analogue of countable additivity in
        in certain practical settings. \<close>
 
 text \<open> The reason boils down to a theorem of Horn and Tarski,
-       which establishes that there can be no \<open>\<sigma>\<close>-measure over a countable 
+       which establishes that there can be no \<open>\<sigma>\<close>-measure over a countable
        atomless Boolean algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}. \<close>
 
 text \<open> In particular, this means the type @{typ "'a classical_propositional_formula"}
-       does not have a corresponding \<open>\<sigma>\<close>-measure in general. Specifically, 
-       the quotient type of @{typ "'a classical_propositional_formula"} 
-       under @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra, 
+       does not have a corresponding \<open>\<sigma>\<close>-measure in general. Specifically,
+       the quotient type of @{typ "'a classical_propositional_formula"}
+       under @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra,
        known as the \<^emph>\<open>Lindenbaum algebra\<close>.  In the case of
        @{typ "nat classical_propositional_formula"} this algebra is countable,
        and hence has no \<open>\<sigma>\<close>-measure. \<close>
@@ -123,10 +123,10 @@ lemma complementation:
 
 lemma unity_upper_bound:
   "Pr \<phi> \<le> 1"
-  by (metis 
-        (no_types) 
-        diff_ge_0_iff_ge 
-        probability_non_negative 
+  by (metis
+        (no_types)
+        diff_ge_0_iff_ge
+        probability_non_negative
         complementation)
 
 end
