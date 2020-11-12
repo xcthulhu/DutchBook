@@ -33,10 +33,10 @@ class probability_logic = classical_logic +
   assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
 
-text \<open> A similar axiomatization may be credited to 
+text \<open> A similar axiomatization may be credited to
        Rescher @{cite \<open>pg. 185\<close> rescherManyvaluedLogic1969}.
-       However, our formulation has fewer axioms. 
-       While Rescher assumes \<^term>\<open>\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>\<close>, we 
+       However, our formulation has fewer axioms.
+       While Rescher assumes \<^term>\<open>\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>\<close>, we
        provide it as a lemma in \S\ref{subsec:prob-logic-alt-def}. \<close>
 
 subsection \<open> Why Finite Additivity? \<close>
@@ -501,7 +501,7 @@ lemma (in classical_logic) arbitrary_disjunction_exclusion_MCS:
 proof (induct \<Psi>)
   case Nil
   then show ?case
-    using 
+    using
       assms
       formula_consistent_def
       formula_maximally_consistent_set_def_def
@@ -512,7 +512,7 @@ next
   case (Cons \<psi> \<Psi>)
   have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
     by (simp add: disjunction_def,
-        meson 
+        meson
           assms
           formula_consistent_def
           formula_maximally_consistent_set_def_def

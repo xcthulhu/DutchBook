@@ -75,7 +75,7 @@ qed
 
 lemma (in classical_logic) Dirac_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis 
+  by (metis
         Dirac_list_summation_completeness
         modus_ponens
         arbitrary_disjunction_remdups
@@ -86,7 +86,7 @@ lemma (in classical_logic) Dirac_set_summation_completeness:
 
 theorem (in classical_logic) set_summation_completeness:
   "(\<forall> \<delta> \<in> logical_probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis 
+  by (metis
         Dirac_list_summation_completeness
         Dirac_set_summation_completeness
         list_summation_completeness
@@ -440,7 +440,7 @@ proof -
     by (induct "\<Phi>", simp, simp add: insert_absorb)
   moreover have "(\<forall>\<phi> \<in> duplicates \<Phi>. \<turnstile> \<sim> \<phi>)
                \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
-    using 
+    using
       assms
       exclusive_elimination1
       exclusive_elimination2
