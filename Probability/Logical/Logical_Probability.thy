@@ -13,7 +13,7 @@ sledgehammer_params [smt_proofs = false]
 section \<open> Definition of Probability Logic \label{sec:definition-of-probability-logic} \<close>
 
 text \<open> Probability logic is defined in terms of an operator over
-       classical logic obeying certain axioms. Scholars often credit
+       classical logic obeying certain postulates. Scholars often credit
        George Boole for first conceiving this kind of formulation @{cite booleChapterXVITheory1853}.
        Theodore Hailperin in particular has written extensively on this subject
        @{cite hailperinProbabilityLogic1984
@@ -23,7 +23,8 @@ text \<open> Probability logic is defined in terms of an operator over
 text \<open> The presentation below roughly follows Kolmogorov's axiomatization
        @{cite kolmogoroffChapterElementareWahrscheinlichkeitsrechnung1933}.
        A key difference is that we only require \<^emph>\<open>finite additivity\<close>, rather
-       than \<^emph>\<open>countable additivity\<close>. \<close>
+       than \<^emph>\<open>countable additivity\<close>. Finite additivity is also defined in terms
+       of \<^term>\<open>(\<rightarrow>)\<close>. \<close>
 
 class probability_logic = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -31,7 +32,12 @@ class probability_logic = classical_logic +
   assumes probability_unity: "\<turnstile> \<phi> \<Longrightarrow> Pr \<phi> = 1"
   assumes probability_implicational_additivity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
-begin
+
+text \<open> A similar axiomatization may be credited to 
+       Rescher @{cite \<open>pg. 185\<close> rescherManyvaluedLogic1969}.
+       However, our formulation has fewer axioms. 
+       While Rescher assumes \<^term>\<open>\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>\<close>, we 
+       provide it as a lemma in \S\ref{subsec:prob-logic-alt-def}. \<close>
 
 subsection \<open> Why Finite Additivity? \<close>
 
@@ -44,10 +50,10 @@ text \<open> In this section we briefly touch on why we have chosen to
 text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>countable additivity\<close>.
        Roughly, it states if \<open>?S\<close> is a countable set of sets which are
        pairwise disjoint, then the limit \<open>\<Sum> s \<in> ?S. Pr s\<close> exists and
-       \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than
+       \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than our
+       finite additivity axiom
        @{lemma \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>\<close>
-          by (metis probability_implicational_additivity) },
-       which amounts to mere \<^emph>\<open>finite additivity\<close>. \<close>
+          by (metis probability_implicational_additivity) }. \<close>
 
 text \<open> Requiring an analogue of countable additivity in
        @{class probability_logic} would prevent us from establishing
@@ -90,7 +96,7 @@ text \<open> The above argument is not intended as a refutation of conventional
 
 subsection \<open> Basic Properties of Probability Logic \<close>
 
-lemma additivity:
+lemma (in probability_logic) probability_additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -100,18 +106,18 @@ lemma additivity:
     negation_def
   by (simp add: probability_implicational_additivity)
 
-lemma alternate_additivity:
+lemma (in probability_logic) alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
   by (metis
-        additivity
+        probability_additivity
         double_negation_converse
         modus_ponens
         conjunction_def
         negation_def)
 
-lemma complementation:
+lemma (in probability_logic) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis
         alternate_additivity
@@ -121,7 +127,7 @@ lemma complementation:
         add.commute
         add_diff_cancel_left')
 
-lemma unity_upper_bound:
+lemma (in probability_logic) unity_upper_bound:
   "Pr \<phi> \<le> 1"
   by (metis
         (no_types)
@@ -129,12 +135,12 @@ lemma unity_upper_bound:
         probability_non_negative
         complementation)
 
-end
-
-subsection \<open> Alternate Definition \<close>
+subsection \<open> Alternate Definition of Probability Logic \label{subsec:prob-logic-alt-def} \<close>
 
 text \<open> Alternate axiomatization of logical probability following Brian Weatherson in
         https://doi.org/10.1305/ndjfl/1082637807 \<close>
+
+text \<open> Note that Gaines also provides these exact same postulates as P7, P8, and P9 (pg. 159)\<close>
 
 class weatherson_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -191,7 +197,7 @@ proof -
           negation_def
           weak_biconditional_weaken)
   hence "Pr (\<phi> \<squnion> \<sim> \<psi>) = Pr \<phi> + Pr (\<sim> \<psi>)"
-    by (simp add: additivity)
+    by (simp add: probability_additivity)
   hence "Pr \<phi> + Pr (\<sim> \<psi>) \<le> 1"
     by (metis unity_upper_bound)
   hence "Pr \<phi> + 1 - Pr \<psi> \<le> 1"
@@ -281,7 +287,7 @@ next
   show "Pr \<bottom> = 0"
     by (metis
           add_cancel_left_right
-          additivity
+          probability_additivity
           ex_falso_quodlibet
           probability_unity
           bivalence
@@ -338,7 +344,7 @@ proof -
     thus ?thesis by simp
   qed
   ultimately show ?thesis
-    using additivity
+    using probability_additivity
     by auto
 qed
 
@@ -401,7 +407,7 @@ definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real
 
 definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
   where "dirac_measures =
-         { Pr.   class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
+         { Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
 lemma (in classical_logic) dirac_measures_subset:
@@ -495,22 +501,24 @@ lemma (in classical_logic) arbitrary_disjunction_exclusion_MCS:
 proof (induct \<Psi>)
   case Nil
   then show ?case
-    using assms
-          formula_consistent_def
-          formula_maximally_consistent_set_def_def
-          maximally_consistent_set_def
-          set_deduction_reflection
+    using 
+      assms
+      formula_consistent_def
+      formula_maximally_consistent_set_def_def
+      maximally_consistent_set_def
+      set_deduction_reflection
     by (simp, blast)
 next
   case (Cons \<psi> \<Psi>)
   have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
     by (simp add: disjunction_def,
-        meson assms
-              formula_consistent_def
-              formula_maximally_consistent_set_def_def
-              formula_maximally_consistent_set_def_implication
-              maximally_consistent_set_def
-              set_deduction_reflection)
+        meson 
+          assms
+          formula_consistent_def
+          formula_maximally_consistent_set_def_def
+          formula_maximally_consistent_set_def_implication
+          maximally_consistent_set_def
+          set_deduction_reflection)
   thus ?case using Cons.hyps by simp
 qed
 

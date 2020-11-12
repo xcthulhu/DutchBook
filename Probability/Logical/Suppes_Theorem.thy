@@ -75,20 +75,22 @@ qed
 
 lemma (in classical_logic) Dirac_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis Dirac_list_summation_completeness
-            modus_ponens
-            arbitrary_disjunction_remdups
-            biconditional_left_elimination
-            biconditional_right_elimination
-            hypothetical_syllogism
-            sum.set_conv_list)
+  by (metis 
+        Dirac_list_summation_completeness
+        modus_ponens
+        arbitrary_disjunction_remdups
+        biconditional_left_elimination
+        biconditional_right_elimination
+        hypothetical_syllogism
+        sum.set_conv_list)
 
 theorem (in classical_logic) set_summation_completeness:
   "(\<forall> \<delta> \<in> logical_probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-  by (metis Dirac_list_summation_completeness
-            Dirac_set_summation_completeness
-            list_summation_completeness
-            sum.set_conv_list)
+  by (metis 
+        Dirac_list_summation_completeness
+        Dirac_set_summation_completeness
+        list_summation_completeness
+        sum.set_conv_list)
 
 lemma (in probability_logic) exclusive_sum_list_identity:
   assumes "\<turnstile> \<Coprod> \<Phi>"
@@ -104,7 +106,7 @@ next
   hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<Squnion> \<Phi>)" "\<turnstile> \<Coprod> \<Phi>" by simp+
   hence "Pr (\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + Pr (\<Squnion> \<Phi>)"
         "Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
-    using Cons.hyps additivity by auto
+    using Cons.hyps probability_additivity by auto
   hence "Pr (\<Squnion>(\<phi> # \<Phi>)) = Pr \<phi> + (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)" by auto
   thus ?case by simp
 qed
@@ -438,10 +440,11 @@ proof -
     by (induct "\<Phi>", simp, simp add: insert_absorb)
   moreover have "(\<forall>\<phi> \<in> duplicates \<Phi>. \<turnstile> \<sim> \<phi>)
                \<and> (\<forall> \<phi> \<in> set \<Phi>. \<forall> \<psi> \<in> set \<Phi>. (\<phi> \<noteq> \<psi>) \<longrightarrow> \<turnstile> \<sim> (\<phi> \<sqinter> \<psi>))"
-    using assms
-          exclusive_elimination1
-          exclusive_elimination2
-          set_deduction_base_theory
+    using 
+      assms
+      exclusive_elimination1
+      exclusive_elimination2
+      set_deduction_base_theory
     by blast
   ultimately have
     "(\<forall>\<phi>\<in>duplicates (remdups \<Phi>). \<turnstile> \<sim> \<phi>)

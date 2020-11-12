@@ -286,7 +286,8 @@ qed
 
 definition (in consistent_classical_logic)
   minimum_payoff :: "'a book \<Rightarrow> real" ("\<pi>\<^sub>m\<^sub>i\<^sub>n") where
-  "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
+  "\<pi>\<^sub>m\<^sub>i\<^sub>n b \<equiv> THE x. (\<exists> p \<in> possibilities. \<pi> p b = x) 
+                   \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q b)"
 
 lemma (in classical_logic) possibility_payoff_dual:
   assumes "possibility p"
@@ -303,9 +304,11 @@ proof (induct sells')
     by simp
 next
   case (Cons sell' sells')
-  have "p (\<sim> (bet sell')) = (\<not> (p (bet sell')))" using assms negation_def by auto
-  moreover have "total_amount ((sell' # sells') @ buys')
-                 = amount sell' + total_amount sells' + total_amount buys'"
+  have "p (\<sim> (bet sell')) = (\<not> (p (bet sell')))" 
+    using assms negation_def by auto
+  moreover have 
+    "total_amount ((sell' # sells') @ buys')
+       = amount sell' + total_amount sells' + total_amount buys'"
     unfolding total_amount_def
     by (induct buys', induct sells', auto)
   ultimately show ?case
@@ -314,7 +317,8 @@ next
     by simp
 qed
 
-lemma settle_alt_def: "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \<leftarrow> bets ] . q \<phi>]"
+lemma settle_alt_def: 
+  "settle q bets = length [\<phi> \<leftarrow> [ bet b . b \<leftarrow> bets ] . q \<phi>]"
   unfolding settle_def settle_bet_def
   by (induct bets, simp+)
 
@@ -329,8 +333,11 @@ theorem (in consistent_classical_logic) dutch_book_maxsat:
   (is "(k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets) = (MaxSAT ?props + k \<le> total_amount _ + _ - _)")
 proof
   assume "k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets"
-  let ?P = "\<lambda> x . (\<exists> p \<in> possibilities. \<pi> p ?bets = x) \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q ?bets)"
-  obtain p where "possibility p" and "\<forall> q \<in> possibilities. \<pi> p ?bets \<le> \<pi> q ?bets"
+  let ?P = "\<lambda> x . (\<exists> p \<in> possibilities. \<pi> p ?bets = x) 
+                       \<and> (\<forall> q \<in> possibilities. x \<le> \<pi> q ?bets)"
+  obtain p where 
+      "possibility p" and 
+      "\<forall> q \<in> possibilities. \<pi> p ?bets \<le> \<pi> q ?bets"
     using \<open>k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n ?bets\<close>
           minimum_payoff_existence [of ?bets]
     by (metis possibilities_def mem_Collect_eq)
