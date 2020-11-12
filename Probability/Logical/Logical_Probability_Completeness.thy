@@ -3,7 +3,8 @@
 section \<open>Probability Logic Completeness\<close>
 
 theory Logical_Probability_Completeness
-  imports Logical_Probability
+  imports
+    Logical_Probability
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -7133,34 +7134,38 @@ proof -
     have "\<exists> Pr \<in> dirac_measures. real n * Pr \<phi> > (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     proof -
       have "\<exists>\<Phi>. \<Phi> \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
-        using \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close>
-              unproving_core_existence
-              stratified_deduction_tautology_weaken
+        using
+          \<open>\<not> \<^bold>\<sim> \<Gamma> #\<turnstile> n (\<sim> \<phi>)\<close>
+          unproving_core_existence
+          stratified_deduction_tautology_weaken
         by blast
       from this obtain \<Phi> where \<Phi>:
         "(\<^bold>\<sim> \<Phi>) \<in> \<C> (\<^bold>\<sim> \<Gamma>) (\<sim> \<phi>)"
         "mset \<Phi> \<subseteq># mset \<Gamma>"
         unfolding map_negation_def
-        by (metis (mono_tags, lifting)
-                  unproving_core_def
-                  mem_Collect_eq
-                  mset_sub_map_list_exists)
-      hence "\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Phi>"
-        using biconditional_weaken
-              list_deduction_def
-              map_negation_list_implication
-              set_deduction_base_theory
+        by (metis
+              (mono_tags, lifting)
               unproving_core_def
+              mem_Collect_eq
+              mset_sub_map_list_exists)
+      hence "\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Phi>"
+        using
+          biconditional_weaken
+          list_deduction_def
+          map_negation_list_implication
+          set_deduction_base_theory
+          unproving_core_def
         by blast
       from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Phi> \<notin> \<Omega>"
-        by (meson insert_subset
-                  formula_consistent_def
-                  formula_maximal_consistency
-                  formula_maximally_consistent_extension
-                  formula_maximally_consistent_set_def_def
-                  set_deduction_base_theory
-                  set_deduction_reflection
-                  set_deduction_theorem)
+        by (meson
+              insert_subset
+              formula_consistent_def
+              formula_maximal_consistency
+              formula_maximally_consistent_extension
+              formula_maximally_consistent_set_def_def
+              set_deduction_base_theory
+              set_deduction_reflection
+              set_deduction_theorem)
       let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "?Pr \<in> dirac_measures"
         using MCS_Dirac_measure by blast

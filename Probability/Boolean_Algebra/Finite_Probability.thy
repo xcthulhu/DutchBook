@@ -39,7 +39,7 @@ definition probabilities :: "('a \<Rightarrow> real) set"
          { \<P>. class.finitely_additive_probability
                 \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top> }"
 
-subsection \<open> Equivalence With Probability Logic \<close>
+subsection \<open> Equivalence With Probability Logic \label{subsec:boolean-algebra-probability}\<close>
 
 text \<open> The Boolean algebra formulation of finitely additive probability is
        in fact a special case of probability logic as presented in \S\ref{sec:definition-of-probability-logic}.\<close>

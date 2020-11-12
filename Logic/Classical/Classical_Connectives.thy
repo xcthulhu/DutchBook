@@ -686,6 +686,33 @@ lemma (in classical_logic) arbitrary_disjunction_remdups:
   "\<turnstile> (\<Squnion> \<Phi>) \<leftrightarrow> \<Squnion> (remdups \<Phi>)"
   by (simp add: arbitrary_disjunction_monotone biconditional_def)
 
+lemma (in classical_logic) arbitrary_disjunction_exclusion_MCS:
+  assumes "MCS \<Omega>"
+  shows "\<Squnion> \<Psi> \<notin> \<Omega> \<equiv> \<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
+proof (induct \<Psi>)
+  case Nil
+  then show ?case
+    using
+      assms
+      formula_consistent_def
+      formula_maximally_consistent_set_def_def
+      maximally_consistent_set_def
+      set_deduction_reflection
+    by (simp, blast)
+next
+  case (Cons \<psi> \<Psi>)
+  have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
+    by (simp add: disjunction_def,
+        meson
+          assms
+          formula_consistent_def
+          formula_maximally_consistent_set_def_def
+          formula_maximally_consistent_set_def_implication
+          maximally_consistent_set_def
+          set_deduction_reflection)
+  thus ?case using Cons.hyps by simp
+qed
+
 subsection \<open> Monotony of Conjunction and Disjunction \<close>
 
 lemma (in classical_logic) conjunction_monotonic_identity:

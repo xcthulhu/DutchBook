@@ -23,8 +23,9 @@ text \<open> Probability logic is defined in terms of an operator over
 text \<open> The presentation below roughly follows Kolmogorov's axiomatization
        @{cite kolmogoroffChapterElementareWahrscheinlichkeitsrechnung1933}.
        A key difference is that we only require \<^emph>\<open>finite additivity\<close>, rather
-       than \<^emph>\<open>countable additivity\<close>. Finite additivity is also defined in terms
-       of \<^term>\<open>(\<rightarrow>)\<close>. \<close>
+       than \<^emph>\<open>countable additivity\<close>. Finite additivity is also defined in
+       terms of \<^term>\<open>(\<rightarrow>)\<close>. This formulation is required so that
+       probability logic may be extended to Boolean algebra in \S\ref{subsec:boolean-algebra-probability}. \<close>
 
 class probability_logic = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -99,10 +100,11 @@ subsection \<open> Basic Properties of Probability Logic \<close>
 lemma (in probability_logic) probability_additivity:
   assumes "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
-  using assms
+  using
+    assms
   unfolding
-    disjunction_def
     conjunction_def
+    disjunction_def
     negation_def
   by (simp add: probability_implicational_additivity)
 
@@ -137,10 +139,13 @@ lemma (in probability_logic) unity_upper_bound:
 
 subsection \<open> Alternate Definition of Probability Logic \label{subsec:prob-logic-alt-def} \<close>
 
-text \<open> Alternate axiomatization of logical probability following Brian Weatherson in
-        https://doi.org/10.1305/ndjfl/1082637807 \<close>
-
-text \<open> Note that Gaines also provides these exact same postulates as P7, P8, and P9 (pg. 159)\<close>
+text \<open> There is an alternate axiomatization of logical probability,
+       due to Brian Gaines @{cite \<open>pg. 159, postulates P7, P8, and P8\<close> gainesFuzzyProbabilityUncertainty1978}
+       and independently formulated by Brian Weatherson @{cite weathersonClassicalIntuitionisticProbability2003}.
+       As Weatherson notes, this axiomatization is suited to formulating
+       \<^emph>\<open>intuitionistic\<close> probability logic. In the case where the underlying
+       logic is classical this is simply equivalent to the traditional
+       axiomatization in \S\ref{sec:definition-of-probability-logic}. \<close>
 
 class weatherson_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
@@ -171,18 +176,19 @@ next
 next
   fix \<phi> \<psi>
   assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
+  hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
+    by (simp add: conjunction_def negation_def)
   thus "Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>"
     by (metis
-          add.left_neutral
+          add.commute
+          add.right_neutral
           eq_iff
-          weatherson_antithesis
-          ex_falso_quodlibet
-          weatherson_monotonicity
-          weatherson_sum_rule
-          conjunction_negation_identity
           disjunction_def
+          ex_falso_quodlibet
           negation_def
-          weak_biconditional_weaken)
+          weatherson_antithesis
+          weatherson_monotonicity
+          weatherson_sum_rule)
 qed
 
 lemma (in probability_logic) monotonicity:
@@ -348,6 +354,10 @@ proof -
     by auto
 qed
 
+subsection \<open> Basic Probability Logic Inequality Results \<close>
+
+(* TODO: Move to Suppes' theorem *)
+
 lemma (in probability_logic) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
 proof -
@@ -401,6 +411,8 @@ lemma (in probability_logic) implication_set_summation_inequality:
     order_trans
   by blast
 
+subsection \<open> Basic Probability Logic Inequality Results \<close>
+
 definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real) set"
   where "logical_probabilities =
          {Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
@@ -412,7 +424,9 @@ definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
 
 lemma (in classical_logic) dirac_measures_subset:
   "dirac_measures \<subseteq> logical_probabilities"
-  unfolding logical_probabilities_def dirac_measures_def
+  unfolding
+    logical_probabilities_def
+    dirac_measures_def
   by fastforce
 
 lemma (in classical_logic) MCS_Dirac_measure:
@@ -422,104 +436,77 @@ lemma (in classical_logic) MCS_Dirac_measure:
 proof -
   have "class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> ?Pr"
   proof (standard, simp,
-         meson assms
-               formula_maximally_consistent_set_def_reflection
-               maximally_consistent_set_def
-               set_deduction_weaken)
-     fix \<phi> \<psi>
-     assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
-     hence "\<turnstile> \<sim> (\<phi> \<sqinter> \<psi>)"
-       by (simp add: conjunction_def negation_def)
-     hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
-       by (metis assms
-                 formula_consistent_def
-                 formula_maximally_consistent_set_def_def
-                 maximally_consistent_set_def
-                 conjunction_def
-                 conjunction_negation_identity
-                 set_deduction_modus_ponens
-                 set_deduction_reflection
-                 set_deduction_weaken
-                 weak_biconditional_weaken)
-     hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
-       using assms
-             formula_maximally_consistent_set_def_reflection
-             maximally_consistent_set_def
-             conjunction_set_deduction_equivalence
-       by meson
+         meson
+           assms
+           formula_maximally_consistent_set_def_reflection
+           maximally_consistent_set_def
+           set_deduction_weaken)
+    fix \<phi> \<psi>
+    assume "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
+    hence "\<phi> \<sqinter> \<psi> \<notin> \<Omega>"
+      by (metis
+            assms
+            formula_consistent_def
+            formula_maximally_consistent_set_def_def
+            maximally_consistent_set_def
+            conjunction_def
+            set_deduction_modus_ponens
+            set_deduction_reflection
+            set_deduction_weaken)
+    hence "\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>"
+      using
+        assms
+        formula_maximally_consistent_set_def_reflection
+        maximally_consistent_set_def
+        conjunction_set_deduction_equivalence
+      by meson
 
-     have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
-       by (metis \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close>
-                 assms
-                 formula_maximally_consistent_set_def_implication
-                 maximally_consistent_set_def
-                 conjunction_def
-                 disjunction_def)
-     have "?Pr (\<phi> \<squnion> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
-     proof (cases "\<phi> \<squnion> \<psi> \<in> \<Omega>")
-       case True
-       hence \<diamondsuit>: "1 = ?Pr (\<phi> \<squnion> \<psi>)" by simp
-       show ?thesis
-       proof (cases "\<phi> \<in> \<Omega>")
-         case True
-         hence "\<psi> \<notin> \<Omega>"
-           using \<open>\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>\<close>
-           by blast
-         have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
-         also have "... = 1 + (0::real)" by linarith
-         also have "... = ?Pr \<phi> + ?Pr \<psi>"
-           using \<open>\<psi> \<notin> \<Omega>\<close> \<open>\<phi> \<in> \<Omega>\<close> by simp
-         finally show ?thesis .
-       next
-         case False
-         hence "\<psi> \<in> \<Omega>"
-           using \<open>\<phi> \<squnion> \<psi> \<in> \<Omega>\<close> \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close>
-           by blast
-         have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
-         also have "... = (0::real) + 1" by linarith
-         also have "... = ?Pr \<phi> + ?Pr \<psi>"
-           using \<open>\<psi> \<in> \<Omega>\<close> \<open>\<phi> \<notin> \<Omega>\<close> by simp
-         finally show ?thesis .
-       qed
-     next
-       case False
-       moreover from this have "\<phi> \<notin> \<Omega>" "\<psi> \<notin> \<Omega>"
-         using \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close> by blast+
-       ultimately show ?thesis by simp
-     qed
-     thus "?Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
-       unfolding disjunction_def .
+    have "\<phi> \<squnion> \<psi> \<in> \<Omega> = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)"
+      by (metis
+            \<open>\<phi> \<sqinter> \<psi> \<notin> \<Omega>\<close>
+            assms
+            formula_maximally_consistent_set_def_implication
+            maximally_consistent_set_def
+            conjunction_def
+            disjunction_def)
+    have "?Pr (\<phi> \<squnion> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
+    proof (cases "\<phi> \<squnion> \<psi> \<in> \<Omega>")
+      case True
+      hence \<diamondsuit>: "1 = ?Pr (\<phi> \<squnion> \<psi>)" by simp
+      show ?thesis
+      proof (cases "\<phi> \<in> \<Omega>")
+        case True
+        hence "\<psi> \<notin> \<Omega>"
+          using \<open>\<phi> \<notin> \<Omega> \<or> \<psi> \<notin> \<Omega>\<close>
+          by blast
+        have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
+        also have "... = 1 + (0::real)" by linarith
+        also have "... = ?Pr \<phi> + ?Pr \<psi>"
+          using \<open>\<psi> \<notin> \<Omega>\<close> \<open>\<phi> \<in> \<Omega>\<close> by simp
+        finally show ?thesis .
+      next
+        case False
+        hence "\<psi> \<in> \<Omega>"
+          using \<open>\<phi> \<squnion> \<psi> \<in> \<Omega>\<close> \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close>
+          by blast
+        have "?Pr (\<phi> \<squnion> \<psi>) = (1::real)" using \<diamondsuit> by simp
+        also have "... = (0::real) + 1" by linarith
+        also have "... = ?Pr \<phi> + ?Pr \<psi>"
+          using \<open>\<psi> \<in> \<Omega>\<close> \<open>\<phi> \<notin> \<Omega>\<close> by simp
+        finally show ?thesis .
+      qed
+    next
+      case False
+      moreover from this have "\<phi> \<notin> \<Omega>" "\<psi> \<notin> \<Omega>"
+        using \<open>(\<phi> \<squnion> \<psi> \<in> \<Omega>) = (\<phi> \<in> \<Omega> \<or> \<psi> \<in> \<Omega>)\<close> by blast+
+      ultimately show ?thesis by simp
+    qed
+    thus "?Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = ?Pr \<phi> + ?Pr \<psi>"
+      unfolding disjunction_def .
   qed
   thus ?thesis
     unfolding dirac_measures_def
     by simp
-qed
-
-lemma (in classical_logic) arbitrary_disjunction_exclusion_MCS:
-  assumes "MCS \<Omega>"
-  shows "\<Squnion> \<Psi> \<notin> \<Omega> \<equiv> \<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
-proof (induct \<Psi>)
-  case Nil
-  then show ?case
-    using
-      assms
-      formula_consistent_def
-      formula_maximally_consistent_set_def_def
-      maximally_consistent_set_def
-      set_deduction_reflection
-    by (simp, blast)
-next
-  case (Cons \<psi> \<Psi>)
-  have "\<Squnion> (\<psi> # \<Psi>) \<notin> \<Omega> = (\<psi> \<notin> \<Omega> \<and> \<Squnion> \<Psi> \<notin> \<Omega>)"
-    by (simp add: disjunction_def,
-        meson
-          assms
-          formula_consistent_def
-          formula_maximally_consistent_set_def_def
-          formula_maximally_consistent_set_def_implication
-          maximally_consistent_set_def
-          set_deduction_reflection)
-  thus ?case using Cons.hyps by simp
 qed
 
 end
