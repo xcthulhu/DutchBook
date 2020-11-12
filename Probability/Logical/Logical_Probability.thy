@@ -106,7 +106,7 @@ lemma (in probability_logic) probability_additivity:
     negation_def
   by (simp add: probability_implicational_additivity)
 
-lemma (in probability_logic) alternate_additivity:
+lemma (in probability_logic) probability_alternate_additivity:
   assumes "\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom>"
   shows "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr \<psi>"
   using assms
@@ -120,7 +120,7 @@ lemma (in probability_logic) alternate_additivity:
 lemma (in probability_logic) complementation:
   "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
   by (metis
-        alternate_additivity
+        probability_alternate_additivity
         probability_unity
         bivalence
         negation_elimination
@@ -247,7 +247,7 @@ proof -
   qed
   hence "Pr (\<phi> \<squnion> \<psi>) = Pr \<phi> + Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>))"
     using
-      alternate_additivity
+      probability_alternate_additivity
       biconditional_equivalence
       calculation
     by auto
@@ -271,7 +271,7 @@ proof -
     using conjunction_def conjunction_right_elimination by auto
   hence "Pr \<psi> = Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) + Pr (\<phi> \<sqinter> \<psi>)"
     using
-      alternate_additivity
+      probability_alternate_additivity
       biconditional_equivalence
       calculation
     by auto
