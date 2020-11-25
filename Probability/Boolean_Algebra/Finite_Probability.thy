@@ -6,7 +6,7 @@ section \<open>Boolean Algebra Probability\<close>
 
 theory Finite_Probability
   imports
-    "../Logical/Logical_Probability"
+    "../Logical/Probability_Logic"
     Finite_Boolean_Algebra
 begin
 
@@ -393,7 +393,7 @@ proof -
   hence "\<P> \<alpha> > 0"
     using less_eq_real_def probability_non_negative by fastforce
   hence "\<alpha> \<noteq> \<bottom>"
-    using weatherson_antithesis by auto
+    using gaines_weatherson_antithesis by auto
   moreover
   have \<star>: "\<forall> \<phi>. \<P> (\<phi> \<sqinter> \<alpha>) = (if \<alpha> \<le> \<phi> then \<P> \<alpha> else 0)"
     by (metis \<open>\<P> (\<top> \<sqinter> \<alpha>) / \<P> \<alpha> = 1\<close>
@@ -435,7 +435,7 @@ lemma monotonicity: "a \<le> b \<Longrightarrow> \<P> a \<le> \<P> b"
         sup_absorb1
         sup_cancel_left1)
 
-lemmas weatherson_antithesis = weatherson_antithesis
+lemmas gaines_weatherson_antithesis = gaines_weatherson_antithesis
 
 lemma complementation: "\<P> (- \<phi>) = 1 - \<P> \<phi>"
   by (metis add_diff_cancel_left'
@@ -487,7 +487,7 @@ lemma full_finite_additivity:
 proof (induct A rule: finite_induct)
   case empty
   then show ?case
-    using weatherson_antithesis by fastforce
+    using gaines_weatherson_antithesis by fastforce
 next
   case (insert a A)
   hence "\<forall>a' \<in> A. a \<sqinter> a' = \<bottom>"
@@ -582,7 +582,7 @@ proof -
     using finite_certainty Inf_def finite
     by presburger
   hence "?\<alpha> \<noteq> \<bottom>"
-    using weatherson_antithesis
+    using gaines_weatherson_antithesis
     by auto
   moreover
   {

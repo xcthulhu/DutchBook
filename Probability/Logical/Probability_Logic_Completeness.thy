@@ -2,9 +2,9 @@
 
 section \<open>Probability Logic Completeness\<close>
 
-theory Logical_Probability_Completeness
+theory Probability_Logic_Completeness
   imports
-    Logical_Probability
+    Probability_Logic
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -7168,7 +7168,7 @@ proof -
               set_deduction_theorem)
       let ?Pr = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
       from \<Omega> have "?Pr \<in> dirac_measures"
-        using MCS_Dirac_measure by blast
+        using MCS_dirac_measure by blast
       moreover
       from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "?Pr"
         unfolding dirac_measures_def

@@ -2,7 +2,7 @@
 
 chapter \<open> Probability Logic \label{chapter:probability} \<close>
 
-theory Logical_Probability
+theory Probability_Logic
   imports
     "../../Logic/Classical/Classical_Connectives"
     HOL.Real
@@ -40,7 +40,7 @@ text \<open> A similar axiomatization may be credited to
        While Rescher assumes \<^term>\<open>\<turnstile> \<phi> \<leftrightarrow> \<psi> \<Longrightarrow> Pr \<phi> = Pr \<psi>\<close>, we
        provide it as a lemma in \S\ref{subsec:prob-logic-alt-def}. \<close>
 
-subsection \<open> Why Finite Additivity? \<close>
+subsection \<open> Why Finite Additivity? \label{subsection:why finite additivity}\<close>
 
 text \<open> In this section we briefly touch on why we have chosen to
        employ finite additivity in our axiomatization of
@@ -147,27 +147,34 @@ text \<open> There is an alternate axiomatization of logical probability,
        logic is classical this is simply equivalent to the traditional
        axiomatization in \S\ref{sec:definition-of-probability-logic}. \<close>
 
-class weatherson_probability = classical_logic +
+class gaines_weatherson_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
-  assumes weatherson_thesis: "Pr \<top> = 1"
-  assumes weatherson_antithesis: "Pr \<bottom> = 0"
-  assumes weatherson_monotonicity: "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
-  assumes weatherson_sum_rule: "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
+  assumes gaines_weatherson_thesis: 
+    "Pr \<top> = 1"
+  assumes gaines_weatherson_antithesis: 
+    "Pr \<bottom> = 0"
+  assumes gaines_weatherson_monotonicity: 
+    "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
+  assumes gaines_weatherson_sum_rule: 
+    "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
 
-sublocale weatherson_probability \<subseteq> probability_logic
+sublocale gaines_weatherson_probability \<subseteq> probability_logic
 proof
   fix \<phi>
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
     by (simp add: ex_falso_quodlibet)
   thus "0 \<le> Pr \<phi>"
-    using weatherson_antithesis weatherson_monotonicity by fastforce
+    using 
+      gaines_weatherson_antithesis 
+      gaines_weatherson_monotonicity 
+    by fastforce
 next
   fix \<phi>
   assume "\<turnstile> \<phi>"
   thus "Pr \<phi> = 1"
     by (metis
-          weatherson_thesis
-          weatherson_monotonicity
+          gaines_weatherson_thesis
+          gaines_weatherson_monotonicity
           eq_iff
           axiom_k
           ex_falso_quodlibet
@@ -186,9 +193,9 @@ next
           disjunction_def
           ex_falso_quodlibet
           negation_def
-          weatherson_antithesis
-          weatherson_monotonicity
-          weatherson_sum_rule)
+          gaines_weatherson_antithesis
+          gaines_weatherson_monotonicity
+          gaines_weatherson_sum_rule)
 qed
 
 lemma (in probability_logic) monotonicity:
@@ -273,8 +280,14 @@ proof -
     thus ?thesis by simp
   qed
   moreover have "\<turnstile> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) \<rightarrow> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<bottom>"
-    unfolding subtraction_def negation_def conjunction_def
-    using conjunction_def conjunction_right_elimination by auto
+    unfolding 
+      subtraction_def 
+      negation_def 
+      conjunction_def
+    using 
+      conjunction_def 
+      conjunction_right_elimination 
+    by auto
   hence "Pr \<psi> = Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) + Pr (\<phi> \<sqinter> \<psi>)"
     using
       probability_alternate_additivity
@@ -285,7 +298,7 @@ proof -
     by simp
 qed
 
-sublocale probability_logic \<subseteq> weatherson_probability
+sublocale probability_logic \<subseteq> gaines_weatherson_probability
 proof
   show "Pr \<top> = 1"
     by (simp add: probability_unity)
@@ -313,7 +326,7 @@ qed
 
 sublocale probability_logic \<subseteq> consistent_classical_logic
 proof
-  show "\<not> \<turnstile> \<bottom>" using probability_unity weatherson_antithesis by auto
+  show "\<not> \<turnstile> \<bottom>" using probability_unity gaines_weatherson_antithesis by auto
 qed
 
 lemma (in probability_logic) subtraction_identity:
@@ -356,8 +369,6 @@ qed
 
 subsection \<open> Basic Probability Logic Inequality Results \<close>
 
-(* TODO: Move to Suppes' theorem *)
-
 lemma (in probability_logic) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
 proof -
@@ -372,7 +383,7 @@ lemma (in probability_logic)
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)"
 proof (induct \<Phi>)
   case Nil
-  then show ?case by (simp add: weatherson_antithesis)
+  then show ?case by (simp add: gaines_weatherson_antithesis)
 next
   case (Cons \<phi> \<Phi>)
   have "Pr (\<Squnion> (\<phi> # \<Phi>)) \<le> Pr \<phi> + Pr (\<Squnion> \<Phi>)"
@@ -392,8 +403,7 @@ lemma (in probability_logic) implication_list_summation_inequality:
     order_trans
   by blast
 
-lemma (in probability_logic)
-  arbitrary_disjunction_set_summation_inequality:
+lemma (in probability_logic) arbitrary_disjunction_set_summation_inequality:
   "Pr (\<Squnion> \<Phi>) \<le> (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)"
   by (metis
         arbitrary_disjunction_list_summation_inequality
@@ -411,11 +421,25 @@ lemma (in probability_logic) implication_set_summation_inequality:
     order_trans
   by blast
 
-subsection \<open> Basic Probability Logic Inequality Results \<close>
+subsection \<open> Dirac Measures \<close>
+
+text \<open> Before presenting \<^emph>\<open>Dirac measures\<close> in probability logic, we first
+       give the set of all functions satisfying probability logic.\<close>
 
 definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real) set"
   where "logical_probabilities =
          {Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
+
+text \<open> Traditionally, a Dirac measure is a function \<^term>\<open>\<delta>\<^sub>x\<close> where
+       \<^term>\<open>\<delta>\<^sub>x(S) = (1::real)\<close> if \<^term>\<open>x \<in> S\<close> and \<^term>\<open>\<delta>\<^sub>x(S) = (0::real)\<close> 
+       otherwise.  This means that Dirac measures correspond to special 
+       ultrafilters on their underlying \<^term>\<open>\<sigma>\<close>-algebra which are 
+       closed under countable unions. \<close>
+
+text \<open> Probability logic, as discussed in \S\ref{subsection:why finite additivity},
+       may not have countable joins in its underlying logic. In the setting
+       of probability logic, Dirac measures are simple probability functions
+       that are either 0 or 1. \<close>
 
 definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
   where "dirac_measures =
@@ -429,7 +453,10 @@ lemma (in classical_logic) dirac_measures_subset:
     dirac_measures_def
   by fastforce
 
-lemma (in classical_logic) MCS_Dirac_measure:
+text \<open> Maximally consistent sets correspond to Dirac measures.  One direction
+       of this correspondence is established below. \<close>
+
+lemma (in classical_logic) MCS_dirac_measure:
   assumes "MCS \<Omega>"
     shows "(\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0) \<in> dirac_measures"
       (is "?Pr \<in> dirac_measures")
