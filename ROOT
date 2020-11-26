@@ -30,7 +30,7 @@ session DutchBook = "HOL" +
   theories
     "Probability/Logic/Suppes_Theorem"
     "Probability/Boolean_Algebra/Finite_Probability"
-    "Probability/Logic/Probability_Logic_Completeness"
+    "Probability/Logic/Probability_Logic_Inequality_Completeness"
     "Probability/Logic/Dutch_Book"
   document_files
     "root.tex"

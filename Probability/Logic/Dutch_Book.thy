@@ -5,7 +5,7 @@ chapter \<open>Dutch Book Theorem \label{chap:dutch-book-theorem}\<close>
 theory Dutch_Book
   imports
     "../../Logic/Classical/Classical_Connectives"
-    "Probability_Logic_Completeness"
+    "Probability_Logic_Inequality_Completeness"
     "HOL.Real"
 begin
 
