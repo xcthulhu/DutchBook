@@ -6,7 +6,7 @@ section \<open>Boolean Algebra Probability\<close>
 
 theory Finite_Probability
   imports
-    "../Logical/Probability_Logic"
+    "../Logic/Probability_Logic"
     Finite_Boolean_Algebra
 begin
 

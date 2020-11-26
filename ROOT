@@ -6,7 +6,7 @@ session DutchBook = "HOL" +
     "Logic/Classical/"
     "Logic/Intuitionistic/"
     "Probability/Boolean_Algebra/"
-    "Probability/Logical/"
+    "Probability/Logic/"
     "Utilities/"
   theories [document = false]
     "HOL-Library.Cancellation"
@@ -28,10 +28,10 @@ session DutchBook = "HOL" +
     "HOL.Topological_Spaces"
     "HOL.Transcendental"
   theories
-    "Probability/Logical/Suppes_Theorem"
+    "Probability/Logic/Suppes_Theorem"
     "Probability/Boolean_Algebra/Finite_Probability"
-    "Probability/Logical/Probability_Logic_Completeness"
-    "Probability/Logical/Dutch_Book"
+    "Probability/Logic/Probability_Logic_Completeness"
+    "Probability/Logic/Dutch_Book"
   document_files
     "root.tex"
     "root.bib"
