@@ -49,12 +49,12 @@ proof -
 qed
 
 theorem (in classical_logic) list_summation_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs
   hence "\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
-    unfolding dirac_measures_def logical_probabilities_def
+    unfolding dirac_measures_def probabilities_def
     by blast
   thus ?rhs
     using Dirac_list_summation_completeness by blast
@@ -63,9 +63,9 @@ next
   show ?lhs
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> logical_probabilities"
+    assume "Pr \<in> probabilities"
     from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding logical_probabilities_def
+      unfolding probabilities_def
       by auto
     show "Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)"
       using \<open>?rhs\<close> implication_list_summation_inequality
@@ -85,7 +85,7 @@ lemma (in classical_logic) Dirac_set_summation_completeness:
         sum.set_conv_list)
 
 theorem (in classical_logic) set_summation_completeness:
-  "(\<forall> \<delta> \<in> logical_probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
+  "(\<forall> \<delta> \<in> probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis
         Dirac_list_summation_completeness
         Dirac_set_summation_completeness
@@ -326,7 +326,7 @@ proof -
 qed
 
 theorem (in classical_logic) exclusive_implication_completeness:
-  "(\<forall> Pr \<in> logical_probabilities.
+  "(\<forall> Pr \<in> probabilities.
      (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
   (is "?lhs = ?rhs")
 proof
@@ -341,9 +341,9 @@ next
   show ?lhs
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> logical_probabilities"
+    assume "Pr \<in> probabilities"
     from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding logical_probabilities_def
+      unfolding probabilities_def
       by simp
     show "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>"
       using
@@ -373,7 +373,7 @@ proof -
 qed
 
 theorem (in classical_logic) inequality_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
+  "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
     by (simp add: conjunction_right_elimination negation_def)
@@ -398,7 +398,7 @@ lemma (in classical_logic) Dirac_exclusive_list_summation_completeness:
         trivial_implication)
 
 theorem (in classical_logic) Exclusive_list_summation_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
+  "(\<forall> Pr \<in> probabilities. Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis
         antisym_conv
         exclusive_implication_completeness
@@ -418,7 +418,7 @@ lemma (in classical_logic) Dirac_exclusive_set_summation_completeness:
         sum.set_conv_list)
 
 theorem (in classical_logic) Exclusive_set_summation_completeness:
-  "(\<forall> Pr \<in> logical_probabilities.
+  "(\<forall> Pr \<in> probabilities.
         Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. Pr \<phi>)) = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis
         (mono_tags, hide_lams)

@@ -569,7 +569,7 @@ subsection \<open> Probability Dutch Book \label{subsec:probability-dutch-book} 
 
 lemma (in consistent_classical_logic) nonstrict_dutch_book:
   "  (k \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> logical_probabilities.
+   = (\<forall> Pr \<in> probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = _")
@@ -605,7 +605,7 @@ qed
 
 lemma (in consistent_classical_logic) strict_dutch_book:
   "  (k < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> logical_probabilities.
+   = (\<forall> Pr \<in> probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + k
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   (is "?lhs = ?rhs")
@@ -613,7 +613,7 @@ proof
   assume ?lhs
   from this obtain \<epsilon> where "0 < \<epsilon>" "k + \<epsilon> \<le> \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr>buys = buys', sells = sells'\<rparr>"
     using less_diff_eq by fastforce
-  hence "\<forall>Pr \<in> logical_probabilities.
+  hence "\<forall>Pr \<in> probabilities.
             (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells' + (k + \<epsilon>)
           \<le> (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys'"
     using nonstrict_dutch_book [of "k + \<epsilon>" buys' sells'] by auto
@@ -634,9 +634,9 @@ next
   let ?tot_ss = "total_amount sells'" and ?tot_bs = "total_amount buys'"
   let ?c = "?tot_ss + k - ?tot_bs"
   assume ?rhs
-  have "\<forall> Pr \<in> logical_probabilities. (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + ?c < (\<Sum>s\<leftarrow>sells'. Pr (bet s))"
+  have "\<forall> Pr \<in> probabilities. (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + ?c < (\<Sum>s\<leftarrow>sells'. Pr (bet s))"
     using \<open>?rhs\<close> by fastforce
-  hence "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + ?c < (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
+  hence "\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + ?c < (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using \<star> by auto
   hence "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>?buy_\<phi>s. Pr \<phi>) + (\<lfloor>?c\<rfloor> + 1) \<le> (\<Sum>\<phi>\<leftarrow>?sell_\<phi>s. Pr \<phi>)"
     using strict_dirac_collapse [of ?buy_\<phi>s ?c ?sell_\<phi>s]
@@ -659,7 +659,7 @@ qed
 
 theorem (in consistent_classical_logic) dutch_book:
   "  (0 < \<pi>\<^sub>m\<^sub>i\<^sub>n \<lparr> buys = buys', sells = sells' \<rparr>)
-   = (\<forall> Pr \<in> logical_probabilities.
+   = (\<forall> Pr \<in> probabilities.
          (\<Sum>b\<leftarrow>buys'. Pr (bet b)) + total_amount sells'
        < (\<Sum>s\<leftarrow>sells'. Pr (bet s)) + total_amount buys')"
   by (simp add: strict_dutch_book)

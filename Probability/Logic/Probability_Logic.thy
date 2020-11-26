@@ -426,8 +426,8 @@ subsection \<open> Dirac Measures \<close>
 text \<open> Before presenting \<^emph>\<open>Dirac measures\<close> in probability logic, we first
        give the set of all functions satisfying probability logic.\<close>
 
-definition (in classical_logic) logical_probabilities :: "('a \<Rightarrow> real) set"
-  where "logical_probabilities =
+definition (in classical_logic) probabilities :: "('a \<Rightarrow> real) set"
+  where "probabilities =
          {Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 text \<open> Traditionally, a Dirac measure is a function \<^term>\<open>\<delta>\<^sub>x\<close> where
@@ -447,9 +447,9 @@ definition (in classical_logic) dirac_measures :: "('a \<Rightarrow> real) set"
                \<and> (\<forall>x. Pr x = 0 \<or> Pr x = 1) }"
 
 lemma (in classical_logic) dirac_measures_subset:
-  "dirac_measures \<subseteq> logical_probabilities"
+  "dirac_measures \<subseteq> probabilities"
   unfolding
-    logical_probabilities_def
+    probabilities_def
     dirac_measures_def
   by fastforce
 

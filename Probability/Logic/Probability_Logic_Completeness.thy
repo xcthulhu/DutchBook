@@ -7298,13 +7298,13 @@ proof -
 qed
 
 theorem (in classical_logic) segmented_deduction_completeness:
-  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
+  "(\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)) = \<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
 proof -
   {
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> logical_probabilities"
+    assume "Pr \<in> probabilities"
     from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-      unfolding logical_probabilities_def
+      unfolding probabilities_def
       by auto
     assume "\<^bold>\<sim> \<Gamma> $\<turnstile> \<^bold>\<sim> \<Phi>"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7317,7 +7317,7 @@ proof -
 qed
 
 theorem (in classical_logic) weakly_additive_completeness_collapse:
-  "  (\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "  (\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
    = (\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   by (simp add: binary_segmented_deduction_completeness
                 segmented_deduction_completeness)
@@ -7480,17 +7480,17 @@ lemma (in probability_logic) probability_replicate_verum:
   by (induct n, auto)
 
 lemma (in classical_logic) dirac_collapse:
-  "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "(\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
      = (\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
-  assume "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  assume "\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using dirac_measures_subset by fastforce
   thus "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using dirac_ceiling by blast
 next
   assume assm: "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lceil>c\<rceil> \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-  show "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  show "\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   proof (cases "c \<ge> 0")
     case True
     from this obtain n :: nat where "real n = \<lceil>c\<rceil>"
@@ -7517,17 +7517,17 @@ next
     hence "\<forall> Pr \<in> dirac_measures.
               (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       by blast
-    hence \<dagger>: "\<forall> Pr \<in> logical_probabilities.
+    hence \<dagger>: "\<forall> Pr \<in> probabilities.
               (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using weakly_additive_completeness_collapse by blast
     {
       fix Pr
-      assume "Pr \<in> logical_probabilities"
+      assume "Pr \<in> probabilities"
       from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding logical_probabilities_def
+        unfolding probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
-        using \<dagger> \<open>Pr \<in> logical_probabilities\<close> by blast
+        using \<dagger> \<open>Pr \<in> probabilities\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         using \<open>real n = \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Phi> and n=n]
@@ -7555,17 +7555,17 @@ next
     hence "\<forall> Pr \<in> dirac_measures.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       by blast
-    hence \<ddagger>: "\<forall> Pr \<in> logical_probabilities.
+    hence \<ddagger>: "\<forall> Pr \<in> probabilities.
               (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
       using weakly_additive_completeness_collapse by blast
     {
       fix Pr
-      assume "Pr \<in> logical_probabilities"
+      assume "Pr \<in> probabilities"
       from this interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
-        unfolding logical_probabilities_def
+        unfolding probabilities_def
         by auto
       have "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> (\<Sum>\<gamma>\<leftarrow>(replicate n \<top>) @ \<Gamma>. Pr \<gamma>)"
-        using \<ddagger> \<open>Pr \<in> logical_probabilities\<close> by blast
+        using \<ddagger> \<open>Pr \<in> probabilities\<close> by blast
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
         using \<open>real n = - \<lceil>c\<rceil>\<close>
               probability_replicate_verum [where \<Phi>=\<Gamma> and n=n]
@@ -7605,10 +7605,10 @@ proof
 qed
 
 lemma (in classical_logic) strict_dirac_collapse:
-  "  (\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+  "  (\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
    = (\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
 proof
-  assume "\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
+  assume "\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
   hence "\<forall> Pr \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
     using dirac_measures_subset by blast
   thus "\<forall> Pr \<in> dirac_measures. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
@@ -7618,13 +7618,13 @@ next
   moreover have "\<lfloor>c\<rfloor> + 1 = \<lceil> (\<lfloor>c\<rfloor> + 1) :: real\<rceil>"
     by simp
   ultimately have \<star>:
-    "\<forall> Pr \<in> logical_probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+    "\<forall> Pr \<in> probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
     using dirac_collapse [of \<Phi> "\<lfloor>c\<rfloor> + 1" \<Gamma>]
     by auto
-  show "\<forall> Pr \<in> logical_probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
+  show "\<forall> Pr \<in> probabilities. ((\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))"
   proof
     fix Pr :: "'a \<Rightarrow> real"
-    assume "Pr \<in> logical_probabilities"
+    assume "Pr \<in> probabilities"
     hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + \<lfloor>c\<rfloor> + 1 \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
       using \<star> by auto
     thus "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c < (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>)"
@@ -7938,7 +7938,7 @@ lemma (in consistent_classical_logic) binary_inequality_equiv:
   using binary_inequality_elim binary_inequality_intro consistency by auto
 
 lemma (in consistent_classical_logic) probability_inequality_equiv:
-   "(\<forall> Pr \<in> logical_probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
+   "(\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))
       = (MaxSAT (\<^bold>\<sim> \<Gamma> @ \<Phi>) + (c :: real) \<le> length \<Gamma>)"
   unfolding dirac_collapse
   using binary_inequality_equiv dirac_ceiling by blast
