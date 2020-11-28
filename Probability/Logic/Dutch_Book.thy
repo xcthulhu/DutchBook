@@ -2,6 +2,9 @@
 
 chapter \<open>Dutch Book Theorem \label{chap:dutch-book-theorem}\<close>
 
+text \<open> The first completeness theorem for inequalities for probability logic
+       to be investigated is due to Patrick Suppes.\<close>
+
 theory Dutch_Book
   imports
     "../../Logic/Classical/Classical_Connectives"

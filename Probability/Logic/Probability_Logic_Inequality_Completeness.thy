@@ -1,6 +1,6 @@
 (*:maxLineLen=78:*)
 
-section \<open>Completeness For Inequalities in Probability Logic\<close>
+section \<open>Completeness For Probability Inequalities\<close>
 
 theory Probability_Logic_Inequality_Completeness
   imports

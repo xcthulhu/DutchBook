@@ -149,13 +149,13 @@ text \<open> There is an alternate axiomatization of logical probability,
 
 class gaines_weatherson_probability = classical_logic +
   fixes Pr :: "'a \<Rightarrow> real"
-  assumes gaines_weatherson_thesis: 
+  assumes gaines_weatherson_thesis:
     "Pr \<top> = 1"
-  assumes gaines_weatherson_antithesis: 
+  assumes gaines_weatherson_antithesis:
     "Pr \<bottom> = 0"
-  assumes gaines_weatherson_monotonicity: 
+  assumes gaines_weatherson_monotonicity:
     "\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>"
-  assumes gaines_weatherson_sum_rule: 
+  assumes gaines_weatherson_sum_rule:
     "Pr \<phi> + Pr \<psi> = Pr (\<phi> \<sqinter> \<psi>) + Pr (\<phi> \<squnion> \<psi>)"
 
 sublocale gaines_weatherson_probability \<subseteq> probability_logic
@@ -164,9 +164,9 @@ proof
   have "\<turnstile> \<bottom> \<rightarrow> \<phi>"
     by (simp add: ex_falso_quodlibet)
   thus "0 \<le> Pr \<phi>"
-    using 
-      gaines_weatherson_antithesis 
-      gaines_weatherson_monotonicity 
+    using
+      gaines_weatherson_antithesis
+      gaines_weatherson_monotonicity
     by fastforce
 next
   fix \<phi>
@@ -280,13 +280,13 @@ proof -
     thus ?thesis by simp
   qed
   moreover have "\<turnstile> (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) \<rightarrow> (\<phi> \<sqinter> \<psi>) \<rightarrow> \<bottom>"
-    unfolding 
-      subtraction_def 
-      negation_def 
+    unfolding
+      subtraction_def
+      negation_def
       conjunction_def
-    using 
-      conjunction_def 
-      conjunction_right_elimination 
+    using
+      conjunction_def
+      conjunction_right_elimination
     by auto
   hence "Pr \<psi> = Pr (\<psi> \<setminus> (\<phi> \<sqinter> \<psi>)) + Pr (\<phi> \<sqinter> \<psi>)"
     using
@@ -431,9 +431,9 @@ definition (in classical_logic) probabilities :: "('a \<Rightarrow> real) set"
          {Pr. class.probability_logic (\<lambda> \<phi>. \<turnstile> \<phi>) (\<rightarrow>) \<bottom> Pr }"
 
 text \<open> Traditionally, a Dirac measure is a function \<^term>\<open>\<delta>\<^sub>x\<close> where
-       \<^term>\<open>\<delta>\<^sub>x(S) = (1::real)\<close> if \<^term>\<open>x \<in> S\<close> and \<^term>\<open>\<delta>\<^sub>x(S) = (0::real)\<close> 
-       otherwise.  This means that Dirac measures correspond to special 
-       ultrafilters on their underlying \<^term>\<open>\<sigma>\<close>-algebra which are 
+       \<^term>\<open>\<delta>\<^sub>x(S) = (1::real)\<close> if \<^term>\<open>x \<in> S\<close> and \<^term>\<open>\<delta>\<^sub>x(S) = (0::real)\<close>
+       otherwise.  This means that Dirac measures correspond to special
+       ultrafilters on their underlying \<^term>\<open>\<sigma>\<close>-algebra which are
        closed under countable unions. \<close>
 
 text \<open> Probability logic, as discussed in \S\ref{subsection:why finite additivity},

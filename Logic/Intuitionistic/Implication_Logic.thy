@@ -638,7 +638,7 @@ subsection \<open>Maximally Consistent Sets For Implication Logic \label{sec:imp
 text \<open> \<^emph>\<open>Maximally Consistent Sets\<close> are a common construction for proving
        completeness of logical calculi.  For a classic presentation, see
        Dirk van Dalen's \<^emph>\<open>Logic and Structure\<close> (2013, \S1.5, pgs. 42--45)
-       @{cite dalenLogicStructure2013}. \<close>
+       @{cite vandalenLogicStructure2013}. \<close>
 
 text \<open> Maximally consistent sets will form the foundation of all of the
        model theory we will employ in this text. In fact, apart from

@@ -6,7 +6,14 @@ theory Suppes_Theorem
   imports "Probability_Logic"
 begin
 
+text \<open> The first completeness theorem for inequalities for probability logic
+       to be investigated is due to Patrick Suppes @{cite suppesProbabilisticInferenceConcept1966}.\<close>
+
 sledgehammer_params [smt_proofs = false]
+
+subsection \<open> Suppes' Theorem \<close>
+
+text \<open> Below is a formulation of Suppes' theorem. \<close>
 
 lemma (in classical_logic) Dirac_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
@@ -24,7 +31,10 @@ proof -
   }
   moreover {
     assume "\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
-    from this obtain \<Omega> where \<Omega>: "MCS \<Omega>" "\<phi> \<in> \<Omega>" "\<Squnion> \<Psi> \<notin> \<Omega>"
+    from this obtain \<Omega> where \<Omega>:
+      "MCS \<Omega>"
+      "\<phi> \<in> \<Omega>"
+      "\<Squnion> \<Psi> \<notin> \<Omega>"
       by (meson
             insert_subset
             formula_consistent_def
@@ -73,6 +83,13 @@ next
   qed
 qed
 
+lemma (in classical_logic) suppes_collapse:
+  "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))
+      = (\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
+  by (simp add:
+        Dirac_list_summation_completeness
+        list_summation_completeness)
+
 lemma (in classical_logic) Dirac_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis
@@ -91,6 +108,15 @@ theorem (in classical_logic) set_summation_completeness:
         Dirac_set_summation_completeness
         list_summation_completeness
         sum.set_conv_list)
+
+lemma (in classical_logic) suppes_set_collapse:
+  "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>))
+      = (\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. \<delta> \<psi>))"
+  by (simp add:
+        Dirac_set_summation_completeness
+        set_summation_completeness)
+
+subsection \<open> Dual Suppes' Theorem \<close>
 
 lemma (in probability_logic) exclusive_sum_list_identity:
   assumes "\<turnstile> \<Coprod> \<Phi>"
@@ -326,8 +352,7 @@ proof -
 qed
 
 theorem (in classical_logic) exclusive_implication_completeness:
-  "(\<forall> Pr \<in> probabilities.
-     (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
+  "(\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) \<le> Pr \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
   (is "?lhs = ?rhs")
 proof
   assume ?lhs

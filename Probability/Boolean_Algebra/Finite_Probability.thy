@@ -81,7 +81,7 @@ next
       by (simp add: inf.semigroup_axioms semigroup.assoc)
   ultimately show "A \<sqinter> B \<le> C"
     unfolding residual_def
-    by (metis 
+    by (metis
           (no_types)
           inf.orderI
           inf_compl_bot_right
@@ -110,7 +110,7 @@ next
       by (metis compl_sup_top sup_compl_top_left2 sup_left_commute)
     ultimately have "\<top> = (\<phi> \<Rightarrow> \<psi> \<Rightarrow> \<chi>) \<Rightarrow> (\<phi> \<Rightarrow> \<chi>) \<squnion> - (\<phi> \<Rightarrow> \<psi>)"
       unfolding residual_def
-      using 
+      using
         abel_semigroup.commute
         sup.abel_semigroup_axioms
         sup_inf_distrib1
@@ -142,7 +142,7 @@ lemmas modus_ponens = modus_ponens
 lemmas probabilities_def = probabilities_def
 
 lemma probabilities_def':
-  "probabilities = 
+  "probabilities =
      { \<P>. class.finitely_additive_probability
                 \<P> (-) uminus (\<sqinter>) (\<le>) (<) (\<squnion>) \<bottom> \<top> }"
   (is "_ = ?ba_probabilities")
@@ -200,7 +200,7 @@ next
       fix \<phi> \<psi>
       assume "\<phi> \<sqinter> \<psi> = \<bottom>"
       thus "\<P> (\<phi> \<squnion> \<psi>) = \<P> \<phi> + \<P> \<psi>"
-        using 
+        using
           probability_implicational_additivity
           compl_bot_eq
           sup_bot.right_neutral
@@ -258,7 +258,7 @@ proof -
     unfolding probabilities_def'
     by auto
   have "\<P> \<psi> > 0"
-    using 
+    using
       \<open>\<P> \<psi> \<noteq> 0\<close>
       probability_non_negative
       order_class.dual_order.order_iff_strict
@@ -277,7 +277,7 @@ proof -
     fix \<phi> \<chi>
     assume "\<phi> \<sqinter> \<chi> = \<bottom>"
     hence "\<P> ((\<phi> \<squnion> \<chi>) \<sqinter> \<psi>) = \<P> (\<phi> \<sqinter> \<psi>) + \<P> (\<chi> \<sqinter> \<psi>)"
-      by (metis 
+      by (metis
             finite_additivity
             inf.assoc
             inf.commute
@@ -311,10 +311,10 @@ proof -
   proof standard
     fix \<phi>
     show "0 \<le> \<alpha> * \<P> \<phi> + (1 - \<alpha>) * \<Q> \<phi>"
-      by (simp add: 
-            \<P>_probability_non_negative 
-            probability_non_negative 
-            \<open>0 \<le> \<alpha>\<close> 
+      by (simp add:
+            \<P>_probability_non_negative
+            probability_non_negative
+            \<open>0 \<le> \<alpha>\<close>
             \<open>\<alpha> \<le> 1\<close>)
   next
     show "\<alpha> * \<P> \<top> + (1 - \<alpha>) * \<Q> \<top> = 1"
@@ -336,10 +336,10 @@ end
 context finitely_additive_probability begin
 
 interpretation classical_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
-  by (standard, 
-        simp add: axiom_k, 
-        simp add: axiom_s, 
-        metis modus_ponens, 
+  by (standard,
+        simp add: axiom_k,
+        simp add: axiom_s,
+        metis modus_ponens,
         simp add: double_negation)
 
 interpretation probability_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom> \<P>
@@ -350,7 +350,7 @@ proof -
   hence "\<P> \<in> probabilities"
     unfolding probabilities_def'
     by auto
-    
+
   thus "class.probability_logic ((=) \<top>) (\<Rightarrow>) \<bottom> \<P>"
     unfolding probabilities_def
     by blast
@@ -534,10 +534,10 @@ end
 context finite_boolean_algebra begin
 
 interpretation classical_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
-  by (standard, 
-        simp add: axiom_k, 
-        simp add: axiom_s, 
-        metis modus_ponens, 
+  by (standard,
+        simp add: axiom_k,
+        simp add: axiom_s,
+        metis modus_ponens,
         simp add: double_negation)
 
 lemma join_prime_decomposition:
@@ -550,7 +550,7 @@ proof -
     unfolding probabilities_def'
     by blast
   have \<star>: "\<phi> = \<Squnion> { \<alpha> \<in> \<J>. \<alpha> \<le> \<phi> }" (is "\<phi> = \<Squnion> ?\<J>\<phi>")
-    using 
+    using
       join_prime_embedding_def
       sup_join_prime_embedding_ident
     by auto
@@ -587,7 +587,7 @@ lemma dirac_measure_to_join_prime:
   (is "?\<alpha> \<in> \<J>")
 proof -
   have "\<delta> \<in> probabilities"
-    using 
+    using
       \<open>\<delta> \<in> dirac_measures\<close>
       probabilities_def
     unfolding dirac_measures_def
@@ -648,7 +648,7 @@ lemma dirac_to_join_prime_ident:
   shows "(\<lambda> \<phi>. if \<Sqinter> { \<phi> . \<delta> \<phi> = 1 } \<le> \<phi> then 1 else 0) = \<delta>"
 proof
   have "\<delta> \<in> probabilities"
-    using 
+    using
       \<open>\<delta> \<in> dirac_measures\<close>
       probabilities_def
     unfolding dirac_measures_def
@@ -670,7 +670,7 @@ proof
       by simp
   next
     have "join_prime (\<Sqinter> { \<phi> . \<delta> \<phi> = 1 })"
-      using 
+      using
         \<open>\<delta> \<in> dirac_measures\<close>
         dirac_measure_to_join_prime
       unfolding join_primes_def
@@ -1009,7 +1009,7 @@ next
       using
         join_prime_decomposition [OF \<open>\<P> \<in> probabilities\<close>, where \<phi>="\<top>"]
         top_greatest
-      unfolding probability_unity 
+      unfolding probability_unity
       by auto
     hence "(\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<phi> \<leftarrow> \<Phi>. ?to_\<delta> \<alpha> \<phi>)) + \<lceil>c\<rceil>
               \<le> (\<Sum>\<alpha> \<in> \<J>. \<P> \<alpha> * (\<Sum>\<gamma> \<leftarrow> \<Gamma>. ?to_\<delta> \<alpha> \<gamma>))"

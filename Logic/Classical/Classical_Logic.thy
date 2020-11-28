@@ -62,7 +62,7 @@ lemma (in classical_logic)
   by (meson axiom_k modus_ponens flip_implication)
 
 text \<open>The following lemma is sometimes referred to as
-      \<^emph>\<open>The Principle of Pseudo-Scotus\<close>@{cite bobenriethm.OriginsUseArgument2010}.\<close>
+      \<^emph>\<open>The Principle of Pseudo-Scotus\<close>@{cite bobenriethOriginsUseArgument2010}.\<close>
 
 lemma (in classical_logic)
   pseudo_scotus: "\<turnstile> (\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<phi> \<rightarrow> \<psi>"
