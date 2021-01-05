@@ -220,6 +220,49 @@ lemma (in classical_logic) subtraction_embedding [simp]:
   unfolding subtraction_def classical_logic_class.subtraction_def
   by simp
 
+subsection \<open>Negated Lists\<close>
+
+definition (in classical_logic) map_negation :: "'a list \<Rightarrow> 'a list" ("\<^bold>\<sim>")
+  where [simp]: "\<^bold>\<sim> \<Phi> \<equiv> map \<sim> \<Phi>"
+
+lemma (in classical_logic) map_negation_list_implication:
+  "\<turnstile> ((\<^bold>\<sim> \<Phi>) :\<rightarrow> (\<sim> \<phi>)) \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>)"
+proof (induct \<Phi>)
+  case Nil
+  then show ?case
+    unfolding
+      biconditional_def
+      map_negation_def
+      negation_def
+    using
+      conjunction_introduction
+      modus_ponens
+      trivial_implication
+    by (simp, blast)
+next
+  case (Cons \<psi> \<Phi>)
+  have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>))
+          \<rightarrow> (\<sim> \<psi> \<rightarrow> \<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<psi> \<squnion> \<Squnion> \<Phi>))"
+  proof -
+    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
+                        (\<sim> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))"
+      by fastforce
+    hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
+               (\<sim> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
+      using propositional_semantics by blast
+    thus ?thesis
+      by simp
+  qed
+  with Cons show ?case
+    by (metis
+          map_negation_def
+          list.simps(9)
+          arbitrary_disjunction.simps(2)
+          modus_ponens
+          list_implication.simps(2))
+qed
+
+
 subsection \<open> Common Identities \<close>
 
 subsection \<open> Biconditional Equivalence Relation \<close>
@@ -334,11 +377,13 @@ lemma (in classical_logic) weak_conjunction_deduction_arbitrary_equivalence [sim
 
 lemma (in classical_logic) conjunction_commutativity:
   "\<turnstile> (\<psi> \<sqinter> \<phi>) \<leftrightarrow> (\<phi> \<sqinter> \<psi>)"
-  by (metis (full_types) modus_ponens
-                         biconditional_introduction
-                         conjunction_def
-                         flip_hypothetical_syllogism
-                         flip_implication)
+  by (metis
+        (full_types)
+        modus_ponens
+        biconditional_introduction
+        conjunction_def
+        flip_hypothetical_syllogism
+        flip_implication)
 
 lemma (in classical_logic) conjunction_associativity:
   "\<turnstile> ((\<phi> \<sqinter> \<psi>) \<sqinter> \<chi>) \<leftrightarrow> (\<phi> \<sqinter> (\<psi> \<sqinter> \<chi>))"
@@ -711,6 +756,49 @@ next
           maximally_consistent_set_def
           set_deduction_reflection)
   thus ?case using Cons.hyps by simp
+qed
+
+lemma (in classical_logic) contra_list_curry_uncurry:
+  "\<turnstile> (\<Phi> :\<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> \<Squnion> (\<^bold>\<sim> \<Phi>))"
+proof (induct \<Phi>)
+  case Nil
+  then show ?case
+    by (simp,
+          metis
+            biconditional_introduction
+            bivalence
+            disjunction_def
+            double_negation_converse
+            modus_ponens
+            negation_def)
+next
+  case (Cons \<phi> \<Phi>)
+  hence "\<turnstile> (\<Sqinter> \<Phi> \<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> \<Squnion> (\<^bold>\<sim> \<Phi>))"
+    by (metis
+          biconditional_symmetry_rule
+          biconditional_transitivity_rule
+          list_curry_uncurry)
+  have "\<turnstile> (\<Sqinter> (\<phi> # \<Phi>) \<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> \<Squnion> (\<^bold>\<sim> (\<phi> # \<Phi>)))"
+  proof -
+    have "\<turnstile> (\<Sqinter> \<Phi> \<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> \<Squnion> (\<^bold>\<sim> \<Phi>))
+             \<rightarrow> ((\<phi> \<sqinter> \<Sqinter> \<Phi>) \<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> (\<sim> \<phi> \<squnion> \<Squnion> (\<^bold>\<sim> \<Phi>)))"
+    proof -
+      have
+       "\<forall> \<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p
+         (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<sim> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> (\<^bold>\<sim> \<Phi>)\<^bold>\<rangle>)
+             \<rightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<sim> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<rightarrow> (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (\<^bold>\<sim> \<Phi>)\<^bold>\<rangle>))"
+        by auto
+      hence
+        "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<sim> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> (\<^bold>\<sim> \<Phi>)\<^bold>\<rangle>)
+             \<rightarrow> ((\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<sqinter> \<^bold>\<langle>\<Sqinter> \<Phi>\<^bold>\<rangle>) \<rightarrow> \<^bold>\<langle>\<chi>\<^bold>\<rangle>) \<leftrightarrow> (\<sim> \<^bold>\<langle>\<chi>\<^bold>\<rangle> \<rightarrow> (\<sim> \<^bold>\<langle>\<phi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> (\<^bold>\<sim> \<Phi>)\<^bold>\<rangle>)) \<^bold>\<rparr>"
+        using propositional_semantics by blast
+      thus ?thesis by simp
+    qed
+    thus ?thesis
+      using \<open>\<turnstile> (\<Sqinter> \<Phi> \<rightarrow> \<chi>) \<leftrightarrow> (\<sim> \<chi> \<rightarrow> \<Squnion> (\<^bold>\<sim> \<Phi>))\<close> modus_ponens by auto
+  qed
+  then show ?case
+    using biconditional_transitivity_rule list_curry_uncurry by blast
 qed
 
 subsection \<open> Monotony of Conjunction and Disjunction \<close>
@@ -1140,42 +1228,6 @@ proof -
   }
   thus ?thesis
     by (metis exclusive_elimination1 exclusive_elimination2)
-qed
-
-subsection \<open>Negated Lists\<close>
-
-definition (in classical_logic) map_negation :: "'a list \<Rightarrow> 'a list" ("\<^bold>\<sim>")
-  where [simp]: "\<^bold>\<sim> \<Phi> \<equiv> map \<sim> \<Phi>"
-
-lemma (in classical_logic) map_negation_list_implication:
-  "\<turnstile> ((\<^bold>\<sim> \<Phi>) :\<rightarrow> (\<sim> \<phi>)) \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>)"
-proof (induct \<Phi>)
-  case Nil
-  then show ?case
-    by (simp add:
-          biconditional_def
-          negation_def
-          pseudo_scotus)
-next
-  case (Cons \<psi> \<Phi>)
-  have "\<turnstile> (\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi> \<leftrightarrow> (\<phi> \<rightarrow> \<Squnion> \<Phi>))
-          \<rightarrow> (\<sim> \<psi> \<rightarrow> \<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>) \<leftrightarrow> (\<phi> \<rightarrow> (\<psi> \<squnion> \<Squnion> \<Phi>))"
-  proof -
-    have "\<forall>\<MM>. \<MM> \<Turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p (\<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
-                        (\<sim> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>))"
-      by fastforce
-    hence "\<turnstile> \<^bold>\<lparr> (\<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle> \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<rightarrow>
-               (\<sim> \<^bold>\<langle>\<psi>\<^bold>\<rangle> \<rightarrow> \<^bold>\<langle>\<^bold>\<sim> \<Phi> :\<rightarrow> \<sim> \<phi>\<^bold>\<rangle>) \<leftrightarrow> (\<^bold>\<langle>\<phi>\<^bold>\<rangle> \<rightarrow> (\<^bold>\<langle>\<psi>\<^bold>\<rangle> \<squnion> \<^bold>\<langle>\<Squnion> \<Phi>\<^bold>\<rangle>)) \<^bold>\<rparr>"
-      using propositional_semantics by blast
-    thus ?thesis
-      by simp
-  qed
-  with Cons show ?case
-    by (metis map_negation_def
-              list.simps(9)
-              arbitrary_disjunction.simps(2)
-              modus_ponens
-              list_implication.simps(2))
 qed
 
 subsection \<open>Miscellaneous Disjunctive Normal Form Identities\<close>

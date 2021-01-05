@@ -6,6 +6,7 @@ theory Probability_Logic
   imports
     "../../Logic/Classical/Classical_Connectives"
     HOL.Real
+    "HOL-Library.Countable"
 begin
 
 sledgehammer_params [smt_proofs = false]
@@ -42,54 +43,62 @@ text \<open> A similar axiomatization may be credited to
 
 subsection \<open> Why Finite Additivity? \label{subsection:why finite additivity}\<close>
 
-text \<open> In this section we briefly touch on why we have chosen to
+text \<open> In this section we touch on why we have chosen to
        employ finite additivity in our axiomatization of
        @{class probability_logic} and deviate from conventional
-       probability theory. The argument here is essentially due to
-       Giaangiacomo Gerla @{cite \<open>Section 3\<close> gerlaInferencesProbabilityLogic1994}. \<close>
+       probability theory. \<close>
 
 text \<open> Conventional probability obeys an axiom known as \<^emph>\<open>countable additivity\<close>.
-       Roughly, it states if \<open>?S\<close> is a countable set of sets which are
+       Traditionally it states if \<open>?S\<close> is a countable set of sets which are
        pairwise disjoint, then the limit \<open>\<Sum> s \<in> ?S. Pr s\<close> exists and
        \<open>Pr (\<Union> ?S) = (\<Sum> s \<in> ?S. Pr s)\<close>. This is more powerful than our
        finite additivity axiom
        @{lemma \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<rightarrow> \<bottom> \<Longrightarrow> Pr ((\<phi> \<rightarrow> \<bottom>) \<rightarrow> \<psi>) = Pr \<phi> + Pr \<psi>\<close>
           by (metis probability_implicational_additivity) }. \<close>
 
-text \<open> Requiring an analogue of countable additivity in
-       @{class probability_logic} would prevent us from establishing
-       the Dutch book theorem from Chapter \ref{chap:dutch-book-theorem}
-       in certain practical settings. \<close>
+text \<open> However, we argue that demanding countable additivity is not practical.
+       It prohibits data structures we would naturally use in programs
+       exploiting the Dutch book theorem from Chapter \ref{chap:dutch-book-theorem}. \<close>
 
-text \<open> The reason boils down to a theorem of Horn and Tarski,
-       which establishes that there can be no \<open>\<sigma>\<close>-measure over a countable
-       atomless Boolean algebra @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}. \<close>
+text \<open> Historically, the statisticians Bruno di Finetti and Leonard Savage
+       gave the most well known critiques.  In @{cite definettiSuiPassaggiLimite1930}
+       di Finetti shows various properties which are true for countably additive
+       probability measures may not hold for finitely additive measures.
+       Savage @{cite savageDifficultiesTheoryPersonal1967}, on the other hand,
+       develops probability based on choices prizes in lotteries. \<close>
 
-text \<open> In particular, this means the type @{typ "'a classical_propositional_formula"}
-       does not have a corresponding \<open>\<sigma>\<close>-measure in general. Specifically,
-       the quotient type of @{typ "'a classical_propositional_formula"}
-       under @{term "\<lambda> \<phi> \<psi> . \<turnstile>\<^sub>p\<^sub>r\<^sub>o\<^sub>p \<phi> \<leftrightarrow> \<psi>"} is an atomless Boolean algebra,
-       known as the \<^emph>\<open>Lindenbaum algebra\<close>.  In the case of
-       @{typ "nat classical_propositional_formula"} this algebra is countable,
-       and hence has no \<open>\<sigma>\<close>-measure. \<close>
+text \<open> We instead argue that if we demand countable additivity, then certain
+       properties of real world financial software would no longer be formally
+       verifiable as we demonstrate here. In particular, it prohibits data
+       structures we would naturally use in programs exploiting the Dutch book
+       theorem from Chapter \ref{chap:dutch-book-theorem}.
+       Our argument is derivative of one given by Giangiacomo Gerla
+       @{cite \<open>Section 3\<close> gerlaInferencesProbabilityLogic1994}. \<close>
 
-text \<open> But a software trading system might use data structures
-       like @{typ "'a classical_propositional_formula"} when analyzing
+text \<open> By taking equivalence classes modulo \<^term>\<open>\<lambda> \<phi> \<psi> . \<turnstile> \<phi> \<leftrightarrow> \<psi>\<close>,
+       any classical logic instance gives rise to a Boolean algebra known as
+       a \<^emph>\<open>Lindenbaum Algebra\<close>. In the case of @{typ "'a classical_propositional_formula"}
+       this Boolean algebra algebra is both countable and \<^emph>\<open>atomless\<close>.
+       A theorem of Horn and Tarski @{cite \<open>Theorem 3.2\<close> hornMeasuresBooleanAlgebras1948}
+       asserts there can be no countable additive \<^term>\<open>Pr\<close> for a countable
+       atomless Boolean algebra. \<close>
+
+text \<open> A software trading system could reasonably use data structures
+       just like @{typ "'nat classical_propositional_formula"} when analyzing
        fixed odds gambling markets. We go into detail regarding this in
        \S\ref{sec:fixed-odds-markets}.  Both \<^emph>\<open>Haskell\<close> and
        \<^emph>\<open>Rust\<close> allow for declaring data types like @{typ "'a classical_propositional_formula"}.
-       These languages share a heritage from ML languages just like
-       Isabelle/HOL. Certain implementations might even model markets
-       using data types with countable inhabitants. \<close>
+       These languages share a heritage from the ML family of languages just
+       like Isabelle/HOL. \<close>
 
 text \<open> Hence, if we insist on countably additivity then the Dutch Book theorem
        presented in \S\ref{subsec:probability-dutch-book} cannot be obtained
        for certain programs we may reasonably wish to write. Not only
        is our formulation in @{class probability_logic} suitable for
-       obtaining the Dutch book theorem, it is not obvious what more we can
-       demand and still obtain our result. \<close>
+       obtaining the Dutch book theorem, so demanding countable additivity
+       is unreasonable. \<close>
 
-text \<open> The above argument is not intended as a refutation of conventional
+text \<open> The above argument is not intended as a blanket refutation of conventional
        probability theory. It is simply an impossibility result with respect
        to our Dutch book theorem. Plenty of classic results in probability
        rely on countable additivity. A nice example recently formalized in
@@ -367,7 +376,7 @@ proof -
     by auto
 qed
 
-subsection \<open> Basic Probability Logic Inequality Results \<close>
+subsection \<open> Basic Probability Logic Inequality Results \label{subsec:basic-probability-inequality-results}\<close>
 
 lemma (in probability_logic) disjunction_sum_inequality:
   "Pr (\<phi> \<squnion> \<psi>) \<le> Pr \<phi> + Pr \<psi>"
@@ -421,7 +430,7 @@ lemma (in probability_logic) implication_set_summation_inequality:
     order_trans
   by blast
 
-subsection \<open> Dirac Measures \<close>
+subsection \<open> Dirac Measures \label{subsec:dirac-measures}\<close>
 
 text \<open> Before presenting \<^emph>\<open>Dirac measures\<close> in probability logic, we first
        give the set of all functions satisfying probability logic.\<close>

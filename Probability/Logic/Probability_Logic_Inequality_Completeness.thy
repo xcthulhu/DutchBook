@@ -1,6 +1,6 @@
 (*:maxLineLen=78:*)
 
-section \<open>Completeness For Probability Inequalities\<close>
+section \<open> Completeness For Probability Inequalities \label{sec:probability-logic-completeness}\<close>
 
 theory Probability_Logic_Inequality_Completeness
   imports
@@ -7478,6 +7478,8 @@ lemma (in probability_logic) probability_replicate_verum:
   shows "(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + n = (\<Sum>\<phi>\<leftarrow>(replicate n \<top>) @ \<Phi>. Pr \<phi>)"
   using probability_unity
   by (induct n, auto)
+
+subsection \<open> Collapse Theorem For Probability Logic \label{subsec:collapse-theorem} \<close>
 
 lemma (in classical_logic) dirac_collapse:
   "(\<forall> Pr \<in> probabilities. (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<gamma>\<leftarrow>\<Gamma>. Pr \<gamma>))

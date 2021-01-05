@@ -1,6 +1,6 @@
 (*:maxLineLen=78:*)
 
-section \<open>Boolean Algebra Probability\<close>
+section \<open> Finite Boolean Algebra Probability \label{sec:finite-boolean-algebra-probability} \<close>
 
 (* TODO: Cite Bool's laws of thought, Dempster, Nils Nilsson's Probabilisitic Logic *)
 
@@ -531,6 +531,8 @@ qed
 
 end
 
+subsection \<open> Collapse Theorem For Finite Boolean Algebras \label{subsec:finite-boolean-algebra-collapse} \<close>
+
 context finite_boolean_algebra begin
 
 interpretation classical_logic "(=) \<top>" "(\<Rightarrow>)" \<bottom>
@@ -556,7 +558,7 @@ proof -
     by auto
   have "\<forall> \<alpha> \<in> ?\<J>\<phi>. \<forall> \<alpha>' \<in> ?\<J>\<phi>. \<alpha> \<noteq> \<alpha>' \<longrightarrow> \<alpha> \<sqinter> \<alpha>' = \<bottom>"
     unfolding join_primes_def
-    by (metis inf.cobounded1 inf.commute join_prime_alt_def mem_Collect_eq)
+    by (metis inf.cobounded1 inf.commute join_prime_def' mem_Collect_eq)
   hence "\<P> (\<Squnion> ?\<J>\<phi>) = (\<Sum> \<alpha> \<in> ?\<J>\<phi>. \<P> \<alpha>)"
     by (simp add: Sup_def full_finite_additivity)
   with \<star> have \<dagger>: "\<P> \<phi> = (\<Sum> \<alpha> \<in> ?\<J>\<phi>. \<P> \<alpha>)" by auto

@@ -2,8 +2,6 @@
 
 section \<open>Finite Boolean Algebra\<close>
 
-(* TODO: Cite Birkoff and Priestley *)
-
 theory Finite_Boolean_Algebra
   imports
     "HOL-Library.Finite_Lattice"
@@ -13,10 +11,31 @@ begin
 
 sledgehammer_params [smt_proofs = false]
 
+text \<open> This section presents finite Boolean algebras and \<^emph>\<open>Birkoff's theorem\<close>
+       @{cite birkhoffRingsSets1937}. Birkoff's theorem states that any
+       finite Boolean algebra is isomorphic to a powerset, with the usual
+       set-based boolean algebra operations. \<close>
+
+text \<open> In this section and \S\ref{sec:finite-boolean-algebra-probability}
+       build up to a finitary formulation of the \<^emph>\<open>collapse theorem\<close>
+       to be proved in \S\ref{subsec:collapse-theorem}. \<close>
+
+subsection \<open> Finite Boolean Algebra Axiomatization \<close>
+
+text \<open> The class of finite boolean algebras is simply an extension of
+       @{class boolean_algebra}.  In particular, we assume
+       \<^term>\<open>finite UNIV\<close> as per @{class finite}.  We also extend the
+       language with infina and suprema (i.e. \<open>\<Sqinter> A\<close> and \<open>\<Squnion> A\<close> respectively).
+       The new axioms are \<open> \<Sqinter> A = fold (\<sqinter>) \<top> A \<close> and its dual
+       \<open> \<Squnion> A = fold (\<squnion>) \<bottom> A \<close>. \<close>
+
 class finite_boolean_algebra = boolean_algebra + finite + Inf + Sup +
   assumes Inf_def: "\<Sqinter>A = Finite_Set.fold (\<sqinter>) \<top> A"
   assumes Sup_def: "\<Squnion>A = Finite_Set.fold (\<squnion>) \<bottom> A"
 begin
+
+text \<open> Finite Boolean algebras are a subclass of complete finite
+       distributive lattices. \<close>
 
 subclass finite_distrib_lattice_complete
   using
@@ -30,10 +49,23 @@ subclass finite_distrib_lattice_complete
   by (unfold_locales, blast, fastforce, auto)
 end
 
+subsection \<open> Join Prime Elements \<close>
+
+text \<open> The proof of Birkoff's theorem presented here follows
+       Davey and Priestley @{cite daveyChapterRepresentationFinite2002}.
+       The key to their proof is to show that the elements of a finite
+       Boolean algebra have a 1-1 correspondence with sets of \<^emph>\<open>join prime\<close>
+       elements of the Boolean algebra. \<close>
+
+text \<open> Join prime elements are defined as follows. \<close>
+
 definition (in bounded_lattice_bot) join_prime :: "'a \<Rightarrow> bool" where
   "join_prime x \<equiv> x \<noteq> \<bottom> \<and> (\<forall> y z . x \<le> y \<squnion> z \<longrightarrow> x \<le> y \<or> x \<le> z)"
 
-lemma (in boolean_algebra) join_prime_alt_def:
+text \<open> Join prime elements are also sometimes known as \<^emph>\<open>atoms\<close>. They are
+       the smallest elements of the Boolean algebra distinct from \<open>\<bottom>\<close>. \<close>
+
+lemma (in boolean_algebra) join_prime_def':
   "join_prime x = (x \<noteq> \<bottom> \<and> (\<forall> y. y \<le> x \<longrightarrow> y = \<bottom> \<or> y = x))"
 proof
   assume "join_prime x"
@@ -86,6 +118,8 @@ next
     by auto
 qed
 
+text \<open> All join prime elements are disjoint. \<close>
+
 lemma (in boolean_algebra) join_prime_disjoint:
   assumes "join_prime \<alpha>"
       and "join_prime \<beta>"
@@ -106,7 +140,7 @@ next
     hence "\<not> (\<alpha> \<le> \<beta>)"
       using \<open>join_prime \<alpha>\<close>
             \<open>join_prime \<beta>\<close>
-      unfolding join_prime_alt_def
+      unfolding join_prime_def'
       by blast
     hence "\<alpha> \<le> - \<beta>"
       using assms(1) join_prime_def by force
@@ -120,6 +154,22 @@ qed
 
 definition (in bounded_lattice_bot) join_primes ("\<J>") where
   "\<J> \<equiv> {a . join_prime a}"
+
+subsection \<open> Birkoff's Theorem \label{subsection:birkoffs-theorem} \<close>
+
+text \<open> Birkoff's theorem states that every non-\<open>\<bottom>\<close> element of a finite
+       Boolean algebra can be represented by the join prime elements beneath
+       it. It goes on to assert that this representation is a Boolean algebra
+       isomorphism. \<close>
+
+text \<open> In this section we merely demonstrate the representation aspect of
+       Birkoff's theorem.  In \S\ref{subsection:boolean-algebra-isomorphism}
+       we show this representation is a Boolean algebra isomorphism. \<close>
+
+text \<open> The fist step to representing elements is to show that there \<^emph>\<open>exist\<close>
+       join prime elements beneath them. This is done by showing if
+       there is no join prime element, we can make a descending chain with
+       more elements than the finite Boolean algebra we are considering. \<close>
 
 fun (in order) descending_chain_list :: "'a list \<Rightarrow> bool" where
   "descending_chain_list [] = True"
@@ -164,7 +214,7 @@ proof (rule ccontr)
   assume "\<not> (\<exists>y \<in> \<J>. y \<le> x)"
   hence fresh: "\<forall> y \<le> x. y \<noteq> \<bottom> \<longrightarrow> (\<exists>z < y. z \<noteq> \<bottom>)"
     unfolding join_primes_def
-              join_prime_alt_def
+              join_prime_def'
     using dual_order.not_eq_order_implies_strict
     by fastforce
   {
@@ -229,12 +279,16 @@ proof (rule ccontr)
     using card_mono finite_UNIV by blast
 qed
 
+text \<open> Having shown that there exists a join prime element beneath every
+       non-\<open>\<bottom>\<close> element, we show that elements are exactly the suprema
+       of the join prime elements beneath them. \<close>
+
 definition (in bounded_lattice_bot)
   join_prime_embedding :: "'a \<Rightarrow> 'a set" ("\<lbrace> _ \<rbrace>" [50]) where
   "\<lbrace> x \<rbrace> \<equiv> {a \<in> \<J>. a \<le> x}"
 
 theorem (in finite_boolean_algebra) sup_join_prime_embedding_ident:
-   "\<Squnion> \<lbrace> x \<rbrace> = x"
+   "x = \<Squnion> \<lbrace> x \<rbrace>"
 proof -
   have "\<forall> a \<in> \<lbrace> x \<rbrace>. a \<le> x" unfolding join_prime_embedding_def by auto
   hence "\<Squnion> \<lbrace> x \<rbrace> \<le> x"
@@ -284,6 +338,9 @@ proof -
     by (simp add: antisym)
 qed
 
+text \<open> Just as \<open>x = \<Squnion> \<lbrace> x \<rbrace>\<close>, the reverse is also true; \<open>\<lambda> x. \<lbrace> x \<rbrace>\<close>
+       and \<open>\<lambda> S. \<Squnion> S\<close> are inverses where \<open>S \<in> \<J>\<close>. \<close>
+
 lemma (in finite_boolean_algebra) join_prime_embedding_sup_ident:
   assumes "S \<subseteq> \<J>"
   shows "S = \<lbrace> \<Squnion> S \<rbrace>"
@@ -310,7 +367,7 @@ proof -
       hence "\<forall> s \<in> S. x \<sqinter> s = \<bottom> \<or> x \<sqinter> s = x"
         using \<open>x \<in> \<J>\<close>
         unfolding join_primes_def
-                  join_prime_alt_def
+                  join_prime_def'
         by blast
       ultimately have "\<forall> s \<in> S. x \<sqinter> s = \<bottom>" by blast
       hence "x \<sqinter> \<Squnion> S = \<bottom>"
@@ -320,14 +377,14 @@ proof -
       thus "False"
         using \<open>x \<in> \<J>\<close>
         unfolding join_primes_def
-                  join_prime_alt_def
+                  join_prime_def'
         by auto
     qed
     hence "\<exists> s \<in> S. x = s"
       using \<open>x \<in> \<J>\<close>
             \<open>S \<subseteq> \<J>\<close>
       unfolding join_primes_def
-                join_prime_alt_def
+                join_prime_def'
       by auto
     hence "x \<in> S" by auto
   }
@@ -337,7 +394,13 @@ proof -
   ultimately show ?thesis by auto
 qed
 
-lemma (in finite_boolean_algebra) join_prime_embedding_bij_betw:
+text \<open> Given that \<open>\<lambda> x. \<lbrace> x \<rbrace>\<close> has a left and right inverse, we can show
+       it is a \<^emph>\<open>bijection\<close>.  Every finite Boolean algebra is isomorphic
+       to the powerset of its join prime elements. \<close>
+
+text \<open> The bijection below is recognizable as a form of \<^emph>\<open>Birkoff's Theorem\<close>. \<close>
+
+theorem (in finite_boolean_algebra) birkoffs_theorem:
   "bij_betw (\<lambda> x. \<lbrace> x \<rbrace>) UNIV (Pow \<J>)"
   unfolding bij_betw_def
 proof
@@ -373,10 +436,174 @@ next
   qed
 qed
 
+subsection \<open> Boolean Algebra Isomorphism \label{subsection:boolean-algebra-isomorphism} \<close>
+
+text \<open> The form of Birkoff's theorem presented in \S\ref{subsection:birkoffs-theorem}
+       simply gave a bijection between a finite Boolean algebra and the
+       powerset of its join prime elements.  This relationship can be
+       extended to a full-blown \<^emph>\<open>Boolean algebra isomorphism\<close>.  In particular
+       we have the following properties:
+
+       \<^item> \<open>\<bottom>\<close> and \<open>\<top>\<close> are preserved; in particular \<open>\<lbrace> \<bottom> \<rbrace> = {}\<close> and
+         \<open>\<lbrace> \<top> \<rbrace> = \<J>\<close>.
+
+       \<^item> \<open>\<lambda> x . \<lbrace> x \<rbrace>\<close> is a lower complete semi-lattice homomorphism, mapping
+         \<open>\<lbrace> \<Squnion> X \<rbrace> = (\<Union> x \<in> X . \<lbrace> x \<rbrace>)\<close>.
+
+       \<^item> In addition to preserving arbitrary joins, \<open>\<lambda> x . \<lbrace> x \<rbrace>\<close> is a
+         lattice homomorphism, since it also preserves finitary meets with
+         \<open> \<lbrace> x \<sqinter> y \<rbrace> = \<lbrace> x \<rbrace> \<inter> \<lbrace> y \<rbrace> \<close>.
+
+       \<^item> Complementation corresponds to relative set complementation
+         via \<open>\<lbrace> - x \<rbrace> = \<J> - \<lbrace> x \<rbrace>\<close>.
+
+       \<^item> And finally order is preserved: \<open>x \<le> y = (\<lbrace> x \<rbrace> \<subseteq> \<lbrace> y \<rbrace>)\<close>
+\<close>
+
+lemma (in finite_boolean_algebra) join_primes_bot:
+  "\<lbrace> \<bottom> \<rbrace> = {}"
+  unfolding
+    join_prime_embedding_def
+    join_primes_def
+    join_prime_def
+  by (simp add: bot_unique)
+
+lemma (in finite_boolean_algebra) join_primes_top:
+  "\<lbrace> \<top> \<rbrace> = \<J>"
+  unfolding
+    join_prime_embedding_def
+  by auto
+
+lemma (in finite_boolean_algebra) join_primes_join_homomorphism:
+  "\<lbrace> x \<squnion> y \<rbrace> = \<lbrace> x \<rbrace> \<union> \<lbrace> y \<rbrace>"
+proof
+  show "\<lbrace> x \<squnion> y \<rbrace> \<subseteq> \<lbrace> x \<rbrace> \<union> \<lbrace> y \<rbrace>"
+    unfolding
+      join_prime_embedding_def
+      join_primes_def
+      join_prime_def
+    by blast
+next
+  show "\<lbrace> x \<rbrace> \<union> \<lbrace> y \<rbrace> \<subseteq> \<lbrace> x \<squnion> y \<rbrace>"
+    unfolding
+      join_prime_embedding_def
+    using
+      le_supI1
+      sup.absorb_iff1
+      sup.assoc
+    by force
+qed
+
+lemma (in finite_boolean_algebra) join_primes_sup_homomorphism:
+  "\<lbrace> \<Squnion> X \<rbrace> = (\<Union> x \<in> X . \<lbrace> x \<rbrace>)"
+proof -
+  have "finite X"
+    by simp
+  thus ?thesis
+  proof (induct X rule: finite_induct)
+    case empty
+    then show ?case by (simp add: join_primes_bot)
+  next
+    case (insert x X)
+    then show ?case by (simp add: join_primes_join_homomorphism)
+  qed
+qed
+
+
+lemma (in finite_boolean_algebra) join_primes_meet_homomorphism:
+  "\<lbrace> x \<sqinter> y \<rbrace> = \<lbrace> x \<rbrace> \<inter> \<lbrace> y \<rbrace>"
+  unfolding
+    join_prime_embedding_def
+  by auto
+
+text \<open> Arbitrary meets are also preserved, but relative to a top element
+       \<open>\<J>\<close>.  Perhaps a means of subtyping the algebra of sets of join
+       prime elements would allow us to avoid this epicycle, but that
+       is tricky to execute.  We give a less elegant formulation here. \<close>
+
+lemma (in finite_boolean_algebra) join_primes_inf_homomorphism:
+  "\<lbrace> \<Sqinter> X \<rbrace> = \<J> \<inter> (\<Inter> x \<in> X. \<lbrace> x \<rbrace>)"
+proof -
+  have "finite X"
+    by simp
+  thus ?thesis
+  proof (induct X rule: finite_induct)
+    case empty
+    then show ?case by (simp add: join_primes_top)
+  next
+    case (insert x X)
+    then show ?case by (simp add: join_primes_meet_homomorphism, blast)
+  qed
+qed
+
+lemma (in finite_boolean_algebra) join_primes_complement_homomorphism:
+  "\<lbrace> - x \<rbrace> = \<J> - \<lbrace> x \<rbrace>"
+proof
+  show "\<lbrace> - x \<rbrace> \<subseteq> \<J> - \<lbrace> x \<rbrace>"
+  proof
+    fix j
+    assume "j \<in> \<lbrace> - x \<rbrace>"
+    hence "j \<notin> \<lbrace> x \<rbrace>"
+      unfolding
+        join_prime_embedding_def
+        join_primes_def
+        join_prime_def
+      by (metis
+            (mono_tags, lifting)
+            CollectD
+            bot_unique
+            inf.boundedI
+            inf_compl_bot)
+    thus "j \<in> \<J> - \<lbrace> x \<rbrace>"
+      using \<open>j \<in> \<lbrace> - x \<rbrace>\<close>
+      unfolding
+        join_prime_embedding_def
+      by blast
+  qed
+next
+  show "\<J> - \<lbrace> x \<rbrace> \<subseteq> \<lbrace> - x \<rbrace>"
+  proof
+    fix j
+    assume "j \<in> \<J> - \<lbrace> x \<rbrace>"
+    hence "j \<in> \<J>" and "\<not> j \<le> x"
+      unfolding join_prime_embedding_def
+      by blast+
+    moreover have "j \<le> x \<squnion> -x"
+      by auto
+    ultimately have "j \<le> -x"
+      unfolding
+        join_primes_def
+        join_prime_def
+      by blast
+    thus "j \<in> \<lbrace> - x \<rbrace>"
+      unfolding join_prime_embedding_def
+      using \<open>j \<in> \<J>\<close>
+      by auto
+  qed
+qed
+
+lemma (in finite_boolean_algebra) join_primes_order_isomorphism:
+  "x \<le> y = (\<lbrace> x \<rbrace> \<subseteq> \<lbrace> y \<rbrace>)"
+  by (
+    rule iffI,
+    simp add: Collect_mono dual_order.trans join_prime_embedding_def,
+    metis
+      (full_types)
+      Sup_subset_mono
+      sup_join_prime_embedding_ident)
+
+subsection \<open> Cardinality \<close>
+
+text \<open> Another consequence of Birkoff's theorem from \S\ref{subsection:birkoffs-theorem}
+       is that we can show every finite Boolean algebra has a cardinality
+       which is a power of two.  This gives a bound on the number of join
+       prime elements, which must be logarithmic in the size of the finite
+       Boolean algebra they belong to. \<close>
+
 lemma (in finite_boolean_algebra) UNIV_card:
   "card (UNIV::'a set) = card (Pow \<J>)"
   using bij_betw_same_card [where f="\<lambda>x. \<lbrace> x \<rbrace>"]
-        join_prime_embedding_bij_betw
+        birkoffs_theorem
   by blast
 
 lemma finite_Pow_card:

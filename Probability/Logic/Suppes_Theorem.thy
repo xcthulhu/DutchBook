@@ -6,16 +6,38 @@ theory Suppes_Theorem
   imports "Probability_Logic"
 begin
 
-text \<open> The first completeness theorem for inequalities for probability logic
-       to be investigated is due to Patrick Suppes @{cite suppesProbabilisticInferenceConcept1966}.\<close>
+text \<open> An elementary completeness theorem for inequalities for probability logic
+       to be investigated is due to Patrick Suppes @{cite suppesProbabilisticInferenceConcept1966}. \<close>
+
+text \<open> The completeness theorem presented in \S\ref{sec:probability-logic-completeness}
+       can be understood as a vast generalization of this theorem. A
+       consequence of this theorem is an elementary form of \<^emph>\<open>collapse\<close>,
+       which asserts that inequalities for probabilities are logically
+       equivalent to the more restricted class of \<^emph>\<open>Dirac measures\<close> as
+       defined in \S\ref{subsec:dirac-measures}.  Collapse theorems
+       are further investigated in \S\ref{subsec:finite-boolean-algebra-collapse} and
+       \S\ref{subsec:collapse-theorem}.\<close>
 
 sledgehammer_params [smt_proofs = false]
 
-subsection \<open> Suppes' Theorem \<close>
+subsection \<open> Suppes' List Theorem \label{subsec:suppes-theorem-for-lists} \<close>
 
-text \<open> Below is a formulation of Suppes' theorem. \<close>
+text \<open> We first establish Suppes' theorem for lists of propositions. This
+       is done by establishing our first completeness theorem using
+       \<^emph>\<open>Dirac measures\<close>. \<close>
 
-lemma (in classical_logic) Dirac_list_summation_completeness:
+text \<open> First, we use the result from \S\ref{subsec:basic-probability-inequality-results}
+       that shows \<open>\<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>\<close> implies \<open>Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)\<close>.
+       This can be understood as a \<^emph>\<open>soundness\<close> result. \<close>
+
+text \<open> To show completeness, assume \<open>\<not> \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>\<close>. From this
+       obtain a maximally consistent \<^term>\<open>\<Omega>\<close>, as per \S\ref{subsec:mcs},
+       such that \<open>\<phi> \<rightarrow> \<Squnion> \<Psi> \<notin> \<Omega>\<close>. We then define \<^term>\<open>\<delta> \<phi> = (\<phi> \<in> \<Omega>)\<close>
+       and show \<^term>\<open>\<delta>\<close> is a \<^emph>\<open>Dirac measure\<close>, such that
+       \<open>\<delta> \<phi> > (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)\<close>.  This basic approach will be elaborated on
+       in subsequent completeness theorems. \<close>
+
+lemma (in classical_logic) dirac_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
 proof -
   {
@@ -46,13 +68,16 @@ proof -
             set_deduction_theorem)
     hence"\<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>"
       using arbitrary_disjunction_exclusion_MCS by blast
-    let ?\<delta> = "\<lambda> \<chi>. if \<chi>\<in>\<Omega> then (1 :: real) else 0"
-    from \<open>\<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>\<close> have "(\<Sum>\<psi>\<leftarrow>\<Psi>. ?\<delta> \<psi>) = 0"
+    define \<delta> where "\<delta> = (\<lambda> \<chi> . if \<chi>\<in>\<Omega> then (1 :: real) else 0)"
+    from \<open>\<forall> \<psi> \<in> set \<Psi>. \<psi> \<notin> \<Omega>\<close> have "(\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>) = 0"
+      unfolding \<delta>_def
       by (induct \<Psi>, simp, simp)
-    hence "\<not> ?\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. ?\<delta> \<psi>)"
+    hence "\<not> \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>)"
+      unfolding \<delta>_def
       by (simp add: \<Omega>(2))
     hence
       "\<exists> \<delta> \<in> dirac_measures. \<not> (\<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
+      unfolding \<delta>_def
       using \<Omega>(1) MCS_dirac_measure by auto
   }
   ultimately show ?thesis by blast
@@ -67,7 +92,7 @@ proof
     unfolding dirac_measures_def probabilities_def
     by blast
   thus ?rhs
-    using Dirac_list_summation_completeness by blast
+    using dirac_list_summation_completeness by blast
 next
   assume ?rhs
   show ?lhs
@@ -83,17 +108,66 @@ next
   qed
 qed
 
+text \<open> The theorem below is a special case of the full \<^emph>\<open>collapse\<close> theorem
+       given in \S\ref{subsec:collapse-theorem}. The collapse theorem asserts
+       that to prove an inequalities for all probabilities in probability logic,
+       you only need to consider the case of functions which take on values of
+       0 or 1.  The full collapse theorem generalizes to inequalities of the
+       form \<open>(\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>) + c \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>)\<close>. \<close>
+
 lemma (in classical_logic) suppes_collapse:
   "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. Pr \<psi>))
       = (\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<leftarrow>\<Psi>. \<delta> \<psi>))"
   by (simp add:
-        Dirac_list_summation_completeness
+        dirac_list_summation_completeness
         list_summation_completeness)
 
-lemma (in classical_logic) Dirac_set_summation_completeness:
+lemma (in classical_logic) probability_member_neg:
+  fixes Pr
+  assumes "Pr \<in> probabilities"
+  shows "Pr (\<sim> \<phi>) = 1 - Pr \<phi>"
+proof -
+  from assms interpret probability_logic "(\<lambda> \<phi>. \<turnstile> \<phi>)" "(\<rightarrow>)" "\<bottom>" "Pr"
+    unfolding probabilities_def
+    by auto
+  show ?thesis
+    by (simp add: complementation)
+qed
+
+text \<open> Suppes' theorem has a philosophical interpretation.
+       It asserts that if \<^term>\<open>\<Psi> :\<turnstile> \<phi>\<close>, then our \<^emph>\<open>uncertainty\<close>
+       in \<^term>\<open>\<phi>\<close> is bounded above by our uncertainty in \<^term>\<open>\<Psi>\<close>.
+       Here the uncertainty in the proposition \<^term>\<open>\<phi>\<close> is \<open>1 - Pr \<phi>\<close>.
+       Our uncertainty in \<^term>\<open>\<Psi>\<close>, on the other hand, is
+       \<open>\<Sum>\<psi>\<leftarrow>\<Psi>. 1 - Pr \<psi>\<close>. \<close>
+
+theorem (in classical_logic) suppes_list_theorem:
+  "\<Psi> :\<turnstile> \<phi> = (\<forall> Pr \<in> probabilities. (\<Sum>\<psi>\<leftarrow>\<Psi>. 1 - Pr \<psi>) \<ge> 1 - Pr \<phi>)"
+proof -
+  have
+    "\<Psi> :\<turnstile> \<phi> = (\<forall> Pr \<in> probabilities. (\<Sum>\<psi> \<leftarrow> \<^bold>\<sim> \<Psi>. Pr \<psi>) \<ge> Pr (\<sim> \<phi>))"
+    using
+      list_summation_completeness
+      weak_biconditional_weaken
+      contra_list_curry_uncurry
+      list_deduction_def
+    by blast
+  moreover have
+    "\<forall> Pr \<in> probabilities. (\<Sum>\<psi> \<leftarrow> (\<^bold>\<sim> \<Psi>). Pr \<psi>) = (\<Sum>\<psi> \<leftarrow> \<Psi>. Pr (\<sim> \<psi>))"
+    by (induct \<Psi>, auto)
+  ultimately show ?thesis
+    using probability_member_neg
+    by (induct \<Psi>, simp+)
+qed
+
+subsection \<open> Suppes' Set Theorem \<close>
+
+text \<open> Suppes theorem also obtains for \<^emph>\<open>sets\<close>. \<close>
+
+lemma (in classical_logic) dirac_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis
-        Dirac_list_summation_completeness
+        dirac_list_summation_completeness
         modus_ponens
         arbitrary_disjunction_remdups
         biconditional_left_elimination
@@ -104,8 +178,8 @@ lemma (in classical_logic) Dirac_set_summation_completeness:
 theorem (in classical_logic) set_summation_completeness:
   "(\<forall> \<delta> \<in> probabilities. \<delta> \<phi> \<le> (\<Sum>\<psi>\<in> set \<Psi>. \<delta> \<psi>)) = \<turnstile> \<phi> \<rightarrow> \<Squnion> \<Psi>"
   by (metis
-        Dirac_list_summation_completeness
-        Dirac_set_summation_completeness
+        dirac_list_summation_completeness
+        dirac_set_summation_completeness
         list_summation_completeness
         sum.set_conv_list)
 
@@ -113,10 +187,35 @@ lemma (in classical_logic) suppes_set_collapse:
   "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. Pr \<psi>))
       = (\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> (\<Sum>\<psi> \<in> set \<Psi>. \<delta> \<psi>))"
   by (simp add:
-        Dirac_set_summation_completeness
+        dirac_set_summation_completeness
         set_summation_completeness)
 
-subsection \<open> Dual Suppes' Theorem \<close>
+text \<open> In our formulation of logic, there is not reason that \<open>\<sim> a = \<sim> b\<close>
+       while \<^term>\<open>a \<noteq> b\<close>.  As a consequence the Suppes theorem
+       for sets presented below is different than the one given in
+       \S\ref{subsec:suppes-theorem-for-lists}. \<close>
+
+theorem (in classical_logic) suppes_set_theorem:
+  "\<Psi> :\<turnstile> \<phi>
+     = (\<forall> Pr \<in> probabilities. (\<Sum>\<psi> \<in> set (\<^bold>\<sim> \<Psi>). Pr \<psi>) \<ge> 1 - Pr \<phi>)"
+proof -
+  have "\<Psi> :\<turnstile> \<phi>
+          = (\<forall> Pr \<in> probabilities. (\<Sum>\<psi> \<in> set (\<^bold>\<sim> \<Psi>). Pr \<psi>) \<ge> Pr (\<sim> \<phi>))"
+    using
+      contra_list_curry_uncurry
+      list_deduction_def
+      set_summation_completeness
+      weak_biconditional_weaken
+    by blast
+  thus ?thesis
+    using probability_member_neg
+    by (induct \<Psi>, auto)
+qed
+
+subsection \<open> Converse Suppes' Theorem \<close>
+
+text \<open> A formulation of the converse of Suppes' theorem obtains
+       for lists/sets of \<^emph>\<open>logically disjoint\<close> propositions. \<close>
 
 lemma (in probability_logic) exclusive_sum_list_identity:
   assumes "\<turnstile> \<Coprod> \<Phi>"
@@ -211,7 +310,7 @@ lemma count_remove_all_sum_list:
         add.commute
         add.left_commute)
 
-lemma (in classical_logic) Dirac_exclusive_implication_completeness:
+lemma (in classical_logic) dirac_exclusive_implication_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>) \<le> \<delta> \<psi>) = (\<turnstile> \<Coprod> \<Phi> \<and>  \<turnstile> \<Squnion> \<Phi> \<rightarrow> \<psi>)"
 proof -
   {
@@ -297,10 +396,12 @@ proof -
         fix \<Psi>
         have "(\<Sum>\<phi>\<leftarrow>\<Psi>. ?\<delta> \<phi>) \<ge> 0" by (induct \<Psi>, simp, simp)
       }
-      moreover have "(0::real) \<le> (\<Sum>a\<leftarrow>removeAll \<phi> \<Phi>. if a \<in> \<Omega> then 1 else 0)"
+      moreover have "(0::real)
+                          \<le> (\<Sum>a\<leftarrow>removeAll \<phi> \<Phi>. if a \<in> \<Omega> then 1 else 0)"
         using \<open>\<And>\<Psi>. 0 \<le> (\<Sum>\<phi>\<leftarrow>\<Psi>. if \<phi> \<in> \<Omega> then 1 else 0)\<close>
         by presburger
-      ultimately have "real (count_list \<Phi> \<phi>) * ?\<delta> \<phi> + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?\<delta> \<phi>) \<ge> 2"
+      ultimately have "real (count_list \<Phi> \<phi>) * ?\<delta> \<phi>
+                            + (\<Sum> \<phi> \<leftarrow> (removeAll \<phi> \<Phi>). ?\<delta> \<phi>) \<ge> 2"
         using \<open>2 \<le> real (count_list \<Phi> \<phi>) * (if \<phi> \<in> \<Omega> then 1 else 0)\<close>
         by linarith
       hence "(\<Sum>\<phi>\<leftarrow>\<Phi>. ?\<delta> \<phi>) \<ge> 2" by (metis count_remove_all_sum_list)
@@ -358,7 +459,7 @@ proof
   assume ?lhs
   thus ?rhs
     by (meson
-          Dirac_exclusive_implication_completeness
+          dirac_exclusive_implication_completeness
           dirac_measures_subset
           subset_eq)
 next
@@ -379,8 +480,7 @@ next
   qed
 qed
 
-
-lemma (in classical_logic) Dirac_inequality_completeness:
+lemma (in classical_logic) dirac_inequality_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> \<phi> \<le> \<delta> \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
@@ -393,11 +493,17 @@ proof -
           negation_def
           weak_biconditional_weaken)
   thus ?thesis
-    using Dirac_exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
+    using dirac_exclusive_implication_completeness [where \<Phi>="[\<phi>]"]
     by auto
 qed
 
-theorem (in classical_logic) inequality_completeness:
+subsection \<open> Implication Inequality Completeness \<close>
+
+text \<open> The following theorem establishes the converse of
+       \<open>\<turnstile> \<phi> \<rightarrow> \<psi> \<Longrightarrow> Pr \<phi> \<le> Pr \<psi>\<close>, which was
+       proved in \S\ref{subsec:prob-logic-alt-def}. \<close>
+
+theorem (in classical_logic) implication_inequality_completeness:
   "(\<forall> Pr \<in> probabilities. Pr \<phi> \<le> Pr \<psi>) = \<turnstile> \<phi> \<rightarrow> \<psi>"
 proof -
   have "\<turnstile> \<Coprod> [\<phi>]"
@@ -414,12 +520,18 @@ proof -
     by simp
 qed
 
-lemma (in classical_logic) Dirac_exclusive_list_summation_completeness:
+subsection \<open> Characterizing Logical Exclusiveness In Probability Logic \<close>
+
+text \<open> Finally, we can say that \<open>Pr (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. Pr \<phi>)\<close> if and only
+       if the propositions in \<^term>\<open>\<Phi>\<close> are mutually exclusive (i.e. \<open>\<turnstile> \<Coprod> \<Phi>\<close>).
+       This result also obtains for sets. \<close>
+
+lemma (in classical_logic) dirac_exclusive_list_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi>\<leftarrow>\<Phi>. \<delta> \<phi>)) = \<turnstile> \<Coprod> \<Phi>"
   by (metis
         antisym_conv
-        Dirac_exclusive_implication_completeness
-        Dirac_list_summation_completeness
+        dirac_exclusive_implication_completeness
+        dirac_list_summation_completeness
         trivial_implication)
 
 theorem (in classical_logic) Exclusive_list_summation_completeness:
@@ -430,14 +542,14 @@ theorem (in classical_logic) Exclusive_list_summation_completeness:
         list_summation_completeness
         trivial_implication)
 
-lemma (in classical_logic) Dirac_exclusive_set_summation_completeness:
+lemma (in classical_logic) dirac_exclusive_set_summation_completeness:
   "(\<forall> \<delta> \<in> dirac_measures. \<delta> (\<Squnion> \<Phi>) = (\<Sum>\<phi> \<in> set \<Phi>. \<delta> \<phi>))
       = \<turnstile> \<Coprod> (remdups \<Phi>)"
   by (metis
         (mono_tags, hide_lams)
         eq_iff
-        Dirac_exclusive_implication_completeness
-        Dirac_set_summation_completeness
+        dirac_exclusive_implication_completeness
+        dirac_set_summation_completeness
         trivial_implication
         set_remdups
         sum.set_conv_list)
